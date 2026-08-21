@@ -1,4 +1,4 @@
-import { mockCompilerCtx } from '@stencil/core/testing';
+import { mockCompilerCtx } from '@stencil/core/testing/compiler';
 import { ScriptTarget } from 'typescript';
 import { describe, expect, it } from 'vitest';
 

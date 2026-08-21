@@ -1,6 +1,7 @@
 import path from 'path';
 import { CompilerCtx } from '@stencil/core';
-import { mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
+import { mockValidatedConfig } from '@stencil/core/testing';
+import { mockCompilerCtx } from '@stencil/core/testing/compiler';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
 

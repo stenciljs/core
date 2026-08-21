@@ -1,4 +1,4 @@
-import { mockBuildCtx } from '@stencil/core/testing';
+import { mockBuildCtx } from '@stencil/core/testing/compiler';
 import { describe, expect, it, beforeEach } from 'vitest';
 
 import { addTagTransform } from '../add-tag-transform';

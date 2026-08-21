@@ -1,4 +1,5 @@
-import { mockBuildCtx, mockValidatedConfig } from '@stencil/core/testing';
+import { mockValidatedConfig } from '@stencil/core/testing';
+import { mockBuildCtx } from '@stencil/core/testing/compiler';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
 

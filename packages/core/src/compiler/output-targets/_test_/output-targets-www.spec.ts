@@ -1,4 +1,4 @@
-import { createTestCompiler } from '@stencil/core/testing';
+import { createTestCompiler } from '@stencil/core/testing/compiler';
 import { describe, it, beforeEach, afterEach, expect } from 'vitest';
 import type * as d from '@stencil/core';
 

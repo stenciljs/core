@@ -1,5 +1,6 @@
 import path from 'path';
-import { mockBuildCtx, mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
+import { mockValidatedConfig } from '@stencil/core/testing';
+import { mockBuildCtx, mockCompilerCtx } from '@stencil/core/testing/compiler';
 import { describe, expect, it, afterEach, beforeEach, vi } from 'vitest';
 import type * as d from '@stencil/core';
 

@@ -15,13 +15,30 @@ export type StencilConfigSubset = Pick<StencilConfig, 'signalBacking'> & {
 export interface StencilPluginOptions {
   /**
    * Additional options forwarded to `transpileSync` for every `.tsx`/`.ts` file.
-   * `file`, `resolveImport`, `styleImportData`, and `componentExport` are
-   * managed by the plugin and should not be set here.
+   * `file`, `resolveImport`, `styleImportData`, `componentExport`, `componentMetadata`,
+   * and `coreImportPath` are managed by the plugin and should not be set here.
    */
   transpileOptions?: Omit<
     TranspileOptions,
-    'file' | 'resolveImport' | 'styleImportData' | 'componentExport'
+    | 'file'
+    | 'resolveImport'
+    | 'styleImportData'
+    | 'componentExport'
+    | 'componentMetadata'
+    | 'coreImportPath'
   >;
+
+  /**
+   * `'build'` (default) transpiles components into self-registering custom
+   * elements for a real bundler/DOM - the output used by `stencilVite`,
+   * `stencilRollup`, etc.
+   *
+   * `'spec-page'` transpiles components for use with `newSpecPage()` from
+   * `@stencil/core/testing`: no self-registration, static `COMPILER_META`
+   * for the mock-doc registry instead. Use `stencilSpecPage` rather than
+   * setting this directly.
+   */
+  mode?: 'build' | 'spec-page';
 
   /**
    * Glob patterns (relative to the project root) for files to include.

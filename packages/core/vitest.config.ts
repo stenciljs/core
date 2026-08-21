@@ -18,6 +18,7 @@ export default defineConfig({
       'virtual:app-globals': resolve(__dirname, 'src/app-globals/index.ts'),
       'virtual:platform': resolve(__dirname, 'src/testing/platform/index.ts'),
       // Ensure transpiled components resolve to source (same plt instance)
+      '@stencil/core/testing/compiler': resolve(__dirname, 'src/testing/compiler.ts'),
       '@stencil/core/testing': resolve(__dirname, 'src/testing/index.ts'),
       '@stencil/core': resolve(__dirname, 'src/index.ts'),
     },

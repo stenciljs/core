@@ -147,18 +147,28 @@ export function transformStencil(
   // Cheap regex guard — avoids paying transpileSync cost for plain TS files.
   if (!/(@Component|@Prop|@State|@Event|@Method|@Watch|@Listen)\s*[(\s]/.test(code)) return null;
 
+  const specPage = options.mode === 'spec-page';
   const jsxOpts = resolveJsxOpts(code, process.cwd());
   const result = transpileSync(code, {
     ...jsxOpts,
     ...options.transpileOptions,
     file: id,
-    componentExport: 'customelement',
+    ...(specPage
+      ? {
+          componentExport: null,
+          componentMetadata: 'compilerstatic' as const,
+          coreImportPath: '@stencil/core/testing',
+          // No CSS loader is wired for spec-page mode - `newSpecPage()` tests are
+          // behavioral and don't need real stylesheets. `null` skips the style assignment entirely.
+          style: null,
+        }
+      : { componentExport: 'customelement' as const }),
     styleImportData: 'queryparams',
     resolveImport: makeResolver(onBaseClass),
     buildOverrides: {
       ...configOverrides,
       ...options.transpileOptions?.buildOverrides,
-      ...(dev ? { hotModuleReplacement: true, isDev: true } : {}),
+      ...(dev && !specPage ? { hotModuleReplacement: true, isDev: true } : {}),
     },
   });
 
@@ -184,13 +194,16 @@ export function transformStencil(
   const tagName = result.data[0].tagName;
   const className = result.data[0].componentClassName;
 
-  // customelement mode strips the export keyword, so re-export the class
-  // ourselves — consumers import it by name, and
-  // hmrStandalone needs it in the re-imported module in dev mode
-  const namedExport = `\nexport{${className}};`;
-  const out = dev
-    ? result.code + namedExport + buildHmrSnippet(tagName, className, framework)
-    : result.code + namedExport;
+  let out = result.code;
+  if (!specPage) {
+    // customelement mode strips the export keyword, so re-export the class
+    // ourselves — consumers import it by name, and
+    // hmrStandalone needs it in the re-imported module in dev mode
+    const namedExport = `\nexport{${className}};`;
+    out = dev
+      ? result.code + namedExport + buildHmrSnippet(tagName, className, framework)
+      : result.code + namedExport;
+  }
 
   const docsComponent = cmpMetaToDocsComponent(result.data[0], id);
 

@@ -1,9 +1,5 @@
-import {
-  mockBuildCtx,
-  mockCompilerCtx,
-  mockModule,
-  mockValidatedConfig,
-} from '@stencil/core/testing';
+import { mockModule, mockValidatedConfig } from '@stencil/core/testing';
+import { mockBuildCtx, mockCompilerCtx } from '@stencil/core/testing/compiler';
 import { describe, expect, it, vi } from 'vitest';
 
 import { normalizePath } from '../../../utils';

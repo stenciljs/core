@@ -1,5 +1,6 @@
 import * as d from '@stencil/core';
-import { mockCompilerCtx, mockModule } from '@stencil/core/testing';
+import { mockModule } from '@stencil/core/testing';
+import { mockCompilerCtx } from '@stencil/core/testing/compiler';
 import * as ts from 'typescript';
 import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
 import type { MockInstance } from 'vitest';

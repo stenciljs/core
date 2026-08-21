@@ -1,4 +1,4 @@
-import { mockBuildCtx } from '@stencil/core/testing';
+import { mockBuildCtx } from '@stencil/core/testing/compiler';
 import ts from 'typescript';
 import { describe, expect, it, beforeEach, vi } from 'vitest';
 import type * as d from '@stencil/core';

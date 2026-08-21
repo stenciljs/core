@@ -1,5 +1,5 @@
 import * as d from '@stencil/core';
-import { mockBuildCtx } from '@stencil/core/testing';
+import { mockBuildCtx } from '@stencil/core/testing/compiler';
 import * as ts from 'typescript';
 import { describe, expect, it, beforeEach } from 'vitest';
 

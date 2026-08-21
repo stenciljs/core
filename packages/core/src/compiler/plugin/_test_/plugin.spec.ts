@@ -2,7 +2,7 @@ import {
   createTestCompiler,
   prepareTestCompiler,
   type PreparedTestCompiler,
-} from '@stencil/core/testing';
+} from '@stencil/core/testing/compiler';
 import { describe, it, beforeAll, beforeEach, afterEach, expect } from 'vitest';
 import type * as d from '@stencil/core';
 

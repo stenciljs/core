@@ -56,7 +56,6 @@ export default defineConfig([
       'jsx-runtime': 'src/jsx-runtime.ts',
       'compiler/index': 'src/compiler/index.ts',
       'compiler/utils/index': 'src/utils/compiler-exports.ts',
-      'testing/index': 'src/testing/index.ts',
       'sys/node/index': 'src/sys/node/index.ts',
       'sys/node/worker': 'src/sys/node/worker.ts',
       'mock-doc': 'src/mock-doc.ts',
@@ -78,6 +77,36 @@ export default defineConfig([
       // Copy curated public types (paths resolve via declarations entry below)
       { from: 'src/index.d.mts', to: 'dist' },
       { from: 'src/jsx-runtime.d.mts', to: 'dist' },
+    ],
+  },
+
+  // Testing (@stencil/core/testing - newSpecPage, mocks, etc.)
+  // Separate build step: needs its own virtual:app-data/virtual:platform
+  // mappings (testing BUILD conditionals + mock-doc platform), which would
+  // otherwise be shared/clobbered by the main Node build above.
+  {
+    entry: {
+      'testing/index': 'src/testing/index.ts',
+    },
+    outDir: 'dist',
+    format: ['esm'],
+    platform: 'node',
+    target: nodeTarget,
+    dts: true,
+    clean: false,
+    deps: {
+      neverBundle: true,
+      alwaysBundle: ['@stencil/core'],
+    },
+    define: defines,
+    plugins: [
+      virtualModules({
+        resolve: {
+          'virtual:app-data': resolve(__dirname, 'src/testing/app-data.ts'),
+          'virtual:app-globals': resolve(__dirname, 'src/app-globals/index.ts'),
+          'virtual:platform': resolve(__dirname, 'src/testing/platform/index.ts'),
+        },
+      }),
     ],
   },
 

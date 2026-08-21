@@ -1,6 +1,7 @@
 import { createRequire } from 'module';
 import { dirname, join as pathJoin, relative, resolve } from 'path';
-import { mockBuildCtx, mockCompilerSystem, mockValidatedConfig } from '@stencil/core/testing';
+import { mockCompilerSystem, mockValidatedConfig } from '@stencil/core/testing';
+import { mockBuildCtx } from '@stencil/core/testing/compiler';
 import * as ts from 'typescript';
 import { describe, expect, it } from 'vitest';
 
