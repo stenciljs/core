@@ -115,6 +115,8 @@ export namespace Components {
     interface ChildWithReflection {
         "val": number | any;
     }
+    interface ClonableCmp {
+    }
     interface CloneNodeRoot {
     }
     interface CloneNodeSlide {
@@ -833,7 +835,11 @@ export namespace Components {
     }
     interface MultipleStylesCmp {
     }
+    interface NoClonableCmp {
+    }
     interface NoDelegatesFocus {
+    }
+    interface NoSerializableCmp {
     }
     interface NodeResolution {
     }
@@ -981,6 +987,8 @@ export namespace Components {
           * @default false
          */
         "swapSlotContent": boolean;
+    }
+    interface SerializableCmp {
     }
     interface ShadowDomArray {
         /**
@@ -1404,6 +1412,12 @@ declare global {
     var HTMLChildWithReflectionElement: {
         prototype: HTMLChildWithReflectionElement;
         new (): HTMLChildWithReflectionElement;
+    };
+    interface HTMLClonableCmpElement extends Components.ClonableCmp, HTMLStencilElement {
+    }
+    var HTMLClonableCmpElement: {
+        prototype: HTMLClonableCmpElement;
+        new (): HTMLClonableCmpElement;
     };
     interface HTMLCloneNodeRootElement extends Components.CloneNodeRoot, HTMLStencilElement {
     }
@@ -2419,11 +2433,23 @@ declare global {
         prototype: HTMLMultipleStylesCmpElement;
         new (): HTMLMultipleStylesCmpElement;
     };
+    interface HTMLNoClonableCmpElement extends Components.NoClonableCmp, HTMLStencilElement {
+    }
+    var HTMLNoClonableCmpElement: {
+        prototype: HTMLNoClonableCmpElement;
+        new (): HTMLNoClonableCmpElement;
+    };
     interface HTMLNoDelegatesFocusElement extends Components.NoDelegatesFocus, HTMLStencilElement {
     }
     var HTMLNoDelegatesFocusElement: {
         prototype: HTMLNoDelegatesFocusElement;
         new (): HTMLNoDelegatesFocusElement;
+    };
+    interface HTMLNoSerializableCmpElement extends Components.NoSerializableCmp, HTMLStencilElement {
+    }
+    var HTMLNoSerializableCmpElement: {
+        prototype: HTMLNoSerializableCmpElement;
+        new (): HTMLNoSerializableCmpElement;
     };
     interface HTMLNodeResolutionElement extends Components.NodeResolution, HTMLStencilElement {
     }
@@ -2646,6 +2672,12 @@ declare global {
     var HTMLScopedSlotSlotchangeWrapElement: {
         prototype: HTMLScopedSlotSlotchangeWrapElement;
         new (): HTMLScopedSlotSlotchangeWrapElement;
+    };
+    interface HTMLSerializableCmpElement extends Components.SerializableCmp, HTMLStencilElement {
+    }
+    var HTMLSerializableCmpElement: {
+        prototype: HTMLSerializableCmpElement;
+        new (): HTMLSerializableCmpElement;
     };
     interface HTMLShadowDomArrayElement extends Components.ShadowDomArray, HTMLStencilElement {
     }
@@ -3110,6 +3142,7 @@ declare global {
         "child-reflect-nan-attribute": HTMLChildReflectNanAttributeElement;
         "child-tag-transform": HTMLChildTagTransformElement;
         "child-with-reflection": HTMLChildWithReflectionElement;
+        "clonable-cmp": HTMLClonableCmpElement;
         "clone-node-root": HTMLCloneNodeRootElement;
         "clone-node-slide": HTMLCloneNodeSlideElement;
         "clone-node-text": HTMLCloneNodeTextElement;
@@ -3234,7 +3267,9 @@ declare global {
         "manual-slot-filter": HTMLManualSlotFilterElement;
         "manual-slot-tabs": HTMLManualSlotTabsElement;
         "multiple-styles-cmp": HTMLMultipleStylesCmpElement;
+        "no-clonable-cmp": HTMLNoClonableCmpElement;
         "no-delegates-focus": HTMLNoDelegatesFocusElement;
+        "no-serializable-cmp": HTMLNoSerializableCmpElement;
         "node-resolution": HTMLNodeResolutionElement;
         "parent-reflect-nan-attribute": HTMLParentReflectNanAttributeElement;
         "parent-tag-transform": HTMLParentTagTransformElement;
@@ -3270,6 +3305,7 @@ declare global {
         "scoped-slot-insertion-order-after-interaction": HTMLScopedSlotInsertionOrderAfterInteractionElement;
         "scoped-slot-slotchange": HTMLScopedSlotSlotchangeElement;
         "scoped-slot-slotchange-wrap": HTMLScopedSlotSlotchangeWrapElement;
+        "serializable-cmp": HTMLSerializableCmpElement;
         "shadow-dom-array": HTMLShadowDomArrayElement;
         "shadow-dom-array-root": HTMLShadowDomArrayRootElement;
         "shadow-dom-basic": HTMLShadowDomBasicElement;
@@ -3439,6 +3475,8 @@ declare namespace LocalJSX {
     }
     interface ChildWithReflection {
         "val"?: number | any;
+    }
+    interface ClonableCmp {
     }
     interface CloneNodeRoot {
     }
@@ -4100,7 +4138,11 @@ declare namespace LocalJSX {
     }
     interface MultipleStylesCmp {
     }
+    interface NoClonableCmp {
+    }
     interface NoDelegatesFocus {
+    }
+    interface NoSerializableCmp {
     }
     interface NodeResolution {
     }
@@ -4237,6 +4279,8 @@ declare namespace LocalJSX {
           * @default false
          */
         "swapSlotContent"?: boolean;
+    }
+    interface SerializableCmp {
     }
     interface ShadowDomArray {
         /**
@@ -4758,6 +4802,7 @@ declare namespace LocalJSX {
         "child-reflect-nan-attribute": Omit<ChildReflectNanAttribute, keyof ChildReflectNanAttributeAttributes> & { [K in keyof ChildReflectNanAttribute & keyof ChildReflectNanAttributeAttributes]?: ChildReflectNanAttribute[K] } & { [K in keyof ChildReflectNanAttribute & keyof ChildReflectNanAttributeAttributes as `attr:${K}`]?: ChildReflectNanAttributeAttributes[K] } & { [K in keyof ChildReflectNanAttribute & keyof ChildReflectNanAttributeAttributes as `prop:${K}`]?: ChildReflectNanAttribute[K] };
         "child-tag-transform": Omit<ChildTagTransform, keyof ChildTagTransformAttributes> & { [K in keyof ChildTagTransform & keyof ChildTagTransformAttributes]?: ChildTagTransform[K] } & { [K in keyof ChildTagTransform & keyof ChildTagTransformAttributes as `attr:${K}`]?: ChildTagTransformAttributes[K] } & { [K in keyof ChildTagTransform & keyof ChildTagTransformAttributes as `prop:${K}`]?: ChildTagTransform[K] };
         "child-with-reflection": Omit<ChildWithReflection, keyof ChildWithReflectionAttributes> & { [K in keyof ChildWithReflection & keyof ChildWithReflectionAttributes]?: ChildWithReflection[K] } & { [K in keyof ChildWithReflection & keyof ChildWithReflectionAttributes as `attr:${K}`]?: ChildWithReflectionAttributes[K] } & { [K in keyof ChildWithReflection & keyof ChildWithReflectionAttributes as `prop:${K}`]?: ChildWithReflection[K] };
+        "clonable-cmp": ClonableCmp;
         "clone-node-root": CloneNodeRoot;
         "clone-node-slide": CloneNodeSlide;
         "clone-node-text": CloneNodeText;
@@ -4882,7 +4927,9 @@ declare namespace LocalJSX {
         "manual-slot-filter": ManualSlotFilter;
         "manual-slot-tabs": ManualSlotTabs;
         "multiple-styles-cmp": MultipleStylesCmp;
+        "no-clonable-cmp": NoClonableCmp;
         "no-delegates-focus": NoDelegatesFocus;
+        "no-serializable-cmp": NoSerializableCmp;
         "node-resolution": NodeResolution;
         "parent-reflect-nan-attribute": ParentReflectNanAttribute;
         "parent-tag-transform": ParentTagTransform;
@@ -4918,6 +4965,7 @@ declare namespace LocalJSX {
         "scoped-slot-insertion-order-after-interaction": ScopedSlotInsertionOrderAfterInteraction;
         "scoped-slot-slotchange": ScopedSlotSlotchange;
         "scoped-slot-slotchange-wrap": Omit<ScopedSlotSlotchangeWrap, keyof ScopedSlotSlotchangeWrapAttributes> & { [K in keyof ScopedSlotSlotchangeWrap & keyof ScopedSlotSlotchangeWrapAttributes]?: ScopedSlotSlotchangeWrap[K] } & { [K in keyof ScopedSlotSlotchangeWrap & keyof ScopedSlotSlotchangeWrapAttributes as `attr:${K}`]?: ScopedSlotSlotchangeWrapAttributes[K] } & { [K in keyof ScopedSlotSlotchangeWrap & keyof ScopedSlotSlotchangeWrapAttributes as `prop:${K}`]?: ScopedSlotSlotchangeWrap[K] };
+        "serializable-cmp": SerializableCmp;
         "shadow-dom-array": ShadowDomArray;
         "shadow-dom-array-root": ShadowDomArrayRoot;
         "shadow-dom-basic": ShadowDomBasic;
@@ -5015,6 +5063,7 @@ declare module "@stencil/core" {
             "child-reflect-nan-attribute": LocalJSX.IntrinsicElements["child-reflect-nan-attribute"] & JSXBase.HTMLAttributes<HTMLChildReflectNanAttributeElement>;
             "child-tag-transform": LocalJSX.IntrinsicElements["child-tag-transform"] & JSXBase.HTMLAttributes<HTMLChildTagTransformElement>;
             "child-with-reflection": LocalJSX.IntrinsicElements["child-with-reflection"] & JSXBase.HTMLAttributes<HTMLChildWithReflectionElement>;
+            "clonable-cmp": LocalJSX.IntrinsicElements["clonable-cmp"] & JSXBase.HTMLAttributes<HTMLClonableCmpElement>;
             "clone-node-root": LocalJSX.IntrinsicElements["clone-node-root"] & JSXBase.HTMLAttributes<HTMLCloneNodeRootElement>;
             "clone-node-slide": LocalJSX.IntrinsicElements["clone-node-slide"] & JSXBase.HTMLAttributes<HTMLCloneNodeSlideElement>;
             "clone-node-text": LocalJSX.IntrinsicElements["clone-node-text"] & JSXBase.HTMLAttributes<HTMLCloneNodeTextElement>;
@@ -5238,7 +5287,9 @@ declare module "@stencil/core" {
              */
             "manual-slot-tabs": LocalJSX.IntrinsicElements["manual-slot-tabs"] & JSXBase.HTMLAttributes<HTMLManualSlotTabsElement>;
             "multiple-styles-cmp": LocalJSX.IntrinsicElements["multiple-styles-cmp"] & JSXBase.HTMLAttributes<HTMLMultipleStylesCmpElement>;
+            "no-clonable-cmp": LocalJSX.IntrinsicElements["no-clonable-cmp"] & JSXBase.HTMLAttributes<HTMLNoClonableCmpElement>;
             "no-delegates-focus": LocalJSX.IntrinsicElements["no-delegates-focus"] & JSXBase.HTMLAttributes<HTMLNoDelegatesFocusElement>;
+            "no-serializable-cmp": LocalJSX.IntrinsicElements["no-serializable-cmp"] & JSXBase.HTMLAttributes<HTMLNoSerializableCmpElement>;
             "node-resolution": LocalJSX.IntrinsicElements["node-resolution"] & JSXBase.HTMLAttributes<HTMLNodeResolutionElement>;
             "parent-reflect-nan-attribute": LocalJSX.IntrinsicElements["parent-reflect-nan-attribute"] & JSXBase.HTMLAttributes<HTMLParentReflectNanAttributeElement>;
             "parent-tag-transform": LocalJSX.IntrinsicElements["parent-tag-transform"] & JSXBase.HTMLAttributes<HTMLParentTagTransformElement>;
@@ -5274,6 +5325,7 @@ declare module "@stencil/core" {
             "scoped-slot-insertion-order-after-interaction": LocalJSX.IntrinsicElements["scoped-slot-insertion-order-after-interaction"] & JSXBase.HTMLAttributes<HTMLScopedSlotInsertionOrderAfterInteractionElement>;
             "scoped-slot-slotchange": LocalJSX.IntrinsicElements["scoped-slot-slotchange"] & JSXBase.HTMLAttributes<HTMLScopedSlotSlotchangeElement>;
             "scoped-slot-slotchange-wrap": LocalJSX.IntrinsicElements["scoped-slot-slotchange-wrap"] & JSXBase.HTMLAttributes<HTMLScopedSlotSlotchangeWrapElement>;
+            "serializable-cmp": LocalJSX.IntrinsicElements["serializable-cmp"] & JSXBase.HTMLAttributes<HTMLSerializableCmpElement>;
             "shadow-dom-array": LocalJSX.IntrinsicElements["shadow-dom-array"] & JSXBase.HTMLAttributes<HTMLShadowDomArrayElement>;
             "shadow-dom-array-root": LocalJSX.IntrinsicElements["shadow-dom-array-root"] & JSXBase.HTMLAttributes<HTMLShadowDomArrayRootElement>;
             "shadow-dom-basic": LocalJSX.IntrinsicElements["shadow-dom-basic"] & JSXBase.HTMLAttributes<HTMLShadowDomBasicElement>;

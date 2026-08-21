@@ -116,6 +116,16 @@ export interface ShadowEncapsulation {
    * declarative slotting behavior.
    */
   slotAssignment?: 'manual' | 'named';
+  /**
+   * When set to `true`, the shadow root is preserved when the host element is deep-cloned via
+   * `Node.cloneNode(true)`. Without this, cloning a shadow host produces an empty shell.
+   */
+  clonable?: boolean;
+  /**
+   * When set to `true`, marks the shadow root as serializable so it is included when the host
+   * element is serialized via `Element.getHTML({ serializableShadowRoots: true })`.
+   */
+  serializable?: boolean;
 }
 
 /**

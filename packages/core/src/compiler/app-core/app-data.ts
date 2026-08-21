@@ -59,6 +59,8 @@ export const getBuildFeatures = (cmps: ComponentCompilerMeta[]): BuildFeatures =
     shadowDelegatesFocus: shadowDom && cmps.some((c) => c.shadowDelegatesFocus),
     shadowModeClosed: shadowDom && cmps.some((c) => c.shadowMode === 'closed'),
     shadowSlotAssignmentManual: shadowDom && cmps.some((c) => c.slotAssignment === 'manual'),
+    shadowClonable: shadowDom && cmps.some((c) => c.shadowClonable),
+    shadowSerializable: shadowDom && cmps.some((c) => c.shadowSerializable),
     slot,
     slotRelocation,
     state: cmps.some((c) => c.hasState),

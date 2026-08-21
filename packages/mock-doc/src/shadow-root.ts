@@ -3,13 +3,19 @@ import { MockDocumentFragment } from './document-fragment';
 export class MockShadowRoot extends MockDocumentFragment {
   private _mode: 'open' | 'closed' = 'open';
   private _delegatesFocus: boolean = false;
+  private _clonable: boolean = false;
+  private _serializable: boolean = false;
 
   get activeElement(): HTMLElement | null {
     return null;
   }
 
-  get cloneable(): boolean {
-    return false;
+  get clonable(): boolean {
+    return this._clonable;
+  }
+
+  set clonable(value: boolean) {
+    this._clonable = value;
   }
 
   get delegatesFocus(): boolean {
@@ -52,7 +58,11 @@ export class MockShadowRoot extends MockDocumentFragment {
   }
 
   get serializable(): boolean {
-    return false;
+    return this._serializable;
+  }
+
+  set serializable(value: boolean) {
+    this._serializable = value;
   }
 
   get slotAssignment(): 'named' | 'manual' {

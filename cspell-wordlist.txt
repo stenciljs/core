@@ -165,6 +165,9 @@ yourpackage
 fdir
 shadowrootmode
 shadowrootdelegatesfocus
+shadowrootclonable
+shadowrootserializable
+clonable
 jsxmode
 jsxdev
 jsxs
