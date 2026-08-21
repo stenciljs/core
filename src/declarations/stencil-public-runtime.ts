@@ -81,6 +81,13 @@ export interface ShadowRootOptions {
    * declarative slotting behavior.
    */
   slotAssignment?: 'manual' | 'named';
+  /**
+   * When set to `true`, the shadow root is set to be cloneable. This allows the shadow root and its
+   * contents to be preserved when the host element is deep-cloned (e.g. via `Node.cloneNode(true)`),
+   * which some libraries rely on when cloning DOM subtrees that contain shadow components. Defaults
+   * to `false`. Browsers that do not implement the `clonable` shadow root option ignore it.
+   */
+  clonable?: boolean;
 }
 
 export interface ModeStyles {

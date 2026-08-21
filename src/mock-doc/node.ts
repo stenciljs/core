@@ -277,6 +277,9 @@ export class MockElement extends MockNode {
   attachShadow(_opts: ShadowRootInit) {
     const shadowRoot = this.ownerDocument.createDocumentFragment();
     shadowRoot.delegatesFocus = _opts.delegatesFocus ?? false;
+    // `clonable` is a valid `attachShadow` option per the DOM spec, but is not yet present on the
+    // `ShadowRootInit` lib type, so widen the type locally to read it.
+    shadowRoot.clonable = (_opts as ShadowRootInit & { clonable?: boolean }).clonable ?? false;
     this.shadowRoot = shadowRoot;
     return shadowRoot;
   }
