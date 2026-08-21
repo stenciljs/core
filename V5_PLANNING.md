@@ -92,6 +92,7 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
   - To use `@AttachInternals` without form association: `@AttachInternals({ formAssociated: false })`
   - Run `stencil migrate --dry-run` to preview automatic migration, or `stencil migrate` to apply changes
 - **`buildDist` and `buildDocs` config options removed.** Use `skipInDev` on individual output targets for granular control.
+- **`docs-readme` is no longer auto-injected on production builds.** It previously had a v4 behavior gap where it was implicitly added whenever `!config.devMode` (later carried into v5's `buildDocs`/`buildDist` removal, which briefly made it unconditional on every non-dev build with no opt-out). It's now purely `outputTargets`-driven, consistent with every other docs target (`docs-json`, `docs-custom`, `docs-vscode`, `docs-custom-elements-manifest`, `docs-agent-skill`) — nothing generates unless `{ type: 'docs-readme' }` is explicitly declared. `stencil docs` / `--docs` remain a fast, docs-only rebuild (filters `outputTargets`, sets `skipInDev: false`) but no longer force-create a target that isn't configured. Fixed in `packages/core/src/compiler/config/outputs/validate-docs.ts`.
 - **`--esm` CLI flag removed.** Configure `skipInDev` on output targets instead.
 - **`--prod` CLI flag removed.** Production is the default. Use `--dev` to opt into a development build.
 - **`devMode` config option removed from `stencil.config.ts`.** Build mode is now exclusively controlled by the `--dev` CLI flag.
@@ -206,7 +207,7 @@ A docs output target that emits an [Agent Skill](https://agentskills.io) (`SKILL
 
 **Distribution is already solved externally:** the `npx skills add <source>` CLI (from the spec's ecosystem, see [skills.sh](https://skills.sh)) installs a `SKILL.md` from a git repo, a path within a repo, or a **local path** - a consumer can run `npx skills add node_modules/my-design-system` and it fans out to whatever agent they're actually using. No Stencil-side wizard/install plumbing was needed for this first pass.
 
-**New module:** `packages/core/src/compiler/docs/agent-skill/` (`frontmatter.ts`, `markdown-component.ts`, `output-agent-skill.ts`, `index.ts`). Wired through the standard docs output-target path (`stencil-public-compiler.ts`, `constants.ts`, `output-target.ts`, `validate-docs.ts`, `output-targets/output-docs.ts`), opt-in only (not auto-injected like `docs-readme`). Golden-file e2e fixture at `test/build/docs-agent-skill/`; unit tests in `packages/core/src/compiler/docs/_test_/agent-skill*.spec.ts`.
+**New module:** `packages/core/src/compiler/docs/agent-skill/` (`frontmatter.ts`, `markdown-component.ts`, `output-agent-skill.ts`, `index.ts`). Wired through the standard docs output-target path (`stencil-public-compiler.ts`, `constants.ts`, `output-target.ts`, `validate-docs.ts`, `output-targets/output-docs.ts`), opt-in only like every other docs target. Golden-file e2e fixture at `test/build/docs-agent-skill/`; unit tests in `packages/core/src/compiler/docs/_test_/agent-skill*.spec.ts`.
 
 ---
 

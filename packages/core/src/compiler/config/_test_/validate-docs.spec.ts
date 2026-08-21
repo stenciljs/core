@@ -37,6 +37,18 @@ describe('validateDocs', () => {
     expect(config.outputTargets.some((o) => o.type === 'docs-readme')).toBe(false);
   });
 
+  it('does not auto-add docs-readme for a production build without one declared', () => {
+    userConfig = mockConfig({ devMode: false });
+    const { config } = validateConfig(userConfig, mockLoadConfigInit());
+    expect(config.outputTargets.some((o) => o.type === 'docs-readme')).toBe(false);
+  });
+
+  it('does not auto-add docs-readme when the --docs flag is used without one declared', () => {
+    userConfig = mockConfig({ _docsFlag: true });
+    const { config } = validateConfig(userConfig, mockLoadConfigInit());
+    expect(config.outputTargets.some((o) => o.type === 'docs-readme')).toBe(false);
+  });
+
   it('should use default values for docs.markdown.targetComponent', () => {
     const { config } = validateConfig(userConfig, mockLoadConfigInit());
     expect(config.docs.markdown.targetComponent.background).toBe(
