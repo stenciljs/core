@@ -207,6 +207,28 @@ describe('serializeNodeToHtml', () => {
     `);
   });
 
+  it('shadow root to template with clonable', () => {
+    const elm = doc.createElement('cmp-a');
+    const shadowRoot = elm.attachShadow({ mode: 'open', clonable: true });
+    expect(shadowRoot.host).toEqual(elm);
+    expect(elm.outerHTML).toContain('<template shadowrootmode="open" shadowrootclonable');
+  });
+
+  it('shadow root to template with serializable', () => {
+    const elm = doc.createElement('cmp-a');
+    const shadowRoot = elm.attachShadow({ mode: 'open', serializable: true });
+    expect(shadowRoot.host).toEqual(elm);
+    expect(elm.outerHTML).toContain('<template shadowrootmode="open" shadowrootserializable');
+  });
+
+  it('shadow root with delegatesFocus, clonable and serializable combined', () => {
+    const elm = doc.createElement('cmp-a');
+    elm.attachShadow({ mode: 'open', delegatesFocus: true, clonable: true, serializable: true });
+    expect(elm.outerHTML).toContain(
+      '<template shadowrootmode="open" shadowrootdelegatesfocus shadowrootclonable shadowrootserializable',
+    );
+  });
+
   it('style', () => {
     const input = `<style>     \n    text   \n\n</style>`;
     doc.body.innerHTML = input;

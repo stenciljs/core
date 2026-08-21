@@ -97,6 +97,8 @@ export interface BuildFeatures {
   shadowDelegatesFocus: boolean;
   shadowModeClosed: boolean;
   shadowSlotAssignmentManual: boolean;
+  shadowClonable: boolean;
+  shadowSerializable: boolean;
   scoped: boolean;
 
   // render
@@ -699,6 +701,16 @@ export interface ComponentCompilerMeta extends ComponentCompilerFeatures {
   properties: ComponentCompilerProperty[];
   serializers: ComponentCompilerChangeHandler[];
   shadowDelegatesFocus: boolean;
+  /**
+   * Whether the shadow root is preserved when the host element is deep-cloned via
+   * `Node.cloneNode(true)`. Only applicable when encapsulation is 'shadow'.
+   */
+  shadowClonable: boolean;
+  /**
+   * Whether the shadow root is marked serializable for `Element.getHTML({ serializableShadowRoots: true })`.
+   * Only applicable when encapsulation is 'shadow'.
+   */
+  shadowSerializable: boolean;
   /**
    * Shadow DOM mode. 'open' (default) or 'closed'.
    * Only applicable when encapsulation is 'shadow'.

@@ -383,6 +383,8 @@ export class MockElement extends MockNode {
     const shadowRoot = this.ownerDocument.createDocumentFragment();
     shadowRoot.mode = _opts.mode ?? 'open';
     shadowRoot.delegatesFocus = _opts.delegatesFocus ?? false;
+    shadowRoot.clonable = _opts.clonable ?? false;
+    shadowRoot.serializable = _opts.serializable ?? false;
     this.shadowRoot = shadowRoot;
     return shadowRoot;
   }

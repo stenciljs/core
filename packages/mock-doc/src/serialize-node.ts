@@ -159,6 +159,18 @@ function* streamToHtml(
           yield delegatesFocusAttr;
           output.currentLineWidth += delegatesFocusAttr.length;
         }
+
+        if ((node as any).clonable) {
+          const clonableAttr = ' shadowrootclonable';
+          yield clonableAttr;
+          output.currentLineWidth += clonableAttr.length;
+        }
+
+        if ((node as any).serializable) {
+          const serializableAttr = ' shadowrootserializable';
+          yield serializableAttr;
+          output.currentLineWidth += serializableAttr.length;
+        }
       }
 
       const attrsLength = (node as HTMLElement).attributes.length;

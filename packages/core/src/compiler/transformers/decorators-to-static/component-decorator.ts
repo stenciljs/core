@@ -114,6 +114,14 @@ export const componentDecoratorToStatic = (
       if (enc.slotAssignment === 'manual') {
         newMembers.push(createStaticGetter('slotAssignment', convertValueToLiteral('manual')));
       }
+
+      if (enc.clonable === true) {
+        newMembers.push(createStaticGetter('clonable', convertValueToLiteral(true)));
+      }
+
+      if (enc.serializable === true) {
+        newMembers.push(createStaticGetter('serializable', convertValueToLiteral(true)));
+      }
     } else if (enc.type === 'scoped') {
       newMembers.push(createStaticGetter('encapsulation', convertValueToLiteral('scoped')));
 

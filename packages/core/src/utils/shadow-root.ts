@@ -34,6 +34,14 @@ export function createShadowRoot(this: HTMLElement, cmpMeta: d.ComponentRuntimeM
     }
   }
 
+  if (BUILD.shadowClonable) {
+    opts.clonable = !!(cmpMeta.$flags$ & CMP_FLAGS.shadowClonable);
+  }
+
+  if (BUILD.shadowSerializable) {
+    opts.serializable = !!(cmpMeta.$flags$ & CMP_FLAGS.shadowSerializable);
+  }
+
   const shadowRoot = this.attachShadow(opts);
 
   // For closed shadow roots, store the reference so Stencil can still access it internally.
