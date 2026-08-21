@@ -18,9 +18,16 @@ import type {
 import { inspectElement } from './inspect-element';
 import { patchDomImplementation } from './patch-dom-implementation';
 import { generateHydrateResults, normalizeHydrateOptions, renderBuildError, renderCatchError } from './render-utils';
+import { canReuseWindow, deleteReusableWindow, getReusableWindow } from './reusable-window';
 import { initializeWindow } from './window-initialize';
 
 const NOOP = () => {};
+
+/**
+ * The reused windows are not concurrency-safe, so renders against them are
+ * serialized through this promise queue.
+ */
+let reuseRenderQueue: Promise<unknown> = Promise.resolve();
 
 export function streamToString(html: string | any, option?: SerializeDocumentOptions) {
   return renderToString(html, option, true);
@@ -85,6 +92,41 @@ export function hydrateDocument(
   }
 
   if (typeof doc === 'string') {
+    if (opts.reuseWindow && opts.fullDocument === false && canReuseWindow(opts.serializeShadowRoot)) {
+      opts.destroyWindow = false;
+      opts.destroyDocument = false;
+
+      const runRender = async (): Promise<HydrateResults> => {
+        let reusedWin: MockWindow | null = null;
+        try {
+          reusedWin = getReusableWindow(doc, opts.serializeShadowRoot);
+          await render(reusedWin, opts, results);
+          return results;
+        } catch (e) {
+          if (reusedWin) {
+            deleteReusableWindow(opts.serializeShadowRoot);
+            if (reusedWin.close) {
+              reusedWin.close();
+            }
+          }
+          renderCatchError(results, e);
+          return results;
+        }
+      };
+
+      const queuedRender = reuseRenderQueue.then(runRender, runRender);
+      reuseRenderQueue = queuedRender.then(NOOP, NOOP);
+
+      if (!asStream) {
+        return queuedRender;
+      }
+      return Readable.from(
+        (async function* () {
+          yield (await queuedRender).html;
+        })(),
+      );
+    }
+
     try {
       opts.destroyWindow = true;
       opts.destroyDocument = true;

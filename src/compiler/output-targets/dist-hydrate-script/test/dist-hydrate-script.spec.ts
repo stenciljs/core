@@ -4,9 +4,43 @@ import path from 'path';
 
 import { validateHydrateScript } from '../../../config/outputs/validate-hydrate-script';
 import * as optimizeModuleMod from '../../../optimize/optimize-module';
+import { HYDRATE_FACTORY_INTRO, HYDRATE_FACTORY_OUTRO } from '../hydrate-factory-closure';
 import { writeHydrateOutputs } from '../write-hydrate-outputs';
 
 describe('dist-hydrate-script', () => {
+  it('evaluates the hydrate app closure once per window', () => {
+    const createHydrateFactory = new Function(
+      '$stencilTagTransform',
+      'closureEvaluated',
+      `${HYDRATE_FACTORY_INTRO.replace('export function', 'function')}
+        closureEvaluated();
+        function hydrateApp(window, opts) {
+          opts.hydratedWindow = window;
+        }
+      ${HYDRATE_FACTORY_OUTRO}
+      return hydrateFactory;`,
+    );
+    const closureEvaluated = jest.fn();
+    const hydrateFactory = createHydrateFactory(
+      { setTagTransformer: jest.fn(), transformTag: jest.fn() },
+      closureEvaluated,
+    );
+    const firstWindow = mockWindow();
+    const secondWindow = mockWindow();
+    const firstOptions: any = {};
+    const secondOptions: any = {};
+    const thirdOptions: any = {};
+
+    hydrateFactory(firstWindow, firstOptions);
+    hydrateFactory(firstWindow, secondOptions);
+    hydrateFactory(secondWindow, thirdOptions);
+
+    expect(closureEvaluated).toHaveBeenCalledTimes(2);
+    expect(firstOptions.hydratedWindow).toBe(firstWindow);
+    expect(secondOptions.hydratedWindow).toBe(firstWindow);
+    expect(thirdOptions.hydratedWindow).toBe(secondWindow);
+  });
+
   describe('minification', () => {
     let optimizeModuleSpy: jest.SpyInstance;
     let mockFs: any;
@@ -209,3 +243,29 @@ describe('dist-hydrate-script', () => {
     });
   });
 });
+
+function mockWindow() {
+  const fn = jest.fn();
+  return {
+    addEventListener: fn,
+    alert: fn,
+    blur: fn,
+    cancelAnimationFrame: fn,
+    cancelIdleCallback: fn,
+    clearInterval: fn,
+    clearTimeout: fn,
+    confirm: fn,
+    dispatchEvent: fn,
+    document: {},
+    focus: fn,
+    getComputedStyle: fn,
+    matchMedia: fn,
+    open: fn,
+    prompt: fn,
+    removeEventListener: fn,
+    requestAnimationFrame: fn,
+    requestIdleCallback: fn,
+    setInterval: fn,
+    setTimeout: fn,
+  };
+}

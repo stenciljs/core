@@ -948,6 +948,22 @@ export interface HydrateDocumentOptions {
    */
   referrer?: string;
   /**
+   * Reuse a process-global mock window across `renderToString()`/`hydrateDocument()`
+   * calls that receive an HTML string. This avoids re-executing the entire hydrate
+   * platform closure (runtime, vdom and all component definitions) on every call,
+   * which is the dominant fixed cost when rendering many small fragments (e.g. one
+   * `renderToString` call per component instance, as the framework output targets do).
+   *
+   * The reused window is not concurrency safe, so renders are serialized through
+   * an internal queue. This option only applies when rendering HTML fragments
+   * (`fullDocument: false`) with a boolean or built-in string `serializeShadowRoot`
+   * value; full-document renders and per-component `serializeShadowRoot` objects use
+   * a fresh window. One known output difference is that hydration annotation counters
+   * (e.g. `<!--r.N-->`) become unique across the process instead of restarting at 1
+   * per call. Defaults to `false`.
+   */
+  reuseWindow?: boolean;
+  /**
    * Removes every `<script>` element found in the `document`. Defaults to `false`.
    */
   removeScripts?: boolean;
