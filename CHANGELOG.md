@@ -1,3 +1,21 @@
+## 🐠 [4.44.1](https://github.com/stenciljs/core/compare/v4.44.0...v4.44.1) (2026-08-21)
+
+
+### Bug Fixes
+
+* **compiler:** track type query references ([#6825](https://github.com/stenciljs/core/issues/6825)) ([4c90b3b](https://github.com/stenciljs/core/commit/4c90b3b41c3f8b389e47749787fc6a7e0358b86a)), closes [#2482](https://github.com/stenciljs/core/issues/2482)
+* **runtime:** fix performance mark error in `dist-custom-elements` output ([#6840](https://github.com/stenciljs/core/issues/6840)) ([b1f89b6](https://github.com/stenciljs/core/commit/b1f89b626bcc6c976016b37edbcdc1c1832ce93a))
+* **runtime:** guard against null parent in insertBefore ([#6836](https://github.com/stenciljs/core/issues/6836)) ([170039a](https://github.com/stenciljs/core/commit/170039a28bfde8216b7268daac2934b76874e042))
+* **runtime:** reflected boolean attributes ([#6838](https://github.com/stenciljs/core/issues/6838)) ([0a7e130](https://github.com/stenciljs/core/commit/0a7e1305ef046364e9a2670166960d7295bdc0da))
+* **types:** defineCustomElements ([#6839](https://github.com/stenciljs/core/issues/6839)) ([8b06d1d](https://github.com/stenciljs/core/commit/8b06d1d0c9107af0e0387af9de01399b5a6645b2))
+
+
+### Features
+
+* added `focusgroupstart` property ([#6829](https://github.com/stenciljs/core/issues/6829)) ([b583bf3](https://github.com/stenciljs/core/commit/b583bf3aaa52b5fb658701a9983cb16ff200b5fe))
+
+
+
 # 🐓 [4.44.0](https://github.com/stenciljs/core/compare/v4.43.5...v4.44.0) (2026-08-10)
 
 
