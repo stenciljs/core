@@ -1,11 +1,11 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { mockValidatedConfig } from '@stencil/core/testing';
-import { mockBuildCtx, mockCompilerCtx } from '@stencil/core/testing/compiler';
 import ts from 'typescript';
 import { afterEach, describe, expect, it } from 'vitest';
 
+import { mockValidatedConfig } from '../../../testing';
+import { mockBuildCtx, mockCompilerCtx } from '../../../testing/compiler';
 import { runTsProgram } from '../run-program';
 
 /**

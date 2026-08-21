@@ -1,9 +1,9 @@
 import path from 'path';
-import { mockCompilerSystem, mockModule, mockValidatedConfig } from '@stencil/core/testing';
-import { mockBuildCtx, mockCompilerCtx } from '@stencil/core/testing/compiler';
 import { describe, expect, it, beforeEach, MockInstance, vi, afterEach } from 'vitest';
 import type * as d from '@stencil/core';
 
+import { mockCompilerSystem, mockModule, mockValidatedConfig } from '../../../testing';
+import { mockBuildCtx, mockCompilerCtx } from '../../../testing/compiler';
 import { STANDALONE, normalizePath } from '../../../utils';
 import { stubComponentCompilerMeta } from '../../types/_tests_/ComponentCompilerMeta.stub';
 import * as outputCustomElementsMod from '../standalone';

@@ -1,8 +1,8 @@
-import { mockValidatedConfig } from '@stencil/core/testing';
-import { mockBuildCtx, mockCompilerCtx } from '@stencil/core/testing/compiler';
 import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest';
 import type * as d from '@stencil/core';
 
+import { mockValidatedConfig } from '../../../testing';
+import { mockBuildCtx, mockCompilerCtx } from '../../../testing/compiler';
 import { join, SSR_WASM } from '../../../utils';
 import * as optimizeModuleMod from '../../optimize/optimize-module';
 import { writeSsrWasmOutput } from '../ssr-wasm/generate-ssr-wasm';

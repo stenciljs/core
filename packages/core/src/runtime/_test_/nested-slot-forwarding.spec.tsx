@@ -1,7 +1,7 @@
 import { Component, h } from '@stencil/core';
-import { newSpecPage } from '@stencil/core/testing';
 import { it, describe, expect } from 'vitest';
 
+import { newSpecPage } from '../../testing';
 import { applyLightDomPatches } from '../dom-extras';
 
 describe('nested named slot forwarding', () => {

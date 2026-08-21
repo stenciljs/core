@@ -1,8 +1,8 @@
 import { Component, h, Method, Prop, State, Watch } from '@stencil/core';
-import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it, vi } from '@stencil/vitest';
 
 import { Effect, computed, getSignal, STENCIL_SIGNALS_SYMBOL } from '../../signals';
+import { newSpecPage } from '../../testing';
 
 /** Shared option applied to every test - the only thing that makes these tests distinct. */
 const SIG = { buildFlags: { signalBacking: true, vdomSignals: true } } as const;

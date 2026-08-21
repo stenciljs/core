@@ -9,9 +9,9 @@ import {
   setErrorHandler,
   State,
 } from '@stencil/core';
-import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it } from '@stencil/vitest';
 
+import { newSpecPage } from '../../testing';
 import { withSilentWarn } from '../../testing/testing-utils';
 
 describe('render-vdom', () => {

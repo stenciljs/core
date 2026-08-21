@@ -1,7 +1,7 @@
-import { mockValidatedConfig } from '@stencil/core/testing';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
 
+import { mockValidatedConfig } from '../../../testing';
 import { getTsOptionsToExtend } from '../ts-config';
 
 describe('ts-config.ts', () => {

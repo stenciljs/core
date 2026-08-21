@@ -1,6 +1,7 @@
 import { Component, h } from '@stencil/core';
-import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it } from '@stencil/vitest';
+
+import { newSpecPage } from '../../testing';
 
 describe('hydrate, slot fallback', () => {
   it('shows slot fallback content in a `scoped: true` parent', async () => {

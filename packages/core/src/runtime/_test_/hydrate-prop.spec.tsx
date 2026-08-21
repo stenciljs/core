@@ -1,7 +1,7 @@
 import { Component, h, Prop } from '@stencil/core';
-import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it } from '@stencil/vitest';
 
+import { newSpecPage } from '../../testing';
 import { MEMBER_FLAGS } from '../../utils';
 
 describe('hydrate prop types', () => {

@@ -1,9 +1,9 @@
 import path from 'path';
-import { mockValidatedConfig } from '@stencil/core/testing';
-import { mockBuildCtx, mockCompilerCtx } from '@stencil/core/testing/compiler';
 import { describe, expect, it, beforeEach, vi, MockInstance, afterEach } from 'vitest';
 import type * as d from '@stencil/core';
 
+import { mockValidatedConfig } from '../../../testing';
+import { mockBuildCtx, mockCompilerCtx } from '../../../testing/compiler';
 import { SSR } from '../../../utils';
 import { validateSsr } from '../../config/outputs/validate-ssr';
 import * as optimizeModuleMod from '../../optimize/optimize-module';

@@ -1,6 +1,7 @@
 import { Component, h, Prop, State } from '@stencil/core';
-import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it, vi } from '@stencil/vitest';
+
+import { newSpecPage } from '../../testing';
 
 describe('update-component', () => {
   describe('scheduleUpdate - re-entrancy guard', () => {

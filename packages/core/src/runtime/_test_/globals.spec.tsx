@@ -1,6 +1,7 @@
 import { Build, Component, Env } from '@stencil/core';
-import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it, beforeEach } from '@stencil/vitest';
+
+import { newSpecPage } from '../../testing';
 
 describe('globals', () => {
   @Component({

@@ -1,10 +1,10 @@
 import path from 'path';
 import { OutputTargetStandalone } from '@stencil/core';
-import { mockCompilerSystem, mockModule, mockValidatedConfig } from '@stencil/core/testing';
-import { mockBuildCtx, mockCompilerCtx } from '@stencil/core/testing/compiler';
 import { describe, expect, it, beforeEach, vi } from 'vitest';
 import type * as d from '@stencil/core';
 
+import { mockCompilerSystem, mockModule, mockValidatedConfig } from '../../../testing';
+import { mockBuildCtx, mockCompilerCtx } from '../../../testing/compiler';
 import { STANDALONE } from '../../../utils';
 import {
   STENCIL_APP_GLOBALS_ID,

@@ -1,7 +1,7 @@
-import { createTestCompiler } from '@stencil/core/testing/compiler';
 import { expect, describe, it } from '@stencil/vitest';
 import type * as d from '@stencil/core';
 
+import { createTestCompiler } from '../../../testing/compiler';
 import { join } from '../../../utils';
 
 describe('service worker', () => {

@@ -7,8 +7,9 @@ import {
   ReactiveControllerHost,
   State,
 } from '@stencil/core';
-import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it } from '@stencil/vitest';
+
+import { newSpecPage } from '../../testing';
 
 describe('reactive-controller', () => {
   it('calls hostConnected on an added controller when the component connects', async () => {

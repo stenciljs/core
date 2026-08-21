@@ -1,7 +1,7 @@
-import { createTestCompiler } from '@stencil/core/testing/compiler';
 import { describe, it, beforeEach, afterEach, expect } from 'vitest';
 import type * as d from '@stencil/core';
 
+import { createTestCompiler } from '../../../testing/compiler';
 import { expectFilesDoNotExist, expectFilesExist } from '../../../testing/testing-utils';
 import { join } from '../../../utils';
 

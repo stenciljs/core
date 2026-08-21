@@ -1,7 +1,7 @@
-import { mockConfig, mockLoadConfigInit } from '@stencil/core/testing';
 import { describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
+import { mockConfig, mockLoadConfigInit } from '../../../testing';
 import { isOutputTargetWww } from '../../../utils';
 import { validateConfig } from '../../config/validate-config';
 import { generateServiceWorkerUrl } from '../service-worker-util';

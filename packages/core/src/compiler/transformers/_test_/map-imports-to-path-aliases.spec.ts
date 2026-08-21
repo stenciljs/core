@@ -1,8 +1,8 @@
-import { mockValidatedConfig } from '@stencil/core/testing';
 import { describe, expect, it, beforeEach, vi, afterEach } from 'vitest';
 import type { OutputTargetCollection } from '@stencil/core';
 
 import { ValidatedConfig } from '../../../compiler';
+import { mockValidatedConfig } from '../../../testing';
 import { mapImportsToPathAliases } from '../map-imports-to-path-aliases';
 import { transpileModule } from './transpile';
 

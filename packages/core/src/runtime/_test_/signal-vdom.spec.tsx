@@ -1,7 +1,8 @@
 import { signal } from '@preact/signals-core';
 import { Component, h, State } from '@stencil/core';
-import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it } from '@stencil/vitest';
+
+import { newSpecPage } from '../../testing';
 
 const VDOM = {
   buildFlags: { vdomSignals: true, vdomText: true, vdomAttribute: true, vdomClass: true },

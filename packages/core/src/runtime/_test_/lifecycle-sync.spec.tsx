@@ -1,7 +1,8 @@
 import { Component, Element, forceUpdate, h, Host, Method, Prop, Watch } from '@stencil/core';
-import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it } from '@stencil/vitest';
 import type { ComponentShouldUpdateChanges } from '@stencil/core';
+
+import { newSpecPage } from '../../testing';
 
 describe('lifecycle sync', () => {
   it('should fire connected/disconnected when removed', async () => {

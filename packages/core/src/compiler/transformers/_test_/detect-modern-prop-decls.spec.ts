@@ -1,7 +1,7 @@
-import { mockCompilerCtx } from '@stencil/core/testing/compiler';
 import { ScriptTarget } from 'typescript';
 import { describe, expect, it } from 'vitest';
 
+import { mockCompilerCtx } from '../../../testing/compiler';
 import { transpileModule } from './transpile';
 
 describe('ts config', () => {

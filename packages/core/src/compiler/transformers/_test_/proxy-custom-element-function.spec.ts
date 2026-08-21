@@ -1,9 +1,9 @@
 import * as d from '@stencil/core';
-import { mockModule } from '@stencil/core/testing';
-import { mockCompilerCtx } from '@stencil/core/testing/compiler';
 import * as ts from 'typescript';
 import { describe, expect, it, beforeEach, afterEach, MockInstance, vi } from 'vitest';
 
+import { mockModule } from '../../../testing';
+import { mockCompilerCtx } from '../../../testing/compiler';
 import { stubComponentCompilerMeta } from '../../types/_tests_/ComponentCompilerMeta.stub';
 import * as AddComponentMetaProxy from '../add-component-meta-proxy';
 import { proxyCustomElement } from '../component-native/proxy-custom-element-function';

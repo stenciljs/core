@@ -1,6 +1,7 @@
 import { Component, Method, State } from '@stencil/core';
-import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it } from '@stencil/vitest';
+
+import { newSpecPage } from '../../testing';
 
 describe('method', () => {
   it('call method', async () => {

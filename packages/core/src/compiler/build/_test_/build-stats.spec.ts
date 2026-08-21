@@ -1,8 +1,8 @@
-import { mockValidatedConfig } from '@stencil/core/testing';
-import { mockBuildCtx, mockCompilerCtx } from '@stencil/core/testing/compiler';
 import { beforeEach, describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
+import { mockValidatedConfig } from '../../../testing';
+import { mockBuildCtx, mockCompilerCtx } from '../../../testing/compiler';
 import { result } from '../../../utils';
 import { generateBuildResults } from '../build-results';
 import { generateBuildStats } from '../build-stats';

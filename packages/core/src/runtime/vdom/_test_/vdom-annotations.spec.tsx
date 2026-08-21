@@ -1,7 +1,7 @@
 import { Component, h } from '@stencil/core';
-import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it, beforeEach } from '@stencil/vitest';
 
+import { newSpecPage } from '../../../testing';
 import { insertVdomAnnotations } from '../vdom-annotations';
 
 describe('vdom-annotations', () => {

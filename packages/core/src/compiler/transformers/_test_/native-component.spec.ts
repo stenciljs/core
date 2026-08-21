@@ -1,8 +1,8 @@
 import * as d from '@stencil/core';
-import { mockBuildCtx } from '@stencil/core/testing/compiler';
 import * as ts from 'typescript';
 import { describe, expect, it, beforeEach } from 'vitest';
 
+import { mockBuildCtx } from '../../../testing/compiler';
 import { nativeComponentTransform } from '../component-native/tranform-to-native-component';
 import { transpileModule } from './transpile';
 import { c, formatCode } from './utils';

@@ -1,8 +1,8 @@
-import { mockValidatedConfig } from '@stencil/core/testing';
-import { mockCompilerCtx } from '@stencil/core/testing/compiler';
 import { describe, expect, it, MockInstance, beforeEach, afterEach, vi } from 'vitest';
 import type * as d from '@stencil/core';
 
+import { mockValidatedConfig } from '../../../testing';
+import { mockCompilerCtx } from '../../../testing/compiler';
 import { generateAgentSkillDocs } from '../agent-skill';
 
 /**

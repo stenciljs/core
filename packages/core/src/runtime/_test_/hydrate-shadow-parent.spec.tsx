@@ -1,6 +1,7 @@
 import { Component, h, Host } from '@stencil/core';
-import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it } from '@stencil/vitest';
+
+import { newSpecPage } from '../../testing';
 
 describe('hydrate, shadow parent', () => {
   it('slot depth 1, text w/out vdom', async () => {

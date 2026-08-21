@@ -1,7 +1,7 @@
 import { Component, h, Host } from '@stencil/core';
-import { newSpecPage, SpecPage } from '@stencil/core/testing';
 import { expect, describe, it, beforeEach } from '@stencil/vitest';
 
+import { newSpecPage, SpecPage } from '../../testing';
 import { applyLightDomPatches, patchSlottedNode } from '../dom-extras';
 
 describe('dom-extras - patches for non-shadow dom methods and accessors', () => {

@@ -1,8 +1,8 @@
 import path from 'path';
-import { mockCompilerSystem, mockLoadConfigInit } from '@stencil/core/testing';
 import { describe, it, beforeEach } from 'vitest';
 import type * as d from '@stencil/core';
 
+import { mockCompilerSystem, mockLoadConfigInit } from '../../../testing';
 import { createCompiler } from '../../compiler';
 import { validateConfig } from '../../config/validate-config';
 

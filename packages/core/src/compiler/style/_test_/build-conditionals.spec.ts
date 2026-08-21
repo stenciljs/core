@@ -1,11 +1,11 @@
+import { describe, expect, it, beforeAll, beforeEach, afterEach } from 'vitest';
+import type * as d from '@stencil/core';
+
 import {
   createTestCompiler,
   prepareTestCompiler,
   type PreparedTestCompiler,
-} from '@stencil/core/testing/compiler';
-import { describe, expect, it, beforeAll, beforeEach, afterEach } from 'vitest';
-import type * as d from '@stencil/core';
-
+} from '../../../testing/compiler';
 import { join } from '../../../utils';
 import { getLazyBuildConditionals } from '../../output-targets/dist-lazy/lazy-build-conditionals';
 
