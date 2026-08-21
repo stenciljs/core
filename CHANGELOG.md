@@ -12,7 +12,7 @@
 
 ### Features
 
-* added `focusgroupstart` property ([#6829](https://github.com/stenciljs/core/issues/6829)) ([b583bf3](https://github.com/stenciljs/core/commit/b583bf3aaa52b5fb658701a9983cb16ff200b5fe))
+* **types:** added `focusgroupstart` property ([#6829](https://github.com/stenciljs/core/issues/6829)) ([b583bf3](https://github.com/stenciljs/core/commit/b583bf3aaa52b5fb658701a9983cb16ff200b5fe))
 
 
 
