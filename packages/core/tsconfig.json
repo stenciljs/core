@@ -39,6 +39,6 @@
       "@stencil/core": ["./src/declarations/index.ts"]
     }
   },
-  "include": ["src/**/*.ts", "tsdown.config.ts", "build/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "tsdown.config.ts", "build/**/*.ts"],
   "exclude": ["dist"]
 }

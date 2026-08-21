@@ -9,15 +9,9 @@ import {
   vi,
   type MockInstance,
 } from '@stencil/vitest';
-import {
-  flushAll,
-  flushLoadModule,
-  getHostRef,
-  registerInstance,
-  registerModule,
-  resetPlatform,
-  win,
-} from 'virtual:platform';
+import { getHostRef, registerInstance, win } from 'virtual:platform';
+// @ts-expect-error - flushAll, flushLoadModule, registerModule, resetPlatform are only exported from the test bundle
+import { flushAll, flushLoadModule, registerModule, resetPlatform } from 'virtual:platform';
 import type { LazyBundlesRuntimeData } from '@stencil/core/compiler';
 
 import { HOST_FLAGS } from '../../utils';

@@ -79,6 +79,7 @@ describe('reactive-controller', () => {
         this.host = host;
         host.addController(this);
       }
+      hostDidUpdate() {}
       tick() {
         this.host.requestUpdate();
       }

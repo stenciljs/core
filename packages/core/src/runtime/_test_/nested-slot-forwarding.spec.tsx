@@ -182,7 +182,7 @@ describe('nested named slot forwarding', () => {
       html: `<cmp-b><span slot="named">initial</span></cmp-b>`,
     });
 
-    const span = page.doc.querySelector('span[slot="named"]');
+    const span = page.doc.querySelector<HTMLElement>('span[slot="named"]');
     expect(span.hidden).toBe(true);
   });
 
