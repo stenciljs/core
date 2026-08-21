@@ -1,9 +1,10 @@
 import * as d from '@stencil/core';
-import { mockCompilerCtx, mockModule } from '@stencil/core/testing';
 import * as ts from 'typescript';
 import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
 import type { MockInstance } from 'vitest';
 
+import { mockModule } from '../../../testing';
+import { mockCompilerCtx } from '../../../testing/compiler';
 import { stubComponentCompilerMeta } from '../../types/_tests_/ComponentCompilerMeta.stub';
 import { addDefineCustomElementFunctions } from '../component-native/add-define-custom-element-function';
 import * as TransformUtils from '../transform-utils';

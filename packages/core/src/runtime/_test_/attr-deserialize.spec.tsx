@@ -1,7 +1,7 @@
 import { AttrDeserialize, Component, Element, Prop, State } from '@stencil/core';
-import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it, vi } from '@stencil/vitest';
 
+import { newSpecPage } from '../../testing';
 import { withSilentWarn } from '../../testing/testing-utils';
 
 describe('attribute deserialization', () => {

@@ -1,8 +1,9 @@
-import { mockBuildCtx, mockValidatedConfig } from '@stencil/core/testing';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
 
 import { extractInheritedMeta, mergeExtendedClassMetaWithResolveImport } from '..';
+import { mockValidatedConfig } from '../../../../../testing';
+import { mockBuildCtx } from '../../../../../testing/compiler';
 import { isStaticGetter } from '../../../transform-utils';
 
 // Helper: run with a .tsx filename (decorator syntax path)

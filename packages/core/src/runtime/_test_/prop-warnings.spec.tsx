@@ -1,6 +1,7 @@
 import { Component, h, Method, Prop } from '@stencil/core';
-import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it, vi, afterEach, afterAll } from '@stencil/vitest';
+
+import { newSpecPage } from '../../testing';
 
 @Component({
   tag: 'shared-cmp',

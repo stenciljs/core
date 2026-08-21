@@ -119,4 +119,51 @@ describe('transformStencil', () => {
       expect(result!.code).toContain('connectedCallback');
     });
   });
+
+  describe('mode: spec-page', () => {
+    it('emits COMPILER_META instead of a self-registering custom element', () => {
+      const result = transformStencil(COMPONENT, '/src/my-button.tsx', { mode: 'spec-page' });
+      expect(result).not.toBeNull();
+      expect(result!.code).toContain('COMPILER_META');
+      expect(result!.code).not.toContain('defineCustomElement');
+      expect(result!.code).not.toContain('bootstrapLazy');
+    });
+
+    it('imports from @stencil/core/testing rather than the standalone client', () => {
+      const result = transformStencil(COMPONENT, '/src/my-button.tsx', { mode: 'spec-page' });
+      expect(result!.code).toContain('@stencil/core/testing');
+    });
+
+    it('does not double-export the class (compilerstatic keeps the source export)', () => {
+      const result = transformStencil(COMPONENT, '/src/my-button.tsx', { mode: 'spec-page' });
+      expect(result!.code).toMatch(/export const MyButton/);
+      expect(result!.code).not.toContain('export{MyButton}');
+    });
+
+    it('injects no HMR snippet even when dev=true', () => {
+      const result = transformStencil(
+        COMPONENT,
+        '/src/my-button.tsx',
+        { mode: 'spec-page' },
+        true,
+        'vite',
+      );
+      expect(result!.code).not.toContain('import.meta.hot');
+      expect(result!.code).not.toContain('__stencil_module__');
+    });
+
+    it('does not emit an unresolved styleUrl import (no CSS loader needed for spec-page tests)', () => {
+      const cmpWithStyle = `
+        import { Component, h } from '@stencil/core';
+        @Component({ tag: 'styled-cmp', styleUrl: 'styled-cmp.css', encapsulation: { type: 'shadow' } })
+        export class StyledCmp { render() { return <div />; } }
+      `;
+      const result = transformStencil(cmpWithStyle, '/src/styled-cmp.tsx', { mode: 'spec-page' });
+      expect(result).not.toBeNull();
+      // the file path is still recorded in COMPILER_META.styles[].externalStyles
+      // (harmless metadata) but nothing should `import` it
+      expect(result!.code).not.toMatch(/from ["'].*styled-cmp\.css/);
+      expect(result!.code).toContain('externalStyles');
+    });
+  });
 });

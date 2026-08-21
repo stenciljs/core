@@ -1,9 +1,10 @@
 import { createRequire } from 'module';
 import { dirname, join as pathJoin, relative, resolve } from 'path';
-import { mockBuildCtx, mockCompilerSystem, mockValidatedConfig } from '@stencil/core/testing';
 import * as ts from 'typescript';
 import { describe, expect, it } from 'vitest';
 
+import { mockCompilerSystem, mockValidatedConfig } from '../../../testing';
+import { mockBuildCtx } from '../../../testing/compiler';
 import { normalizePath } from '../../../utils';
 import { createCompiler } from '../../compiler';
 import { validateTsConfig } from '../../sys/typescript/typescript-config';

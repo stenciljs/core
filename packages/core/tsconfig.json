@@ -35,10 +35,9 @@
       "virtual:app-globals": ["./src/app-globals/index.ts"],
       "virtual:platform": ["./src/client/index.ts"],
       "@stencil/core/runtime/server/ssr-factory": ["./src/server/runner/ssr-factory.ts"],
-      "@stencil/core/testing": ["./src/testing/index.ts"],
       "@stencil/core": ["./src/declarations/index.ts"]
     }
   },
-  "include": ["src/**/*.ts", "tsdown.config.ts", "build/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "tsdown.config.ts", "build/**/*.ts"],
   "exclude": ["dist"]
 }

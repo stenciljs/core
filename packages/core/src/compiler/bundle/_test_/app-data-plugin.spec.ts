@@ -1,8 +1,8 @@
 import * as d from '@stencil/core';
-import { mockValidatedConfig } from '@stencil/core/testing';
 import MagicString from 'magic-string';
 import { describe, expect, it } from 'vitest';
 
+import { mockValidatedConfig } from '../../../testing';
 import { appendBuildConditionals } from '../app-data-plugin';
 
 function setup() {

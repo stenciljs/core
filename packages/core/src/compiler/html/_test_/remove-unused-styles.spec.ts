@@ -1,7 +1,7 @@
-import { mockDocument } from '@stencil/core/testing';
 import { describe, expect, it, beforeEach } from 'vitest';
 import type * as d from '@stencil/core';
 
+import { mockDocument } from '../../../testing';
 import { removeUnusedStyles } from '../remove-unused-styles';
 
 describe('removeUnusedStyles', () => {

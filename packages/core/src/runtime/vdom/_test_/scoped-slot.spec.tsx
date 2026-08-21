@@ -1,6 +1,7 @@
 import { Component, forceUpdate, h, Prop } from '@stencil/core';
-import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it } from '@stencil/vitest';
+
+import { newSpecPage } from '../../../testing';
 
 describe('scoped slot', () => {
   it('should relocate nested default slot nodes', async () => {

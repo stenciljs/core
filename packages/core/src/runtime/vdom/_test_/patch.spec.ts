@@ -1,7 +1,7 @@
-import { shuffleArray } from '@stencil/core/testing';
 import { expect, describe, it, beforeEach } from '@stencil/vitest';
 import type * as d from '@stencil/core';
 
+import { shuffleArray } from '../../../testing';
 import { SVG_NS } from '../../../utils';
 import { h, newVNode } from '../h';
 import { toVNode } from '../util';

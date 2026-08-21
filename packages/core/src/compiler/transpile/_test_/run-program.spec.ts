@@ -1,6 +1,6 @@
-import { mockValidatedConfig } from '@stencil/core/testing';
 import { describe, expect, it } from 'vitest';
 
+import { mockValidatedConfig } from '../../../testing';
 import { getRelativeDts } from '../run-program';
 
 describe('run-program.ts', () => {

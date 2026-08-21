@@ -1,7 +1,8 @@
-import { mockBuildCtx, mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
 import ts from 'typescript';
 import type * as d from '@stencil/core';
 
+import { mockValidatedConfig } from '../../../testing';
+import { mockBuildCtx, mockCompilerCtx } from '../../../testing/compiler';
 import { performAutomaticKeyInsertion } from '../automatic-key-insertion';
 import { convertDecoratorsToStatic } from '../decorators-to-static/convert-decorators';
 import { updateModule } from '../static-to-meta/parse-static';

@@ -1,8 +1,8 @@
-import { mockBuildCtx } from '@stencil/core/testing';
 import ts from 'typescript';
 import { describe, expect, it, beforeEach, vi } from 'vitest';
 import type * as d from '@stencil/core';
 
+import { mockBuildCtx } from '../../../testing/compiler';
 import {
   addStaticStyleGetterWithinClass,
   addStaticStylePropertyToClass,

@@ -1,6 +1,7 @@
 import { Component, h, Prop } from '@stencil/core';
-import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it } from '@stencil/vitest';
+
+import { newSpecPage } from '../../testing';
 
 // Augment JSX to allow attr:* and prop:* prefixed attributes
 declare module '@stencil/core' {

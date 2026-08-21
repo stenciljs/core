@@ -1,8 +1,9 @@
 import { execSync } from 'child_process';
 import * as d from '@stencil/core';
-import { mockBuildCtx, mockValidatedConfig } from '@stencil/core/testing';
 import { beforeEach, describe, expect, it, vi, afterEach, Mock } from 'vitest';
 
+import { mockValidatedConfig } from '../../../testing';
+import { mockBuildCtx } from '../../../testing/compiler';
 import { stubComponentCompilerMeta } from '../../types/_tests_/ComponentCompilerMeta.stub';
 import { writeExportMaps } from '../write-export-maps';
 

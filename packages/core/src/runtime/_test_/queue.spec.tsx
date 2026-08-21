@@ -1,6 +1,7 @@
 import { Component, Method, readTask, writeTask } from '@stencil/core';
-import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it } from '@stencil/vitest';
+
+import { newSpecPage } from '../../testing';
 
 describe('queue', () => {
   it('should execute tasks in the right order', async () => {

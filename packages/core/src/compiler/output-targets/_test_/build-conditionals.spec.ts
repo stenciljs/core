@@ -1,7 +1,7 @@
-import { mockConfig, mockLoadConfigInit } from '@stencil/core/testing';
 import { describe, expect, it, beforeEach } from 'vitest';
 import type * as d from '@stencil/core';
 
+import { mockConfig, mockLoadConfigInit } from '../../../testing';
 import { validateConfig } from '../../config/validate-config';
 import { getLazyBuildConditionals } from '../dist-lazy/lazy-build-conditionals';
 import { getSsrBuildConditionals } from '../ssr/ssr-build-conditionals';

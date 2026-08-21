@@ -1,6 +1,7 @@
 import { Component, Event, EventEmitter, Listen, resolveVar, State } from '@stencil/core';
-import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it, vi } from '@stencil/vitest';
+
+import { newSpecPage } from '../../testing';
 
 describe('listen', () => {
   it('listen to click on host, from elm.click()', async () => {

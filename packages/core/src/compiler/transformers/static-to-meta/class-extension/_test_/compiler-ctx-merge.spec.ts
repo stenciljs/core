@@ -1,14 +1,10 @@
-import {
-  mockBuildCtx,
-  mockCompilerCtx,
-  mockModule,
-  mockValidatedConfig,
-} from '@stencil/core/testing';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { mergeExtendedClassMeta } from '..';
+import { mockModule, mockValidatedConfig } from '../../../../../testing';
+import { mockBuildCtx, mockCompilerCtx } from '../../../../../testing/compiler';
 import { isStaticGetter } from '../../../transform-utils';
 
 describe('mergeExtendedClassMeta', () => {

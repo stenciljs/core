@@ -1,7 +1,8 @@
-import { mockBuildCtx, mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import type * as d from '@stencil/core';
 
+import { mockValidatedConfig } from '../../../../testing';
+import { mockBuildCtx, mockCompilerCtx } from '../../../../testing/compiler';
 import { DIST_LAZY, ASSETS } from '../../../../utils';
 import {
   STENCIL_APP_GLOBALS_ID,

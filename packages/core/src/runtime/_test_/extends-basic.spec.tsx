@@ -1,6 +1,7 @@
 import { Component, h, Prop, Watch } from '@stencil/core';
-import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it } from '@stencil/vitest';
+
+import { newSpecPage } from '../../testing';
 
 describe('extends', () => {
   it('should call inherited watch methods when props change', async () => {

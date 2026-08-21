@@ -1,12 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type * as d from '@stencil/core';
 
-import {
-  mockBuildCtx,
-  mockCompilerCtx,
-  mockCompilerSystem,
-  mockValidatedConfig,
-} from '../../../testing';
+import { mockCompilerSystem, mockValidatedConfig } from '../../../testing';
+import { mockBuildCtx, mockCompilerCtx } from '../../../testing/compiler';
 import { GLOBAL_STYLE, LOADER_BUNDLE, WWW, join } from '../../../utils';
 import * as globalStylesModule from '../../style/global-styles';
 import { outputGlobalStyle } from '../output-global-style';

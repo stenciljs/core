@@ -1,7 +1,8 @@
 import { AttrDeserialize, Component, h, Prop } from '@stencil/core';
-import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it } from '@stencil/vitest';
 import type { ComponentShouldUpdateChanges } from '@stencil/core';
+
+import { newSpecPage } from '../../testing';
 
 function Clamp(lowerBound: number, upperBound: number): any {
   const clamp = (value: number) => Math.max(lowerBound, Math.min(value, upperBound));

@@ -1,11 +1,11 @@
+import { describe, it, beforeAll, beforeEach, afterEach, expect } from 'vitest';
+import type * as d from '@stencil/core';
+
 import {
   createTestCompiler,
   prepareTestCompiler,
   type PreparedTestCompiler,
-} from '@stencil/core/testing';
-import { describe, it, beforeAll, beforeEach, afterEach, expect } from 'vitest';
-import type * as d from '@stencil/core';
-
+} from '../../../testing/compiler';
 import { join } from '../../../utils';
 
 describe('plugin', () => {

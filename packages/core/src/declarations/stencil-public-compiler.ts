@@ -2923,9 +2923,11 @@ export interface CompilerRequestResponse {
 export interface TranspileOptions {
   /**
    * A component can be defined as a custom element by using `customelement`, or the
-   * component class can be exported by using `module`. Default is `customelement`.
+   * component class can be exported by using `module`. Set to `null` to leave the
+   * class's own export as-is (used with `componentMetadata: 'compilerstatic'` for
+   * unit-testing preprocessors). Default is `customelement`.
    */
-  componentExport?: 'customelement' | 'module' | string | undefined;
+  componentExport?: 'customelement' | 'module' | string | null | undefined;
   /**
    * Sets how and if component metadata should be assigned on the compiled
    * component output. The `compilerstatic` value will set the metadata to
@@ -2960,8 +2962,11 @@ export interface TranspileOptions {
   /**
    * How component styles should be associated to the component. The `static`
    * setting will assign the styles as a static getter on the component class.
+   * Set to `null` to skip the assignment entirely (and leave any `styleUrl`
+   * import unresolved) - useful for unit-testing preprocessors that don't
+   * need real stylesheets.
    */
-  style?: 'static' | string | undefined;
+  style?: 'static' | string | null | undefined;
   /**
    * How style data should be added for imports. For example, the `queryparams` value
    * adds the component's tagname and encapsulation info as querystring parameter

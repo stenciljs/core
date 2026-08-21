@@ -1,6 +1,7 @@
 import { Component, getMode, setMode } from '@stencil/core';
-import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it } from '@stencil/vitest';
+
+import { newSpecPage } from '../../testing';
 
 describe('style', () => {
   it('get style string', async () => {

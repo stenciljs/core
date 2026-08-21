@@ -1,6 +1,7 @@
 import { Component, Prop, Watch } from '@stencil/core';
-import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it, vi } from '@stencil/vitest';
+
+import { newSpecPage } from '../../testing';
 
 describe('lifecycle async', () => {
   it('wait for componentWillLoad', async () => {

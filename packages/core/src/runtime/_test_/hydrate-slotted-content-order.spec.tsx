@@ -1,7 +1,7 @@
 import { Component, h } from '@stencil/core';
-import { newSpecPage } from '@stencil/core/testing';
 import { expect, describe, it } from '@stencil/vitest';
 
+import { newSpecPage } from '../../testing';
 import { applyLightDomPatches } from '../dom-extras';
 
 describe("hydrated components' slotted node order", () => {

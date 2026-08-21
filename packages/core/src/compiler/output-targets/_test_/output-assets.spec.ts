@@ -1,13 +1,8 @@
 import { describe, expect, it, beforeEach, vi, afterEach } from 'vitest';
 import type * as d from '@stencil/core';
 
-import {
-  mockBuildCtx,
-  mockCompilerCtx,
-  mockCompilerSystem,
-  mockComponentMeta,
-  mockValidatedConfig,
-} from '../../../testing';
+import { mockCompilerSystem, mockComponentMeta, mockValidatedConfig } from '../../../testing';
+import { mockBuildCtx, mockCompilerCtx } from '../../../testing/compiler';
 import { ASSETS, WWW, join } from '../../../utils';
 import { outputAssets } from '../output-assets';
 

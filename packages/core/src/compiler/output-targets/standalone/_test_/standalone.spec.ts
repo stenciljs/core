@@ -1,8 +1,9 @@
 import path from 'path';
-import { mockBuildCtx, mockCompilerCtx, mockValidatedConfig } from '@stencil/core/testing';
 import { describe, expect, it, beforeEach, vi, MockInstance, afterEach } from 'vitest';
 import type * as d from '@stencil/core';
 
+import { mockValidatedConfig } from '../../../../testing';
+import { mockBuildCtx, mockCompilerCtx } from '../../../../testing/compiler';
 import { STANDALONE } from '../../../../utils';
 import { BundleOptions } from '../../../bundle/bundle-interface';
 import * as bundleOutputMod from '../../../bundle/bundle-output';
