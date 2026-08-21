@@ -95,13 +95,6 @@ describe('validateOutputTargetWww', () => {
         dir: join(rootDir, 'www', 'docs'),
         type: 'copy',
       },
-      {
-        dir: join(rootDir, 'src'),
-        footer: '*Built with [StencilJS](https://stenciljs.com/)*',
-        strict: false,
-        type: 'docs-readme',
-        skipInDev: true,
-      },
     ]);
   });
 
