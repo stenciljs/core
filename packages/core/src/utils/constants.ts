@@ -173,6 +173,18 @@ export const CMP_FLAGS = {
    * Equivalent to the global `experimentalSlotFixes` config option.
    */
   patchAll: 1 << 15,
+
+  /**
+   * Determines if `clonable` is enabled for a component that uses the shadow DOM.
+   * e.g. `encapsulation: { type: 'shadow', clonable: true }` is set on the `@Component()` decorator
+   */
+  shadowClonable: 1 << 16,
+
+  /**
+   * Determines if `serializable` is enabled for a component that uses the shadow DOM.
+   * e.g. `encapsulation: { type: 'shadow', serializable: true }` is set on the `@Component()` decorator
+   */
+  shadowSerializable: 1 << 17,
 } as const;
 
 /**

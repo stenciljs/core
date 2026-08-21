@@ -48,6 +48,44 @@ export const parseStaticShadowDelegatesFocus = (
 };
 
 /**
+ * Find and return if `clonable` is enabled for a component based on the return value of its static getter of the
+ * same name.
+ *
+ * @param encapsulation the encapsulation mode to use for a component
+ * @param staticMembers a collection of static getters to search
+ * @returns `true` if encapsulation is 'shadow' and the `clonable` static getter returns true
+ */
+export const parseStaticShadowClonable = (
+  encapsulation: string,
+  staticMembers: ts.ClassElement[],
+): boolean | null => {
+  if (encapsulation === 'shadow') {
+    const clonable: boolean = getStaticValue(staticMembers, 'clonable');
+    return !!clonable;
+  }
+  return null;
+};
+
+/**
+ * Find and return if `serializable` is enabled for a component based on the return value of its static getter of
+ * the same name.
+ *
+ * @param encapsulation the encapsulation mode to use for a component
+ * @param staticMembers a collection of static getters to search
+ * @returns `true` if encapsulation is 'shadow' and the `serializable` static getter returns true
+ */
+export const parseStaticShadowSerializable = (
+  encapsulation: string,
+  staticMembers: ts.ClassElement[],
+): boolean | null => {
+  if (encapsulation === 'shadow') {
+    const serializable: boolean = getStaticValue(staticMembers, 'serializable');
+    return !!serializable;
+  }
+  return null;
+};
+
+/**
  * Find and return the `slotAssignment` mode for a component.
  *
  * @param encapsulation the encapsulation mode to use for a component

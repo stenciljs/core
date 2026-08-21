@@ -33,6 +33,12 @@ export const formatComponentRuntimeMeta = (
     if (compilerMeta.shadowMode === 'closed') {
       flags |= CMP_FLAGS.shadowModeClosed;
     }
+    if (compilerMeta.shadowClonable) {
+      flags |= CMP_FLAGS.shadowClonable;
+    }
+    if (compilerMeta.shadowSerializable) {
+      flags |= CMP_FLAGS.shadowSerializable;
+    }
   } else if (compilerMeta.encapsulation === 'scoped') {
     flags |= CMP_FLAGS.scopedCssEncapsulation;
   }

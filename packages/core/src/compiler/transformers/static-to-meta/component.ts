@@ -28,8 +28,10 @@ import { parseStaticElementRef } from './element-ref';
 import {
   parseStaticEncapsulation,
   parseStaticPatches,
+  parseStaticShadowClonable,
   parseStaticShadowDelegatesFocus,
   parseStaticShadowMode,
+  parseStaticShadowSerializable,
   parseStaticSlotAssignment,
 } from './encapsulation';
 import { parseFormAssociated } from './form-associated';
@@ -127,6 +129,8 @@ export const parseStaticComponentMeta = (
     elementRef: parseStaticElementRef(staticMembers),
     encapsulation,
     shadowDelegatesFocus: !!parseStaticShadowDelegatesFocus(encapsulation, staticMembers),
+    shadowClonable: !!parseStaticShadowClonable(encapsulation, staticMembers),
+    shadowSerializable: !!parseStaticShadowSerializable(encapsulation, staticMembers),
     shadowMode: parseStaticShadowMode(encapsulation, staticMembers),
     slotAssignment: parseStaticSlotAssignment(encapsulation, staticMembers),
     patches: parseStaticPatches(encapsulation, staticMembers),

@@ -106,6 +106,8 @@ export const mockComponentMeta = (
   properties: [],
   serializers: [],
   shadowDelegatesFocus: false,
+  shadowClonable: false,
+  shadowSerializable: false,
   shadowMode: null,
   slotAssignment: null,
   sourceFilePath: '/some/stubbed/path/my-component.tsx',
