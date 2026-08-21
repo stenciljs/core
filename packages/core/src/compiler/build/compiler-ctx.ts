@@ -121,6 +121,7 @@ export const getModuleLegacy = (compilerCtx: d.CompilerCtx, sourceFilePath: stri
       hasVdomKey: false,
       hasVdomListener: false,
       hasVdomPropOrAttr: false,
+      hasVdomPropOrAttrPrefix: false,
       hasVdomRef: false,
       hasVdomRender: false,
       hasVdomStyle: false,

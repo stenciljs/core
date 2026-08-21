@@ -184,7 +184,11 @@ export const setAccessor = (
         plt.ael(elm, memberName, newValue, capture);
       }
     }
-  } else if (BUILD.vdomPropOrAttr && memberName[0] === 'a' && memberName.startsWith('attr:')) {
+  } else if (
+    BUILD.vdomPropOrAttrPrefix &&
+    memberName[0] === 'a' &&
+    memberName.startsWith('attr:')
+  ) {
     // Explicit attr: prefix - always set as attribute, bypass heuristic
     const propName = memberName.slice(5);
     // Look up the actual attribute name from component metadata
@@ -212,7 +216,11 @@ export const setAccessor = (
       elm.setAttribute(attrName, newValue === true ? '' : newValue);
     }
     return;
-  } else if (BUILD.vdomPropOrAttr && memberName[0] === 'p' && memberName.startsWith('prop:')) {
+  } else if (
+    BUILD.vdomPropOrAttrPrefix &&
+    memberName[0] === 'p' &&
+    memberName.startsWith('prop:')
+  ) {
     // Explicit prop: prefix - always set as property, bypass heuristic
     const propName = memberName.slice(5);
     try {

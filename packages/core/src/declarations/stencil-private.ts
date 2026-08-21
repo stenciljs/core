@@ -117,6 +117,8 @@ export interface BuildFeatures {
   vdomKey: boolean;
   vdomListener: boolean;
   vdomPropOrAttr: boolean;
+  /** True when at least one component uses the explicit `attr:`/`prop:` JSX prefix. */
+  vdomPropOrAttrPrefix: boolean;
   vdomRef: boolean;
   vdomStyle: boolean;
   vdomText: boolean;
@@ -615,6 +617,7 @@ export interface ComponentCompilerFeatures {
   hasVdomKey: boolean;
   hasVdomListener: boolean;
   hasVdomPropOrAttr: boolean;
+  hasVdomPropOrAttrPrefix: boolean;
   hasVdomRef: boolean;
   hasVdomRender: boolean;
   hasVdomStyle: boolean;
@@ -1353,6 +1356,7 @@ export interface Module {
   hasVdomKey: boolean;
   hasVdomListener: boolean;
   hasVdomPropOrAttr: boolean;
+  hasVdomPropOrAttrPrefix: boolean;
   hasVdomRef: boolean;
   hasVdomRender: boolean;
   hasVdomStyle: boolean;

@@ -72,6 +72,7 @@ export const getBuildFeatures = (cmps: ComponentCompilerMeta[]): BuildFeatures =
     vdomKey: cmps.some((c) => c.hasVdomKey),
     vdomListener: cmps.some((c) => c.hasVdomListener),
     vdomPropOrAttr: cmps.some((c) => c.hasVdomPropOrAttr),
+    vdomPropOrAttrPrefix: cmps.some((c) => c.hasVdomPropOrAttrPrefix),
     vdomRef: cmps.some((c) => c.hasVdomRef),
     vdomRender: cmps.some((c) => c.hasVdomRender),
     vdomStyle: cmps.some((c) => c.hasVdomStyle),
@@ -101,6 +102,8 @@ export const updateComponentBuildConditionals = (
       // otherwise we get the boolean value from the imported module
       cmp.hasVdomAttribute = cmp.hasVdomAttribute || importedModule.hasVdomAttribute;
       cmp.hasVdomPropOrAttr = cmp.hasVdomPropOrAttr || importedModule.hasVdomPropOrAttr;
+      cmp.hasVdomPropOrAttrPrefix =
+        cmp.hasVdomPropOrAttrPrefix || importedModule.hasVdomPropOrAttrPrefix;
       cmp.hasVdomXlink = cmp.hasVdomXlink || importedModule.hasVdomXlink;
       cmp.hasVdomClass = cmp.hasVdomClass || importedModule.hasVdomClass;
       cmp.hasVdomFunctional = cmp.hasVdomFunctional || importedModule.hasVdomFunctional;

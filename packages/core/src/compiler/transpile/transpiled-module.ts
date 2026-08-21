@@ -46,6 +46,7 @@ export const createModule = (
   hasVdomKey: false,
   hasVdomListener: false,
   hasVdomPropOrAttr: false,
+  hasVdomPropOrAttrPrefix: false,
   hasVdomRef: false,
   hasVdomRender: false,
   hasVdomStyle: false,

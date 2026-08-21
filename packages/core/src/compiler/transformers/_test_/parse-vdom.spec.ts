@@ -121,6 +121,48 @@ describe('parse vdom', () => {
     expect(t.cmp.hasVdomStyle).toBe(true);
   });
 
+  it('hasVdomPropOrAttrPrefix with attr: prefix', () => {
+    const t = transpileModule(`
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        render() {
+          return <input attr:value="1"/>
+        }
+      }
+    `);
+
+    expect(t.cmp.hasVdomPropOrAttrPrefix).toBe(true);
+    expect(t.cmp.hasVdomPropOrAttr).toBe(false);
+  });
+
+  it('hasVdomPropOrAttrPrefix with prop: prefix', () => {
+    const t = transpileModule(`
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        render() {
+          return <input prop:value="1"/>
+        }
+      }
+    `);
+
+    expect(t.cmp.hasVdomPropOrAttrPrefix).toBe(true);
+    expect(t.cmp.hasVdomPropOrAttr).toBe(false);
+  });
+
+  it('hasVdomPropOrAttrPrefix stays false for plain attributes', () => {
+    const t = transpileModule(`
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        render() {
+          return <some-cmp value="1"/>
+        }
+      }
+    `);
+
+    expect(t.cmp.hasVdomPropOrAttrPrefix).toBe(false);
+    expect(t.cmp.hasVdomPropOrAttr).toBe(true);
+  });
+
   it('hasVdomText', () => {
     const t = transpileModule(`
       @Component({tag: 'cmp-a'})
