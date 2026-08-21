@@ -42,6 +42,7 @@ export const BUILD: BuildConditionals = {
   vdomListener: true,
   vdomRef: true,
   vdomPropOrAttr: true,
+  vdomPropOrAttrPrefix: true,
   vdomRender: true,
   vdomStyle: true,
   vdomText: true,

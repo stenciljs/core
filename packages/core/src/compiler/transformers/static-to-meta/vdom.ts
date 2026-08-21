@@ -48,6 +48,7 @@ export const gatherVdomMeta = (
       m.hasVdomKey = true;
       m.hasVdomListener = true;
       m.hasVdomPropOrAttr = true;
+      m.hasVdomPropOrAttrPrefix = true;
       m.hasVdomRef = true;
       m.hasVdomStyle = true;
       m.hasVdomXlink = true;
@@ -61,6 +62,7 @@ export const gatherVdomMeta = (
           m.hasVdomKey = true;
           m.hasVdomListener = true;
           m.hasVdomPropOrAttr = true;
+          m.hasVdomPropOrAttrPrefix = true;
           m.hasVdomRef = true;
           m.hasVdomStyle = true;
           m.hasVdomXlink = true;
@@ -80,6 +82,8 @@ export const gatherVdomMeta = (
           } else if (attrName.startsWith('xlink')) {
             m.hasVdomXlink = true;
             m.hasVdomPropOrAttr = true;
+          } else if (attrName.startsWith('attr:') || attrName.startsWith('prop:')) {
+            m.hasVdomPropOrAttrPrefix = true;
           } else {
             m.hasVdomPropOrAttr = true;
           }

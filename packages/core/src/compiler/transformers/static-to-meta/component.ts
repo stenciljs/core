@@ -202,6 +202,7 @@ export const parseStaticComponentMeta = (
     hasVdomKey: false,
     hasVdomListener: false,
     hasVdomPropOrAttr: false,
+    hasVdomPropOrAttrPrefix: false,
     hasVdomRef: false,
     hasVdomRender: false,
     hasVdomStyle: false,

@@ -71,6 +71,7 @@ export const stubComponentCompilerMeta = (
   hasVdomKey: false,
   hasVdomListener: false,
   hasVdomPropOrAttr: false,
+  hasVdomPropOrAttrPrefix: false,
   hasVdomRef: false,
   hasVdomRender: false,
   hasVdomStyle: false,

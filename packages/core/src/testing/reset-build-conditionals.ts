@@ -32,6 +32,7 @@ export function resetBuildConditionals(b: d.BuildConditionals) {
   b.vdomFunctional = true;
   b.vdomKey = true;
   b.vdomPropOrAttr = true;
+  b.vdomPropOrAttrPrefix = true;
   b.vdomRef = true;
   b.vdomListener = true;
   b.vdomStyle = true;

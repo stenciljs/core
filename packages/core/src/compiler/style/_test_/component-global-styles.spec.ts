@@ -366,6 +366,7 @@ function mockCmp(overrides: Partial<d.ComponentCompilerMeta>): d.ComponentCompil
     hasVdomKey: false,
     hasVdomListener: false,
     hasVdomPropOrAttr: false,
+    hasVdomPropOrAttrPrefix: false,
     hasVdomRef: false,
     hasVdomRender: false,
     hasVdomStyle: false,
