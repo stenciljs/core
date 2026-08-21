@@ -224,7 +224,7 @@ describe('validation', () => {
     expect(config.devMode).toBe(false);
   });
 
-  it.each([DOCS_JSON, DOCS_CUSTOM, DOCS_VSCODE])(
+  it.each([DOCS_JSON, DOCS_CUSTOM, DOCS_VSCODE, DOCS_README])(
     'should not add "%s" output target by default',
     (targetType) => {
       const { config } = validateConfig(userConfig, bootstrapConfig);
@@ -232,14 +232,8 @@ describe('validation', () => {
     },
   );
 
-  it('should add "docs-readme" output target by default in production mode', () => {
+  it('should not add "docs-readme" output target by default in production mode', () => {
     userConfig.devMode = false;
-    const { config } = validateConfig(userConfig, bootstrapConfig);
-    expect(config.outputTargets.some((o) => o.type === DOCS_README)).toBe(true);
-  });
-
-  it('should not add "docs-readme" output target in dev mode', () => {
-    userConfig.devMode = true;
     const { config } = validateConfig(userConfig, bootstrapConfig);
     expect(config.outputTargets.some((o) => o.type === DOCS_README)).toBe(false);
   });

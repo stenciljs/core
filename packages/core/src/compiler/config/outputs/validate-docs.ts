@@ -4,7 +4,6 @@ import type * as d from '@stencil/core';
 import {
   buildError,
   DOCS_JSON,
-  DOCS_README,
   isBoolean,
   isFunction,
   isOutputTargetDocsAgentSkill,
@@ -42,15 +41,6 @@ export const validateDocs = (
   jsonDocsOutputs.forEach((jsonDocsOutput) => {
     docsOutputs.push(validateJsonDocsOutputTarget(config, diagnostics, jsonDocsOutput));
   });
-
-  // Auto-add docs-readme in production mode, or when --docs flag is used
-  // (In dev mode without --docs flag, user must explicitly configure docs-readme)
-  if (!config.devMode || config._docsFlag) {
-    if (!userOutputs.some(isOutputTargetDocsReadme)) {
-      // didn't provide a docs config, so let's add one
-      docsOutputs.push(validateReadmeOutputTarget(config, { type: DOCS_README }));
-    }
-  }
 
   // readme docs
   const readmeDocsOutputs = userOutputs.filter(isOutputTargetDocsReadme);
