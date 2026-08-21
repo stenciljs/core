@@ -185,3 +185,4 @@ extensionless
 rgba
 unhashed
 Unparseable
+compilerstatic
