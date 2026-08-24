@@ -139,14 +139,14 @@ export function createCustomElement(
       get(obj: any, prop: string) {
         const elm = proxyElements.get(host);
         if (elm != null) {
-          return elm[prop];
+          return Reflect.get(elm, prop, host);
         }
         return obj[prop];
       },
       set(obj: any, prop: string, val: any) {
         const elm = proxyElements.get(host);
         if (elm != null) {
-          elm[prop] = val;
+          Reflect.set(elm, prop, val, host);
         } else {
           obj[prop] = val;
         }
@@ -161,6 +161,26 @@ export function createCustomElement(
           return true;
         }
         return false;
+      },
+      defineProperty(obj: any, prop: string, descriptor: PropertyDescriptor) {
+        const elm = proxyElements.get(host);
+        return Reflect.defineProperty(elm != null ? elm : obj, prop, descriptor);
+      },
+      deleteProperty(obj: any, prop: string) {
+        const elm = proxyElements.get(host);
+        return Reflect.deleteProperty(elm != null ? elm : obj, prop);
+      },
+      getOwnPropertyDescriptor(obj: any, prop: string) {
+        const elm = proxyElements.get(host);
+        return Reflect.getOwnPropertyDescriptor(elm != null ? elm : obj, prop);
+      },
+      ownKeys(obj: any) {
+        const elm = proxyElements.get(host);
+        return Reflect.ownKeys(elm != null ? elm : obj);
+      },
+      getPrototypeOf(obj: any) {
+        const elm = proxyElements.get(host);
+        return Reflect.getPrototypeOf(elm != null ? elm : obj);
       },
     },
   );

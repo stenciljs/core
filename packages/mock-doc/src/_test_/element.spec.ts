@@ -610,6 +610,46 @@ describe('element', () => {
     });
   });
 
+  describe('sibling traversal with an inconsistent tree', () => {
+    it('nextElementSibling returns null, not the wrong element, when self is not found', () => {
+      const parent = new MockElement(doc, 'div');
+      const a = new MockElement(doc, 'span');
+      const b = new MockElement(doc, 'span');
+      parent.appendChild(a);
+      parent.appendChild(b);
+
+      // Simulate a stale parent pointer: `a` still thinks `parent` is its
+      // parent, but `parent`'s own children no longer include it.
+      parent.childNodes = parent.childNodes.filter((n) => n !== a);
+
+      expect(a.nextElementSibling).toBe(null);
+    });
+
+    it('previousElementSibling returns null, not the wrong element, when self is not found', () => {
+      const parent = new MockElement(doc, 'div');
+      const a = new MockElement(doc, 'span');
+      const b = new MockElement(doc, 'span');
+      parent.appendChild(a);
+      parent.appendChild(b);
+
+      parent.childNodes = parent.childNodes.filter((n) => n !== b);
+
+      expect(b.previousElementSibling).toBe(null);
+    });
+
+    it('nextSibling returns null, not the wrong node, when self is not found', () => {
+      const parent = new MockElement(doc, 'div');
+      const a = new MockElement(doc, 'span');
+      const b = new MockElement(doc, 'span');
+      parent.appendChild(a);
+      parent.appendChild(b);
+
+      parent.childNodes = parent.childNodes.filter((n) => n !== a);
+
+      expect(a.nextSibling).toBe(null);
+    });
+  });
+
   describe('input', () => {
     it('list is readonly prop', () => {
       const input = doc.createElement('input');

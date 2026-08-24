@@ -35,8 +35,11 @@ export interface StencilPluginOptions {
    *
    * `'spec-page'` transpiles components for use with `newSpecPage()` from
    * `@stencil/core/testing`: no self-registration, static `COMPILER_META`
-   * for the mock-doc registry instead. Use `stencilSpecPage` rather than
-   * setting this directly.
+   * for the mock-doc registry instead. Also redirects any bare `@stencil/core`
+   * import to `@stencil/core/testing`, so a test file that (mistakenly) imports
+   * e.g. `setMode` from `@stencil/core` still shares the one platform instance
+   * instead of silently getting a disconnected copy. Use `stencilSpecPage`
+   * rather than setting this directly.
    */
   mode?: 'build' | 'spec-page';
 
