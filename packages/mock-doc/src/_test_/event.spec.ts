@@ -324,4 +324,86 @@ describe('event', () => {
       expect(composedPath[5]).toBe(win);
     });
   });
+
+  describe('addEventListener options', () => {
+    let doc: MockDocument;
+
+    beforeEach(() => {
+      doc = win.document as unknown as MockDocument;
+    });
+
+    it('once: true - handler fires exactly once across multiple dispatches', () => {
+      const elm = new MockElement(doc, 'div');
+      doc.body.appendChild(elm);
+      let calls = 0;
+      elm.addEventListener('click', () => calls++, { once: true });
+
+      elm.dispatchEvent(new MockEvent('click'));
+      elm.dispatchEvent(new MockEvent('click'));
+      elm.dispatchEvent(new MockEvent('click'));
+
+      expect(calls).toBe(1);
+    });
+
+    it('once: true - a handler that re-dispatches the same event type synchronously does not fire itself again', () => {
+      const elm = new MockElement(doc, 'div');
+      doc.body.appendChild(elm);
+      let calls = 0;
+      elm.addEventListener(
+        'click',
+        () => {
+          calls++;
+          if (calls === 1) {
+            // Reentrant dispatch, e.g. a handler that forwards the event onward.
+            elm.dispatchEvent(new MockEvent('click'));
+          }
+        },
+        { once: true },
+      );
+
+      elm.dispatchEvent(new MockEvent('click'));
+
+      expect(calls).toBe(1);
+    });
+
+    it('once: false (default) - handler fires on every dispatch', () => {
+      const elm = new MockElement(doc, 'div');
+      doc.body.appendChild(elm);
+      let calls = 0;
+      elm.addEventListener('click', () => calls++);
+
+      elm.dispatchEvent(new MockEvent('click'));
+      elm.dispatchEvent(new MockEvent('click'));
+
+      expect(calls).toBe(2);
+    });
+
+    it('removeEventListener removes a listener added with the boolean (capture) form', () => {
+      const elm = new MockElement(doc, 'div');
+      doc.body.appendChild(elm);
+      let calls = 0;
+      const handler = () => calls++;
+      elm.addEventListener('click', handler, true);
+      elm.removeEventListener('click', handler, true);
+
+      elm.dispatchEvent(new MockEvent('click'));
+
+      expect(calls).toBe(0);
+    });
+
+    it('removeEventListener requires a matching capture flag to remove the listener', () => {
+      const elm = new MockElement(doc, 'div');
+      doc.body.appendChild(elm);
+      let calls = 0;
+      const handler = () => calls++;
+      elm.addEventListener('click', handler, { capture: true });
+      // Mismatched capture flag - per the DOM spec, listeners are keyed by
+      // type + handler + capture, so this should not remove anything.
+      elm.removeEventListener('click', handler, { capture: false });
+
+      elm.dispatchEvent(new MockEvent('click'));
+
+      expect(calls).toBe(1);
+    });
+  });
 });

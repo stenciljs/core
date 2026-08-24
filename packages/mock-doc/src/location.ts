@@ -1,3 +1,5 @@
+const DEFAULT_LOCATION_HREF = 'http://localhost/';
+
 export class MockLocation implements Location {
   ancestorOrigins: any = null;
   protocol = '';
@@ -28,6 +30,11 @@ export class MockLocation implements Location {
     this.username = url.username;
     this.password = url.password;
     this.origin = url.origin;
+  }
+
+  constructor() {
+    // default to a parseable URL so `new URL(value, location.href)` works
+    this.href = DEFAULT_LOCATION_HREF;
   }
 
   assign(_url: string) {

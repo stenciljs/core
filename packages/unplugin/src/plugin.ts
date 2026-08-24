@@ -25,6 +25,11 @@
  *  4. **HMR** - Vite receives a custom `stencil:hmr` WebSocket event when a
  *     component file changes; other bundlers use the `module.hot` re-execution
  *     pattern. CSS changes are covered automatically by `addWatchFile`.
+ *
+ *  5. **spec-page module resolution** - `mode: 'spec-page'` (`stencilSpecPage`)
+ *     redirects every bare `@stencil/core` import to `@stencil/core/testing` via
+ *     `resolveId`, so the whole test file - not just compiler output - resolves
+ *     to a single platform instance.
  */
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -131,6 +136,17 @@ const VIRTUAL_BASE_PREFIX = '\0stencil-base:';
 // Mirrors the compiler's hasSignalsImport check in static-to-meta/import.ts.
 const SIGNALS_IMPORT_RE = /from\s+['"]@stencil\/core\/signals['"]/;
 
+// `this.resolve` isn't part of unplugin's cross-bundler `resolveId` context type
+// (not every backend has it), but it is present on Vite/Rollup's real plugin
+// context - the only framework `stencilSpecPage` runs through (`unpluginStencil.vite`).
+interface RollupResolveContext {
+  resolve(
+    id: string,
+    importer?: string,
+    options?: { skipSelf?: boolean },
+  ): Promise<{ id: string; external?: boolean } | null>;
+}
+
 export const unpluginStencil = createUnplugin(
   (options: StencilPluginOptions | undefined = {}, meta) => {
     const { framework } = meta;
@@ -200,8 +216,24 @@ export const unpluginStencil = createUnplugin(
         if (options.docs) await scanDocs(filter);
       },
 
-      resolveId(id, importer) {
+      async resolveId(id, importer) {
         if (id === STENCIL_DOCS_ID) return VIRTUAL_DOCS_PREFIX;
+
+        // spec-page mode transpiles components against `@stencil/core/testing`'s
+        // platform (hostRefs, mode chain, etc. - a separate module instance from
+        // the real runtime). Any other file that imports the bare `@stencil/core`
+        // specifier - a test file calling `setMode`, a helper, a mock - would
+        // otherwise resolve to that other instance and silently stop working.
+        // Redirecting here (like Jest's old `moduleNameMapper`) guarantees a
+        // single platform instance for every file, not just compiler output.
+        if (options.mode === 'spec-page' && id === '@stencil/core') {
+          return (this as unknown as RollupResolveContext).resolve(
+            '@stencil/core/testing',
+            importer,
+            { skipSelf: true },
+          );
+        }
+
         if (!importer) return null;
 
         const css = resolveStencilCss(id, importer);

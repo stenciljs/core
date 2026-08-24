@@ -156,10 +156,19 @@ export class MockFocusEvent extends MockUIEvent {
 class MockEventListener {
   type: string;
   handler: (ev?: any) => void;
+  capture: boolean;
+  once: boolean;
 
-  constructor(type: string, handler: any) {
+  constructor(type: string, handler: any, options?: boolean | AddEventListenerOptions) {
     this.type = type;
     this.handler = handler;
+    if (typeof options === 'boolean') {
+      this.capture = options;
+      this.once = false;
+    } else {
+      this.capture = options?.capture ?? false;
+      this.once = options?.once ?? false;
+    }
   }
 }
 
@@ -169,15 +178,21 @@ class MockEventListener {
  * @param elm - the element to add the listener to
  * @param type - the event type to listen for
  * @param handler - the event handler function
+ * @param options - `capture` and `once` are supported; `passive` and `signal` are accepted but not implemented
  */
-export function addEventListener(elm: any, type: string, handler: any) {
+export function addEventListener(
+  elm: any,
+  type: string,
+  handler: any,
+  options?: boolean | AddEventListenerOptions,
+) {
   const target: EventTarget = elm;
 
   if (target.__listeners == null) {
     target.__listeners = [];
   }
 
-  target.__listeners.push(new MockEventListener(type, handler));
+  target.__listeners.push(new MockEventListener(type, handler, options));
 }
 
 /**
@@ -186,12 +201,21 @@ export function addEventListener(elm: any, type: string, handler: any) {
  * @param elm - the element to remove the listener from
  * @param type - the event type to remove
  * @param handler - the event handler function to remove
+ * @param options - only `capture` is relevant here, since listeners are keyed by type + handler + capture
  */
-export function removeEventListener(elm: any, type: string, handler: any) {
+export function removeEventListener(
+  elm: any,
+  type: string,
+  handler: any,
+  options?: boolean | EventListenerOptions,
+) {
   const target: EventTarget = elm;
+  const capture = typeof options === 'boolean' ? options : (options?.capture ?? false);
 
   if (target != null && Array.isArray(target.__listeners) === true) {
-    const elmListener = target.__listeners.find((e) => e.type === type && e.handler === handler);
+    const elmListener = target.__listeners.find(
+      (e) => e.type === type && e.handler === handler && e.capture === capture,
+    );
     if (elmListener != null) {
       const index = target.__listeners.indexOf(elmListener);
       target.__listeners.splice(index, 1);
@@ -227,6 +251,12 @@ function triggerEventListener(elm: any, ev: MockEvent) {
   if (Array.isArray(target.__listeners) === true) {
     const listeners = target.__listeners.filter((e) => e.type === ev.type);
     listeners.forEach((listener) => {
+      // Remove `once` listeners before invoking, so a handler that re-enters
+      // (dispatches the same event type again synchronously, directly or
+      // indirectly) can't have this listener fire a second time.
+      if (listener.once) {
+        removeEventListener(target, listener.type, listener.handler, { capture: listener.capture });
+      }
       try {
         listener.handler.call(target, ev);
       } catch (err) {

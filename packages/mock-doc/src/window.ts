@@ -96,8 +96,12 @@ export class MockWindow {
     resetWindowDimensions(this);
   }
 
-  addEventListener(type: string, handler: (ev?: any) => void) {
-    addEventListener(this, type, handler);
+  addEventListener(
+    type: string,
+    handler: (ev?: any) => void,
+    options?: boolean | AddEventListenerOptions,
+  ) {
+    addEventListener(this, type, handler, options);
   }
 
   alert(msg: string) {
@@ -383,8 +387,8 @@ export class MockWindow {
     return this.location.origin;
   }
 
-  removeEventListener(type: string, handler: any) {
-    removeEventListener(this, type, handler);
+  removeEventListener(type: string, handler: any, options?: boolean | EventListenerOptions) {
+    removeEventListener(this, type, handler, options);
   }
 
   requestAnimationFrame(callback: (timestamp: number) => void) {

@@ -2,6 +2,19 @@ import { describe, it, expect, beforeEach } from '@stencil/vitest';
 
 import { MockWindow } from '../window';
 
+describe('location default', () => {
+  it('has a valid href before any navigation, like a real browser tab', () => {
+    const win = new MockWindow(`<html></html>`);
+    expect(win.location.href).toBe('http://localhost/');
+    expect(win.location.origin).toBe('http://localhost');
+  });
+
+  it('supports relative URL resolution against the default href', () => {
+    const win = new MockWindow(`<html></html>`);
+    expect(new URL('/foo', win.location.href).href).toBe('http://localhost/foo');
+  });
+});
+
 describe('location.href', () => {
   let win: MockWindow;
   beforeEach(() => {

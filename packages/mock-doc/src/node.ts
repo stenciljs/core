@@ -215,8 +215,11 @@ export class MockNode {
 
   get nextSibling(): MockNode | null {
     if (this.parentNode != null) {
-      const index = this.parentNode.childNodes.indexOf(this) + 1;
-      return this.parentNode.childNodes[index] || null;
+      const selfIndex = this.parentNode.childNodes.indexOf(this);
+      if (selfIndex === -1) {
+        return null;
+      }
+      return this.parentNode.childNodes[selfIndex + 1] || null;
     }
     return null;
   }
@@ -303,12 +306,16 @@ export class MockNode {
     this._nodeValue = String(value);
   }
 
-  addEventListener(type: string, handler: (ev?: any) => void) {
-    addEventListener(this, type, handler);
+  addEventListener(
+    type: string,
+    handler: (ev?: any) => void,
+    options?: boolean | AddEventListenerOptions,
+  ) {
+    addEventListener(this, type, handler, options);
   }
 
-  removeEventListener(type: string, handler: any) {
-    removeEventListener(this, type, handler);
+  removeEventListener(type: string, handler: any, options?: boolean | EventListenerOptions) {
+    removeEventListener(this, type, handler, options);
   }
 
   dispatchEvent(ev: MockEvent) {
@@ -375,8 +382,12 @@ export class MockElement extends MockNode {
     this.__attributeMap = null;
   }
 
-  override addEventListener(type: string, handler: (ev?: any) => void) {
-    addEventListener(this, type, handler);
+  override addEventListener(
+    type: string,
+    handler: (ev?: any) => void,
+    options?: boolean | AddEventListenerOptions,
+  ) {
+    addEventListener(this, type, handler, options);
   }
 
   attachShadow(_opts: ShadowRootInit) {
@@ -776,8 +787,11 @@ export class MockElement extends MockNode {
         parentElement.nodeType === NODE_TYPES.DOCUMENT_NODE)
     ) {
       const children = parentElement.children;
-      const index = children.indexOf(this) + 1;
-      return parentElement.children[index] || null;
+      const selfIndex = children.indexOf(this);
+      if (selfIndex === -1) {
+        return null;
+      }
+      return parentElement.children[selfIndex + 1] || null;
     }
     return null;
   }
@@ -799,8 +813,11 @@ export class MockElement extends MockNode {
         parentElement.nodeType === NODE_TYPES.DOCUMENT_NODE)
     ) {
       const children = parentElement.children;
-      const index = children.indexOf(this) - 1;
-      return parentElement.children[index] || null;
+      const selfIndex = children.indexOf(this);
+      if (selfIndex === -1) {
+        return null;
+      }
+      return parentElement.children[selfIndex - 1] || null;
     }
     return null;
   }
@@ -868,8 +885,12 @@ export class MockElement extends MockNode {
     }
   }
 
-  override removeEventListener(type: string, handler: any) {
-    removeEventListener(this, type, handler);
+  override removeEventListener(
+    type: string,
+    handler: any,
+    options?: boolean | EventListenerOptions,
+  ) {
+    removeEventListener(this, type, handler, options);
   }
 
   setAttribute(attrName: string, value: any) {

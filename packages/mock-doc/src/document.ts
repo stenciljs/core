@@ -17,7 +17,7 @@ import { MockWindow } from './window';
  * Interface for nwsapi instance methods we use.
  */
 interface NwsapiInstance {
-  configure(config: { LOGERRORS?: boolean; VERBOSITY?: boolean }): void;
+  configure(config: { LOGERRORS?: boolean; VERBOSITY?: boolean; IDS_DUPES?: boolean }): void;
   match(selector: string, element: unknown): boolean;
   first(selector: string, context: unknown): unknown | null;
   select(selector: string, context: unknown): unknown[];
@@ -86,6 +86,7 @@ export class MockDocument extends MockHTMLElement {
       this.#nwsapi.configure({
         LOGERRORS: false,
         VERBOSITY: false,
+        IDS_DUPES: false,
       });
     }
     return this.#nwsapi;
