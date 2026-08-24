@@ -287,6 +287,35 @@ export function resetDocument(doc: Document) {
   }
 }
 
+export function resetDocumentForReuse(doc: MockDocument, win: MockWindow, html: string) {
+  resetDocument(doc as any);
+
+  for (const key of Reflect.ownKeys(doc)) {
+    if (typeof key !== 'string' || !REUSABLE_DOC_KEY_KEEPERS.has(key)) {
+      delete (doc as any)[key];
+    }
+  }
+
+  doc.defaultView = win;
+  const parsedDocument = parseDocumentUtil(doc, html);
+
+  // Fresh elements ensure runtime style caches do not retain the previous head.
+  doc.documentElement = parsedDocument.documentElement;
+}
+
+const REUSABLE_DOC_KEY_KEEPERS = new Set([
+  '_nodeValue',
+  'nodeName',
+  'nodeType',
+  'ownerDocument',
+  'parentNode',
+  '_childNodes',
+  '__namespaceURI',
+  'defaultView',
+  'cookie',
+  'referrer',
+]);
+
 const DOC_KEY_KEEPERS = new Set([
   'nodeName',
   'nodeType',
