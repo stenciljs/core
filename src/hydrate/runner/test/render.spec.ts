@@ -73,7 +73,7 @@ describe('reusable hydrate window', () => {
     expect((secondWindow.performance as any).requestState).toBeUndefined();
     expect(secondWindow.console.log).not.toHaveProperty('_isMockFunction');
     expect(secondWindow.fetch).toBe(defaultFetch);
-    expect(secondWindow.customElements).toBeUndefined();
+    expect(secondWindow.customElements).toBeNull();
     expect(secondWindow.Document).not.toBe(documentConstructor);
   });
 
