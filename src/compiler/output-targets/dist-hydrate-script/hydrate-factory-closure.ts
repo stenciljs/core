@@ -5,12 +5,12 @@ export const MODE_RESOLUTION_CHAIN_DECLARATION = `modeResolutionChain = [];`;
 /**
  * This is the entry point for the hydrate factory.
  *
- * __Note:__ the `modeResolutionChain` will be uncommented in the
- * `src/compiler/output-targets/dist-hydrate-script/write-hydrate-outputs.ts` file. This enables us to use
- * one module resolution chain across hydrate and core runtime.
+ * Each cached hydrate app declares its own `modeResolutionChain` inside the
+ * factory closure so hydrate and core runtime share it without leaking modes
+ * between windows or shadow serialization modes.
  */
 export const HYDRATE_FACTORY_INTRO = `
-// const ${MODE_RESOLUTION_CHAIN_DECLARATION}
+const $stencilHydrateApps = new WeakMap();
 
 export function hydrateFactory($stencilWindow, $stencilHydrateOpts, $stencilHydrateResults, $stencilAfterHydrate, $stencilHydrateResolve) {
   var globalThis = $stencilWindow;
@@ -136,14 +136,44 @@ export function hydrateFactory($stencilWindow, $stencilHydrateOpts, $stencilHydr
   function hydrateAppClosure($stencilWindow) {
     const window = $stencilWindow;
     const document = $stencilWindow.document;
+    const ${MODE_RESOLUTION_CHAIN_DECLARATION}
     ${HYDRATE_APP_CLOSURE_START}
 `;
 
+/**
+ * The closure wraps the entire platform (runtime, vdom and every component
+ * class) so it lexically captures the per-call \`window\`/\`document\`.
+ * Re-executing it on every \`hydrateApp\` call is a significant fixed cost per
+ * render, so evaluated closures are cached by window and shadow serialization
+ * mode (e.g. for windows retained by \`reuseWindow\`).
+ */
 export const HYDRATE_FACTORY_OUTRO = `
     /*hydrateAppClosure end*/
-    hydrateApp(window, $stencilHydrateOpts, $stencilHydrateResults, $stencilAfterHydrate, $stencilHydrateResolve);
+    return function($stencilWindow, $stencilHydrateOpts, $stencilHydrateResults, $stencilAfterHydrate, $stencilHydrateResolve) {
+      modeResolutionChain.length = 0;
+      if (Array.isArray($stencilHydrateOpts.modes)) {
+        $stencilHydrateOpts.modes.forEach((mode) => modeResolutionChain.push(mode));
+      }
+      return hydrateApp($stencilWindow, $stencilHydrateOpts, $stencilHydrateResults, $stencilAfterHydrate, $stencilHydrateResolve);
+    };
   }
 
-  hydrateAppClosure($stencilWindow);
+  const $stencilShadowMode = $stencilHydrateOpts.serializeShadowRoot;
+  let $stencilHydrateApp;
+  if ($stencilShadowMode !== null && typeof $stencilShadowMode === 'object') {
+    $stencilHydrateApp = hydrateAppClosure($stencilWindow);
+  } else {
+    let $stencilWindowApps = $stencilHydrateApps.get($stencilWindow);
+    if (!$stencilWindowApps) {
+      $stencilWindowApps = new Map();
+      $stencilHydrateApps.set($stencilWindow, $stencilWindowApps);
+    }
+    $stencilHydrateApp = $stencilWindowApps.get($stencilShadowMode);
+    if (!$stencilHydrateApp) {
+      $stencilHydrateApp = hydrateAppClosure($stencilWindow);
+      $stencilWindowApps.set($stencilShadowMode, $stencilHydrateApp);
+    }
+  }
+  $stencilHydrateApp($stencilWindow, $stencilHydrateOpts, $stencilHydrateResults, $stencilAfterHydrate, $stencilHydrateResolve);
 }
 `;

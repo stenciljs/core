@@ -87,8 +87,8 @@ export const generateHydrateApp = async (
           transform(code) {
             /**
              * Remove the modeResolutionChain variable from the generated code.
-             * This variable is redefined in `HYDRATE_FACTORY_INTRO` to ensure we can
-             * use it within the hydrate and global runtime.
+             * This variable is redefined inside the factory closure so each cached
+             * hydrate app has an independent mode resolution chain.
              */
             return code.replace(`var ${MODE_RESOLUTION_CHAIN_DECLARATION}`, '');
           },

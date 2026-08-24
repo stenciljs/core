@@ -1,7 +1,6 @@
 import { Readable } from 'node:stream';
 
 import { hydrateFactory } from '@hydrate-factory';
-import { modeResolutionChain, setMode } from '@platform';
 import { HYDRATED_STYLE_ID } from '@runtime';
 import { MockWindow, serializeNodeToHtml } from '@stencil/core/mock-doc';
 import { hasError } from '@utils';
@@ -18,9 +17,16 @@ import type {
 import { inspectElement } from './inspect-element';
 import { patchDomImplementation } from './patch-dom-implementation';
 import { generateHydrateResults, normalizeHydrateOptions, renderBuildError, renderCatchError } from './render-utils';
+import { canReuseWindow, deleteReusableWindow, getReusableWindow } from './reusable-window';
 import { initializeWindow } from './window-initialize';
 
 const NOOP = () => {};
+
+/**
+ * Reused windows are not concurrency-safe, so renders are serialized per
+ * shadow serialization mode. Each mode has an independent window.
+ */
+const reuseRenderQueues = new Map<unknown, Promise<unknown>>();
 
 export function streamToString(html: string | any, option?: SerializeDocumentOptions) {
   return renderToString(html, option, true);
@@ -85,6 +91,43 @@ export function hydrateDocument(
   }
 
   if (typeof doc === 'string') {
+    if (opts.reuseWindow && opts.fullDocument === false && canReuseWindow(opts.serializeShadowRoot)) {
+      opts.destroyWindow = false;
+      opts.destroyDocument = false;
+      const mode = opts.serializeShadowRoot;
+
+      const runRender = async (): Promise<HydrateResults> => {
+        let reusedWin: MockWindow | null = null;
+        try {
+          reusedWin = getReusableWindow(doc, opts.serializeShadowRoot);
+          await render(reusedWin, opts, results);
+          return results;
+        } catch (e) {
+          deleteReusableWindow(mode);
+          if (reusedWin) {
+            if (reusedWin.close) {
+              reusedWin.close();
+            }
+          }
+          renderCatchError(results, e);
+          return results;
+        }
+      };
+
+      const reuseRenderQueue = reuseRenderQueues.get(mode) ?? Promise.resolve();
+      const queuedRender = reuseRenderQueue.then(runRender, runRender);
+      reuseRenderQueues.set(mode, queuedRender.then(NOOP, NOOP));
+
+      if (!asStream) {
+        return queuedRender;
+      }
+      return Readable.from(
+        (async function* () {
+          yield (await queuedRender).html;
+        })(),
+      );
+    }
+
     try {
       opts.destroyWindow = true;
       opts.destroyDocument = true;
@@ -142,14 +185,6 @@ async function render(win: MockWindow, opts: HydrateFactoryOptions, results: Hyd
   try {
     await Promise.resolve(beforeHydrateFn(win.document));
     return new Promise<HydrateResults>((resolve) => {
-      if (Array.isArray(opts.modes)) {
-        /**
-         * Reset the mode resolution chain as we expect every `renderToString` call to render
-         * the components in new environment/document.
-         */
-        modeResolutionChain.length = 0;
-        opts.modes.forEach((mode) => setMode(mode));
-      }
       return hydrateFactory(win, opts, results, afterHydrate, resolve);
     });
   } catch (e) {
