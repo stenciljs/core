@@ -20,4 +20,14 @@ export { createWorkerMessageHandler } from './worker/worker-thread';
 export { ts };
 export { validateConfig } from './config/validate-config';
 export * from '../declarations/stencil-public-compiler';
-export * from '../declarations/stencil-private';
+// Compiler-facing types that live in `stencil-private.ts` alongside runtime-internal
+// types (e.g. HostElement, HostRef). Only the subset actually consumed outside of
+// `@stencil/core` is re-exported here - the runtime internals are intentionally not public.
+export type {
+  ComponentCompilerMeta,
+  ComponentCompilerTypeReferences,
+  LazyBundlesRuntimeData,
+  PackageJsonData,
+  PrintLine,
+  SsrResults,
+} from '../declarations/stencil-private';

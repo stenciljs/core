@@ -1,6 +1,6 @@
 # @stencil/cli
 
-CLI for [Stencil](https://stenciljs.com) — build, test, and generate web components.
+CLI for [Stencil](https://stenciljs.com) - build, test, and generate web components.
 
 ## Install
 
@@ -17,10 +17,6 @@ npx stencil build
 # Build in watch mode
 npx stencil build --watch
 
-# Run tests
-npx stencil test --spec
-npx stencil test --e2e
-
 # Generate a new component
 npx stencil generate my-component
 
@@ -30,7 +26,7 @@ npx stencil build --dev --watch --serve
 
 ## Programmatic API
 
-### `run(init)` — invoke the CLI from code
+### `run(init)` - invoke the CLI from code
 
 Mirrors running `stencil <task>` in the terminal. Parse your own `args` array and Stencil handles the rest.
 
@@ -45,7 +41,7 @@ await run({
 });
 ```
 
-### `runTask(coreCompiler, config, task, sys, flags?)` — lower-level task execution
+### `runTask(coreCompiler, config, task, sys, flags?)` - lower-level task execution
 
 Use this when you need control over the compiler instance or config before running a task. You are responsible for loading the compiler and config yourself.
 
@@ -71,6 +67,6 @@ const flags = createConfigFlags({ task: 'build', dev: true });
 await runTask(coreCompiler, config, 'build', sys, flags);
 ```
 
-Valid `task` values: `'build'` | `'docs'` | `'generate'` | `'serve'` | `'prerender'` | `'test'` | `'info'` | `'migrate'` | `'init'` | `'add'` | `'telemetry'`
+Valid `task` values: `'build'` | `'docs'` | `'generate'` | `'serve'` | `'prerender'` | `'info'` | `'migrate'` | `'init'` | `'add'` | `'telemetry'`
 
-`flags` is optional — if omitted, defaults are derived from the task.
+`flags` is optional - if omitted, defaults are derived from the task.
