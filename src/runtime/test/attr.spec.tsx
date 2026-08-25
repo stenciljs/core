@@ -493,5 +493,174 @@ describe('attribute', () => {
       await waitForChanges();
       expect(root.active).toBe(false);
     });
+
+    it('should keep a reflected any-typed prop set to true, rather than the empty attribute it reflects as', async () => {
+      @Component({ tag: 'cmp-reflect-any-true', shadow: true })
+      class CmpReflectAnyTrue {
+        @Prop({ reflect: true, mutable: true }) value: any;
+
+        render() {
+          return <div>{String(this.value)}</div>;
+        }
+      }
+
+      const { root, waitForChanges } = await newSpecPage({
+        components: [CmpReflectAnyTrue],
+        html: `<cmp-reflect-any-true></cmp-reflect-any-true>`,
+      });
+
+      root.value = true;
+      await waitForChanges();
+
+      expect(root.getAttribute('value')).toBe('');
+      expect(root.value).toBe(true);
+    });
+
+    it('should keep a reflected any-typed prop set to false when markup seeded the attribute', async () => {
+      @Component({ tag: 'cmp-reflect-any-false', shadow: true })
+      class CmpReflectAnyFalse {
+        @Prop({ reflect: true, mutable: true }) value: any;
+
+        render() {
+          return <div>{String(this.value)}</div>;
+        }
+      }
+
+      const { root, waitForChanges } = await newSpecPage({
+        components: [CmpReflectAnyFalse],
+        html: `<cmp-reflect-any-false value="seed"></cmp-reflect-any-false>`,
+      });
+
+      expect(root.value).toBe('seed');
+
+      root.value = false;
+      await waitForChanges();
+
+      // reflecting `false` removes the attribute, which must not null out the prop
+      expect(root.hasAttribute('value')).toBe(false);
+      expect(root.value).toBe(false);
+    });
+
+    it('should keep an object assigned to a reflected any-typed prop', async () => {
+      @Component({ tag: 'cmp-reflect-any-object', shadow: true })
+      class CmpReflectAnyObject {
+        @Prop({ reflect: true, mutable: true }) value: any;
+
+        render() {
+          return <div>{JSON.stringify(this.value)}</div>;
+        }
+      }
+
+      const { root, waitForChanges } = await newSpecPage({
+        components: [CmpReflectAnyObject],
+        html: `<cmp-reflect-any-object></cmp-reflect-any-object>`,
+      });
+
+      const obj = { id: 7 };
+      root.value = obj;
+      await waitForChanges();
+
+      // complex values are never written to an attribute, so there's no round trip to corrupt the prop
+      expect(root.hasAttribute('value')).toBe(false);
+      expect(root.value).toBe(obj);
+    });
+
+    it('should still write an external attribute change through to a reflected any-typed prop', async () => {
+      @Component({ tag: 'cmp-reflect-any-external', shadow: true })
+      class CmpReflectAnyExternal {
+        @Prop({ reflect: true, mutable: true }) value: any;
+
+        render() {
+          return <div>{String(this.value)}</div>;
+        }
+      }
+
+      const { root, waitForChanges } = await newSpecPage({
+        components: [CmpReflectAnyExternal],
+        html: `<cmp-reflect-any-external></cmp-reflect-any-external>`,
+      });
+
+      root.value = true;
+      await waitForChanges();
+      expect(root.value).toBe(true);
+
+      // an external write of something other than the reflected form still wins
+      root.setAttribute('value', 'hello');
+      await waitForChanges();
+      expect(root.value).toBe('hello');
+      expect(root.getAttribute('value')).toBe('hello');
+
+      // and removing it externally still clears the prop
+      root.removeAttribute('value');
+      await waitForChanges();
+      expect(root.value).toBe(null);
+    });
+
+    it('should keep booleans on a reflected any-typed prop that connectedCallback seeded with an id', async () => {
+      // the shape `ion-radio` uses: an `any` prop reflected to the attribute, falling back to a
+      // generated id when the consumer leaves it unset
+      @Component({ tag: 'cmp-reflect-any-seeded', shadow: true })
+      class CmpReflectAnySeeded {
+        @Prop({ reflect: true, mutable: true }) value: any;
+
+        connectedCallback() {
+          if (this.value === undefined) {
+            this.value = 'seeded-id';
+          }
+        }
+
+        render() {
+          return <div>{String(this.value)}</div>;
+        }
+      }
+
+      const { root, waitForChanges } = await newSpecPage({
+        components: [CmpReflectAnySeeded],
+        html: `<cmp-reflect-any-seeded></cmp-reflect-any-seeded>`,
+      });
+
+      expect(root.value).toBe('seeded-id');
+      expect(root.getAttribute('value')).toBe('seeded-id');
+
+      root.value = false;
+      await waitForChanges();
+      expect(root.value).toBe(false);
+
+      root.value = true;
+      await waitForChanges();
+      expect(root.value).toBe(true);
+
+      root.value = 0;
+      await waitForChanges();
+      expect(root.value).toBe(0);
+    });
+
+    it('should apply an external attribute change to a reflected any-typed prop holding a complex value', async () => {
+      @Component({ tag: 'cmp-reflect-any-complex-ext', shadow: true })
+      class CmpReflectAnyComplexExt {
+        @Prop({ reflect: true, mutable: true }) value: any;
+
+        render() {
+          return <div>x</div>;
+        }
+      }
+
+      const { root, waitForChanges } = await newSpecPage({
+        components: [CmpReflectAnyComplexExt],
+        html: `<cmp-reflect-any-complex-ext></cmp-reflect-any-complex-ext>`,
+      });
+
+      root.value = {
+        valueOf: () => 5,
+        toString: () => 'x',
+      };
+      await waitForChanges();
+
+      // a complex value is never reflected, so this change can only be external and must reach the
+      // prop even though it matches the value's string form
+      root.setAttribute('value', 'x');
+      await waitForChanges();
+      expect(root.value).toBe('x');
+    });
   });
 });

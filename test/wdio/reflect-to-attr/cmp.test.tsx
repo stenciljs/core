@@ -51,6 +51,32 @@ describe('reflect-to-attr', function () {
     expect(cmp.getAttribute('dynamic-nu')).toEqual('123');
   });
 
+  it('should not overwrite a reflected any-typed prop with its own reflected attribute', async () => {
+    await $('reflect-to-attr').waitForExist();
+    const cmp = document.querySelector('reflect-to-attr');
+
+    // reflecting `true` writes the empty attribute and `false` removes it. Neither may be
+    // assigned back onto the prop, since an `any` prop isn't coerced.
+    cmp.anyVal = true;
+    await browser.pause();
+    expect(cmp.getAttribute('any-val')).toEqual('');
+    expect(cmp.anyVal).toBe(true);
+
+    cmp.anyVal = false;
+    await browser.pause();
+    expect(cmp.getAttribute('any-val')).toEqual(null);
+    expect(cmp.anyVal).toBe(false);
+
+    cmp.anyVal = 0;
+    await browser.pause();
+    expect(cmp.anyVal).toBe(0);
+
+    // an external attribute write still wins
+    cmp.setAttribute('any-val', 'external');
+    await browser.pause();
+    expect(cmp.anyVal).toBe('external');
+  });
+
   it('should reflect booleans property', async () => {
     await $('reflect-to-attr').waitForExist();
     const cmp = document.querySelector('reflect-to-attr');
