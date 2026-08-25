@@ -18,30 +18,37 @@ Stencil is able to generate components into various formats so they can be best 
 
 `custom-element`: Individual custom elements packaged up into stand-alone, self-contained code. Each component imports shared runtime from `@stencil/core`. Opposite of lazy-loaded components that define themselves and load on demand, the custom elements builds must be imported and defined by the consumer, and any lazy-loaded depends on the consumer's bundling methods.
 
-## Output Target Types
+## Output Target Types (v5 names)
+
+v5 renamed several output targets for clarity and elevated some sub-outputs to first-class targets. `stencil migrate` rewrites a v4 config automatically.
+
+### `loader-bundle` (was `dist`)
+
+- Default output target when not configured (`www` is no longer the default).
+- Generates a lazy-loaded, script-tag-ready bundle plus `modules` for other bundlers to import.
+- No longer generates CJS by default - opt in with `cjs: true`.
+
+### `standalone` (was `dist-custom-elements`)
+
+- Bundler-ready, single-file custom elements build. Each component imports shared runtime from `@stencil/core` unless `externalRuntime: true` is set (default `false` in v5 - the runtime is bundled as a shared local chunk instead).
+
+### `ssr` (was `dist-hydrate-script`)
+
+- Used by Node.js to do Static Site Generation (SSG) and/or Server Side Rendering (SSR), and by Stencil's prerendering commands.
+- Formats components so the server can generate new global window environments scoped to each render, rather than global information bleeding between URLs rendered in the same process.
+- No longer generates a `package.json` - expose the script via `exports` in the library's own `package.json`.
+
+### `collection` and `types` (formerly sub-outputs of `dist`)
+
+- Now first-class output targets in their own right (`collectionDir`/`typesDir` config options on `loader-bundle` were removed accordingly), auto-generated in production builds.
+
+### `global-style` and `assets` (new in v5)
+
+- Auto-generated first-class targets when `globalStyle` config / component `assetsDirs` are present. Both write into a unified `dist/assets/` location.
 
 ### `www`
 
-- Default output target when not configured.
-- Generates a stand-alone `app` into the `www/` directory.
-- Depending on the number of components and configuration, the app may be lazy-loaded of single-file.
-
-### `dist`
-
-- Generates `modules` to be imported by other bundlers in `dist/esm/`.
-- Generates an `app` at the root of the `dist/` directory. It's the same stand-alone webapp as the `www` type, but located in dist so it's easy to package up and shared.
-- Generates a `collection` into the `dist/collection/` directory to be used by other projects.
-
-### `angular`
-
-- Generates a wrapper Angular component proxy.
-- Web components themselves work fine within Angular, but you loose out on many of Angular's features, such as types or `@ViewChild`. In order for a Stencil project to fit right into the Angular ecosystem, this output target generates thin wrapper that can be imported by Angular.
-
-### `dist-hydrate-script`
-
-- Used by NodeJS to do Static Site Generation (SSG) and/or Server Side Rendering (SSR).
-- Used by Stencil prerendering commands.
-- Formats the components so that the server can generate new global window environments that are scoped to each rendering, rather than having global information bleed between each URL rendered.
+- No longer the default. Generates a stand-alone app into the `www/` directory; may be lazy-loaded or single-file depending on component count/config.
 
 ## Output Folder Structure Defaults
 
@@ -50,9 +57,9 @@ Stencil is able to generate components into various formats so they can be best 
 
   - cjs/ (bundler ready, cjs modules - only when cjs: true)
     - index.cjs
-    - loader.cjs
+    - loader-bundle.cjs
 
-  - collection/ (metadata when this is lazy-loaded dependency)
+  - collection/ (metadata when this is a lazy-loaded dependency)
     - my-cmp/
       - my-cmp.js (esm)
       - my-cmp.css
@@ -63,34 +70,28 @@ Stencil is able to generate components into various formats so they can be best 
     - index.js (esm)
     - index.d.ts
 
-  - esm (bundler ready, esm modules, es2017+ source)
-    - index.js
-    - loader.js
-
-  - loader (bundler entry for lazy builds)
+  - loader-bundle/ (bundler entry for lazy builds)
     - cdn.js
     - index.js
     - index.cjs (only when cjs: true)
     - index.d.ts
 
-  - myapp (browser ready script, named from stencil config namespace)
-    - myapp.css
-    - myapp.js
+  - assets/ (global styles + component assetsDirs, shared location)
 
-  - types (dts files for each component)
+  - types/ (dts files for each component)
     - my-cmp/
-      -my-cmp.d.ts
+      - my-cmp.d.ts
 
   - index.cjs (dist cjs entry - only when cjs: true)
   - index.js (dist esm entry)
 
 - ssr/
-  - index.js (NodeJS ready hydrate script, esm module)
-  - index.d.ts (types for hydrate API)
+  - index.js (Node.js ready SSR script, esm module)
+  - index.d.ts (types for the SSR API)
 
 - www/ (www output target)
   - build/
-    - myapp.js (browser ready esm script)
+    - myapp.js (browser ready esm script, named from stencil config namespace)
 
   - index.html (optimized html from src/index.html)
 

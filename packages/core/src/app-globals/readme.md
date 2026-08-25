@@ -44,7 +44,7 @@ At build time, the CSS is compiled and inlined as a string constant.
 The `globalScripts()` function is called during app initialization:
 
 - In the browser: during lazy-load bootstrap
-- During SSR: in `server/platform/hydrate-app.ts`
+- During SSR: in `server/platform/ssr-app.ts`
 
 ## Why Stubs Exist
 

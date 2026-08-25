@@ -16,6 +16,8 @@ This directory provides the browser platform layer that connects the platform-ag
 | `client-task-queue.ts`  | Schedules DOM updates using `requestAnimationFrame`    |
 | `client-window.ts`      | Provides `window`, `document`, and other globals       |
 | `client-build.ts`       | Provides the `Build` object with runtime feature flags |
+| `client-decorators.ts`  | No-op runtime stubs for `@Prop`/`@State`/etc. decorators - they're compile-time metadata only, but stubs let component classes be instantiated directly (e.g. in tests) without throwing outside Stencil's build pipeline |
+| `client-log.ts`         | Browser console logging                                |
 
 ## Architecture
 

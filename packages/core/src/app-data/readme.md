@@ -46,3 +46,7 @@ The defaults in `index.ts` serve as:
 1. **TypeScript scaffolding** - enables type checking and IDE support
 2. **Fallback values** - used when the plugin doesn't replace them
 3. **Module resolution** - gives bundlers a real file to resolve
+
+## `lazy.ts`
+
+A second entry point used by the lazy-loaded build (`virtual:app-data-external`, mapped to `@stencil/core/app-data` in dist). It re-exports `Env`/`NAMESPACE`/`BUILD` from the consumer's own app-data, overriding only `lazyLoad: true` - the one flag that must always be set for the lazy-loading runtime mechanism to work regardless of what the consumer's app-data provides.

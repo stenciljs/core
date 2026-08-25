@@ -1,6 +1,10 @@
 import type * as d from '@stencil/core';
+import type { Plugin as RolldownPlugin } from 'rolldown';
 
 import { buildWarn } from '../../utils';
+
+export const isStencilPlugin = (plugin: d.Plugin | RolldownPlugin): plugin is d.Plugin =>
+  !!(plugin && typeof plugin === 'object' && (plugin as d.Plugin).pluginType);
 
 export const validatePlugins = (config: d.UnvalidatedConfig, diagnostics: d.Diagnostic[]) => {
   const userPlugins = config.plugins;
@@ -13,9 +17,10 @@ export const validatePlugins = (config: d.UnvalidatedConfig, diagnostics: d.Diag
     return;
   }
 
-  const rolldownPlugins = userPlugins.filter((plugin) => {
-    return !!(plugin && typeof plugin === 'object' && !plugin.pluginType);
-  });
+  const rolldownPlugins = userPlugins.filter(
+    (plugin): plugin is RolldownPlugin =>
+      !!plugin && typeof plugin === 'object' && !isStencilPlugin(plugin),
+  );
 
   const hasResolveNode = rolldownPlugins.some((p) => p.name === 'node-resolve');
   const hasCommonjs = rolldownPlugins.some((p) => p.name === 'commonjs');
@@ -35,7 +40,5 @@ export const validatePlugins = (config: d.UnvalidatedConfig, diagnostics: d.Diag
     ...rolldownPlugins.filter(({ name }) => name !== 'node-resolve' && name !== 'commonjs'),
   ];
 
-  config.plugins = userPlugins.filter((plugin) => {
-    return !!(plugin && typeof plugin === 'object' && plugin.pluginType);
-  });
+  config.plugins = userPlugins.filter(isStencilPlugin);
 };

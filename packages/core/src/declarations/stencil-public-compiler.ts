@@ -1,4 +1,4 @@
-import type { InputOptions as RolldownInputOptions } from 'rolldown';
+import type { InputOptions as RolldownInputOptions, Plugin as RolldownPlugin } from 'rolldown';
 
 import type {
   BuildConditionals,
@@ -6,6 +6,7 @@ import type {
   CompilerCtx,
   ComponentCompilerMeta,
   InMemoryFileSystem,
+  Plugin,
   PrerenderUrlResults,
   PrintLine,
 } from './stencil-private';
@@ -125,11 +126,12 @@ export interface StencilConfig {
   outputTargets?: OutputTarget[];
 
   /**
-   * The plugins config can be used to add your own rolldown plugins.
-   * By default, Stencil does not come with Sass or PostCSS support.
+   * The plugins config can be used to add your own rolldown plugins, or Stencil's own
+   * legacy `resolveId`/`load`/`transform` style plugins (identified by a `pluginType`
+   * property). By default, Stencil does not come with Sass or PostCSS support.
    * However, either can be added using the plugin array.
    */
-  plugins?: any[];
+  plugins?: (Plugin | RolldownPlugin)[];
 
   /**
    * Generate js source map files for all bundles.
@@ -259,7 +261,7 @@ export interface StencilConfig {
   srcIndexHtml?: string;
   maxConcurrentWorkers?: number;
   preamble?: string;
-  rolldownPlugins?: { before?: any[]; after?: any[] };
+  rolldownPlugins?: { before?: RolldownPlugin[]; after?: RolldownPlugin[] };
 
   entryComponentsHint?: string[];
   buildLogFilePath?: string;

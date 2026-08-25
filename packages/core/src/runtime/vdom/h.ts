@@ -14,14 +14,12 @@ import type * as d from '@stencil/core';
 import { isComplexType } from '../../utils/helpers';
 import { isSignalLike } from '../signals';
 
-// export function h(nodeName: string | d.FunctionalComponent, vnodeData: d.PropsType, child?: d.ChildType): d.VNode;
-// export function h(nodeName: string | d.FunctionalComponent, vnodeData: d.PropsType, ...children: d.ChildType[]): d.VNode;
-export const h = (nodeName: any, vnodeData: any, ...children: d.ChildType[]): d.VNode => {
+export const h = (nodeName: any, vnodeData: d.PropsType, ...children: d.ChildType[]): d.VNode => {
   if (typeof nodeName === 'string') {
     nodeName = transformTag(nodeName);
   }
   let child = null;
-  let key: string = null;
+  let key: string | number = null;
   let slotName: string = null;
   let simple = false;
   let lastSimple = false;
@@ -68,7 +66,7 @@ export const h = (nodeName: any, vnodeData: any, ...children: d.ChildType[]): d.
     }
   };
   walk(children);
-  if (vnodeData) {
+  if (vnodeData && typeof vnodeData === 'object') {
     if (BUILD.isDev && nodeName === 'input') {
       validateInputProperties(vnodeData);
     }
@@ -222,9 +220,9 @@ const convertToPrivate = (node: d.ChildNode): d.VNode => {
 /**
  * Validates the ordering of attributes on an input element
  *
- * @param inputElm the element to validate
+ * @param inputElm the vnode data (JSX props) for the element to validate
  */
-const validateInputProperties = (inputElm: HTMLInputElement): void => {
+const validateInputProperties = (inputElm: d.VNodeProdData): void => {
   const props = Object.keys(inputElm);
 
   const value = props.indexOf('value');

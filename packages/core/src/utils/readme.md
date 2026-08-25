@@ -17,6 +17,7 @@ This directory contains helper functions, constants, and utilities that are used
 | `path.ts`       | Cross-platform path utilities                                |
 | `shadow-css.ts` | CSS scoping for Shadow DOM emulation                         |
 | `sourcemaps.ts` | Source map manipulation                                      |
+| `logger/`       | Diagnostic-printing logger backends (`logger-rolldown.ts`, `logger-typescript.ts`, `logger-utils.ts`) |
 
 ## Categories
 

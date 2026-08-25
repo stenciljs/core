@@ -30,7 +30,6 @@ import type {
 } from './stencil-public-runtime';
 
 export type { InMemoryFileSystem } from '../compiler/sys/in-memory-fs';
-export type { RolldownSourceMap };
 
 export interface DocData {
   hostIds: number;
@@ -207,7 +206,7 @@ export interface BuildConditionals extends Partial<BuildFeatures> {
   vdomSignals?: boolean;
 }
 
-export type ModuleFormat =
+type ModuleFormat =
   | 'amd'
   | 'cjs'
   | 'es'
@@ -219,10 +218,10 @@ export type ModuleFormat =
   | 'module'
   | 'systemjs';
 
-export interface RolldownResultModule {
+interface RolldownResultModule {
   id: string;
 }
-export interface RolldownResults {
+interface RolldownResults {
   modules: RolldownResultModule[];
 }
 
@@ -357,7 +356,7 @@ export interface BuildSourceGraph {
   [filePath: string]: string[];
 }
 
-export interface BuildComponent {
+interface BuildComponent {
   tag: string;
   dependencyOf?: string[];
   dependencies?: string[];
@@ -460,21 +459,15 @@ export interface CollectionManifest {
   buildFlags?: Partial<BuildConditionals>;
 }
 
-export type CollectionComponentEntryPath = string;
+type CollectionComponentEntryPath = string;
 
-export interface CollectionBundleManifest {
+interface CollectionBundleManifest {
   components: string[];
 }
 
-export interface CollectionDependencyManifest {
+interface CollectionDependencyManifest {
   name: string;
   tags: string[];
-}
-
-export interface CollectionCompiler {
-  name: string;
-  version: string;
-  typescriptVersion?: string;
 }
 
 export interface CollectionDependencyData {
@@ -565,7 +558,7 @@ export interface CompilerCtx {
   reset(): void;
 }
 
-export type NodeMap = WeakMap<any, ComponentCompilerMeta>;
+type NodeMap = WeakMap<any, ComponentCompilerMeta>;
 
 /**
  * Record, for a specific component, whether or not it has various features
@@ -573,7 +566,7 @@ export type NodeMap = WeakMap<any, ComponentCompilerMeta>;
  *
  * Note: this must be serializable to JSON.
  */
-export interface ComponentCompilerFeatures {
+interface ComponentCompilerFeatures {
   hasAttribute: boolean;
   hasAttributeChangedCallbackFn: boolean;
   hasComponentWillLoadFn: boolean;
@@ -1024,7 +1017,7 @@ export interface CompilerStyleDoc {
   mode: string;
 }
 
-export interface CompilerAssetDir {
+interface CompilerAssetDir {
   absolutePath?: string;
   cmpRelativePath?: string;
   originalComponentPath?: string;
@@ -1079,13 +1072,13 @@ export interface ComponentNativeConstructor extends ComponentConstructor {
   cmpMeta: ComponentRuntimeMeta;
 }
 
-export type ComponentConstructorEncapsulation = 'shadow' | 'scoped' | 'none';
+type ComponentConstructorEncapsulation = 'shadow' | 'scoped' | 'none';
 
-export interface ComponentConstructorProperties {
+interface ComponentConstructorProperties {
   [propName: string]: ComponentConstructorProperty;
 }
 
-export interface ComponentConstructorProperty {
+interface ComponentConstructorProperty {
   attribute?: string;
   elementRef?: boolean;
   method?: boolean;
@@ -1096,7 +1089,7 @@ export interface ComponentConstructorProperty {
   watchCallbacks?: string[];
 }
 
-export type ComponentConstructorPropertyType =
+type ComponentConstructorPropertyType =
   | StringConstructor
   | BooleanConstructor
   | NumberConstructor
@@ -1104,7 +1097,7 @@ export type ComponentConstructorPropertyType =
   | 'boolean'
   | 'number';
 
-export interface ComponentConstructorEvent {
+interface ComponentConstructorEvent {
   name: string;
   method: string;
   bubbles: boolean;
@@ -1112,7 +1105,7 @@ export interface ComponentConstructorEvent {
   composed: boolean;
 }
 
-export interface ComponentConstructorListener {
+interface ComponentConstructorListener {
   name: string;
   method: string;
   capture?: boolean;
@@ -1244,7 +1237,7 @@ export interface SsrResults {
   httpStatus: number | null;
 }
 
-export interface SsrComponent {
+interface SsrComponent {
   tag: string;
   mode: string;
   count: number;
@@ -1260,43 +1253,25 @@ export interface SsrAnchorElement extends SsrElement {
   target?: string;
 }
 
-export interface SsrImgElement extends SsrElement {
+interface SsrImgElement extends SsrElement {
   src?: string;
 }
 
-export interface SsrScriptElement extends SsrElement {
+interface SsrScriptElement extends SsrElement {
   src?: string;
   type?: string;
 }
 
-export interface SsrStyleElement extends SsrElement {
+interface SsrStyleElement extends SsrElement {
   id?: string;
   href?: string;
   content?: string;
 }
 
-export interface SsrStaticData {
+interface SsrStaticData {
   id: string;
   type: string;
   content: string;
-}
-
-export interface JsDoc {
-  name: string;
-  documentation: string;
-  type: string;
-  tags: JSDocTagInfo[];
-  default?: string;
-  parameters?: JsDoc[];
-  returns?: {
-    type: string;
-    documentation: string;
-  };
-}
-
-export interface JSDocTagInfo {
-  name: string;
-  text?: string;
 }
 
 /**
@@ -1391,7 +1366,7 @@ export interface Plugin {
 
 export type PluginTransformResults = PluginTransformationDescriptor | string | null;
 
-export interface PluginTransformationDescriptor {
+interface PluginTransformationDescriptor {
   code?: string;
   map?: string;
   id?: string;
@@ -2104,32 +2079,7 @@ export interface Workbox {
   copyWorkboxLibraries(wwwDir: string): Promise<any>;
 }
 
-export interface SerializedEvent {
-  bubbles: boolean;
-  cancelBubble: boolean;
-  cancelable: boolean;
-  composed: boolean;
-  currentTarget: any;
-  defaultPrevented: boolean;
-  detail: any;
-  eventPhase: any;
-  isTrusted: boolean;
-  returnValue: any;
-  srcElement: any;
-  target: any;
-  timeStamp: number;
-  type: string;
-  isSerializedEvent: boolean;
-}
-
-export interface EventInitDict {
-  bubbles?: boolean;
-  cancelable?: boolean;
-  composed?: boolean;
-  detail?: any;
-}
-
-export interface AnyHTMLElement extends HTMLElement {
+interface AnyHTMLElement extends HTMLElement {
   [key: string]: any;
 }
 

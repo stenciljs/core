@@ -29,6 +29,9 @@ Both platforms implement the `@platform` interface, allowing the same runtime co
 | `update-component.ts`     | Re-rendering and lifecycle dispatch         |
 | `set-value.ts`            | Reactive property updates                   |
 | `proxy-component.ts`      | Property/attribute reflection               |
+| `mixin.ts`                | `Mixin()` factory - resolves its base class to `HTMLElement` (standalone) or a no-op class (lazy) per `BUILD.lazyLoad`, so mixins work across build targets without a compiler-side class-extension rewrite |
+| `reactive-controller.ts`  | `ReactiveControllerHost` mixin - Lit-compatible reactive controller pattern, used via `class MyCmp extends Mixin(ReactiveControllerHost)` |
+| `signals.ts`              | `@Prop`/`@State` signal-backing (opt-in via `extras.signalBacking`) - see `../signals/readme.md` for the public `@stencil/core/signals` API |
 | `vdom/`                   | Virtual DOM implementation                  |
 
 ---
