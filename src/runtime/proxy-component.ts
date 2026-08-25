@@ -397,8 +397,10 @@ export const proxyComponent = (
           // re-enters this callback, and `parsePropertyValue()` coerces string, number and boolean
           // props so those already agree with their attribute. An `any` prop isn't coerced, so
           // writing the attribute back would destroy the value: `true` becomes `''`, `false`
-          // becomes `null`. An external `setAttribute()` still writes through unless it matches the
-          // reflected form exactly, which we can't tell apart from the runtime's own write.
+          // becomes `null`. `Unknown` props aren't coerced either, but they only reflect when a
+          // serializer is declared, and that path returns above. An external `setAttribute()` still
+          // writes through unless it matches the reflected form exactly, which we can't tell apart
+          // from the runtime's own write.
           if (
             BUILD.reflect &&
             propMemberFlags & MEMBER_FLAGS.ReflectAttr &&
