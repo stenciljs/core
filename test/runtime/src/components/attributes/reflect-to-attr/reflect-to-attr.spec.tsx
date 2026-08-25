@@ -47,4 +47,32 @@ describe('reflect-to-attr', () => {
     await waitForChanges();
     expect(cmp.disabled).toBe(false);
   });
+
+  it('should not overwrite a reflected any-typed prop with its own reflected attribute', async () => {
+    const { root, waitForChanges } = await render(<reflect-to-attr />);
+
+    const cmp = root as HTMLReflectToAttrElement;
+
+    // reflecting `true` writes the empty attribute and `false` removes it. Neither may be
+    // assigned back onto the prop, since an `any` prop isn't coerced.
+    cmp.anyVal = true;
+    await waitForChanges();
+    expect(cmp.getAttribute('any-val')).toBe('');
+    expect(cmp.anyVal).toBe(true);
+
+    cmp.anyVal = false;
+    await waitForChanges();
+    expect(cmp.hasAttribute('any-val')).toBe(false);
+    expect(cmp.anyVal).toBe(false);
+
+    cmp.anyVal = 0;
+    await waitForChanges();
+    expect(cmp.getAttribute('any-val')).toBe('0');
+    expect(cmp.anyVal).toBe(0);
+
+    // an external attribute write still wins
+    cmp.setAttribute('any-val', 'external');
+    await waitForChanges();
+    expect(cmp.anyVal).toBe('external');
+  });
 });

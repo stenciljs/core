@@ -4,9 +4,20 @@ import type * as d from '@stencil/core';
 
 import { CMP_FLAGS, HOST_FLAGS, MEMBER_FLAGS, WATCH_FLAGS } from '../utils/constants';
 import { getPropertyDescriptor } from '../utils/get-prop-descriptor';
+import { isComplexType } from '../utils/helpers';
 import { normalizeWatchers } from './normalize-watchers';
 import { FORM_ASSOCIATED_CUSTOM_ELEMENT_CALLBACKS, PROXY_FLAGS } from './runtime-constants';
 import { getValue, setValue } from './set-value';
+
+/**
+ * Serialize a prop value the way `setAccessor()` does when it reflects it, so the runtime can
+ * recognize an `attributeChangedCallback` it triggered itself.
+ *
+ * @param propValue the current value of a reflected prop
+ * @returns the string the attribute would hold, or `null` if the attribute would be removed
+ */
+const reflectedAttrValue = (propValue: any): string | null =>
+  propValue == null || propValue === false ? null : propValue === true ? '' : String(propValue);
 
 /**
  * Attach a series of runtime constructs to a compiled Stencil component
@@ -392,7 +403,28 @@ export const proxyComponent = (
           }
 
           const propFlags = members.find(([m]) => m === propName);
-          const isBooleanTarget = propFlags && propFlags[1][0] & MEMBER_FLAGS.Boolean;
+          const propMemberFlags = propFlags ? propFlags[1][0] : 0;
+          const isBooleanTarget = propMemberFlags & MEMBER_FLAGS.Boolean;
+
+          // Guard: skip when a reflected `any` prop is hearing its own reflection. Reflecting
+          // re-enters this callback, and `parsePropertyValue()` coerces string, number and boolean
+          // props so those already agree with their attribute. An `any` prop isn't coerced, so
+          // writing the attribute back would destroy the value: `true` becomes `''`, `false`
+          // becomes `null`. `Unknown` props aren't coerced either, but they only reflect when a
+          // serializer is declared, and that path returns above. An external `setAttribute()` still
+          // writes through unless it matches the reflected form exactly, which we can't tell apart
+          // from the runtime's own write.
+          if (
+            BUILD.reflect &&
+            propMemberFlags & MEMBER_FLAGS.ReflectAttr &&
+            propMemberFlags & MEMBER_FLAGS.Any &&
+            // a complex value is never written to an attribute, so a change while the prop holds
+            // one is always external
+            !isComplexType(this[propName]) &&
+            reflectedAttrValue(this[propName]) === newValue
+          ) {
+            return;
+          }
 
           // Guard: skip when the attribute was removed but the current prop is
           // already undefined. Both mean "not set" for a boolean prop, so the assignment would be

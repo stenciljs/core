@@ -898,6 +898,7 @@ export namespace Components {
         "valNum": number;
     }
     interface ReflectToAttr {
+        "anyVal"?: any;
         /**
           * @default false
          */
@@ -4192,6 +4193,7 @@ declare namespace LocalJSX {
         "valNum"?: number;
     }
     interface ReflectToAttr {
+        "anyVal"?: any;
         /**
           * @default false
          */
@@ -4729,6 +4731,7 @@ declare namespace LocalJSX {
         "disabled": boolean;
         "dynamicStr": string;
         "dynamicNu": number;
+        "anyVal": string;
     }
     interface ScopedConditionalAttributes {
         "renderHello": boolean;
