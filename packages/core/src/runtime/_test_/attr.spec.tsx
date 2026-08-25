@@ -519,7 +519,7 @@ describe('attribute', () => {
     });
 
     it('should keep a reflected any-typed prop set to true, rather than the empty attribute it reflects as', async () => {
-      @Component({ tag: 'cmp-reflect-any-true', shadow: true })
+      @Component({ tag: 'cmp-reflect-any-true', encapsulation: { type: 'shadow' } })
       class CmpReflectAnyTrue {
         @Prop({ reflect: true, mutable: true }) value: any;
 
@@ -541,7 +541,7 @@ describe('attribute', () => {
     });
 
     it('should keep a reflected any-typed prop set to false when markup seeded the attribute', async () => {
-      @Component({ tag: 'cmp-reflect-any-false', shadow: true })
+      @Component({ tag: 'cmp-reflect-any-false', encapsulation: { type: 'shadow' } })
       class CmpReflectAnyFalse {
         @Prop({ reflect: true, mutable: true }) value: any;
 
@@ -566,7 +566,7 @@ describe('attribute', () => {
     });
 
     it('should keep an object assigned to a reflected any-typed prop', async () => {
-      @Component({ tag: 'cmp-reflect-any-object', shadow: true })
+      @Component({ tag: 'cmp-reflect-any-object', encapsulation: { type: 'shadow' } })
       class CmpReflectAnyObject {
         @Prop({ reflect: true, mutable: true }) value: any;
 
@@ -590,7 +590,7 @@ describe('attribute', () => {
     });
 
     it('should still write an external attribute change through to a reflected any-typed prop', async () => {
-      @Component({ tag: 'cmp-reflect-any-external', shadow: true })
+      @Component({ tag: 'cmp-reflect-any-external', encapsulation: { type: 'shadow' } })
       class CmpReflectAnyExternal {
         @Prop({ reflect: true, mutable: true }) value: any;
 
@@ -623,7 +623,7 @@ describe('attribute', () => {
     it('should keep booleans on a reflected any-typed prop that connectedCallback seeded with an id', async () => {
       // the shape `ion-radio` uses: an `any` prop reflected to the attribute, falling back to a
       // generated id when the consumer leaves it unset
-      @Component({ tag: 'cmp-reflect-any-seeded', shadow: true })
+      @Component({ tag: 'cmp-reflect-any-seeded', encapsulation: { type: 'shadow' } })
       class CmpReflectAnySeeded {
         @Prop({ reflect: true, mutable: true }) value: any;
 
@@ -660,7 +660,7 @@ describe('attribute', () => {
     });
 
     it('should apply an external attribute change to a reflected any-typed prop holding a complex value', async () => {
-      @Component({ tag: 'cmp-reflect-any-complex-ext', shadow: true })
+      @Component({ tag: 'cmp-reflect-any-complex-ext', encapsulation: { type: 'shadow' } })
       class CmpReflectAnyComplexExt {
         @Prop({ reflect: true, mutable: true }) value: any;
 
