@@ -189,3 +189,4 @@ rgba
 unhashed
 Unparseable
 compilerstatic
+codemod

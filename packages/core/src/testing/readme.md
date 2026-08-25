@@ -16,6 +16,10 @@ Integrated testing is being removed. Consumers should use `@stencil/vitest` / `@
 | `testing-sys.ts`                | `createTestingSystem` - in-memory `CompilerSystem`               |
 | `vitest-stencil-plugin.ts`      | Vitest integration entry point                                   |
 | `reset-build-conditionals.ts`   | Resets `BUILD.*` flags between tests                             |
+| `app-data.ts`                   | Testing-specific `BUILD` defaults (`lazyLoad`/`isTesting`/`isDev: true`) |
+| `testing-logger.ts`             | `TestingLogger` - no-op/silent `Logger` implementation for tests |
+| `testing-utils.ts`              | `shuffleArray`, `setupConsoleMocker`, and other spec-test helpers |
+| `compiler.ts`                   | `mockBuildCtx`/`mockCompilerCtx` - internal only (not a published subpath); pulls in the full compiler, unlike `newSpecPage` which is compiler-free |
 | `platform/`                     | Mock runtime platform (mirrors `client/`/`server/`) so components can render without a real DOM/browser |
 
 ## Relationship to mock-doc

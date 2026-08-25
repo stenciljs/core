@@ -36,10 +36,10 @@ This allows the same component code to run in both environments.
 
 ## Usage
 
-The server runtime is bundled into a "hydrate script" via the `dist-hydrate-script` output target:
+The server runtime is bundled into an SSR script via the `ssr` output target (formerly `dist-hydrate-script`):
 
 ```ts
-import { renderToString } from './dist/hydrate';
+import { renderToString } from './dist/ssr';
 
 const result = await renderToString('<my-component></my-component>');
 console.log(result.html);
@@ -47,8 +47,10 @@ console.log(result.html);
 
 ## Public API
 
-Exposed via `@stencil/core/runtime/server`:
+Exported from `server/runner/index.ts`, exposed via `@stencil/core/runtime/server`:
 
-- `renderToString()` - Render to HTML string
-- `ssrDocument()` - Hydrate an existing document
-- `serializeDocumentToString()` - Serialize DOM to string
+- `renderToString()` - render to an HTML string
+- `streamToString()` - render to a web-standard `ReadableStream<string>` (works in Node 22+, Cloudflare Workers, Deno, Bun, and other WinterCG runtimes)
+- `hydrateDocument()` / `ssrDocument()` - hydrate/render against a mock document
+- `serializeDocumentToString()` - serialize a mock DOM to an HTML string
+- `createWindowFromHtml()` - build a mock window from existing HTML

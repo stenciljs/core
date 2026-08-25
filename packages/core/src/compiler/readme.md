@@ -16,16 +16,24 @@ This is the build-time compiler that:
 | Directory         | Purpose                                               |
 | ----------------- | ----------------------------------------------------- |
 | `transformers/`   | TypeScript AST transformers for decorators, JSX, etc. |
-| `bundle/`         | Rollup plugin integration and bundling logic          |
-| `output-targets/` | Generators for `dist`, `www`, `custom-elements`, etc. |
+| `bundle/`         | Rollup-compatible plugin integration (typescript, resolve, worker, dev-server, etc.), consumed by rolldown |
+| `app-core/`       | Bundles a project's component graph via rolldown (`generateRolldownOutput`) - used by `output-targets/dist-lazy`, `standalone`, `ssr`, `collection` |
+| `output-targets/` | Generators for `loader-bundle`, `standalone`, `ssr`, `www`, `collection`, `types`, `global-style`, `assets`, etc. - see `output-targets/readme.md` |
 | `config/`         | Config validation and normalization                   |
 | `style/`          | CSS/Sass compilation and scoping                      |
 | `types/`          | `.d.ts` generation for components                     |
 | `html/`           | HTML parsing and manipulation                         |
 | `optimize/`       | Minification and tree-shaking                         |
 | `prerender/`      | Static site generation / prerendering                 |
-| `transpile/`      | Single-file transpilation API                         |
-| `docs/`           | Documentation generators (JSON, Markdown, etc.)       |
+| `transpile/`      | Single-file transpilation API (used by `@stencil/unplugin`) |
+| `docs/`           | Documentation generators (JSON, Markdown, CEM, agent skill, etc.) |
+| `build/`          | `BuildCtx`/`CompilerCtx`, build orchestration and results |
+| `entries/`        | Component graph analysis - resolves bundling entry points and dependencies |
+| `plugin/`         | Public compiler plugin interface                       |
+| `fs-watch/`       | File watcher → rebuild triggering                       |
+| `service-worker/` | Service worker generation for `www`/`loader-bundle`     |
+| `sys/`            | Compiler-internal system abstraction (in-memory FS for testing, module resolution, fetch) - distinct from the top-level `src/sys/` (Node.js system used at runtime) |
+| `worker/`         | Main-thread/worker-thread dispatch for the multi-threaded compiler |
 
 ## Key Concepts
 
@@ -41,12 +49,7 @@ Unused features are eliminated via dead-code elimination.
 
 ### Output Targets
 
-Multiple output formats from a single source:
-
-- `dist` - Lazy-loaded components for libraries
-- `dist-custom-elements` - Single-file custom elements
-- `www` - Full web app with dev server
-- `dist-hydrate-script` - SSR/hydration bundle
+Multiple output formats from a single source - `loader-bundle` (lazy-loaded, the default), `standalone` (single-file custom elements), `www` (full web app with dev server), `ssr` (SSR/hydration bundle), and more. See `output-targets/readme.md` for the full list and directory layout.
 
 ## Entry Points
 
