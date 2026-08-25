@@ -8,23 +8,18 @@ import type { TaskCommand } from './types';
 export const BOOLEAN_CLI_FLAGS = [
   'build',
   'cache',
-  'checkVersion',
   'ci',
-  'compare',
   'debug',
   'dev',
-  'devtools',
   'docs',
   'dryRun',
   'help',
   'log',
   'open',
   'prerender',
-  'prerenderExternal',
   'profile',
   'serviceWorker',
   'serve',
-  'skipNodeCheck',
   'ssr',
   'verbose',
   'version',
@@ -39,14 +34,7 @@ export const NUMBER_CLI_FLAGS = ['port'] as const;
 /**
  * All the String options supported by the Stencil CLI
  */
-export const STRING_CLI_FLAGS = [
-  'address',
-  'config',
-  'docsApi',
-  'docsJson',
-  'emulate',
-  'root',
-] as const;
+export const STRING_CLI_FLAGS = ['address', 'config', 'docsJson', 'root'] as const;
 
 export const STRING_ARRAY_CLI_FLAGS = [] as const;
 

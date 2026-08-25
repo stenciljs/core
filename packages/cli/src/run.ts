@@ -68,6 +68,15 @@ export const run = async (init: d.CliInitOptions) => {
       return;
     }
 
+    // `stencil test` (--spec/--e2e) was removed in v5 - see BREAKING_CHANGES.md.
+    // Called out explicitly since it's a task users are likely to type from muscle memory.
+    if ((task as string) === 'test') {
+      logger.error(
+        `${logger.emoji('❌ ')}The "stencil test" command has been removed. Use ${logger.bold('@stencil/vitest')} for unit tests and ${logger.bold('@stencil/playwright')} for e2e tests instead. See BREAKING_CHANGES.md for migration details.`,
+      );
+      return sys.exit(1);
+    }
+
     if (task === 'add' || task === 'init') {
       const coreCompiler = await loadCoreCompiler(sys);
       const rootDir = sys.getCurrentDirectory();
