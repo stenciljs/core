@@ -17,6 +17,8 @@ export class ReflectToAttr {
   @Prop({ reflect: true, mutable: true }) dynamicStr?: string;
   @Prop({ reflect: true }) dynamicNu?: number;
 
+  @Prop({ reflect: true, mutable: true }) anyVal?: any;
+
   componentDidLoad() {
     this.dynamicStr = 'value';
     this.el.dynamicNu = 123;
