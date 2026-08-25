@@ -14,5 +14,4 @@ export type TaskCommand =
   | 'prerender'
   | 'serve'
   | 'telemetry'
-  | 'test'
   | 'version';

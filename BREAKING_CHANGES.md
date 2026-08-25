@@ -20,6 +20,7 @@ Stencil recently had its 10th birthday - this release is a consolidation, organi
   - [Stencil's Own Package Is Now Pure ESM](#stencils-own-package-is-now-pure-esm)
   - [`loader-bundle` and `ssr` No Longer Generate CommonJS by Default](#loader-bundle-and-ssr-no-longer-generate-commonjs-by-default)
   - [ES5 Builds & Legacy Polyfills Removed](#es5-builds--legacy-polyfills-removed)
+  - [`scriptDataOpts` and Legacy `patchBrowser` Removed](#scriptdataopts-and-legacy-patchbrowser-removed)
   - [Internal Package Restructuring](#internal-package-restructuring)
   - [`openBrowser` Defaults to `false`](#openbrowser-defaults-to-false)
   - [`@Watch` Handlers No Longer Fire Before the Component Has Rendered](#watch-handlers-no-longer-fire-before-the-component-has-rendered)
@@ -119,6 +120,12 @@ To migrate:
 - Remove any imports of and calls to `applyPolyfills()` from your `loader-bundle` output.
 - Remove the `buildEs5` config option from `stencil.config.ts`.
 - Remove any of `extras.__deprecated__cssVarsShim`, `extras.__deprecated__dynamicImportShim`, `extras.__deprecated__safari10`, `extras.__deprecated__shadowDomShim` (already deprecated as of v4) from `stencil.config.ts`.
+
+#### `scriptDataOpts` and Legacy `patchBrowser` Removed
+
+The deprecated `scriptDataOpts` option (which had the runtime scan the `<script>` tag that loaded the bundle for a `data-opts`/`data-stencil-namespace` attribute to source bootstrap options) and the legacy `patchBrowser()` client bootstrap path it lived on (which also carried an IE11-era `cloneNode()` polyfill for slot-polyfilled components) have been removed entirely, with no replacement.
+
+To migrate, remove any `<script data-opts="...">` attributes and any `scriptDataOpts` config option - they no longer have any effect.
 
 #### Internal Package Restructuring
 
@@ -316,6 +323,12 @@ To migrate, remove `--prod` from CLI invocations (harmless no-op, but unnecessar
 Ambient asset module declarations (`*.css`, `*.svg`, `*.txt`, `*.frag`, `*.vert`) now require a `?stencil` suffix on the import specifier, e.g. `import styles from './my-styles.css?stencil'`. The previous bare `declare module "*.css"` was a global ambient type shipped by `@stencil/core`, which could silently clash with another package's own (differently-shaped) `*.css` module declaration in a monorepo. The `?stencil` marker disambiguates it, following the same convention already used for `*?worker` and `*?format=url|text`. This is a TypeScript-only change - runtime bundling of bare, non-suffixed asset imports is unaffected.
 
 To migrate, run `stencil migrate` to append `?stencil` to existing raw asset imports automatically.
+
+#### `docs-readme` No Longer Auto-Injected
+
+Previously, the `docs-readme` output target was implicitly added to every non-dev build (a behavior gap inherited from v4's `!config.devMode` check, and briefly made unconditional once `buildDist`/`buildDocs` were removed). It's now purely `outputTargets`-driven, consistent with every other docs target (`docs-json`, `docs-custom`, `docs-vscode`, `docs-custom-elements-manifest`, `docs-agent-skill`) - nothing generates unless `{ type: 'docs-readme' }` is explicitly declared in your config.
+
+To migrate, add `{ type: 'docs-readme' }` to `outputTargets` in `stencil.config.ts` if you were relying on it being generated implicitly. `stencil docs` / `--docs` remain a fast, docs-only rebuild and are unaffected.
 
 ### Compiler API
 
