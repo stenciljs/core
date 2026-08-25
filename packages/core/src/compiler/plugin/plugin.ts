@@ -10,10 +10,11 @@ import {
   isString,
   relative,
 } from '../../utils';
+import { isStencilPlugin } from '../config/validate-plugins';
 import { parseCssImports } from '../style/css-imports';
 
 const runPluginResolveId = async (pluginCtx: PluginCtx, importee: string) => {
-  for (const plugin of pluginCtx.config?.plugins ?? []) {
+  for (const plugin of (pluginCtx.config?.plugins ?? []).filter(isStencilPlugin)) {
     if (isFunction(plugin.resolveId)) {
       try {
         const results = plugin.resolveId(importee, null, pluginCtx);
@@ -39,7 +40,7 @@ const runPluginResolveId = async (pluginCtx: PluginCtx, importee: string) => {
 };
 
 const runPluginLoad = async (pluginCtx: PluginCtx, id: string) => {
-  for (const plugin of pluginCtx.config?.plugins ?? []) {
+  for (const plugin of (pluginCtx.config?.plugins ?? []).filter(isStencilPlugin)) {
     if (isFunction(plugin.load)) {
       try {
         const results = plugin.load(id, pluginCtx);
@@ -142,7 +143,7 @@ export const runPluginTransforms = async (
     }
   }
 
-  for (const plugin of pluginCtx.config?.plugins ?? []) {
+  for (const plugin of (pluginCtx.config?.plugins ?? []).filter(isStencilPlugin)) {
     if (isFunction(plugin.transform)) {
       try {
         let pluginTransformResults: PluginTransformResults | string;
@@ -268,7 +269,7 @@ export const runPluginTransformsEsmImports = async (
     }
   }
 
-  for (const plugin of pluginCtx.config?.plugins ?? []) {
+  for (const plugin of (pluginCtx.config?.plugins ?? []).filter(isStencilPlugin)) {
     if (isFunction(plugin.transform)) {
       try {
         let pluginTransformResults: PluginTransformResults | string;
