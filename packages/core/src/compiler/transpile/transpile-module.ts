@@ -117,8 +117,9 @@ export const transpileModule = (
     getDefaultLibFileName: () => `lib.d.ts`,
     useCaseSensitiveFileNames: () => false,
     getCanonicalFileName: (fileName) => fileName,
-    getCurrentDirectory: () => transformOpts.currentDirectory || process.cwd(),
-    getNewLine: () => ts.sys.newLine || '\n',
+    getCurrentDirectory: () =>
+      transformOpts.currentDirectory || (typeof process !== 'undefined' ? process.cwd() : '/'),
+    getNewLine: () => (ts.sys && ts.sys.newLine) || '\n',
     fileExists: (fileName) => normalizePath(fileName) === normalizePath(sourceFilePath),
     readFile: () => '',
     directoryExists: () => true,

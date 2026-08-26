@@ -236,6 +236,54 @@ export default defineConfig([
     plugins: [virtualModules({ resolve: virtualResolve })],
   },
 
+  // Browser build of the compiler's single-file transpiler (transpile/transpileSync,
+  // createSystem, scopeCss). Built as its own entry, separate from the Node
+  // compiler build above, so it never shares a chunk with `src/sys/node/` - the
+  // CLI/dev-server/file-watcher machinery that entry pulls in has no browser
+  // equivalent and isn't reachable from this entry's import graph anyway.
+  //
+  // `alias` swaps four specifiers for browser-safe stand-ins, all under
+  // `src/compiler/sys/browser-stubs/` - no other source file changes. Each is
+  // only reachable from a rarely-hit path for a browser caller (real on-disk
+  // module resolution, CSS autoprefixing against *other* browsers), so the
+  // stub versions either throw a clear error or gracefully no-op rather than
+  // reimplementing the real behavior:
+  //  - `../../sys/node` → the real one needs `@parcel/watcher`/`chalk`/worker
+  //    threads; only used as a default when a caller doesn't supply their own
+  //    `sys`/`logger`, which a browser caller always should.
+  //  - `resolve` → real on-disk npm resolution; only reachable via
+  //    `sys.resolveModuleId`, which `transpile()`/`transpileSync()` never call.
+  //  - `lightningcss`/`browserslist` → native CSS engine for vendor-prefixing
+  //    against *other* browsers, meaningless when the browser rendering the
+  //    preview is the only target.
+  {
+    entry: {
+      'compiler/browser': 'src/compiler/browser.ts',
+    },
+    outDir: 'dist',
+    format: ['esm'],
+    platform: 'browser',
+    target: browserTargets,
+    dts: true,
+    clean: false,
+    deps: {
+      neverBundle: true,
+      // `neverBundle: true` externalizes any npm-package-shaped specifier before
+      // resolution runs, which would skip `alias` below entirely for these three -
+      // force them through normal resolution so `alias` gets a chance to redirect
+      // them to the browser stubs.
+      alwaysBundle: ['@stencil/core', 'resolve', 'lightningcss', 'browserslist'],
+    },
+    define: defines,
+    alias: {
+      '../../sys/node': resolve(__dirname, 'src/compiler/sys/browser-stubs/sys-node.ts'),
+      '../environment': resolve(__dirname, 'src/compiler/sys/browser-stubs/environment.ts'),
+      resolve: resolve(__dirname, 'src/compiler/sys/browser-stubs/resolve.ts'),
+      lightningcss: resolve(__dirname, 'src/compiler/sys/browser-stubs/lightningcss.ts'),
+      browserslist: resolve(__dirname, 'src/compiler/sys/browser-stubs/browserslist.ts'),
+    },
+  },
+
   // @stencil/core/signals - public signals primitives + @Effect decorator
   {
     entry: {

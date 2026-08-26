@@ -43,6 +43,10 @@
       "types": "./dist/compiler/utils/index.d.mts",
       "import": "./dist/compiler/utils/index.mjs"
     },
+    "./compiler/browser": {
+      "types": "./dist/compiler/browser.d.ts",
+      "import": "./dist/compiler/browser.js"
+    },
     "./jsx-runtime": {
       "types": "./dist/jsx-runtime.d.mts",
       "import": "./dist/jsx-runtime.mjs"

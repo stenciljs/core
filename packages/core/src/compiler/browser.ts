@@ -1,0 +1,23 @@
+import ts from 'typescript';
+
+/**
+ * Browser-safe subset of `@stencil/core/compiler`. Built separately (see
+ * `tsdown.config.ts`'s `compiler/browser` entry) so it never shares a chunk
+ * with `src/sys/node/` - the CLI/dev-server/file-watcher machinery the main
+ * `./compiler` entry pulls in has no browser equivalent.
+ *
+ * Callers must supply their own `sys` (see `createSystem`) and `logger` -
+ * there is no on-disk default here.
+ */
+export { createSystem } from './sys/stencil-sys';
+export { scopeCss } from '../utils/shadow-css';
+export { transpile, transpileSync } from './transpile';
+export { ts };
+export type {
+  BuildOverrides,
+  CompilerSystem,
+  Diagnostic,
+  Logger,
+  TranspileOptions,
+  TranspileResults,
+} from '../declarations/stencil-public-compiler';

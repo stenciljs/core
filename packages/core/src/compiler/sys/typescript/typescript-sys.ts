@@ -11,7 +11,16 @@ export const patchTsSystemFileSystem = (
   compilerSys: d.CompilerSystem,
   inMemoryFs: InMemoryFileSystem | null,
   tsSys: ts.System,
-): ts.System => {
+): ts.System | undefined => {
+  // `ts.sys` is a getter with no setter on modern `typescript` builds, so
+  // `patchTypeScriptSysMinimum` below can't ever replace it with a real
+  // object when it doesn't already exist (e.g. no Node `process` to detect -
+  // real browsers, or this simulated-browser check). There's nothing to
+  // patch properties onto in that case.
+  if (!tsSys) {
+    return undefined;
+  }
+
   const realpath = (path: string) => {
     const rp = compilerSys.realpathSync(path);
     if (isString(rp)) {
@@ -136,6 +145,11 @@ export const patchTsSystemFileSystem = (
 };
 
 const patchTsSystemWatch = (compilerSystem: d.CompilerSystem, tsSys: ts.System) => {
+  // See the matching guard in `patchTsSystemFileSystem` above.
+  if (!tsSys) {
+    return;
+  }
+
   tsSys.watchDirectory = (p, cb, recursive) => {
     const watcher = compilerSystem.watchDirectory(
       p,
@@ -186,23 +200,36 @@ const patchTypeScriptSysMinimum = () => {
     // if ts.sys already exists then it must be node ts.sys
     // otherwise we're browser
     // will be updated later on with the stencil sys
-    ts.sys = {
-      args: [],
-      createDirectory: noop,
-      directoryExists: () => false,
-      exit: noop,
-      fileExists: () => false,
-      getCurrentDirectory: process.cwd,
-      getDirectories: () => [],
-      getExecutingFilePath: () => './',
-      readDirectory: () => [],
-      readFile: noop,
-      newLine: '\n',
-      resolvePath: resolve,
-      useCaseSensitiveFileNames: false,
-      write: noop,
-      writeFile: noop,
-    };
+    //
+    // On modern `typescript` builds `sys` is a getter with no setter, so this
+    // assignment can throw when it doesn't already exist (no Node `process`
+    // to detect). There's no real fallback to construct in that case either -
+    // callers that need `ts.sys` populated (e.g. multi-file module
+    // resolution) aren't supported without one; single-file transpilation
+    // doesn't touch it.
+    try {
+      ts.sys = {
+        args: [],
+        createDirectory: noop,
+        directoryExists: () => false,
+        exit: noop,
+        fileExists: () => false,
+        // `process` doesn't exist in a real browser - this branch is the
+        // documented browser fallback above, so it can't assume it does.
+        getCurrentDirectory: () => (typeof process !== 'undefined' ? process.cwd() : '/'),
+        getDirectories: () => [],
+        getExecutingFilePath: () => './',
+        readDirectory: () => [],
+        readFile: noop,
+        newLine: '\n',
+        resolvePath: resolve,
+        useCaseSensitiveFileNames: false,
+        write: noop,
+        writeFile: noop,
+      };
+    } catch {
+      // ts.sys is a non-configurable getter here - nothing to do.
+    }
   }
 };
 patchTypeScriptSysMinimum();
