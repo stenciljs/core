@@ -1,3 +1,12 @@
+## 🌜 [4.44.2](https://github.com/stenciljs/core/compare/v4.44.1...v4.44.2) (2026-08-26)
+
+
+### Bug Fixes
+
+* **runtime:** reflected any-typed props ([#6849](https://github.com/stenciljs/core/issues/6849)) ([0ead28c](https://github.com/stenciljs/core/commit/0ead28ca9f3df241ab66dfcd4b2d880be14f2add))
+
+
+
 ## 🐠 [4.44.1](https://github.com/stenciljs/core/compare/v4.44.0...v4.44.1) (2026-08-21)
 
 
