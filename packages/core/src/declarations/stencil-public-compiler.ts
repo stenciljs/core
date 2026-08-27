@@ -3086,11 +3086,11 @@ export type BuildOverrides = Pick<BuildConditionals, BuildOverrideKeys>;
 export type CompileTarget =
   | 'latest'
   | 'esnext'
+  | 'es2022'
   | 'es2020'
   | 'es2019'
   | 'es2018'
   | 'es2017'
-  | 'es2015'
   | string
   | undefined;
 

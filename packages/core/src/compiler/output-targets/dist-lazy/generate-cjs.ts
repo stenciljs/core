@@ -49,7 +49,7 @@ export const generateCjs = async (
         outputTargetType,
         destinations,
         results,
-        'es2017',
+        'es2022',
         false,
       );
 

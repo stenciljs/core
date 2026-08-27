@@ -316,4 +316,34 @@ export default defineConfig([
       }),
     ],
   },
+
+  // Browser build of the compiler's single-file transpiler (transpile/transpileSync,
+  // createSystem, scopeCss). Built as its own entry, separate from the Node
+  // compiler build above, so it never shares a chunk with `src/sys/node/` - the
+  // cli / dev-server / file-watcher machinery that entry pulls in has no browser
+  // equivalent and isn't reachable from this entry's import graph.
+  {
+    entry: {
+      'compiler/browser': 'src/compiler/browser.ts',
+    },
+    outDir: 'dist',
+    format: ['esm'],
+    platform: 'browser',
+    target: browserTargets,
+    dts: true,
+    clean: false,
+    deps: {
+      neverBundle: true,
+      // force through resolution so `alias` gets a chance to redirect to browser stubs.
+      alwaysBundle: ['@stencil/core', 'resolve', 'lightningcss', 'browserslist'],
+    },
+    define: defines,
+    alias: {
+      '../../sys/node': resolve(__dirname, 'src/compiler/sys/browser-stubs/sys-node.ts'),
+      '../environment': resolve(__dirname, 'src/compiler/sys/browser-stubs/environment.ts'),
+      resolve: resolve(__dirname, 'src/compiler/sys/browser-stubs/resolve.ts'),
+      lightningcss: resolve(__dirname, 'src/compiler/sys/browser-stubs/lightningcss.ts'),
+      browserslist: resolve(__dirname, 'src/compiler/sys/browser-stubs/browserslist.ts'),
+    },
+  },
 ]);

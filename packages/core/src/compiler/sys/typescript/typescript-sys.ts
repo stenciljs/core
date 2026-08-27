@@ -2,7 +2,7 @@ import { basename } from 'path';
 import ts from 'typescript';
 import type * as d from '@stencil/core';
 
-import { isRemoteUrl, isString, noop, normalizePath, resolve } from '../../../utils';
+import { isRemoteUrl, isString, normalizePath } from '../../../utils';
 import { IS_CASE_SENSITIVE_FILE_NAMES } from '../environment';
 import { InMemoryFileSystem } from '../in-memory-fs';
 
@@ -11,7 +11,12 @@ export const patchTsSystemFileSystem = (
   compilerSys: d.CompilerSystem,
   inMemoryFs: InMemoryFileSystem | null,
   tsSys: ts.System,
-): ts.System => {
+): ts.System | undefined => {
+  // `ts.sys` is a no-op in browser
+  if (!tsSys) {
+    return undefined;
+  }
+
   const realpath = (path: string) => {
     const rp = compilerSys.realpathSync(path);
     if (isString(rp)) {
@@ -136,6 +141,11 @@ export const patchTsSystemFileSystem = (
 };
 
 const patchTsSystemWatch = (compilerSystem: d.CompilerSystem, tsSys: ts.System) => {
+  // `ts.sys` is a no-op in browser
+  if (!tsSys) {
+    return;
+  }
+
   tsSys.watchDirectory = (p, cb, recursive) => {
     const watcher = compilerSystem.watchDirectory(
       p,
@@ -179,33 +189,6 @@ export const patchTypescript = (
   patchTsSystemFileSystem(config, config.sys, inMemoryFs, ts.sys);
   patchTsSystemWatch(config.sys, ts.sys);
 };
-
-const patchTypeScriptSysMinimum = () => {
-  if (!ts.sys) {
-    // patches just the bare minimum
-    // if ts.sys already exists then it must be node ts.sys
-    // otherwise we're browser
-    // will be updated later on with the stencil sys
-    ts.sys = {
-      args: [],
-      createDirectory: noop,
-      directoryExists: () => false,
-      exit: noop,
-      fileExists: () => false,
-      getCurrentDirectory: process.cwd,
-      getDirectories: () => [],
-      getExecutingFilePath: () => './',
-      readDirectory: () => [],
-      readFile: noop,
-      newLine: '\n',
-      resolvePath: resolve,
-      useCaseSensitiveFileNames: false,
-      write: noop,
-      writeFile: noop,
-    };
-  }
-};
-patchTypeScriptSysMinimum();
 
 export const getTypescriptPathFromUrl = (
   config: d.ValidatedConfig,
