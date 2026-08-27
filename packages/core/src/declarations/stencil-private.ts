@@ -362,7 +362,7 @@ interface BuildComponent {
   dependencies?: string[];
 }
 
-export type SourceTarget = 'es2017' | 'latest';
+export type SourceTarget = 'es2017' | 'es2022' | 'latest';
 
 export type RolldownResult = RolldownChunkResult | RolldownAssetResult;
 

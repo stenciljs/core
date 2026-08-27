@@ -1,10 +1,7 @@
 /**
  * Browser build-time stand-in for `src/sys/node/index.ts`. Swapped in for
  * the `'../../sys/node'` specifier via `alias` in `tsdown.config.ts`'s
- * `compiler/browser` entry only - the real Node module (and everything it
- * pulls in: `@parcel/watcher`, `chalk`, worker threads) is untouched for
- * every other build. Exports the same three names so no call site needs to
- * change.
+ * `compiler/browser` entry
  */
 import type { CompilerSystem, Logger, LoggerTimeSpan, LogLevel } from '@stencil/core';
 

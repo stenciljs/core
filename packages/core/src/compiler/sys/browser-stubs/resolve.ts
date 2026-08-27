@@ -1,10 +1,7 @@
 /**
  * Browser build-time stand-in for the `resolve` npm package (real on-disk
  * Node module resolution - swapped in via `alias` in `tsdown.config.ts`'s
- * `compiler/browser` entry only). Only reachable via `sys.resolveModuleId`,
- * which `transpile()`/`transpileSync()` never call - real multi-file module
- * resolution in a browser playground goes through `TranspileOptions.resolveImport`
- * instead, which the caller supplies.
+ * `compiler/browser` entry only).
  */
 type ResolveCallback = (err: Error | null, resolved?: string, pkgData?: unknown) => void;
 

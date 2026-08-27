@@ -1,10 +1,7 @@
 /**
  * Browser build-time stand-in for `lightningcss` (native Rust CSS engine, no
  * browser build - swapped in via `alias` in `tsdown.config.ts`'s
- * `compiler/browser` entry only). Vendor-prefixing/minifying CSS for *other*
- * browsers doesn't apply when the browser rendering the preview is the only
- * target, so autoprefixing is skipped: `transform()` passes the CSS through
- * unchanged instead of failing.
+ * `compiler/browser` entry only).
  */
 interface TransformInput {
   code: Uint8Array | string;

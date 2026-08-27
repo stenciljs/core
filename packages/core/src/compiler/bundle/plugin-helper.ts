@@ -68,13 +68,22 @@ export const pluginHelper = (
         }
 
         if (builtIns.has(importee)) {
+          // A configured nodeResolve.alias substitutes the built-in at rolldown's core resolver,
+          // which only runs after every plugin's resolveId (including this one) has declined -
+          // so honor it here rather than erroring on an import the user has already handled.
+          const alias = config.nodeResolve?.alias;
+          const aliasValue = alias?.[importee] ?? alias?.[`${importee}$`];
+          if (aliasValue) {
+            return null;
+          }
+
           let fromMsg = '';
           if (importer) {
             fromMsg = ` from ${relative(config.rootDir, importer)}`;
           }
           const diagnostic = buildError(builtCtx.diagnostics);
           diagnostic.header = `Node Polyfills Required`;
-          diagnostic.messageText = `For the import "${importee}" to be bundled${fromMsg}, ensure the "rolldown-plugin-node-polyfills" plugin is installed and added to the stencil config plugins (${platform}). Please see the bundling docs for more information.
+          diagnostic.messageText = `For the import "${importee}" to be bundled${fromMsg}, ensure the "@rolldown/plugin-node-polyfills" plugin is installed and added to the stencil config plugins (${platform}). Please see the bundling docs for more information.
         Further information: https://stenciljs.com/docs/module-bundling`;
         }
         return null;

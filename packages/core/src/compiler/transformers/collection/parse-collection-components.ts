@@ -40,7 +40,7 @@ export const transpileCollectionModule = (
   const sourceFile = ts.createSourceFile(
     inputFileName,
     sourceText,
-    ts.ScriptTarget.ES2017,
+    ts.ScriptTarget.ES2022,
     true,
     ts.ScriptKind.JS,
   );

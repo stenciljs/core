@@ -229,7 +229,7 @@ const buildWorker = async (
     let code = entryPoint.code;
     const results = await optimizeModule(config, compilerCtx, {
       input: code,
-      sourceTarget: 'es2017',
+      sourceTarget: 'es2022',
       isCore: false,
       minify: config.minifyJs,
       inlineHelpers: true,
