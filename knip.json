@@ -14,6 +14,7 @@
         "src/testing/platform/index.ts",
         "src/app-data/lazy.ts",
         "src/testing/app-data.ts",
+        "src/compiler/sys/browser-stubs/**",
         "src/index.d.mts",
         "src/jsx-runtime.d.mts"
       ],
