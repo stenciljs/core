@@ -51,6 +51,31 @@ describe('reflect-to-attr', function () {
     expect(cmp.getAttribute('dynamic-nu')).toEqual('123');
   });
 
+  it('should not overwrite a reflected any-typed prop with its own reflected attribute', async () => {
+    await $('reflect-to-attr').waitForExist();
+    const cmp = document.querySelector('reflect-to-attr');
+
+    // reflecting `true` writes the empty attribute and `false` removes it. Neither may be
+    // assigned back onto the prop, since an `any` prop isn't coerced. Each wait is on the
+    // reflection itself, so the prop is only read once the round trip has happened.
+    cmp.anyVal = true;
+    await browser.waitUntil(() => cmp.getAttribute('any-val') === '');
+    expect(cmp.anyVal).toBe(true);
+
+    cmp.anyVal = false;
+    await browser.waitUntil(() => !cmp.hasAttribute('any-val'));
+    expect(cmp.anyVal).toBe(false);
+
+    cmp.anyVal = 0;
+    await browser.waitUntil(() => cmp.getAttribute('any-val') === '0');
+    expect(cmp.anyVal).toBe(0);
+
+    // an external attribute write still wins
+    cmp.setAttribute('any-val', 'external');
+    await browser.waitUntil(() => cmp.anyVal === 'external');
+    expect(cmp.anyVal).toBe('external');
+  });
+
   it('should reflect booleans property', async () => {
     await $('reflect-to-attr').waitForExist();
     const cmp = document.querySelector('reflect-to-attr');
