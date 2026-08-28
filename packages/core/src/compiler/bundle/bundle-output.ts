@@ -4,6 +4,7 @@ import type * as d from '@stencil/core';
 import { createOnWarnFn, isRolldownError, loadRolldownDiagnostics } from '../../utils';
 import { lazyComponentPlugin } from '../output-targets/dist-lazy/lazy-component-plugin';
 import { appDataPlugin } from './app-data-plugin';
+import { buildConditionalsPlugin } from './build-conditionals-plugin';
 import { coreResolvePlugin } from './core-resolve-plugin';
 import { devNodeModuleResolveId } from './dev-node-module-resolve';
 import { extFormatPlugin } from './ext-format-plugin';
@@ -104,6 +105,7 @@ export const getRolldownOptions = (
         bundleOpts.conditionals?.lazyLoad ?? false,
       ),
       appDataPlugin(config, compilerCtx, buildCtx, bundleOpts.conditionals, bundleOpts.platform),
+      buildConditionalsPlugin(config, bundleOpts.conditionals),
       lazyComponentPlugin(buildCtx),
       loaderPlugin(bundleOpts.loader),
       userIndexPlugin(config, compilerCtx),

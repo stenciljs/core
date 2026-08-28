@@ -7,7 +7,7 @@ import { getToolVersion } from '../../version';
 const getCssToolVersions = () =>
   `autoprefixer@${getToolVersion('autoprefixer')}_postcss@${getToolVersion('postcss')}`;
 
-export const optimizeCss = async (
+export const optimizeStyleCss = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   diagnostics: d.Diagnostic[],

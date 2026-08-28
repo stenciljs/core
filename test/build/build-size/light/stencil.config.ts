@@ -13,4 +13,5 @@ export const config: Config = {
     },
   ],
   enableCache: false,
+  jsMinifier: 'terser',
 };
