@@ -30,7 +30,13 @@ describe('optimizeStyleCss', () => {
 
   it('discard-comments', async () => {
     const styleText = `/* css */ body { color: #ff0000; }`;
-    const output = await optimizeStyleCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
+    const output = await optimizeStyleCss(
+      config,
+      compilerCtx,
+      diagnostics,
+      styleText,
+      MOCK_FILE_PATH,
+    );
 
     expect(diagnostics).toHaveLength(0);
     expect(output).toBe(`body{color:red}`);
@@ -43,7 +49,13 @@ describe('optimizeStyleCss', () => {
         background: linear-gradient(to bottom, #ffe500 0%, #ffe500 50%, #121 50%, #121 100%);
       }
     `;
-    const output = await optimizeStyleCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
+    const output = await optimizeStyleCss(
+      config,
+      compilerCtx,
+      diagnostics,
+      styleText,
+      MOCK_FILE_PATH,
+    );
 
     expect(diagnostics).toHaveLength(0);
     expect(output).toBe(
@@ -57,7 +69,13 @@ describe('optimizeStyleCss', () => {
         min-width: initial;
       }
     `;
-    const output = await optimizeStyleCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
+    const output = await optimizeStyleCss(
+      config,
+      compilerCtx,
+      diagnostics,
+      styleText,
+      MOCK_FILE_PATH,
+    );
 
     expect(diagnostics).toHaveLength(0);
     expect(output).toBe(`h1{min-width:initial}`);
@@ -69,7 +87,13 @@ describe('optimizeStyleCss', () => {
         display: inline flow-root;
       }
     `;
-    const output = await optimizeStyleCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
+    const output = await optimizeStyleCss(
+      config,
+      compilerCtx,
+      diagnostics,
+      styleText,
+      MOCK_FILE_PATH,
+    );
 
     expect(diagnostics).toHaveLength(0);
     expect(output).toBe(`h1{display:inline-block}`);
@@ -82,7 +106,13 @@ describe('optimizeStyleCss', () => {
         transform: rotate3d(0, 0, 1, 20deg);
       }
     `;
-    const output = await optimizeStyleCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
+    const output = await optimizeStyleCss(
+      config,
+      compilerCtx,
+      diagnostics,
+      styleText,
+      MOCK_FILE_PATH,
+    );
 
     expect(diagnostics).toHaveLength(0);
     expect(output).toBe(`h1{transform:rotate3d(0, 0, 1, 20deg)}`);
@@ -91,7 +121,13 @@ describe('optimizeStyleCss', () => {
   it('colormin', async () => {
     config.autoprefixCss = false;
     const styleText = `body { color: #ff0000; }`;
-    const output = await optimizeStyleCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
+    const output = await optimizeStyleCss(
+      config,
+      compilerCtx,
+      diagnostics,
+      styleText,
+      MOCK_FILE_PATH,
+    );
 
     expect(diagnostics).toHaveLength(0);
     expect(output).toBe(`body{color:#ff0000}`);
@@ -103,7 +139,13 @@ describe('optimizeStyleCss', () => {
         width: 0em;
       }
     `;
-    const output = await optimizeStyleCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
+    const output = await optimizeStyleCss(
+      config,
+      compilerCtx,
+      diagnostics,
+      styleText,
+      MOCK_FILE_PATH,
+    );
 
     expect(diagnostics).toHaveLength(0);
     expect(output).toBe(`h1{width:0}`);
@@ -115,7 +157,13 @@ describe('optimizeStyleCss', () => {
         border: red solid .5em;
       }
     `;
-    const output = await optimizeStyleCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
+    const output = await optimizeStyleCss(
+      config,
+      compilerCtx,
+      diagnostics,
+      styleText,
+      MOCK_FILE_PATH,
+    );
 
     expect(diagnostics).toHaveLength(0);
     expect(output).toBe(`h1{border:.5em solid red}`);
@@ -125,7 +173,13 @@ describe('optimizeStyleCss', () => {
     const styleText = `
       h1 + p, h2, h3, h2{color:red}
     `;
-    const output = await optimizeStyleCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
+    const output = await optimizeStyleCss(
+      config,
+      compilerCtx,
+      diagnostics,
+      styleText,
+      MOCK_FILE_PATH,
+    );
 
     expect(diagnostics).toHaveLength(0);
     expect(output).toBe(`h1+p,h2,h3{color:red}`);
@@ -143,7 +197,13 @@ describe('optimizeStyleCss', () => {
         }
       }
     `;
-    const output = await optimizeStyleCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
+    const output = await optimizeStyleCss(
+      config,
+      compilerCtx,
+      diagnostics,
+      styleText,
+      MOCK_FILE_PATH,
+    );
 
     expect(diagnostics).toHaveLength(0);
     expect(output).toBe(
@@ -158,7 +218,13 @@ describe('optimizeStyleCss', () => {
         content: "'string\\' is intact";
       }
     `;
-    const output = await optimizeStyleCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
+    const output = await optimizeStyleCss(
+      config,
+      compilerCtx,
+      diagnostics,
+      styleText,
+      MOCK_FILE_PATH,
+    );
 
     expect(diagnostics).toHaveLength(0);
     expect(output).toBe(`p:after{content:"'string\\' is intact"}`);
@@ -171,7 +237,13 @@ describe('optimizeStyleCss', () => {
         font-weight: normal;
       }
     `;
-    const output = await optimizeStyleCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
+    const output = await optimizeStyleCss(
+      config,
+      compilerCtx,
+      diagnostics,
+      styleText,
+      MOCK_FILE_PATH,
+    );
 
     expect(diagnostics).toHaveLength(0);
     expect(output).toBe(
@@ -185,7 +257,13 @@ describe('optimizeStyleCss', () => {
         background: url(image.jpg) repeat no-repeat;
       }
     `;
-    const output = await optimizeStyleCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
+    const output = await optimizeStyleCss(
+      config,
+      compilerCtx,
+      diagnostics,
+      styleText,
+      MOCK_FILE_PATH,
+    );
 
     expect(diagnostics).toHaveLength(0);
     expect(output).toBe(`h1{background:url("image.jpg") repeat-x}`);
@@ -197,7 +275,13 @@ describe('optimizeStyleCss', () => {
         background-position: bottom left;
       }
     `;
-    const output = await optimizeStyleCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
+    const output = await optimizeStyleCss(
+      config,
+      compilerCtx,
+      diagnostics,
+      styleText,
+      MOCK_FILE_PATH,
+    );
 
     expect(diagnostics).toHaveLength(0);
     expect(output).toBe(`h1{background-position:0 100%}`);
@@ -209,7 +293,13 @@ describe('optimizeStyleCss', () => {
         width: calc(10px -  ( 100px / var(--test)  )) ;
       }
     `;
-    const output = await optimizeStyleCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
+    const output = await optimizeStyleCss(
+      config,
+      compilerCtx,
+      diagnostics,
+      styleText,
+      MOCK_FILE_PATH,
+    );
 
     expect(diagnostics).toHaveLength(0);
     expect(output).toBe(`h1{width:calc(10px -  ( 100px / var(--test)  ))}`);
@@ -221,7 +311,13 @@ describe('optimizeStyleCss', () => {
         color: red;
       }
     `;
-    const output = await optimizeStyleCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
+    const output = await optimizeStyleCss(
+      config,
+      compilerCtx,
+      diagnostics,
+      styleText,
+      MOCK_FILE_PATH,
+    );
 
     expect(diagnostics).toHaveLength(0);
     expect(output).toBe(`h1,h3,h2{color:red}`);
@@ -234,7 +330,13 @@ describe('optimizeStyleCss', () => {
         box-shadow: 1px;
       }
     `;
-    const output = await optimizeStyleCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
+    const output = await optimizeStyleCss(
+      config,
+      compilerCtx,
+      diagnostics,
+      styleText,
+      MOCK_FILE_PATH,
+    );
 
     expect(diagnostics).toHaveLength(0);
     expect(output).toBe(`h1{box-shadow:1px}`);
@@ -247,7 +349,13 @@ describe('optimizeStyleCss', () => {
         box-shadow: 1px;
       }
     `;
-    const output = await optimizeStyleCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
+    const output = await optimizeStyleCss(
+      config,
+      compilerCtx,
+      diagnostics,
+      styleText,
+      MOCK_FILE_PATH,
+    );
 
     expect(diagnostics).toHaveLength(0);
     expect(output).toBe(`h1{box-shadow:1px}`);
@@ -260,7 +368,13 @@ describe('optimizeStyleCss', () => {
         user-select: none;
       }
     `;
-    const output = await optimizeStyleCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
+    const output = await optimizeStyleCss(
+      config,
+      compilerCtx,
+      diagnostics,
+      styleText,
+      MOCK_FILE_PATH,
+    );
 
     expect(diagnostics).toHaveLength(0);
     expect(output).toBe(`h1{-webkit-user-select:none;user-select:none}`);
@@ -274,7 +388,13 @@ describe('optimizeStyleCss', () => {
         user-select: none;
       }
     `;
-    const output = await optimizeStyleCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
+    const output = await optimizeStyleCss(
+      config,
+      compilerCtx,
+      diagnostics,
+      styleText,
+      MOCK_FILE_PATH,
+    );
 
     expect(diagnostics).toHaveLength(0);
     expect(output).toBe(`h1{-webkit-user-select:none;user-select:none}`);
