@@ -73,22 +73,33 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
       let appliedStyles = rootAppliedStyles.get(styleContainerNode);
       let styleElm;
       if (!appliedStyles) {
-        rootAppliedStyles.set(styleContainerNode, (appliedStyles = new Set()));
+        rootAppliedStyles.set(styleContainerNode, (appliedStyles = new Map()));
       }
 
-      // Check if style element already exists (for HMR updates)
-      // For shadow DOM components, directly update their dedicated style element
-      // For scoped components, check if they have their own HMR-created style element
-      const existingStyleElm: HTMLStyleElement =
-        (BUILD.hydrateClientSide || BUILD.hotModuleReplacement) &&
-        styleContainerNode.querySelector(`[${HYDRATED_STYLE_ID}="${scopeId}"]`);
+      // Check if tracked element is still in the DOM (fixes #6637)
+      const trackedElm = appliedStyles.get(scopeId);
+      if (trackedElm !== undefined) {
+        if (trackedElm === null || trackedElm.parentNode === styleContainerNode) {
+          if (BUILD.hotModuleReplacement && trackedElm !== null && trackedElm.textContent !== style) {
+            trackedElm.textContent = style;
+          }
+          return scopeId;
+        }
+        appliedStyles.delete(scopeId);
+      }
+
+      const existingStyleElm: HTMLStyleElement | undefined =
+        ((BUILD.hydrateClientSide || BUILD.hotModuleReplacement) &&
+          styleContainerNode.querySelector(`[${HYDRATED_STYLE_ID}="${scopeId}"]`)) ||
+        undefined;
 
       if (existingStyleElm) {
-        // Update existing style element (for hydration or HMR)
         existingStyleElm.textContent = style;
-      } else if (!appliedStyles.has(scopeId)) {
+        appliedStyles.set(scopeId, existingStyleElm);
+      } else {
         styleElm = win.document.createElement('style');
         styleElm.textContent = style;
+        let appliedStyleElm: HTMLStyleElement | null = styleElm;
 
         // Apply CSP nonce to the style tag if it exists
         const nonce = plt.$nonce$ ?? queryNonceMetaTagContent(win.document);
@@ -148,6 +159,7 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
               } else {
                 styleContainerNode.adoptedStyleSheets = [stylesheet, ...styleContainerNode.adoptedStyleSheets];
               }
+              appliedStyleElm = null;
             } else {
               /**
                * If a scoped component is used within a shadow root and constructable stylesheets are
@@ -165,6 +177,7 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
               const existingStyleContainer: HTMLStyleElement = styleContainerNode.querySelector('style');
               if (existingStyleContainer && !BUILD.hotModuleReplacement) {
                 existingStyleContainer.textContent = style + existingStyleContainer.textContent;
+                appliedStyleElm = existingStyleContainer;
               } else {
                 (styleContainerNode as HTMLElement).prepend(styleElm);
               }
@@ -186,14 +199,12 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
           styleElm.textContent += SLOT_FB_CSS;
         }
 
-        if (appliedStyles) {
-          appliedStyles.add(scopeId);
-        }
+        appliedStyles.set(scopeId, appliedStyleElm);
       }
     } else if (BUILD.constructableCSS) {
       let appliedStyles = rootAppliedStyles.get(styleContainerNode);
       if (!appliedStyles) {
-        rootAppliedStyles.set(styleContainerNode, (appliedStyles = new Set()));
+        rootAppliedStyles.set(styleContainerNode, (appliedStyles = new Map()));
       }
       if (!appliedStyles.has(scopeId)) {
         /**
@@ -220,7 +231,7 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
           styleContainerNode.adoptedStyleSheets = [...styleContainerNode.adoptedStyleSheets, stylesheet];
         }
 
-        appliedStyles.add(scopeId);
+        appliedStyles.set(scopeId, null);
 
         // Remove SSR style element from shadow root now that adoptedStyleSheets is in use
         // Only remove from shadow roots, not from document head (for scoped components)
