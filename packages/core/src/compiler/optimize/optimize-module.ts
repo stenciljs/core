@@ -267,6 +267,29 @@ export const getOxcMinifyOptions = (
 };
 
 /**
+ * `ComponentRuntimeMeta` (the shape of a component class's static `cmpMeta` getter) is
+ * produced by one compiled unit and read by another (e.g. a component's own chunk vs the
+ * SSR/hydrate runtime, or a lazy component's entry chunk vs the core runtime chunk).
+ *
+ * Oxc's mangleProps` has been observed to mangle a property at its read site but leave the same
+ * property's key unmangled silently breaking that read (e.g. `cmpMeta.$tagName$` reads as `undefined`).
+ * Reserving these names avoids the mismatch entirely.
+ *
+ * Assess in time with rolldown / oxc updates via `cd test/build/output && pnpm test`
+ */
+const RESERVED_CMP_META_PROPS = [
+  '$flags$',
+  '$tagName$',
+  '$members$',
+  '$listeners$',
+  '$attrsToReflect$',
+  '$watchers$',
+  '$lazyBundleId$',
+  '$serializers$',
+  '$deserializers$',
+];
+
+/**
  * Get baseline configuration for oxc's `mangleProps` option, mirroring
  * {@link getTerserManglePropertiesConfig}.
  *
@@ -276,7 +299,7 @@ export const getOxcMinifyOptions = (
 function getOxcManglePropertiesConfig(isDebug: boolean): OxcMinifyOptions['mangleProps'] {
   return {
     include: /^\$.+\$$/,
-    reserved: ['$hostElement$'],
+    reserved: ['$hostElement$', ...RESERVED_CMP_META_PROPS],
     debug: isDebug,
   };
 }

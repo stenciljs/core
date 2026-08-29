@@ -414,8 +414,6 @@ importers:
         specifier: 'catalog:'
         version: 6.0.3
 
-  test/end-to-end/hydrate: {}
-
   test/integration: {}
 
   test/integration/bundler:
