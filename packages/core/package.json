@@ -128,7 +128,7 @@
     "postcss-safe-parser": "^7.0.1",
     "postcss-selector-parser": "^7.1.5",
     "resolve": "^1.22.12",
-    "rolldown": "^1.2.4",
+    "rolldown": "^1.2.6",
     "semver": "^7.8.5",
     "terser": "^5.50.0",
     "tinyglobby": "^0.2.17",

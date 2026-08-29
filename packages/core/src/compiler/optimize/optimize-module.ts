@@ -5,6 +5,7 @@ import type {
   SourceTarget,
   ValidatedConfig,
 } from '@stencil/core';
+import type { MinifyOptions as OxcMinifyOptions } from 'rolldown/utils';
 import type {
   CompressOptions,
   MangleOptions,
@@ -13,7 +14,8 @@ import type {
 } from 'terser';
 
 import { getToolVersion } from '../../version';
-import { minifyJs } from './minify-js';
+import { minifyJsOxc } from './minify-js-oxc';
+import { minifyJs } from './minify-js-terser';
 
 interface OptimizeModuleOptions {
   input: string;
@@ -46,9 +48,11 @@ export const optimizeModule = async (
   }
 
   const isDebug = config.logLevel === 'debug';
+  const jsMinifier = config.jsMinifier;
   const cacheKey = await compilerCtx.cache.createKey(
     'optimizeModule',
-    getToolVersion('terser'),
+    jsMinifier,
+    getToolVersion(jsMinifier === 'oxc' ? 'rolldown' : 'terser'),
     opts,
     isDebug,
   );
@@ -62,8 +66,46 @@ export const optimizeModule = async (
     };
   }
 
-  const minifyOpts = getTerserOptions(config, opts.sourceTarget, isDebug);
   const code = opts.input;
+  const results =
+    jsMinifier === 'oxc'
+      ? // oxc's `minifySync` is a direct, synchronous native call - no worker dispatch needed
+        await minifyJsOxc(code, getOxcMinifyOptions(config, opts, isDebug))
+      : await compilerCtx.worker.prepareModule(code, getTerserMinifyOptions(config, opts, isDebug));
+
+  if (
+    results != null &&
+    typeof results.output === 'string' &&
+    results.diagnostics.length === 0 &&
+    compilerCtx != null
+  ) {
+    if (opts.isCore) {
+      results.output = results.output.replace(/disconnectedCallback\(\)\{\},/g, '');
+    }
+    await compilerCtx.cache.put(cacheKey, results.output);
+    if (results.sourceMap) {
+      await compilerCtx.cache.put(cacheKey + 'Map', JSON.stringify(results.sourceMap));
+    }
+  }
+
+  return results;
+};
+
+/**
+ * Builds the terser options for a specific module being optimized, layering the module's
+ * `isCore`/source map needs on top of the baseline options from {@link getTerserOptions}.
+ *
+ * @param config the Stencil configuration file that was provided as a part of the build step
+ * @param opts the options for the module being optimized
+ * @param isDebug if true, set the necessary flags to produce readable, debuggable output
+ * @returns the minification options to hand to terser
+ */
+const getTerserMinifyOptions = (
+  config: ValidatedConfig,
+  opts: OptimizeModuleOptions,
+  isDebug: boolean,
+): MinifyOptions => {
+  const minifyOpts = getTerserOptions(config, opts.sourceTarget, isDebug);
 
   if (config.sourceMap) {
     minifyOpts.sourceMap = {
@@ -103,23 +145,7 @@ export const optimizeModule = async (
     compressOpts.unsafe_undefined = true;
   }
 
-  const results = await compilerCtx.worker.prepareModule(code, minifyOpts);
-  if (
-    results != null &&
-    typeof results.output === 'string' &&
-    results.diagnostics.length === 0 &&
-    compilerCtx != null
-  ) {
-    if (opts.isCore) {
-      results.output = results.output.replace(/disconnectedCallback\(\)\{\},/g, '');
-    }
-    await compilerCtx.cache.put(cacheKey, results.output);
-    if (results.sourceMap) {
-      await compilerCtx.cache.put(cacheKey + 'Map', JSON.stringify(results.sourceMap));
-    }
-  }
-
-  return results;
+  return minifyOpts;
 };
 
 /**
@@ -190,6 +216,92 @@ function getTerserManglePropertiesConfig(): ManglePropertiesOptions {
   } satisfies ManglePropertiesOptions;
 
   return options;
+}
+
+/**
+ * Builds the oxc (rolldown minifier) options for a specific module being optimized.
+ *
+ * A few terser knobs have no oxc equivalent and so are dropped:
+ * - `global_defs` (used to fold `supportsListenerOptions` to `true` in the core runtime bundle)
+ * - `unsafe`/`unsafe_undefined`/`inline` compress passes
+ * - `passes` (oxc's compressor iterates to a fix point automatically)
+ *
+ * @param config the Stencil configuration file that was provided as a part of the build step
+ * @param opts the options for the module being optimized
+ * @param isDebug if true, set the necessary flags to produce readable, debuggable output
+ * @returns the minification options to hand to oxc
+ */
+export const getOxcMinifyOptions = (
+  config: ValidatedConfig,
+  opts: OptimizeModuleOptions,
+  isDebug: boolean,
+): OxcMinifyOptions => {
+  const minifyOpts: OxcMinifyOptions = {
+    module: true,
+    sourcemap: !!config.sourceMap,
+    inputMap: config.sourceMap ? (opts.sourceMap ?? undefined) : undefined,
+    mangleProps: getOxcManglePropertiesConfig(isDebug),
+  };
+
+  if (isDebug) {
+    minifyOpts.mangle = false;
+    minifyOpts.compress = {
+      dropConsole: false,
+      dropDebugger: false,
+    };
+    minifyOpts.codegen = {
+      removeWhitespace: false,
+      legalComments: 'inline',
+    };
+  } else {
+    minifyOpts.mangle = { toplevel: true };
+    minifyOpts.compress = {
+      treeshake: {
+        propertyReadSideEffects: false,
+        manualPureFunctions: opts.isCore ? ['getHostRef'] : [],
+      },
+    };
+  }
+
+  return minifyOpts;
+};
+
+/**
+ * `ComponentRuntimeMeta` (the shape of a component class's static `cmpMeta` getter) is
+ * produced by one compiled unit and read by another (e.g. a component's own chunk vs the
+ * SSR/hydrate runtime, or a lazy component's entry chunk vs the core runtime chunk).
+ *
+ * Oxc's mangleProps` has been observed to mangle a property at its read site but leave the same
+ * property's key unmangled silently breaking that read (e.g. `cmpMeta.$tagName$` reads as `undefined`).
+ * Reserving these names avoids the mismatch entirely.
+ *
+ * Assess in time with rolldown / oxc updates via `cd test/build/output && pnpm test`
+ */
+const RESERVED_CMP_META_PROPS = [
+  '$flags$',
+  '$tagName$',
+  '$members$',
+  '$listeners$',
+  '$attrsToReflect$',
+  '$watchers$',
+  '$lazyBundleId$',
+  '$serializers$',
+  '$deserializers$',
+];
+
+/**
+ * Get baseline configuration for oxc's `mangleProps` option, mirroring
+ * {@link getTerserManglePropertiesConfig}.
+ *
+ * @param isDebug if true, produce readable `_$name$_`-style output names instead of minified ones
+ * @returns an object with our baseline property mangling configuration
+ */
+function getOxcManglePropertiesConfig(isDebug: boolean): OxcMinifyOptions['mangleProps'] {
+  return {
+    include: /^\$.+\$$/,
+    reserved: ['$hostElement$', ...RESERVED_CMP_META_PROPS],
+    debug: isDebug,
+  };
 }
 
 /**

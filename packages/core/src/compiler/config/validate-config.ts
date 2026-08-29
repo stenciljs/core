@@ -151,6 +151,7 @@ export const validateConfig = (
     logger,
     minifyCss: config.minifyCss ?? !devMode,
     minifyJs: config.minifyJs ?? !devMode,
+    jsMinifier: config.jsMinifier ?? 'oxc',
     outputTargets: config.outputTargets ?? [],
     rolldownConfig: validateRolldownConfig(config),
     sourceMap:

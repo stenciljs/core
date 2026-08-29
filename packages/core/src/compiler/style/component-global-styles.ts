@@ -2,7 +2,7 @@ import type * as d from '@stencil/core';
 
 import { normalizePath } from '../../utils';
 import { runPluginTransforms } from '../plugin/plugin';
-import { optimizeCss } from './optimize-css';
+import { optimizeStyleCss } from './optimize-style-css';
 import { wrapCssWithImportModifiers } from './style-utils';
 
 // the trailing capture group picks up any modifiers (e.g. `layer(name)`) following the specifier
@@ -95,7 +95,7 @@ export const collectAndBuildComponentGlobalStyles = async (
         const cssCode = typeof result === 'string' ? result : result.code;
         if (!cssCode) continue;
 
-        const optimized = await optimizeCss(
+        const optimized = await optimizeStyleCss(
           config,
           compilerCtx,
           buildCtx.diagnostics,

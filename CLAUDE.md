@@ -18,7 +18,7 @@ Prefer implied return types for internal/private functions and methods. Use expl
 
 Never commit changes without the user explicitly asking you to. Always ask for confirmation before committing, and provide a clear summary of the changes that will be committed. If the user asks for changes after you’ve provided a summary but before you’ve committed, update the summary to reflect the new changes before asking for confirmation again.
 
-Keep all code comments terse as you can ... but don't delete existing comments without good reason. 
+Keep all code comments terse as you can ... but don't delete existing comments without good reason. *NEVER* include in any comment or doc, context information that is *only* relevant to the current session. Read any comment you add as "if someone else were reading this code in 6 months, would they understand it?" If the answer is no, trim the bullshit down to the bear minimum.
 
 Generally, non-trivial changes should pass -
 - `pnpm build`

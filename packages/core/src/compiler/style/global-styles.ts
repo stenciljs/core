@@ -9,7 +9,7 @@ import {
   resolveStencilHydrateImport,
 } from './component-global-styles';
 import { getCssImports } from './css-imports';
-import { optimizeCss } from './optimize-css';
+import { optimizeStyleCss } from './optimize-style-css';
 
 /**
  * Build global styles from the `globalStyle` config option (legacy entry point).
@@ -109,7 +109,7 @@ export const buildGlobalStyleFromInput = async (
         cssCode = resolveStencilHydrateImport(cssCode, config, buildCtx);
       }
 
-      const optimizedCss = await optimizeCss(
+      const optimizedCss = await optimizeStyleCss(
         config,
         compilerCtx,
         buildCtx.diagnostics,

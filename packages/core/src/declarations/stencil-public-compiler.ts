@@ -167,10 +167,20 @@ export interface StencilConfig {
   rolldownConfig?: RolldownConfig;
 
   /**
-   * Sets if the JS browser files are minified or not. Stencil uses `terser` under the hood.
+   * Sets if the JS browser files are minified or not.
    * Defaults to `false` in dev mode and `true` in production mode.
    */
   minifyJs?: boolean;
+
+  /**
+   * Which minifier to use for JS output when `minifyJs` is enabled.
+   *
+   * - `oxc`: built into rolldown. Much faster than terser. Output may be slightly larger.
+   * - `terser`: slower, but currently produces the smallest output.
+   *
+   * Defaults to `oxc`.
+   */
+  jsMinifier?: 'terser' | 'oxc';
 
   /**
    * Sets if the CSS is minified or not.
@@ -556,6 +566,7 @@ type StrictConfigFields = keyof Pick<
   | 'compat'
   | 'fsNamespace'
   | 'hydratedFlag'
+  | 'jsMinifier'
   | 'logLevel'
   | 'logger'
   | 'minifyCss'

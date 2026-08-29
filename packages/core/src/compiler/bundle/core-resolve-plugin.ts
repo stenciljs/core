@@ -42,10 +42,7 @@ export const coreResolvePlugin = (
 
   // Build filter for load hook - only process the internal client/ssr runtime files
   // Must also match paths with query strings (e.g., ?app-data=conditional for lazy builds)
-  const escapeRegex = (str: string): string => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const loadFilter = new RegExp(
-    `^(${escapeRegex(internalClient)}|${escapeRegex(internalSsr)})(\\?.*)?$`,
-  );
+  const loadFilter = getStencilInternalModuleFilter(internalClient, internalSsr);
 
   return {
     name: 'coreResolvePlugin',
@@ -180,6 +177,20 @@ export const Build = {
       },
     },
   };
+};
+
+/**
+ * Builds a filter regex matching only Stencil's own resolved internal runtime module(s),
+ * tolerant of query-string suffixes (e.g. `?app-data=conditional` for lazy builds). Shared by
+ * any plugin that needs to scope its work to Stencil's own runtime code, rather than the rest
+ * of a downstream app's bundle.
+ *
+ * @param moduleIds absolute paths to Stencil's resolved internal runtime module(s)
+ * @returns a regex suitable for a rolldown hook's `id` filter
+ */
+export const getStencilInternalModuleFilter = (...moduleIds: string[]): RegExp => {
+  const escapeRegex = (str: string): string => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`^(${moduleIds.map(escapeRegex).join('|')})(\\?.*)?$`);
 };
 
 export const getStencilInternalModule = (

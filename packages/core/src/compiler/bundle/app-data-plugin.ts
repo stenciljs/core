@@ -286,13 +286,36 @@ export const appendBuildConditionals = (
   buildConditionals: d.BuildConditionals,
   s: MagicString,
 ): void => {
-  const buildData = Object.keys(buildConditionals)
-    .sort()
-    .map((key) => key + ': ' + JSON.stringify((buildConditionals as any)[key]))
+  const buildData = getSortedBuildConditionalEntries(buildConditionals)
+    .map(([key, value]) => key + ': ' + JSON.stringify(value))
     .join(', ');
 
   s.append(`export const BUILD = /* ${config.fsNamespace} */ { ${buildData} };\n`);
 };
+
+/**
+ * Builds a `<flag> -> literal-value-as-source-text` map for every build conditional, for use by
+ * {@link buildConditionalsPlugin} to replace `BUILD.<flag>` reads with their literal values.
+ *
+ * @param buildConditionals the build conditionals for this build
+ * @returns a flag name > literal source text map
+ */
+export const getBuildConditionalsLiterals = (
+  buildConditionals: d.BuildConditionals,
+): Map<string, string> => {
+  const literals = new Map<string, string>();
+  for (const [key, value] of getSortedBuildConditionalEntries(buildConditionals)) {
+    literals.set(key, JSON.stringify(value));
+  }
+  return literals;
+};
+
+const getSortedBuildConditionalEntries = (
+  buildConditionals: d.BuildConditionals,
+): [string, unknown][] =>
+  Object.keys(buildConditionals)
+    .sort()
+    .map((key) => [key, (buildConditionals as any)[key]]);
 
 const appendEnv = (config: d.ValidatedConfig, s: MagicString) => {
   s.append(`export const Env = /* ${config.fsNamespace} */ ${JSON.stringify(config.env)};\n`);

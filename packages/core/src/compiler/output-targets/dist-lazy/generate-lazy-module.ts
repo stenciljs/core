@@ -127,10 +127,6 @@ const addStaticImports = (
       '/*!__STENCIL_STATIC_IMPORT_SWITCH__*/',
       `
         if (!hmrVersionId || !BUILD.hotModuleReplacement) {
-          const processMod = importedModule => {
-              cmpModules.set(bundleId, importedModule);
-              return importedModule[exportName];
-          }
           switch(bundleId) {
               ${bundleModules.map((mod) => generateCjs(mod.output.bundleId)).join('')}
           }
@@ -180,7 +176,7 @@ const generateCaseClause = (bundleId: string): string => {
                 case '${bundleId}':
                     return import(
                       /* webpackMode: "lazy" */
-                      './${bundleId}.entry.js').then(processMod, consoleError);`;
+                      './${bundleId}.entry.js').then(onLoad, onError);`;
 };
 
 /**
@@ -194,7 +190,7 @@ const generateCaseClauseCjs = (bundleId: string): string => {
                 case '${bundleId}':
                     return Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(
                         /* webpackMode: "lazy" */
-                        './${bundleId}.entry.js')); }).then(processMod, consoleError);`;
+                        './${bundleId}.entry.js')); }).then(onLoad, onError);`;
 };
 
 const generateLazyEntryModule = async (

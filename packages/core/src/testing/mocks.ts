@@ -145,6 +145,7 @@ export function mockValidatedConfig(overrides: Partial<d.ValidatedConfig> = {}):
     logger: mockLogger(),
     minifyCss: false,
     minifyJs: false,
+    jsMinifier: 'oxc',
     namespace: 'Testing',
     outputTargets: baseConfig.outputTargets ?? [],
     packageJsonFilePath: path.join(rootDir, 'package.json'),

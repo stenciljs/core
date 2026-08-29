@@ -33,15 +33,6 @@ export const minifyJs = async (
         mangleProperties.regex = new RegExp(mangleProperties.regex);
       }
     }
-    if (opts.sourceMap) {
-      /**
-       * sourceMap, when used in conjunction with compress, can lead to sourcemaps that don't in every browser. despite
-       * there being a sourcemap spec, each browser has it's own tricks for trying to get sourcemaps to properly map
-       * minified JS back to its original form. for the most consistent results across all browsers, explicitly disable
-       * compress.
-       */
-      opts.compress = undefined;
-    }
   }
 
   try {

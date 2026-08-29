@@ -67,8 +67,6 @@ export const loadModule = (
   ]
     .filter(Boolean)
     .join('&');
-  /*!__STENCIL_STATIC_IMPORT_SWITCH__*/
-  const entryFile = `${bundleId}.entry.js${cacheBustParams ? '?' + cacheBustParams : ''}`;
   const onLoad = (importedModule: any) => {
     if (!BUILD.hotModuleReplacement) {
       failedLoadAttempts.delete(bundleId);
@@ -80,6 +78,8 @@ export const loadModule = (
     failedLoadAttempts.set(bundleId, retryCount + 1);
     consoleError(e, hostRef.$hostElement$);
   };
+  /*!__STENCIL_STATIC_IMPORT_SWITCH__*/
+  const entryFile = `${bundleId}.entry.js${cacheBustParams ? '?' + cacheBustParams : ''}`;
   if (lazyLoadBasePath) {
     return import(
       /* @vite-ignore */
