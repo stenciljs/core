@@ -112,7 +112,18 @@ describe('getOxcMinifyOptions', () => {
 
     const opts = getOxcMinifyOptions(config, { input: '' }, false);
 
-    expect(opts.mangleProps?.reserved).toEqual(['$hostElement$']);
+    expect(opts.mangleProps?.reserved).toEqual([
+      '$hostElement$',
+      '$flags$',
+      '$tagName$',
+      '$members$',
+      '$listeners$',
+      '$attrsToReflect$',
+      '$watchers$',
+      '$lazyBundleId$',
+      '$serializers$',
+      '$deserializers$',
+    ]);
     expect(opts.mangleProps?.include.test('$lazyInstance$')).toBe(true);
     expect(opts.mangleProps?.include.test('plainProp')).toBe(false);
   });
