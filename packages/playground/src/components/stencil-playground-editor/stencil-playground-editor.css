@@ -1,0 +1,24 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+textarea {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: 0;
+  resize: none;
+  padding: 1rem;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  tab-size: 2;
+  background: #1e1e1e;
+  color: #d4d4d4;
+}
+
+textarea:focus {
+  outline: none;
+}

@@ -1,0 +1,32 @@
+:host {
+  display: block;
+  height: 400px;
+  border: 1px solid #333;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr auto;
+  height: 100%;
+}
+
+stencil-playground-editor,
+stencil-playground-preview {
+  min-width: 0;
+  min-height: 0;
+}
+
+.diagnostics {
+  grid-column: 1 / -1;
+  max-height: 8rem;
+  overflow: auto;
+  padding: 0.5rem 0.75rem;
+  background: #2a1215;
+  color: #f5a3a3;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+}

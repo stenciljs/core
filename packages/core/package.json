@@ -112,7 +112,7 @@
   },
   "dependencies": {
     "@parcel/watcher": "^2.6.0",
-    "@preact/signals-core": "^1.14.4",
+    "@preact/signals-core": "catalog:",
     "@rollup/pluginutils": "^5.4.0",
     "@stencil/cli": "workspace:*",
     "@stencil/dev-server": "workspace:*",
