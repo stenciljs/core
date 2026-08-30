@@ -530,7 +530,7 @@ export declare function getAssetPath(path: string): string;
  * @param vnode - The virtual DOM tree to render
  * @param container - The container element to render the virtual DOM tree to
  */
-export declare function render(vnode: VNode, container: Element): void;
+export declare function render(vnode: VNode, container: globalThis.Element): void;
 
 /**
  * Used to manually set the base path where assets can be found. For lazy-loaded
@@ -1329,7 +1329,7 @@ export namespace JSXBase {
 
     // popover
     popoverTargetAction?: string;
-    popoverTargetElement?: Element | null;
+    popoverTargetElement?: globalThis.Element | null;
     popoverTarget?: string;
 
     // invoker commands
@@ -1519,7 +1519,7 @@ export namespace JSXBase {
 
     // popover
     popoverTargetAction?: string;
-    popoverTargetElement?: Element | null;
+    popoverTargetElement?: globalThis.Element | null;
     popoverTarget?: string;
   }
 
@@ -2316,7 +2316,7 @@ export namespace JSXBase {
   }
 }
 
-export interface JSXAttributes<T = Element> {
+export interface JSXAttributes<T = globalThis.Element> {
   // vdom specific
   key?: string | number;
   ref?: (elm?: T) => void;
