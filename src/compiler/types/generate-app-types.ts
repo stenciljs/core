@@ -16,6 +16,13 @@ import { updateReferenceTypeImports } from './update-import-refs';
 const MAX_ONE_OF_REQUIRED_PROPS = 8;
 
 /**
+ * Above this many required props on a single component, the `prop:` branch is excluded
+ * from the generated `OneOf<>` check, falling back to a 2-way exclusive union to avoid
+ * exponential failure in the TS checker.
+ */
+const MAX_ONE_OF_REQUIRED_PROPS_WITH_PROP = 5;
+
+/**
  * Generates and writes a `components.d.ts` file to disk. This file may be written to the `src` directory of a project,
  * or be written to a directory that is meant to be distributed (e.g. the output directory of `dist-custom-elements`).
  * @param config the Stencil configuration associated with the project being compiled
@@ -204,6 +211,9 @@ const generateComponentTypesFile = (
     c.push(
       `    type OneOf<K extends string, PropT, AttrT = PropT> = { [P in K]: PropT } & { [P in \`attr:\${K}\`]?: never } | { [P in \`attr:\${K}\`]: AttrT } & { [P in K]?: never };`,
     );
+    c.push(
+      `    type OneOf3<K extends string, PropT, AttrT = PropT> = { [P in K]: PropT } & { [P in \`attr:\${K}\` | \`prop:\${K}\`]?: never } | { [P in \`attr:\${K}\`]: AttrT } & { [P in K | \`prop:\${K}\`]?: never } | { [P in \`prop:\${K}\`]: PropT } & { [P in K | \`attr:\${K}\`]?: never };`,
+    );
     c.push(``);
   }
 
@@ -229,11 +239,12 @@ const generateComponentTypesFile = (
         const baseOptional = `Omit<${m.tagNameAsPascal}, keyof ${m.tagNameAsPascal}Attributes> & { [K in keyof ${m.tagNameAsPascal} & keyof ${m.tagNameAsPascal}Attributes]?: ${m.tagNameAsPascal}[K] } & { [K in keyof ${m.tagNameAsPascal} & keyof ${m.tagNameAsPascal}Attributes as \`attr:\${K}\`]?: ${m.tagNameAsPascal}Attributes[K] } & { [K in keyof ${m.tagNameAsPascal} & keyof ${m.tagNameAsPascal}Attributes as \`prop:\${K}\`]?: ${m.tagNameAsPascal}[K] }`;
 
         if (m.requiredProps && m.requiredProps.length > 0 && m.requiredProps.length <= MAX_ONE_OF_REQUIRED_PROPS) {
+          const oneOfType = m.requiredProps.length <= MAX_ONE_OF_REQUIRED_PROPS_WITH_PROP ? 'OneOf3' : 'OneOf';
           // Generate OneOf unions for each required prop
           const requiredUnions = m.requiredProps
             .map((prop) => {
               // Get both the property type and attribute type
-              return `OneOf<"${prop.name}", ${m.tagNameAsPascal}["${prop.name}"], ${m.tagNameAsPascal}Attributes["${prop.name}"]>`;
+              return `${oneOfType}<"${prop.name}", ${m.tagNameAsPascal}["${prop.name}"], ${m.tagNameAsPascal}Attributes["${prop.name}"]>`;
             })
             .join(' & ');
 
