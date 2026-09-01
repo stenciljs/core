@@ -17,13 +17,14 @@
   "module": "dist/loader-bundle/index.js",
   "types": "dist/types/components.d.ts",
   "scripts": {
-    "start": "stencil build --serve --dev --watch",
+    "start": "node build/copy-vendor.js && stencil build --serve --dev --watch",
     "build": "stencil build && node build/copy-vendor.js",
     "typecheck": "tsc --noEmit",
     "test:browser": "vitest run"
   },
   "dependencies": {
-    "@stencil/core": "workspace:*"
+    "@stencil/core": "workspace:*",
+    "monaco-editor": "^0.56.0"
   },
   "devDependencies": {
     "@preact/signals-core": "catalog:",

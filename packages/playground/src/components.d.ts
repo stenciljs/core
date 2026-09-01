@@ -5,30 +5,37 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/runtime";
-import { PreviewResult } from "./components/stencil-playground-preview/stencil-playground-preview";
-export { PreviewResult } from "./components/stencil-playground-preview/stencil-playground-preview";
+import { PlaygroundFile } from "./utils";
+import { EditorFilesState } from "./components/stencil-playground-editor/stencil-playground-editor";
+import { Diagnostic } from "@stencil/core/compiler/browser";
+import { PreviewInput, PreviewResult } from "./components/stencil-playground-preview/stencil-playground-preview";
+export { PlaygroundFile } from "./utils";
+export { EditorFilesState } from "./components/stencil-playground-editor/stencil-playground-editor";
+export { Diagnostic } from "@stencil/core/compiler/browser";
+export { PreviewInput, PreviewResult } from "./components/stencil-playground-preview/stencil-playground-preview";
 export namespace Components {
     interface StencilPlayground {
         /**
-          * @default `import { Component, h } from '@stencil/core';  @Component({ tag: 'my-component' }) export class MyComponent {   render() {     return <div>Hello from Stencil!</div>;   } } `
+          * The list of files in the playground.
+          * @default [   {     name: 'my-component.tsx',     content: `import { Component } from '@stencil/core';  @Component({ tag: 'my-component' }) export class MyComponent {   render() {     return <div>Hello from Stencil!</div>;   } } `,   }, ]
          */
-        "code": string;
+        "files": PlaygroundFile[];
     }
     interface StencilPlaygroundEditor {
         /**
-          * @default ''
+          * @default []
          */
-        "value": string;
+        "diagnostics": Diagnostic[];
+        /**
+          * @default { files: [], activeFileName: '' }
+         */
+        "filesState": EditorFilesState;
     }
     interface StencilPlaygroundPreview {
         /**
-          * @default null
+          * @default { files: [], indexHtml: null }
          */
-        "compiledCode": string | null;
-        /**
-          * @default null
-         */
-        "componentTag": string | null;
+        "input": PreviewInput;
     }
 }
 export interface StencilPlaygroundEditorCustomEvent<T> extends CustomEvent<T> {
@@ -47,7 +54,9 @@ declare global {
         new (): HTMLStencilPlaygroundElement;
     };
     interface HTMLStencilPlaygroundEditorElementEventMap {
-        "valueChange": string;
+        "fileChange": { name: string; content: string };
+        "activeFileChange": string;
+        "editorReady": void;
     }
     interface HTMLStencilPlaygroundEditorElement extends Components.StencilPlaygroundEditor, HTMLStencilElement {
         addEventListener<K extends keyof HTMLStencilPlaygroundEditorElementEventMap>(type: K, listener: (this: HTMLStencilPlaygroundEditorElement, ev: StencilPlaygroundEditorCustomEvent<HTMLStencilPlaygroundEditorElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -89,44 +98,35 @@ declare global {
 declare namespace LocalJSX {
     interface StencilPlayground {
         /**
-          * @default `import { Component, h } from '@stencil/core';  @Component({ tag: 'my-component' }) export class MyComponent {   render() {     return <div>Hello from Stencil!</div>;   } } `
+          * The list of files in the playground.
+          * @default [   {     name: 'my-component.tsx',     content: `import { Component } from '@stencil/core';  @Component({ tag: 'my-component' }) export class MyComponent {   render() {     return <div>Hello from Stencil!</div>;   } } `,   }, ]
          */
-        "code"?: string;
+        "files"?: PlaygroundFile[];
     }
     interface StencilPlaygroundEditor {
-        "onValueChange"?: (event: StencilPlaygroundEditorCustomEvent<string>) => void;
         /**
-          * @default ''
+          * @default []
          */
-        "value"?: string;
+        "diagnostics"?: Diagnostic[];
+        /**
+          * @default { files: [], activeFileName: '' }
+         */
+        "filesState"?: EditorFilesState;
+        "onActiveFileChange"?: (event: StencilPlaygroundEditorCustomEvent<string>) => void;
+        "onEditorReady"?: (event: StencilPlaygroundEditorCustomEvent<void>) => void;
+        "onFileChange"?: (event: StencilPlaygroundEditorCustomEvent<{ name: string; content: string }>) => void;
     }
     interface StencilPlaygroundPreview {
         /**
-          * @default null
+          * @default { files: [], indexHtml: null }
          */
-        "compiledCode"?: string | null;
-        /**
-          * @default null
-         */
-        "componentTag"?: string | null;
+        "input"?: PreviewInput;
         "onPreviewResult"?: (event: StencilPlaygroundPreviewCustomEvent<PreviewResult>) => void;
     }
-
-    interface StencilPlaygroundAttributes {
-        "code": string;
-    }
-    interface StencilPlaygroundEditorAttributes {
-        "value": string;
-    }
-    interface StencilPlaygroundPreviewAttributes {
-        "compiledCode": string | null;
-        "componentTag": string | null;
-    }
-
     interface IntrinsicElements {
-        "stencil-playground": Omit<StencilPlayground, keyof StencilPlaygroundAttributes> & { [K in keyof StencilPlayground & keyof StencilPlaygroundAttributes]?: StencilPlayground[K] } & { [K in keyof StencilPlayground & keyof StencilPlaygroundAttributes as `attr:${K}`]?: StencilPlaygroundAttributes[K] } & { [K in keyof StencilPlayground & keyof StencilPlaygroundAttributes as `prop:${K}`]?: StencilPlayground[K] };
-        "stencil-playground-editor": Omit<StencilPlaygroundEditor, keyof StencilPlaygroundEditorAttributes> & { [K in keyof StencilPlaygroundEditor & keyof StencilPlaygroundEditorAttributes]?: StencilPlaygroundEditor[K] } & { [K in keyof StencilPlaygroundEditor & keyof StencilPlaygroundEditorAttributes as `attr:${K}`]?: StencilPlaygroundEditorAttributes[K] } & { [K in keyof StencilPlaygroundEditor & keyof StencilPlaygroundEditorAttributes as `prop:${K}`]?: StencilPlaygroundEditor[K] };
-        "stencil-playground-preview": Omit<StencilPlaygroundPreview, keyof StencilPlaygroundPreviewAttributes> & { [K in keyof StencilPlaygroundPreview & keyof StencilPlaygroundPreviewAttributes]?: StencilPlaygroundPreview[K] } & { [K in keyof StencilPlaygroundPreview & keyof StencilPlaygroundPreviewAttributes as `attr:${K}`]?: StencilPlaygroundPreviewAttributes[K] } & { [K in keyof StencilPlaygroundPreview & keyof StencilPlaygroundPreviewAttributes as `prop:${K}`]?: StencilPlaygroundPreview[K] };
+        "stencil-playground": StencilPlayground;
+        "stencil-playground-editor": StencilPlaygroundEditor;
+        "stencil-playground-preview": StencilPlaygroundPreview;
     }
 }
 export { LocalJSX as JSX };

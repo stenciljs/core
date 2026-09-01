@@ -1,14 +1,11 @@
-// Copies the compiled preview's 4 runtime-dependency bundles into dist/vendor/
-// as fixed filenames, so <stencil-playground-preview> can point an iframe
-// import map at stable, absolute URLs. Copied verbatim (not re-bundled) so
-// app-data/app-globals/signals-core stay the exact same file whether loaded
-// as @stencil/core/runtime/client/standalone's own external imports or
-// directly by the compiled preview code - one shared module instance, not
-// two de-synced copies of Stencil's global registry/mode state.
+// Copies the preview's runtime-dependency bundles into dist/vendor/ as fixed filenames, so
+// <stencil-playground-preview> can point an iframe import map at stable, absolute URLs. Copied
+// verbatim (not re-bundled) so app-data/app-globals/signals-core stay the exact same file
+// whether loaded as the standalone runtime's own external imports or directly by the compiled
+// preview code - one shared module instance, not two de-synced copies of Stencil's global state.
 //
-// @preact/signals-core is a devDependency here purely so this script can
-// resolve+copy it. Pinned to the pnpm-workspace.yaml catalog entry, same as
-// @stencil/core's own dependency, so the two can't drift out of sync.
+// @preact/signals-core is a devDependency here purely so this script can resolve+copy it,
+// pinned to the same pnpm-workspace.yaml catalog entry as @stencil/core's own dependency.
 
 import { copyFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -20,6 +17,7 @@ const files = {
   'runtime-client-standalone.js': '@stencil/core/runtime/client/standalone',
   'app-data.js': '@stencil/core/app-data',
   'app-globals.js': '@stencil/core/app-globals',
+  'signals.js': '@stencil/core/signals',
   'signals-core.js': '@preact/signals-core',
 };
 
