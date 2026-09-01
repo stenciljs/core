@@ -17,6 +17,7 @@ import {
   findReExport,
   matchesNamedDeclaration,
   reanchorInheritedTypeReferences,
+  warnMixinFactoryClassNotFound,
 } from './shared';
 
 // Alternative to the TypeChecker-backed inheritance walk in compiler-ctx-merge.ts,
@@ -274,6 +275,9 @@ function resolveAncestors(
         // wrapped in a function (mixin factory) - can't recurse further
         foundClass = findClassWalk(sameFileStatement);
         keepLooking = false;
+        if (!foundClass) {
+          warnMixinFactoryClassNotFound(buildCtx, parentName, rootClassDeclaration);
+        }
       }
     } else {
       const specifier = findImportSpecifier(sf, parentName);
@@ -317,6 +321,9 @@ function resolveAncestors(
         // wrapped in a function (mixin factory) - can't recurse further
         foundClass = findClassWalk(found.statement);
         keepLooking = false;
+        if (!foundClass) {
+          warnMixinFactoryClassNotFound(buildCtx, parentName, rootClassDeclaration);
+        }
       }
     }
 

@@ -648,6 +648,24 @@ export declare function setTagTransformer(transformer: TagTransformer): void;
  */
 export declare function transformTag(tag: string): string;
 
+/**
+ * Registers a root - a shadowRoot, or `document` - to receive every non-component
+ * global style a third-party dependency applies as a side effect.
+ * Call once per component instance that needs it, e.g. in `connectedCallback`.
+ * Pair with {@link unregisterGlobalStyleTarget} in `disconnectedCallback`.
+ *
+ * @param root the root to register
+ */
+export declare function registerGlobalStyleTarget(root: DocumentOrShadowRoot): void;
+
+/**
+ * Removes a root registered via {@link registerGlobalStyleTarget} - call in
+ * `disconnectedCallback`.
+ *
+ * @param root the root to unregister
+ */
+export declare function unregisterGlobalStyleTarget(root: DocumentOrShadowRoot): void;
+
 type MixinFactory = (base: MixedInCtor) => MixedInCtor;
 
 /**

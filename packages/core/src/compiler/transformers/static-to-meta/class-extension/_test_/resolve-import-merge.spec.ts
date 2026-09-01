@@ -554,6 +554,53 @@ describe('mergeExtendedClassMetaWithResolveImport', () => {
     expect(result.properties.map((p) => p.name).sort()).toEqual(['isFocused', 'isValid']);
   });
 
+  it('warns instead of silently dropping a mixin factory whose class is an unnamed arrow-body expression', () => {
+    // `(Base) => class extends Base {}` isn't recognized as a mixin factory (only the
+    // block-bodied `(Base) => { class Foo extends Base {} return Foo; }` form is) - this should
+    // warn rather than silently applying none of the mixin's members with no explanation.
+    const cmpFileName = '/src/components/checkbox.tsx';
+    const cmpSource = ts.createSourceFile(
+      cmpFileName,
+      `import { Mixin } from '@stencil/core';
+      import { FocusMixin } from './focus-mixin';
+      export class Checkbox extends Mixin(FocusMixin) {
+        static get is() { return 'my-checkbox'; }
+      }`,
+      ts.ScriptTarget.ESNext,
+      true,
+    );
+    const cmpClass = cmpSource.statements.find(ts.isClassDeclaration)!;
+    const staticMembers = cmpClass.members.filter(isStaticGetter);
+
+    const mixinCode = `
+      import { Prop } from '@stencil/core';
+      export const FocusMixin = (Base) =>
+        class extends Base {
+          @Prop() isFocused: boolean;
+        };
+    `;
+
+    const buildCtx = mockBuildCtx();
+
+    const result = mergeExtendedClassMetaWithResolveImport(
+      cmpClass,
+      staticMembers,
+      cmpSource,
+      (specifier) =>
+        specifier === './focus-mixin'
+          ? { code: mixinCode, path: '/src/components/focus-mixin.ts' }
+          : null,
+      config,
+      buildCtx,
+    );
+
+    expect(result.doesExtend).toBe(false);
+    expect(result.properties).toHaveLength(0);
+    expect(buildCtx.diagnostics).toHaveLength(1);
+    expect(buildCtx.diagnostics[0].messageText).toContain('Found "FocusMixin"');
+    expect(buildCtx.diagnostics[0].messageText).toContain("couldn't find a class declaration");
+  });
+
   it('keeps resolving further ancestors when a Mixin(...) argument is a real class rather than a factory', () => {
     const cmpFileName = '/src/components/checkbox.tsx';
     const cmpSource = ts.createSourceFile(

@@ -533,10 +533,26 @@ var(--theme-secondary-color) var(--theme-secondary-opacity));
  * Evaluate the ESM output produced by `transformCssToEsmSync` and return the
  * runtime CSS string, to assert that the generated module is valid JavaScript.
  *
+ * The test does not actually import the module, so strip out any
+ * `import` statements and replace them with no-op functions.
+ *
  * @param output the generated ESM module source
  * @returns the CSS text the module produces at runtime
  */
 function evaluateEsmOutput(output: string): string {
-  const styleFn = new Function(output.replace('export default', 'return'))();
+  const importedNames: string[] = [];
+  const body = output.replace(
+    /^import\s*\{([^}]*)\}\s*from\s*['"][^'"]*['"];?$/gm,
+    (_match, names: string) => {
+      for (const spec of names.split(',')) {
+        const alias = spec.split(' as ').pop()?.trim();
+        if (alias) importedNames.push(alias);
+      }
+      return '';
+    },
+  );
+  const styleFn = new Function(...importedNames, body.replace('export default', 'return'))(
+    ...importedNames.map(() => () => {}),
+  );
   return styleFn();
 }

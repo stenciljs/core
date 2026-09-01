@@ -2033,6 +2033,12 @@ export interface TransformCssToEsmOutput {
   defaultVarName: string;
   styleDocs: StyleDoc[];
   imports: { varName: string; importPath: string }[];
+  /**
+   * Whether `output` itself has an observable side effect (a plain, untagged CSS file's
+   * generated module self-injects CSSStyleSheets; a Stencil component's tagged `styleUrl`
+   * output doesn't)
+   */
+  moduleSideEffects?: boolean;
 }
 
 export interface PackageJsonData {

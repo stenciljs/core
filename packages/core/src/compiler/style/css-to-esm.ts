@@ -15,7 +15,7 @@ import { scopeCss } from '../../utils/shadow-css';
 import { STENCIL_CORE_ID } from '../bundle/entry-alias-ids';
 import { parseStyleDocs } from '../docs/style-docs';
 import { optimizeCss } from '../optimize/optimize-css';
-import { TRANSFORM_TAG } from '../transformers/core-runtime-apis';
+import { INJECT_GLOBAL_STYLE, TRANSFORM_TAG } from '../transformers/core-runtime-apis';
 import { serializeImportPath } from '../transformers/stencil-import-path';
 import { addTagTransformToCssString } from '../transformers/transform-utils';
 import { getScopeId } from './scope-css';
@@ -206,10 +206,22 @@ const generateTransformCssToEsm = (
   // Note: Style docs have already been parsed in transformCssToEsmModule
   results.styleText = stripCssComments(results.styleText);
 
+  // A component's `styleUrl` CSS is side-effect-free: nothing injects it just by importing it.
+  //
+  // A plain CSS file with no tag (almost always a 3rd-party dep's own `import './foo.css'`)
+  // carries the opposite assumption: importing the file itself should apply it.
+  // A bare `import './foo.css';` silently does nothing / never attaches to the document.
+  // So we call the `injectGlobalStyle` runtime - injecting the style into participating shadowRoots
+  // or document.head - see `runtime/inject-global-style.ts`.
+  const isComponentStyle = isString(input.tag);
+
   if (input.module === 'cjs') {
     // CommonJS
     if (input.addTagTransformers) {
       s.append(`const ${TRANSFORM_TAG} = require('${STENCIL_CORE_ID}').transformTag;\n`);
+    }
+    if (!isComponentStyle) {
+      s.append(`const ${INJECT_GLOBAL_STYLE} = require('${STENCIL_CORE_ID}').injectGlobalStyle;\n`);
     }
     results.imports.forEach((cssImport) => {
       s.append(`const ${cssImport.varName} = require('${cssImport.importPath}');\n`);
@@ -222,11 +234,19 @@ const generateTransformCssToEsm = (
     });
 
     s.append(`\`${results.styleText}\`;\n`);
+    if (!isComponentStyle) {
+      s.append(`${INJECT_GLOBAL_STYLE}(${results.defaultVarName}());\n`);
+    }
     s.append(`module.exports = ${results.defaultVarName};`);
   } else {
     // ESM
     if (input.addTagTransformers) {
       s.append(`import { transformTag as ${TRANSFORM_TAG}  } from '${STENCIL_CORE_ID}';\n`);
+    }
+    if (!isComponentStyle) {
+      s.append(
+        `import { injectGlobalStyle as ${INJECT_GLOBAL_STYLE} } from '${STENCIL_CORE_ID}';\n`,
+      );
     }
     results.imports.forEach((cssImport) => {
       s.append(`import ${cssImport.varName} from '${cssImport.importPath}';\n`);
@@ -239,9 +259,13 @@ const generateTransformCssToEsm = (
     });
 
     s.append(`\`${results.styleText}\`;\n`);
+    if (!isComponentStyle) {
+      s.append(`${INJECT_GLOBAL_STYLE}(${results.defaultVarName}());\n`);
+    }
     s.append(`export default ${results.defaultVarName};`);
   }
 
+  results.moduleSideEffects = !isComponentStyle;
   results.output = s.toString();
   return results;
 };

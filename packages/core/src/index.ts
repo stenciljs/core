@@ -23,9 +23,11 @@ export {
   getRenderingRef,
   h,
   Host,
+  injectGlobalStyle,
   Mixin,
   readTask,
   ReactiveControllerHost,
+  registerGlobalStyleTarget,
   render,
   setAssetPath,
   setErrorHandler,
@@ -33,5 +35,6 @@ export {
   setPlatformHelpers,
   setTagTransformer,
   transformTag,
+  unregisterGlobalStyleTarget,
   writeTask,
 } from './client/index.js';

@@ -8,6 +8,11 @@ export { getElement, getShadowRoot } from './element';
 export { createEvent } from './event-emitter';
 export { Fragment } from './fragment';
 export { addHostEventListeners } from './host-listener';
+export {
+  injectGlobalStyle,
+  registerGlobalStyleTarget,
+  unregisterGlobalStyleTarget,
+} from './inject-global-style';
 export { Mixin } from './mixin';
 export { getMode, setMode } from './mode';
 export { setNonce } from './nonce';

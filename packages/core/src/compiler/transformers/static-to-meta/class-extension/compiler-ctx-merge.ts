@@ -22,6 +22,7 @@ import {
   findReExport,
   matchesNamedDeclaration,
   reanchorInheritedTypeReferences,
+  warnMixinFactoryClassNotFound,
 } from './shared';
 
 type DependentClass = {
@@ -180,6 +181,9 @@ function resolveAndProcessExtendedClass(
     // wrapped in a function (mixin factory) - try to find the class inside
     foundClassDeclaration = findClassWalk(matchedStatement);
     keepLooking = false;
+    if (!foundClassDeclaration) {
+      warnMixinFactoryClassNotFound(buildCtx, className, classDeclaration);
+    }
   }
 
   if (
@@ -298,6 +302,9 @@ function buildExtendsTree(
           throw 'revert to sad path';
         }
         keepLooking = false;
+        if (!foundClassDeclaration) {
+          warnMixinFactoryClassNotFound(buildCtx, extendee.getText(), classDeclaration);
+        }
       }
 
       if (
@@ -362,6 +369,9 @@ function buildExtendsTree(
         // wrapped in a function - try to find the class inside
         foundClassDeclaration = findClassWalk(matchedStatement);
         keepLooking = false;
+        if (!foundClassDeclaration) {
+          warnMixinFactoryClassNotFound(buildCtx, extendee.getText(), classDeclaration);
+        }
       } else {
         // class might be nested inside a function (e.g., in a test callback)
         // search the entire source file recursively for the class

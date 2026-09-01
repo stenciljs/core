@@ -57,6 +57,7 @@ export {
   Prop,
   readTask,
   ReactiveControllerHost,
+  registerGlobalStyleTarget,
   render,
   resolveVar,
   setAssetPath,
@@ -67,6 +68,7 @@ export {
   setTagTransformer,
   State,
   transformTag,
+  unregisterGlobalStyleTarget,
   Watch,
   writeTask,
 } from './declarations/stencil-public-runtime';
