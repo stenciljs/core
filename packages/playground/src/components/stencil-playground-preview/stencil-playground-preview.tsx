@@ -14,6 +14,8 @@ export interface PreviewResult {
 export interface PreviewInput {
   files: CompiledFile[];
   indexHtml: string | null;
+  vdomSignals: boolean;
+  signalBacking: boolean;
 }
 
 const VENDOR_IMPORT_MAP = {
@@ -48,10 +50,6 @@ setErrorHandler((e) => {
 });
 </script>`;
 
-// `data:` URLs, not `blob:` - a `blob:` URL is registered against its creating environment, and
-// this iframe is a deliberately opaque-origin sandbox (see below), where `import()`ing a
-// same-iframe-created `blob:` URL can throw "Failed to fetch dynamically imported module".
-// `data:` URLs carry their content inline, with no separate registration/fetch step to fail.
 const toDataUrl = (code: string) =>
   `data:text/javascript;charset=utf-8,${encodeURIComponent(code)}`;
 
@@ -116,20 +114,38 @@ window.addEventListener('load', () => {
 });
 </script>`;
 
+// The compiler normally bakes config at build time (see `updateBuildConditionals`/`getBuildFeatures`)
+// no such build step for the vendor runtime chunk here so mutate the shared `BUILD` object straight from `app-data.js`
+const buildDataOverrideScript = (
+  vdomSignals: boolean,
+  signalBacking: boolean,
+) => `<script type="module">
+import { BUILD } from '@stencil/core/app-data';
+BUILD.vdomSignals = ${vdomSignals};
+BUILD.signalBacking = ${signalBacking};
+</script>`;
+
 const buildSrcdocFromIndexHtml = (
   indexHtml: string,
   imports: Record<string, string>,
   moduleUrls: Map<string, string>,
+  vdomSignals: boolean,
+  signalBacking: boolean,
 ) => {
   const rewritten = rewriteEntryScripts(indexHtml, moduleUrls);
-  const head = `<script type="importmap">${JSON.stringify({ imports })}</script>${ERROR_REPORTING_SCRIPT}${LOAD_SUCCESS_SCRIPT}`;
+  const head = `<script type="importmap">${JSON.stringify({ imports })}</script>${buildDataOverrideScript(vdomSignals, signalBacking)}${ERROR_REPORTING_SCRIPT}${LOAD_SUCCESS_SCRIPT}`;
   return injectIntoHead(rewritten, head);
 };
 
 // No `index.html` supplied: auto-mount one instance of every `@Component` tag found across
 // all compiled files, in file order - the "multi component support without writing an
 // index.html" path.
-const buildAutoMountSrcdoc = (files: CompiledFile[], imports: Record<string, string>) => {
+const buildAutoMountSrcdoc = (
+  files: CompiledFile[],
+  imports: Record<string, string>,
+  vdomSignals: boolean,
+  signalBacking: boolean,
+) => {
   const tags = files.flatMap((f) => f.componentTags);
   const importStatements = files
     .filter((f) => f.componentTags.length > 0)
@@ -140,6 +156,7 @@ const buildAutoMountSrcdoc = (files: CompiledFile[], imports: Record<string, str
 <meta charset="utf-8">
 <style>html,body{margin:0;padding:0.75rem;font-family:system-ui,sans-serif;}</style>
 <script type="importmap">${JSON.stringify({ imports })}</script>
+${buildDataOverrideScript(vdomSignals, signalBacking)}
 ${ERROR_REPORTING_SCRIPT}
 <script type="module" onerror="window.reportModuleError(event)">
 try {
@@ -163,7 +180,12 @@ if (tags.length > 0 && tags.every((t) => customElements.get(t))) {
   encapsulation: { type: 'shadow' },
 })
 export class StencilPlaygroundPreview {
-  @Prop() input: PreviewInput = { files: [], indexHtml: null };
+  @Prop() input: PreviewInput = {
+    files: [],
+    indexHtml: null,
+    vdomSignals: false,
+    signalBacking: false,
+  };
 
   @Event() previewResult!: EventEmitter<PreviewResult>;
 
@@ -177,14 +199,14 @@ export class StencilPlaygroundPreview {
 
   @Watch('input')
   update() {
-    const { files, indexHtml } = this.input;
+    const { files, indexHtml, vdomSignals, signalBacking } = this.input;
     if (files.length === 0) return;
 
     const { imports, moduleUrls } = buildImportMap(files);
 
     this.iframe.srcdoc = indexHtml
-      ? buildSrcdocFromIndexHtml(indexHtml, imports, moduleUrls)
-      : buildAutoMountSrcdoc(files, imports);
+      ? buildSrcdocFromIndexHtml(indexHtml, imports, moduleUrls, vdomSignals, signalBacking)
+      : buildAutoMountSrcdoc(files, imports, vdomSignals, signalBacking);
   }
 
   connectedCallback() {

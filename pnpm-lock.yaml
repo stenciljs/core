@@ -256,9 +256,6 @@ importers:
       '@preact/signals-core':
         specifier: 'catalog:'
         version: 1.14.4
-      '@vitest/browser':
-        specifier: 'catalog:'
-        version: 4.1.10(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(less@4.8.1)(sass-embedded@1.100.0)(sass@1.102.0)(terser@5.50.0)(tsx@4.23.12)(yaml@2.9.0))(vitest@4.1.10)
       '@vitest/browser-playwright':
         specifier: 'catalog:'
         version: 4.1.10(playwright@1.62.1)(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(less@4.8.1)(sass-embedded@1.100.0)(sass@1.102.0)(terser@5.50.0)(tsx@4.23.12)(yaml@2.9.0))(vitest@4.1.10)

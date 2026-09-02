@@ -17,8 +17,8 @@
   "module": "dist/loader-bundle/index.js",
   "types": "dist/types/components.d.ts",
   "scripts": {
-    "start": "node build/copy-vendor.js && stencil build --serve --dev --watch",
-    "build": "stencil build && node build/copy-vendor.js",
+    "start": "node build/copy-vendor.js && node build/copy-core-types.js && stencil build --serve --dev --watch",
+    "build": "node build/copy-core-types.js && stencil build && node build/copy-vendor.js",
     "typecheck": "tsc --noEmit",
     "test:browser": "vitest run"
   },
@@ -28,7 +28,6 @@
   },
   "devDependencies": {
     "@preact/signals-core": "catalog:",
-    "@vitest/browser": "catalog:",
     "@vitest/browser-playwright": "catalog:",
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",

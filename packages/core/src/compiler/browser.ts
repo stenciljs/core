@@ -27,6 +27,7 @@ if (typeof globalThis.process === 'undefined') {
 export { createSystem } from './sys/stencil-sys';
 export { scopeCss } from '../utils/shadow-css';
 export { transpile, transpileSync } from './transpile';
+export { generateComponentTypes } from './types/generate-component-types';
 export { ts };
 export type {
   BuildOverrides,

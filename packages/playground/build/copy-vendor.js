@@ -1,11 +1,7 @@
 // Copies the preview's runtime-dependency bundles into dist/vendor/ as fixed filenames, so
 // <stencil-playground-preview> can point an iframe import map at stable, absolute URLs. Copied
 // verbatim (not re-bundled) so app-data/app-globals/signals-core stay the exact same file
-// whether loaded as the standalone runtime's own external imports or directly by the compiled
-// preview code - one shared module instance, not two de-synced copies of Stencil's global state.
-//
-// @preact/signals-core is a devDependency here purely so this script can resolve+copy it,
-// pinned to the same pnpm-workspace.yaml catalog entry as @stencil/core's own dependency.
+// no matter where they're used
 
 import { copyFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';

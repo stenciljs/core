@@ -6,9 +6,8 @@
   const playground = document.querySelector('stencil-playground');
   playground.files=[
     {
-      "name": "bloob.tsx",
-      "content": `
-import { Component } from '@stencil/core';
+      "name": "blob.tsx",
+      "content": `import { Component } from '@stencil/core';
 
 @Component({ 
   tag: 'my-component',
@@ -36,8 +35,7 @@ export class MyComponent {
   playground2.files=[
     {
       "name": "blab.tsx",
-      "content": `
-import { Component, State } from '@stencil/core';
+      "content": `import { Component, State } from '@stencil/core';
 import { computed, Effect } from '@stencil/core/signals';
 
 @Component({ tag: 'my-stats' })
@@ -59,11 +57,11 @@ export class MyStats {
     },
     {
       "name": "stencil.config.ts",
-      "content": `
-export const config = {
+      "content": `import type { Config } from '@stencil/core'
+
+export const config: Config = {
   signalBacking: true,
-};
-      `
+};`
     }
   ];
 </script>
@@ -127,8 +125,7 @@ export class MyCounter extends Mixin(Countable) {
     },
     {
       "name": "my-cmp.tsx",
-      "content": `
-import { Component, Mixin } from '@stencil/core';
+      "content": `import { Component, Mixin } from '@stencil/core';
 
 @Component({ 
   tag: 'my-cmp', 

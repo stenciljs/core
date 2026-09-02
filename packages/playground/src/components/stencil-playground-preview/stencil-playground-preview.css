@@ -1,6 +1,8 @@
 :host {
   display: block;
   height: 100%;
+  border-radius: inherit;
+  overflow: clip;
 }
 
 iframe {

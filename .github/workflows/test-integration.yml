@@ -47,3 +47,7 @@ jobs:
       - name: Unplugin Browser Tests
         run: pnpm --filter "@stencil/unplugin" test:browser
         shell: bash
+
+      - name: Playground Browser Tests
+        run: pnpm --filter "@stencil/playground" test:browser
+        shell: bash

@@ -35,6 +35,9 @@
     "packages/unplugin": {
       "ignore": ["playground/**"],
       "ignoreDependencies": ["@vitest/browser"]
+    },
+    "packages/playground": {
+      "ignoreDependencies": ["@preact/signals-core"]
     }
   }
 }

@@ -1,9 +1,8 @@
 :host {
   display: block;
-  height: 400px;
+  min-height: 400px;
   border: 1px solid #333;
   border-radius: 6px;
-  overflow: hidden;
   container-type: inline-size;
   min-width: 320px;
 }
@@ -16,7 +15,8 @@
      Below 640px (2 * 320px) this is overridden entirely - see the container query. */
   grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr);
   grid-template-rows: 1fr auto auto;
-  height: 100%;
+  min-height: inherit;
+  border-radius: inherit;
 }
 
 stencil-playground-editor,

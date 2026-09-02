@@ -30,10 +30,14 @@ export namespace Components {
           * @default { files: [], activeFileName: '' }
          */
         "filesState": EditorFilesState;
+        /**
+          * @default ''
+         */
+        "jsxTypesDts": string;
     }
     interface StencilPlaygroundPreview {
         /**
-          * @default { files: [], indexHtml: null }
+          * @default {     files: [],     indexHtml: null,     vdomSignals: false,     signalBacking: false,   }
          */
         "input": PreviewInput;
     }
@@ -112,20 +116,29 @@ declare namespace LocalJSX {
           * @default { files: [], activeFileName: '' }
          */
         "filesState"?: EditorFilesState;
+        /**
+          * @default ''
+         */
+        "jsxTypesDts"?: string;
         "onActiveFileChange"?: (event: StencilPlaygroundEditorCustomEvent<string>) => void;
         "onEditorReady"?: (event: StencilPlaygroundEditorCustomEvent<void>) => void;
         "onFileChange"?: (event: StencilPlaygroundEditorCustomEvent<{ name: string; content: string }>) => void;
     }
     interface StencilPlaygroundPreview {
         /**
-          * @default { files: [], indexHtml: null }
+          * @default {     files: [],     indexHtml: null,     vdomSignals: false,     signalBacking: false,   }
          */
         "input"?: PreviewInput;
         "onPreviewResult"?: (event: StencilPlaygroundPreviewCustomEvent<PreviewResult>) => void;
     }
+
+    interface StencilPlaygroundEditorAttributes {
+        "jsxTypesDts": string;
+    }
+
     interface IntrinsicElements {
         "stencil-playground": StencilPlayground;
-        "stencil-playground-editor": StencilPlaygroundEditor;
+        "stencil-playground-editor": Omit<StencilPlaygroundEditor, keyof StencilPlaygroundEditorAttributes> & { [K in keyof StencilPlaygroundEditor & keyof StencilPlaygroundEditorAttributes]?: StencilPlaygroundEditor[K] } & { [K in keyof StencilPlaygroundEditor & keyof StencilPlaygroundEditorAttributes as `attr:${K}`]?: StencilPlaygroundEditorAttributes[K] } & { [K in keyof StencilPlaygroundEditor & keyof StencilPlaygroundEditorAttributes as `prop:${K}`]?: StencilPlaygroundEditor[K] };
         "stencil-playground-preview": StencilPlaygroundPreview;
     }
 }

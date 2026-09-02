@@ -311,7 +311,7 @@ export const extTransformsPlugin = (
           // Tagged component styles - e.g. via styleUrl - are side-effect-free but
           // untagged CSS files - a plain third-party `import './foo.css' -` self-injects
           // on import per `generateTransformCssToEsm`, so it must not
-          // be marked side-effect-free or injection gets treeshaken away unexecuted.
+          // be marked side-effect-free or injection gets tree shaken away, unexecuted.
           moduleSideEffects: cacheEntry.cssTransformOutput.moduleSideEffects ?? false,
         };
       }

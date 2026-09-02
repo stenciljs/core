@@ -2,6 +2,7 @@ import { Component, Element, Prop, State, Watch } from '@stencil/core';
 import type { CompilerSystem, Diagnostic, TranspileOptions } from '@stencil/core/compiler/browser';
 
 import {
+  buildIntrinsicElementsDts,
   findComponentTags,
   findInjectedStyleImports,
   replaceSpecifier,
@@ -44,8 +45,8 @@ const BASE_COMPILE_OPTIONS: Omit<TranspileOptions, 'sys' | 'file' | 'jsx'> = {
 let compilerPromise: Promise<typeof import('@stencil/core/compiler/browser')> | undefined;
 const loadCompiler = () => (compilerPromise ??= import('@stencil/core/compiler/browser'));
 
-/** The subset of `tsCompilerOptions` that maps directly onto `TranspileOptions` - everything
- * else in `Config` has no meaning for an in-browser transpile. */
+/** The subset of `Config` that has meaning for an in-browser transpile + preview - everything
+ * else (output targets, plugins, ...) has no equivalent here. */
 interface PlaygroundConfig {
   tsCompilerOptions?: {
     jsx?: number;
@@ -53,6 +54,7 @@ interface PlaygroundConfig {
     baseUrl?: string;
     paths?: Record<string, string[]>;
   };
+  signalBacking?: boolean;
 }
 
 @Component({
@@ -73,9 +75,17 @@ export class StencilPlayground {
     activeFileName: this.activeFileName,
   };
   // Bundled so the preview never sees one update without the other - see `PreviewInput`.
-  @State() previewInput: PreviewInput = { files: [], indexHtml: null };
+  @State() previewInput: PreviewInput = {
+    files: [],
+    indexHtml: null,
+    vdomSignals: false,
+    signalBacking: false,
+  };
   @State() diagnostics: Diagnostic[] = [];
   @State() previewError: string | null = null;
+  // JSX `IntrinsicElements` augmentation for every component defined across the project's own
+  // files, so Monaco recognizes e.g. `<my-component>` as a valid tag - see buildIntrinsicElementsDts.
+  @State() jsxTypesDts = '';
 
   private debounceTimer?: ReturnType<typeof setTimeout>;
   private intersectionObserver?: IntersectionObserver;
@@ -156,7 +166,11 @@ export class StencilPlayground {
     configFile: PlaygroundFile,
     sys: CompilerSystem,
     transpileSync: typeof import('@stencil/core/compiler/browser').transpileSync,
-  ): Promise<{ overrides: Partial<TranspileOptions>; diagnostics: Diagnostic[] }> {
+  ): Promise<{
+    overrides: Partial<TranspileOptions>;
+    signalBacking: boolean;
+    diagnostics: Diagnostic[];
+  }> {
     // Omits `buildOverrides`: it makes the compiler prepend an `@stencil/core/app-data` import,
     // which can't resolve here - this module runs in the page's own module graph, not the
     // import-mapped sandboxed iframe.
@@ -167,7 +181,7 @@ export class StencilPlayground {
       file: `/${CONFIG_FILE_NAME}`,
     });
     if (result.diagnostics.length > 0) {
-      return { overrides: {}, diagnostics: result.diagnostics };
+      return { overrides: {}, signalBacking: false, diagnostics: result.diagnostics };
     }
 
     const url = URL.createObjectURL(new Blob([result.code], { type: 'text/javascript' }));
@@ -179,7 +193,7 @@ export class StencilPlayground {
       if (ts?.jsxImportSource) overrides.jsxImportSource = ts.jsxImportSource;
       if (ts?.baseUrl) overrides.baseUrl = ts.baseUrl;
       if (ts?.paths) overrides.paths = ts.paths;
-      return { overrides, diagnostics: [] };
+      return { overrides, signalBacking: !!mod.config?.signalBacking, diagnostics: [] };
     } finally {
       URL.revokeObjectURL(url);
     }
@@ -194,7 +208,7 @@ export class StencilPlayground {
     const indexHtmlFile = filesSnapshot.find((f) => f.name === INDEX_HTML_NAME);
     const configFile = filesSnapshot.find((f) => f.name === CONFIG_FILE_NAME);
 
-    const { transpileSync, createSystem, ts } = await loadCompiler();
+    const { transpileSync, createSystem, generateComponentTypes, ts } = await loadCompiler();
     if (token !== this.compileToken) return; // a newer compile() call started while loading
 
     const sys = createSystem();
@@ -217,10 +231,12 @@ export class StencilPlayground {
       resolveImport,
     };
     const diagnostics: Diagnostic[] = [];
+    let signalBacking = false;
     if (configFile) {
       const config = await this.loadConfigOverrides(configFile, sys, transpileSync);
       if (token !== this.compileToken) return;
       compileOptions = { ...compileOptions, ...config.overrides };
+      signalBacking = config.signalBacking;
       diagnostics.push(...config.diagnostics);
     }
 
@@ -233,12 +249,17 @@ export class StencilPlayground {
 
     const compiled: CompiledFile[] = [];
     const cssRequests = new Map<string, string>(); // virtualPath (+query) -> source file name
+    const componentMetas: Parameters<typeof generateComponentTypes>[0][] = [];
+    // Mirrors the real compiler's `hasSignalsImport` build feature: importing the signals module
+    // always turns on the vdom's signal-unwrapping support, whether or not `signalBacking` is set.
+    let hasSignalsImport = false;
 
     for (const f of sourceFiles) {
       if (!/\.tsx?$/.test(f.name)) continue;
       const result = transpileSync(f.content, { ...compileOptions, sys, file: `/${f.name}` });
       diagnostics.push(...result.diagnostics);
       if (result.diagnostics.length > 0) continue;
+      componentMetas.push(...(result.data ?? []));
 
       let code = result.code;
       // `result.imports` only reflects imports already present in the original source - a
@@ -248,6 +269,9 @@ export class StencilPlayground {
         ...(result.imports ?? []).map((imp) => imp.path),
         ...findInjectedStyleImports(result.code),
       ];
+      if (specifiers.includes('@stencil/core/signals')) {
+        hasSignalsImport = true;
+      }
       for (const specifier of specifiers) {
         const target = resolveProjectImport(specifier, f.name, knownPaths);
         if (!target) continue;
@@ -273,8 +297,16 @@ export class StencilPlayground {
     if (token !== this.compileToken) return;
     this.diagnostics = diagnostics;
     if (diagnostics.length === 0) {
-      this.previewInput = { files: compiled, indexHtml: indexHtmlFile?.content ?? null };
+      this.previewInput = {
+        files: compiled,
+        indexHtml: indexHtmlFile?.content ?? null,
+        vdomSignals: hasSignalsImport || signalBacking,
+        signalBacking,
+      };
     }
+    this.jsxTypesDts = buildIntrinsicElementsDts(
+      componentMetas.map((cmp) => generateComponentTypes(cmp, {}, false)),
+    );
   }
 
   render() {
@@ -283,6 +315,7 @@ export class StencilPlayground {
         <stencil-playground-editor
           filesState={this.editorFilesState}
           diagnostics={this.diagnostics}
+          jsxTypesDts={this.jsxTypesDts}
           onFileChange={this.onFileChange}
           onActiveFileChange={this.onActiveFileChange}
         />

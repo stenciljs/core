@@ -26,8 +26,88 @@ export interface EditorFilesState {
 
 // See `monaco-setup.ts` for why Monaco is one lazy-loaded module rather than several parallel
 // dynamic imports.
-let monacoPromise: Promise<typeof import('../../monaco-setup').monaco> | undefined;
-const loadMonaco = () => (monacoPromise ??= import('../../monaco-setup').then((m) => m.monaco));
+let monacoModulePromise: Promise<typeof import('../../monaco-setup')> | undefined;
+const loadMonaco = () => (monacoModulePromise ??= import('../../monaco-setup'));
+
+// typescriptDefaults is a page-wide singleton (one TS service for every instance) - configure once.
+let typescriptDefaultsConfigured = false;
+
+const configureTypescriptDefaults = (monacoModule: typeof import('../../monaco-setup')) => {
+  if (typescriptDefaultsConfigured) return;
+  typescriptDefaultsConfigured = true;
+  const {
+    typescriptDefaults,
+    ScriptTarget,
+    JsxEmit,
+    ModuleResolutionKind,
+    stencilCoreDts,
+    stencilCoreCompilerDts,
+    stencilCoreJsxRuntimeDts,
+    stencilCoreSignalsDts,
+    preactSignalsCoreDts,
+  } = monacoModule;
+
+  // Mirrors BASE_COMPILE_OPTIONS/transpile-options.ts's tsCompilerOptions (minus the
+  // isolated-single-file-only flags like noLib/noResolve, which would defeat the point of a real
+  // language service).
+  typescriptDefaults.setCompilerOptions({
+    allowNonTsExtensions: true,
+    target: ScriptTarget.ESNext,
+    jsx: JsxEmit.ReactJSX,
+    jsxImportSource: '@stencil/core',
+    moduleResolution: ModuleResolutionKind.NodeJs,
+    experimentalDecorators: true,
+    allowSyntheticDefaultImports: true,
+    esModuleInterop: true,
+    skipLibCheck: true,
+  });
+
+  // Virtual paths matching what TS's classic Node resolution looks for, and what these files'
+  // own relative imports expect (jsx-runtime.d.ts -> stencil-public-runtime.d.ts,
+  // stencil-public-compiler.d.ts -> stencil-public-runtime.d.ts).
+  const lib = (path: string, content: string) =>
+    typescriptDefaults.addExtraLib(content, `file:///node_modules/${path}`);
+
+  // Mirrors the real package's index.d.mts: runtime symbols re-exported wholesale, plus `Config`/
+  // `PrerenderConfig` pulled in from the compiler declarations - so a `stencil.config.ts` snippet's
+  // `import type { Config } from '@stencil/core'` resolves like it would in a real project.
+  lib(
+    '@stencil/core/index.d.ts',
+    `${stencilCoreDts}\nexport type { StencilConfig as Config, PrerenderConfig } from './declarations/stencil-public-compiler.js';\n`,
+  );
+  lib('@stencil/core/declarations/stencil-public-runtime.d.ts', stencilCoreDts);
+  lib('@stencil/core/declarations/stencil-public-compiler.d.ts', stencilCoreCompilerDts);
+  lib('@stencil/core/jsx-runtime.d.ts', stencilCoreJsxRuntimeDts);
+  lib('@stencil/core/signals/index.d.ts', stencilCoreSignalsDts);
+  lib('@preact/signals-core/index.d.ts', preactSignalsCoreDts);
+};
+
+interface HoverController extends MonacoEditorNS.IEditorContribution {
+  _onEditorMouseLeave: (e: unknown) => void;
+}
+
+// Workaround for microsoft/monaco-editor#3409: mouse handler checks `viewDomNode.contains(e.target)`
+// on a *document*-level - but shadow DOM retargets `e.target` to the shadow
+// host for listeners outside the tree, so `.contains()` always returns false permanently cancelling hover
+// before its delay elapses. Filters the spurious leave events using real client coordinates (unaffected by
+// retargeting, unlike `.target`) before they reach Monaco's own handler.
+const patchHoverLeaveDetection = (controller: HoverController | null, container: HTMLElement) => {
+  if (!controller) return;
+  const original = controller._onEditorMouseLeave.bind(controller);
+  controller._onEditorMouseLeave = (e) => {
+    const browserEvent = (e as { event?: { browserEvent?: MouseEvent } })?.event?.browserEvent;
+    if (browserEvent) {
+      const rect = container.getBoundingClientRect();
+      const stillInside =
+        browserEvent.clientX >= rect.left &&
+        browserEvent.clientX <= rect.right &&
+        browserEvent.clientY >= rect.top &&
+        browserEvent.clientY <= rect.bottom;
+      if (stillInside) return;
+    }
+    original(e);
+  };
+};
 
 // Monaco's model service is a page-wide singleton keyed by URI - two editor instances with a
 // same-named file would otherwise collide. Prefixing with a per-instance id keeps them separate.
@@ -100,6 +180,8 @@ export class StencilPlaygroundEditor {
   @Prop() filesState: EditorFilesState = { files: [], activeFileName: '' };
   /* Editor diagnostics */
   @Prop() diagnostics: Diagnostic[] = [];
+  /* JSX IntrinsicElements types for components defined in the project - see buildIntrinsicElementsDts */
+  @Prop() jsxTypesDts = '';
 
   /* Fired when the file content changes */
   @Event() fileChange!: EventEmitter<{ name: string; content: string }>;
@@ -114,6 +196,7 @@ export class StencilPlaygroundEditor {
   private instanceId = nextInstanceId++;
   private container?: HTMLDivElement;
   private monaco?: typeof import('monaco-editor/editor/editor.api.js');
+  private typescriptDefaults?: typeof import('../../monaco-setup').typescriptDefaults;
   private editor?: MonacoEditorNS.IStandaloneCodeEditor;
   private models = new Map<string, MonacoEditorNS.ITextModel>();
   private modelListeners = new Map<string, IDisposable>();
@@ -194,6 +277,16 @@ export class StencilPlaygroundEditor {
     this.updateMarkers();
   }
 
+  // addExtraLib is keyed by path - calling it again with the same path replaces the content.
+  private updateJsxTypes() {
+    this.typescriptDefaults?.addExtraLib(this.jsxTypesDts, 'file:///component-types.d.ts');
+  }
+
+  @Watch('jsxTypesDts')
+  onJsxTypesDtsChange() {
+    this.updateJsxTypes();
+  }
+
   private connected = false;
 
   connectedCallback() {
@@ -203,13 +296,15 @@ export class StencilPlaygroundEditor {
   }
 
   async componentDidLoad() {
-    const monaco = await loadMonaco();
+    const monacoModule = await loadMonaco();
     // `loadMonaco()` is always at least one microtask away, so this component can be
     // disconnected again before it resolves (e.g. a test mounting and immediately removing an
     // element). Without this check the editor/models would still get created for a detached
     // element and leak for the page's lifetime.
     if (!this.connected) return;
-    this.monaco = monaco;
+    configureTypescriptDefaults(monacoModule);
+    this.monaco = monacoModule.monaco;
+    this.typescriptDefaults = monacoModule.typescriptDefaults;
     this.monacoLoaded = true;
     this.editor = this.monaco.editor.create(this.container!, {
       automaticLayout: true,
@@ -218,9 +313,17 @@ export class StencilPlaygroundEditor {
       tabSize: 2,
       theme: 'vs-dark',
     });
+    // Monaco registers the hover contribution with `BeforeFirstInteraction` (lazy) instantiation,
+    // which never actually fires here - forcing it via getContribution() (same effect as Monaco's
+    // own lazy-init path) is what makes mouse-hover/keybindings work at all.
+    const hoverController = this.editor.getContribution<HoverController>(
+      'editor.contrib.contentHover',
+    );
+    patchHoverLeaveDetection(hoverController, this.container!);
     this.syncModels(this.filesState.files);
     this.showActiveModel();
     this.updateMarkers();
+    this.updateJsxTypes();
     this.editorReady.emit();
   }
 

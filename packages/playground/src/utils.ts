@@ -62,3 +62,45 @@ export const findComponentTags = (code: string): string[] =>
 const INJECTED_STYLE_IMPORT_RE = /from\s*["']([^"']+\?tag=[^"']+)["']/g;
 export const findInjectedStyleImports = (code: string): string[] =>
   [...code.matchAll(INJECTED_STYLE_IMPORT_RE)].map((m) => m[1]);
+
+/** The subset of `generateComponentTypes()`'s `TypesModule` return value this needs. */
+interface JsxTypesModule {
+  tagName: string;
+  tagNameAsPascal: string;
+  jsx: string;
+}
+
+// Wraps generateComponentTypes()'s per-component `.jsx` interfaces into the same
+// `declare namespace LocalJSX` + `declare module '@stencil/core'` merge a real project's
+// generated components.d.ts uses (see compiler/types/generate-app-types.ts), so Monaco recognizes
+// `<my-component>` as a valid JSX intrinsic element with typed props. Simplified vs. the real
+// generator: no `Components`/`HTMLElementTagNameMap` namespaces, so the element ref type in JSX
+// is plain `HTMLElement`, not a component-specific one.
+export const buildIntrinsicElementsDts = (modules: JsxTypesModule[]): string => {
+  if (modules.length === 0) return '';
+  const jsxInterfaces = modules.map((m) => m.jsx).join('\n');
+  const localEntries = modules
+    .map((m) => `        "${m.tagName}": ${m.tagNameAsPascal};`)
+    .join('\n');
+  const mergedEntries = modules
+    .map(
+      (m) =>
+        `            "${m.tagName}": LocalJSX.IntrinsicElements["${m.tagName}"] & JSXBase.HTMLAttributes<HTMLElement>;`,
+    )
+    .join('\n');
+  return `declare namespace LocalJSX {
+${jsxInterfaces}
+    interface IntrinsicElements {
+${localEntries}
+    }
+}
+export {};
+declare module '@stencil/core' {
+    export namespace JSX {
+        interface IntrinsicElements {
+${mergedEntries}
+        }
+    }
+}
+`;
+};
