@@ -206,14 +206,15 @@ const generateTransformCssToEsm = (
   // Note: Style docs have already been parsed in transformCssToEsmModule
   results.styleText = stripCssComments(results.styleText);
 
-  // A component's `styleUrl` CSS is side-effect-free: nothing injects it just by importing it.
+  // A component's `styleUrl` CSS is deferred behind a function: it needs to be recomputed at call
+  // time than baked in once at module-eval time.
   //
-  // A plain CSS file with no tag (almost always a 3rd-party dep's own `import './foo.css'`)
-  // carries the opposite assumption: importing the file itself should apply it.
-  // A bare `import './foo.css';` silently does nothing / never attaches to the document.
-  // So we call the `injectGlobalStyle` runtime - injecting the style into participating shadowRoots
-  // or document.head - see `runtime/inject-global-style.ts`.
+  // A plain CSS file with no tag (almost always a 3rd-party dep's own `import './foo.css'`) is just the plain css
+  // so importing it silently does nothing / never attaches to the document. So we call `injectGlobalStyle`
+  // as the module loads - injecting the style into participating shadowRoots or document.head
+  // see `runtime/inject-global-style.ts`
   const isComponentStyle = isString(input.tag);
+  const defaultAssignment = `const ${results.defaultVarName} = ${isComponentStyle ? '() => ' : ''}`;
 
   if (input.module === 'cjs') {
     // CommonJS
@@ -227,7 +228,7 @@ const generateTransformCssToEsm = (
       s.append(`const ${cssImport.varName} = require('${cssImport.importPath}');\n`);
     });
 
-    s.append(`const ${results.defaultVarName} = () => `);
+    s.append(defaultAssignment);
 
     results.imports.forEach((cssImport) => {
       s.append(`${cssImport.varName} + `);
@@ -235,7 +236,7 @@ const generateTransformCssToEsm = (
 
     s.append(`\`${results.styleText}\`;\n`);
     if (!isComponentStyle) {
-      s.append(`${INJECT_GLOBAL_STYLE}(${results.defaultVarName}());\n`);
+      s.append(`${INJECT_GLOBAL_STYLE}(${results.defaultVarName});\n`);
     }
     s.append(`module.exports = ${results.defaultVarName};`);
   } else {
@@ -252,7 +253,7 @@ const generateTransformCssToEsm = (
       s.append(`import ${cssImport.varName} from '${cssImport.importPath}';\n`);
     });
 
-    s.append(`const ${results.defaultVarName} = () => `);
+    s.append(defaultAssignment);
 
     results.imports.forEach((cssImport) => {
       s.append(`${cssImport.varName} + `);
@@ -260,7 +261,7 @@ const generateTransformCssToEsm = (
 
     s.append(`\`${results.styleText}\`;\n`);
     if (!isComponentStyle) {
-      s.append(`${INJECT_GLOBAL_STYLE}(${results.defaultVarName}());\n`);
+      s.append(`${INJECT_GLOBAL_STYLE}(${results.defaultVarName});\n`);
     }
     s.append(`export default ${results.defaultVarName};`);
   }
@@ -308,6 +309,10 @@ const getCssToEsmImports = (
 
     if (!isLocalCssImport(cssImportData.srcImportText)) {
       // do nothing for @import url(http://external.css)
+      continue;
+    } else if (cssImportData.url === 'stencil-globals' || cssImportData.url === 'stencil-hydrate') {
+      // virtual imports resolved by Stencil at build time (see css-imports.ts's getCssImports,
+      // which skips them the same way) - not a real file, leave them in the CSS unchanged.
       continue;
     } else if (isCssNodeModule(cssImportData.url)) {
       // Node module import with ~ prefix

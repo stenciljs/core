@@ -115,6 +115,16 @@ export class MyCounter extends Mixin(Countable) {
   const playground4 = document.querySelector('.playground-4');
   playground4.files=[
     {
+      "name": "global.css",
+      "content": `
+@import "stencil-globals";
+
+body {
+  background-color: red;
+}
+      `
+    },
+    {
       "name": "cmp-style.css",
       "content": `
 :host {
@@ -125,7 +135,7 @@ export class MyCounter extends Mixin(Countable) {
     },
     {
       "name": "my-cmp.tsx",
-      "content": `import { Component, Mixin } from '@stencil/core';
+      "content": `import { Component } from '@stencil/core';
 
 @Component({ 
   tag: 'my-cmp', 
@@ -137,6 +147,29 @@ export class MyCmp {
     return <div>yay</div>;
   }
 }
+      `
+    },
+    {
+      "name": "index.html",
+      "content": `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>My Cmp</title>
+  <script type="module" src="./my-cmp.js"><\/script>
+
+  <!--
+    The script above resolves against the .tsx source directly here, and
+    global.css is picked up automatically by convention. Once actually
+    built for production, you'd load the real compiled output:
+
+    <link rel="stylesheet" href="/dist/assets/global.css" />
+    <script type="module" src="/dist/loader-bundle/my-lib/my-lib.js"><\/script>
+  -->
+</head>
+<body>
+  <my-cmp></my-cmp>
+</body>
+</html>
       `
     }
   ];

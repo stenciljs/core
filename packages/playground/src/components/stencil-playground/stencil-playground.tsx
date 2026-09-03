@@ -5,8 +5,12 @@ import {
   buildIntrinsicElementsDts,
   findComponentTags,
   findInjectedStyleImports,
+  hasStencilGlobalsImport,
+  hasStencilHydrateImport,
   replaceSpecifier,
   resolveProjectImport,
+  resolveStencilGlobalsImport,
+  resolveStencilHydrateImport,
   type CompiledFile,
   type PlaygroundFile,
 } from '../../utils';
@@ -45,8 +49,9 @@ const BASE_COMPILE_OPTIONS: Omit<TranspileOptions, 'sys' | 'file' | 'jsx'> = {
 let compilerPromise: Promise<typeof import('@stencil/core/compiler/browser')> | undefined;
 const loadCompiler = () => (compilerPromise ??= import('@stencil/core/compiler/browser'));
 
-/** The subset of `Config` that has meaning for an in-browser transpile + preview - everything
- * else (output targets, plugins, ...) has no equivalent here. */
+/** The subset of `Config` that has meaning for an in-browser transpile + preview - most other
+ * fields (plugins, most output targets, ...) have no equivalent here. `outputTargets` is read
+ * only for `global-style` entries, mirroring their real precedence over `globalStyle`. */
 interface PlaygroundConfig {
   tsCompilerOptions?: {
     jsx?: number;
@@ -55,6 +60,9 @@ interface PlaygroundConfig {
     paths?: Record<string, string[]>;
   };
   signalBacking?: boolean;
+  globalScript?: string;
+  globalStyle?: string;
+  outputTargets?: Array<{ type?: string; input?: string }>;
 }
 
 @Component({
@@ -80,6 +88,8 @@ export class StencilPlayground {
     indexHtml: null,
     vdomSignals: false,
     signalBacking: false,
+    globalScriptPath: null,
+    globalStylePaths: [],
   };
   @State() diagnostics: Diagnostic[] = [];
   @State() previewError: string | null = null;
@@ -169,6 +179,9 @@ export class StencilPlayground {
   ): Promise<{
     overrides: Partial<TranspileOptions>;
     signalBacking: boolean;
+    globalScript?: string;
+    globalStyle?: string;
+    outputTargets?: Array<{ type?: string; input?: string }>;
     diagnostics: Diagnostic[];
   }> {
     // Omits `buildOverrides`: it makes the compiler prepend an `@stencil/core/app-data` import,
@@ -193,7 +206,14 @@ export class StencilPlayground {
       if (ts?.jsxImportSource) overrides.jsxImportSource = ts.jsxImportSource;
       if (ts?.baseUrl) overrides.baseUrl = ts.baseUrl;
       if (ts?.paths) overrides.paths = ts.paths;
-      return { overrides, signalBacking: !!mod.config?.signalBacking, diagnostics: [] };
+      return {
+        overrides,
+        signalBacking: !!mod.config?.signalBacking,
+        globalScript: mod.config?.globalScript,
+        globalStyle: mod.config?.globalStyle,
+        outputTargets: mod.config?.outputTargets,
+        diagnostics: [],
+      };
     } finally {
       URL.revokeObjectURL(url);
     }
@@ -232,12 +252,42 @@ export class StencilPlayground {
     };
     const diagnostics: Diagnostic[] = [];
     let signalBacking = false;
+    let globalScriptName: string | undefined;
+    let globalStyleName: string | undefined;
+    let globalStyleOutputTargets: string[] = [];
     if (configFile) {
       const config = await this.loadConfigOverrides(configFile, sys, transpileSync);
       if (token !== this.compileToken) return;
       compileOptions = { ...compileOptions, ...config.overrides };
       signalBacking = config.signalBacking;
+      globalScriptName = config.globalScript?.replace(/^\.\//, '');
+      globalStyleName = config.globalStyle?.replace(/^\.\//, '');
+      globalStyleOutputTargets = (config.outputTargets ?? [])
+        .filter((t) => t?.type === 'global-style' && typeof t.input === 'string')
+        .map((t) => t.input!.replace(/^\.\//, ''));
       diagnostics.push(...config.diagnostics);
+    }
+
+    // Explicit `global-style` output targets take precedence over the legacy single `globalStyle`
+    // field (matching the real compiler's precedence in compiler/config/outputs/index.ts) -
+    // multiple targets are supported, each compiled and injected independently.
+    let globalStyleNames =
+      globalStyleOutputTargets.length > 0
+        ? [...new Set(globalStyleOutputTargets)]
+        : globalStyleName
+          ? [globalStyleName]
+          : [];
+
+    // Auto-detect by convention when nothing is explicitly configured, same as the real
+    // compiler's `src/global.*` check in validate-config.ts - flattened, since the playground has
+    // no `src/` directory concept. Omits `.scss`/`.sass`: there's no Sass preprocessing here.
+    if (globalStyleNames.length === 0 && sourceFiles.some((f) => f.name === 'global.css')) {
+      globalStyleNames = ['global.css'];
+    }
+    if (!globalScriptName) {
+      globalScriptName = ['global.ts', 'global.js'].find((name) =>
+        sourceFiles.some((f) => f.name === name),
+      );
     }
 
     // `sys` needs real absolute-style paths for cross-file `extends` resolution, but the bare
@@ -294,6 +344,51 @@ export class StencilPlayground {
       compiled.push({ virtualPath, code: result.code, componentTags: [] });
     }
 
+    // A component's `globalStyleUrl`/`globalStyle` collects into whichever global stylesheet
+    // contains `@import "stencil-globals";` (see resolveStencilGlobalsImport) - each entry is
+    // either an inline string or a path to a project file, resolved the same way `styleUrl`s are
+    // resolved elsewhere in this file (an `absolutePath` here is `/`-prefixed, like `sys`'s paths).
+    const collectedGlobalStylesCss = componentMetas
+      .flatMap((cmp) => cmp.globalStyles ?? [])
+      .map((gs) => {
+        if (gs.styleStr) return gs.styleStr;
+        if (gs.absolutePath) {
+          return sourceFiles.find((f) => f.name === gs.absolutePath!.replace(/^\//, ''))?.content;
+        }
+        return undefined;
+      })
+      .filter((css): css is string => !!css)
+      .join('\n');
+
+    // Unlike a component's `styleUrl` (scoped via a `?tag=...` query, see cssRequests above), a
+    // global stylesheet has no tag to scope against - transpiled as-is, it's ordinary unscoped CSS.
+    const globalStylePaths: string[] = [];
+    for (const name of globalStyleNames) {
+      const globalStyleFile = sourceFiles.find((f) => f.name === name);
+      if (!globalStyleFile) continue;
+      let content = globalStyleFile.content;
+      if (hasStencilGlobalsImport(content)) {
+        content = resolveStencilGlobalsImport(content, collectedGlobalStylesCss);
+      }
+      if (hasStencilHydrateImport(content)) {
+        content = resolveStencilHydrateImport(content);
+      }
+      const result = transpileSync(content, {
+        ...compileOptions,
+        sys,
+        file: `/${name}`,
+      });
+      diagnostics.push(...result.diagnostics);
+      if (result.diagnostics.length === 0) {
+        compiled.push({ virtualPath: name, code: result.code, componentTags: [] });
+        globalStylePaths.push(name);
+      }
+    }
+    const globalScriptPath =
+      globalScriptName && compiled.some((f) => f.virtualPath === globalScriptName)
+        ? globalScriptName
+        : null;
+
     if (token !== this.compileToken) return;
     this.diagnostics = diagnostics;
     if (diagnostics.length === 0) {
@@ -302,6 +397,8 @@ export class StencilPlayground {
         indexHtml: indexHtmlFile?.content ?? null,
         vdomSignals: hasSignalsImport || signalBacking,
         signalBacking,
+        globalScriptPath,
+        globalStylePaths,
       };
     }
     this.jsxTypesDts = buildIntrinsicElementsDts(

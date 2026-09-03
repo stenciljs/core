@@ -141,6 +141,23 @@ describe('transformCssToEsm', () => {
       expect(result.styleText).toContain('https://fonts.googleapis.com');
     });
 
+    it('should leave stencil-globals/stencil-hydrate virtual imports unresolved as real files', async () => {
+      // These are substituted by name-checking build-context code elsewhere
+      // (component-global-styles.ts), never real file imports - resolving them here as if they
+      // were would fail at runtime with no such module.
+      mockInput.input = `
+        @import "stencil-globals";
+        @import "stencil-hydrate";
+        .my-class { color: red; }
+      `;
+
+      const result = await transformCssToEsm(mockInput);
+
+      expect(result.imports).toHaveLength(0);
+      expect(result.styleText).toContain('@import "stencil-globals"');
+      expect(result.styleText).toContain('@import "stencil-hydrate"');
+    });
+
     it('should handle node module imports with ~', async () => {
       mockInput.input = `
         @import '~normalize.css/normalize.css';
@@ -536,6 +553,9 @@ var(--theme-secondary-color) var(--theme-secondary-opacity));
  * The test does not actually import the module, so strip out any
  * `import` statements and replace them with no-op functions.
  *
+ * A component style's default export is a function (deferred, so it can be recomputed against
+ * whatever `transformTag` is set at call time); a global style's is the plain CSS text.
+ *
  * @param output the generated ESM module source
  * @returns the CSS text the module produces at runtime
  */
@@ -551,8 +571,8 @@ function evaluateEsmOutput(output: string): string {
       return '';
     },
   );
-  const styleFn = new Function(...importedNames, body.replace('export default', 'return'))(
+  const styleValue = new Function(...importedNames, body.replace('export default', 'return'))(
     ...importedNames.map(() => () => {}),
   );
-  return styleFn();
+  return typeof styleValue === 'function' ? styleValue() : styleValue;
 }

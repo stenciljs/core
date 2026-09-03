@@ -1,7 +1,7 @@
 :host {
   display: block;
   height: 100%;
-  border-radius: inherit;
+  border-radius: 0 inherit inherit 0;
   overflow: clip;
 }
 

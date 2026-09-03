@@ -16,9 +16,17 @@ export interface PreviewInput {
   indexHtml: string | null;
   vdomSignals: boolean;
   signalBacking: boolean;
+  /** Virtual path (into `files`) of the compiled `Config.globalScript` file, if configured. */
+  globalScriptPath: string | null;
+  /** Virtual paths (into `files`) of every compiled global stylesheet - one per `global-style`
+   * output target, or the single legacy `Config.globalStyle` file. */
+  globalStylePaths: string[];
 }
 
 const VENDOR_IMPORT_MAP = {
+  // Not every `@stencil/core` import gets elided (e.g. `Host`, an unused `Mixin`) - maps to the
+  // same runtime chunk as the standalone specifier below, which re-exports the same symbols.
+  '@stencil/core': 'runtime-client-standalone.js',
   '@stencil/core/runtime/client/standalone': 'runtime-client-standalone.js',
   '@stencil/core/app-data': 'app-data.js',
   '@stencil/core/app-globals': 'app-globals.js',
@@ -85,6 +93,25 @@ const resolveHtmlSrc = (src: string): string | null => {
   return resolveRelativePath(relative, INDEX_HTML_NAME);
 };
 
+const SOURCE_EXTENSIONS = ['.tsx', '.ts'];
+const COMPILED_EXTENSION_RE = /\.m?jsx?$/;
+
+// A real project's index.html references the compiled `.js`, but only the `.tsx`/`.ts` source is
+// a known virtual path here - guess back to it instead of requiring the source extension.
+const resolveModuleUrl = (
+  resolved: string,
+  moduleUrls: Map<string, string>,
+): string | undefined => {
+  const direct = moduleUrls.get(resolved);
+  if (direct || !COMPILED_EXTENSION_RE.test(resolved)) return direct;
+  const base = resolved.replace(COMPILED_EXTENSION_RE, '');
+  for (const ext of SOURCE_EXTENSIONS) {
+    const candidate = moduleUrls.get(base + ext);
+    if (candidate) return candidate;
+  }
+  return undefined;
+};
+
 // Rewrites `<script type="module" src="...">` entry points that reference a project file to
 // the literal `data:` URL for that file. `src` attributes aren't governed by the import map
 // (only specifiers inside `import` statements are), so this can't be a bare-specifier rewrite
@@ -92,7 +119,7 @@ const resolveHtmlSrc = (src: string): string | null => {
 const rewriteEntryScripts = (html: string, moduleUrls: Map<string, string>) =>
   html.replace(MODULE_SCRIPT_SRC_RE, (match, pre: string, src: string, post: string) => {
     const resolved = resolveHtmlSrc(src);
-    const moduleUrl = resolved && moduleUrls.get(resolved);
+    const moduleUrl = resolved && resolveModuleUrl(resolved, moduleUrls);
     return moduleUrl ? `${pre}${moduleUrl}${post}` : match;
   });
 
@@ -125,15 +152,47 @@ BUILD.vdomSignals = ${vdomSignals};
 BUILD.signalBacking = ${signalBacking};
 </script>`;
 
+// Mirrors what `appDataPlugin` does in a real build (no browser equivalent): override
+// `@stencil/core/app-globals` with a module exporting `globalScripts` bound to the user's file,
+// then call it. Mutates `imports` in place so the override lands in the import map.
+const buildGlobalScriptOverrideScript = (
+  globalScriptPath: string | null,
+  imports: Record<string, string>,
+) => {
+  const moduleUrl = globalScriptPath && imports[globalScriptPath];
+  if (!moduleUrl) return '';
+  const overrideModule = `import * as globalScriptNs from ${JSON.stringify(moduleUrl)};
+export const globalScripts = globalScriptNs.default || (() => {});
+export const globalStyles = '';`;
+  imports['@stencil/core/app-globals'] = toDataUrl(overrideModule);
+  return `<script type="module">import { globalScripts } from '@stencil/core/app-globals'; globalScripts();</script>`;
+};
+
+// Untagged CSS self-injects via `injectGlobalStyle` on import (css-to-esm.ts's `isComponentStyle`
+// branch) - just needs `document` registered as a target first.
+const buildGlobalStyleScript = (globalStylePaths: string[], imports: Record<string, string>) => {
+  const moduleUrls = globalStylePaths
+    .map((path) => imports[path])
+    .filter((url): url is string => !!url);
+  if (moduleUrls.length === 0) return '';
+  const importStatements = moduleUrls.map((url) => `import ${JSON.stringify(url)};`).join('\n');
+  return `<script type="module">
+import { registerGlobalStyleTarget } from '@stencil/core';
+registerGlobalStyleTarget(document);
+${importStatements}
+</script>`;
+};
+
 const buildSrcdocFromIndexHtml = (
   indexHtml: string,
   imports: Record<string, string>,
   moduleUrls: Map<string, string>,
   vdomSignals: boolean,
   signalBacking: boolean,
+  globalsHead: string,
 ) => {
   const rewritten = rewriteEntryScripts(indexHtml, moduleUrls);
-  const head = `<script type="importmap">${JSON.stringify({ imports })}</script>${buildDataOverrideScript(vdomSignals, signalBacking)}${ERROR_REPORTING_SCRIPT}${LOAD_SUCCESS_SCRIPT}`;
+  const head = `<script type="importmap">${JSON.stringify({ imports })}</script>${buildDataOverrideScript(vdomSignals, signalBacking)}${globalsHead}${ERROR_REPORTING_SCRIPT}${LOAD_SUCCESS_SCRIPT}`;
   return injectIntoHead(rewritten, head);
 };
 
@@ -145,6 +204,7 @@ const buildAutoMountSrcdoc = (
   imports: Record<string, string>,
   vdomSignals: boolean,
   signalBacking: boolean,
+  globalsHead: string,
 ) => {
   const tags = files.flatMap((f) => f.componentTags);
   const importStatements = files
@@ -157,6 +217,7 @@ const buildAutoMountSrcdoc = (
 <style>html,body{margin:0;padding:0.75rem;font-family:system-ui,sans-serif;}</style>
 <script type="importmap">${JSON.stringify({ imports })}</script>
 ${buildDataOverrideScript(vdomSignals, signalBacking)}
+${globalsHead}
 ${ERROR_REPORTING_SCRIPT}
 <script type="module" onerror="window.reportModuleError(event)">
 try {
@@ -185,6 +246,8 @@ export class StencilPlaygroundPreview {
     indexHtml: null,
     vdomSignals: false,
     signalBacking: false,
+    globalScriptPath: null,
+    globalStylePaths: [],
   };
 
   @Event() previewResult!: EventEmitter<PreviewResult>;
@@ -199,14 +262,27 @@ export class StencilPlaygroundPreview {
 
   @Watch('input')
   update() {
-    const { files, indexHtml, vdomSignals, signalBacking } = this.input;
+    const { files, indexHtml, vdomSignals, signalBacking, globalScriptPath, globalStylePaths } =
+      this.input;
     if (files.length === 0) return;
 
     const { imports, moduleUrls } = buildImportMap(files);
+    // Mutates `imports` (the global-script override) before it's serialized into the import map
+    // below, so both scripts must run first.
+    const globalsHead =
+      buildGlobalScriptOverrideScript(globalScriptPath, imports) +
+      buildGlobalStyleScript(globalStylePaths, imports);
 
     this.iframe.srcdoc = indexHtml
-      ? buildSrcdocFromIndexHtml(indexHtml, imports, moduleUrls, vdomSignals, signalBacking)
-      : buildAutoMountSrcdoc(files, imports, vdomSignals, signalBacking);
+      ? buildSrcdocFromIndexHtml(
+          indexHtml,
+          imports,
+          moduleUrls,
+          vdomSignals,
+          signalBacking,
+          globalsHead,
+        )
+      : buildAutoMountSrcdoc(files, imports, vdomSignals, signalBacking, globalsHead);
   }
 
   connectedCallback() {

@@ -63,6 +63,21 @@ const INJECTED_STYLE_IMPORT_RE = /from\s*["']([^"']+\?tag=[^"']+)["']/g;
 export const findInjectedStyleImports = (code: string): string[] =>
   [...code.matchAll(INJECTED_STYLE_IMPORT_RE)].map((m) => m[1]);
 
+// Mirroring the real compiler's virtual `@import "stencil-globals"`/`"stencil-hydrate"` specifiers
+const STENCIL_GLOBALS_RE = /@import\s+(?:url\()?\s*['"]stencil-globals['"]\s*\)?[^;]*;?/g;
+const STENCIL_HYDRATE_RE = /@import\s+(?:url\()?\s*['"]stencil-hydrate['"]\s*\)?[^;]*;?/g;
+
+export const hasStencilGlobalsImport = (css: string): boolean => css.includes('stencil-globals');
+export const hasStencilHydrateImport = (css: string): boolean => css.includes('stencil-hydrate');
+
+// `stencil-globals` becomes the collected component `globalStyleUrl`/`globalStyle` CSS.
+export const resolveStencilGlobalsImport = (css: string, collectedCss: string): string =>
+  css.replace(STENCIL_GLOBALS_RE, collectedCss);
+
+// `stencil-hydrate` becomes empty: it's FOUC-prevention - not required in the browser preview
+export const resolveStencilHydrateImport = (css: string): string =>
+  css.replace(STENCIL_HYDRATE_RE, '');
+
 /** The subset of `generateComponentTypes()`'s `TypesModule` return value this needs. */
 interface JsxTypesModule {
   tagName: string;
