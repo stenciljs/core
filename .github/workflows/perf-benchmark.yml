@@ -5,12 +5,13 @@ name: Perf Benchmark
 # from leaving the CI run itself "in progress" - which would block re-running
 # other (e.g. flaky) jobs there until the perf approval is resolved.
 #
-# Skipped for fork PRs: jobs here check out and execute the PR's own code, same
-# as the perf jobs used to when they ran inside the pull_request-triggered CI
-# run - but there, GitHub automatically forces a read-only, secret-less token
-# for forks. That protection is specific to the pull_request event and does not
-# apply here, so fork PRs are excluded outright rather than relying on manually
-# kept-minimal permissions to reproduce the same guarantee.
+# Jobs here check out and execute the PR's own code, including fork PRs. Unlike
+# a pull_request-triggered run, GitHub does not automatically force a read-only,
+# secret-less token for forks here - so every job in this chain (and in
+# test-perf-build.yml / test-perf-runtime.yml) must keep its own `permissions:`
+# free of any write scope. Do not add write permissions, `secrets: inherit`, or
+# anything beyond `id-token: write` (needed only for CodSpeed's build jobs)
+# without re-examining this.
 
 on:
   workflow_run:
@@ -25,8 +26,7 @@ jobs:
     name: Load Perf Context
     if: >-
       ${{ github.event.workflow_run.conclusion == 'success' &&
-          github.event.workflow_run.event != 'merge_group' &&
-          github.event.workflow_run.head_repository.full_name == github.event.workflow_run.repository.full_name }}
+          github.event.workflow_run.event != 'merge_group' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
