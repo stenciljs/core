@@ -107,8 +107,8 @@ jobs:
 
       # Uploaded as data only, for a separate privileged workflow to read and post
       # a comment - this job's token is deliberately kept read-only (no write scopes
-      # declared anywhere in its permissions), since it builds and executes the PR's
-      # own code. Fork PRs never reach this job at all (see perf-benchmark.yml).
+      # declared anywhere in its permissions, here or in the caller), since it builds
+      # and executes the PR's own code, including fork PRs.
       - name: Upload Benchmark Results
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
