@@ -471,6 +471,13 @@ const scopeSelector = (selector: string, scopeSelectorText: string, hostSelector
     .join(', ');
 };
 
+const isScopableAtRule = (selector: string) =>
+  selector.startsWith('@media') ||
+  selector.startsWith('@supports') ||
+  selector.startsWith('@page') ||
+  selector.startsWith('@document') ||
+  selector.startsWith('@layer');
+
 const scopeSelectors = (
   cssText: string,
   scopeSelectorText: string,
@@ -483,12 +490,7 @@ const scopeSelectors = (
     let content = rule.content;
     if (rule.selector[0] !== '@') {
       selector = scopeSelector(rule.selector, scopeSelectorText, hostSelector, slotSelector);
-    } else if (
-      rule.selector.startsWith('@media') ||
-      rule.selector.startsWith('@supports') ||
-      rule.selector.startsWith('@page') ||
-      rule.selector.startsWith('@document')
-    ) {
+    } else if (isScopableAtRule(rule.selector)) {
       content = scopeSelectors(rule.content, scopeSelectorText, hostSelector, slotSelector, commentOriginalSelector);
     }
 
@@ -619,20 +621,18 @@ export const scopeCss = (cssText: string, scopeId: string, commentOriginalSelect
       return rule;
     };
 
-    cssText = processRules(cssText, (rule) => {
-      if (rule.selector[0] !== '@') {
-        return processCommentedSelector(rule);
-      } else if (
-        rule.selector.startsWith('@media') ||
-        rule.selector.startsWith('@supports') ||
-        rule.selector.startsWith('@page') ||
-        rule.selector.startsWith('@document')
-      ) {
-        rule.content = processRules(rule.content, processCommentedSelector);
+    const commentSelectors = (input: string): string =>
+      processRules(input, (rule) => {
+        if (rule.selector[0] !== '@') {
+          return processCommentedSelector(rule);
+        }
+        if (isScopableAtRule(rule.selector)) {
+          rule.content = commentSelectors(rule.content);
+        }
         return rule;
-      }
-      return rule;
-    });
+      });
+
+    cssText = commentSelectors(cssText);
   }
 
   const scoped = scopeCssText(cssText, scopeId, hostScopeId, slotScopeId, commentOriginalSelector);

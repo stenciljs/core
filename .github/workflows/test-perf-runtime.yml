@@ -12,6 +12,7 @@ jobs:
   perf_runtime_diff:
     name: Runtime Benchmark (PR vs base)
     if: ${{ github.event_name == 'pull_request' }}
+    environment: perf-approval
     runs-on: ubuntu-latest
     permissions:
       contents: read
