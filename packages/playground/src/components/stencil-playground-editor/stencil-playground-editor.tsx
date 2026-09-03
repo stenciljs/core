@@ -4,9 +4,9 @@ import {
   Event,
   getShadowRoot,
   Prop,
-  registerGlobalStyleTarget,
+  registerSideEffectStyleTarget,
   State,
-  unregisterGlobalStyleTarget,
+  unregisterSideEffectStyleTarget,
   Watch,
 } from '@stencil/core';
 import type { EventEmitter } from '@stencil/core';
@@ -292,7 +292,7 @@ export class StencilPlaygroundEditor {
   connectedCallback() {
     this.connected = true;
     // Registers this component's shadow root to receive monaco-editor's plain CSS.
-    registerGlobalStyleTarget(getStyleTargetRoot(this.el));
+    registerSideEffectStyleTarget(getStyleTargetRoot(this.el));
   }
 
   async componentDidLoad() {
@@ -329,7 +329,7 @@ export class StencilPlaygroundEditor {
 
   disconnectedCallback() {
     this.connected = false;
-    unregisterGlobalStyleTarget(getStyleTargetRoot(this.el));
+    unregisterSideEffectStyleTarget(getStyleTargetRoot(this.el));
     this.modelListeners.forEach((d) => d.dispose());
     this.models.forEach((m) => m.dispose());
     this.editor?.dispose();

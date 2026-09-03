@@ -11,7 +11,7 @@ const REGISTER_HOST = '__stencil_registerHost';
 export const H = '__stencil_h';
 export const TRANSFORM_TAG = '__stencil_transformTag';
 export const GET_REGISTRY = '__stencil_getRegistry';
-export const INJECT_GLOBAL_STYLE = '__stencil_injectGlobalStyle';
+export const INJECT_SIDE_EFFECT_STYLE = '__stencil_injectSideEffectStyle';
 
 export const RUNTIME_APIS = {
   createEvent: `createEvent as ${CREATE_EVENT}`,

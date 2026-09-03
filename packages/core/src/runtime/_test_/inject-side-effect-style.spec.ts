@@ -1,6 +1,6 @@
 import { expect, describe, it } from '@stencil/vitest';
 
-import { splitFontFaces } from '../inject-global-style';
+import { splitFontFaces } from '../inject-side-effect-style';
 
 describe('splitFontFaces', () => {
   it('returns the CSS unchanged when there is no @font-face', () => {

@@ -249,6 +249,9 @@ importers:
       '@stencil/core':
         specifier: workspace:*
         version: link:../core
+      '@stencil/dev-server':
+        specifier: workspace:*
+        version: link:../dev-server
       monaco-editor:
         specifier: ^0.56.0
         version: 0.56.0

@@ -168,8 +168,8 @@ export const globalStyles = '';`;
   return `<script type="module">import { globalScripts } from '@stencil/core/app-globals'; globalScripts();</script>`;
 };
 
-// Untagged CSS self-injects via `injectGlobalStyle` on import (css-to-esm.ts's `isComponentStyle`
-// branch) - just needs `document` registered as a target first.
+// Untagged CSS self-injects via `injectSideEffectStyle` on import (css-to-esm.ts's
+// `isComponentStyle` branch) - just needs `document` registered as a target first.
 const buildGlobalStyleScript = (globalStylePaths: string[], imports: Record<string, string>) => {
   const moduleUrls = globalStylePaths
     .map((path) => imports[path])
@@ -177,8 +177,8 @@ const buildGlobalStyleScript = (globalStylePaths: string[], imports: Record<stri
   if (moduleUrls.length === 0) return '';
   const importStatements = moduleUrls.map((url) => `import ${JSON.stringify(url)};`).join('\n');
   return `<script type="module">
-import { registerGlobalStyleTarget } from '@stencil/core';
-registerGlobalStyleTarget(document);
+import { registerSideEffectStyleTarget } from '@stencil/core';
+registerSideEffectStyleTarget(document);
 ${importStatements}
 </script>`;
 };

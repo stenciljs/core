@@ -1,5 +1,5 @@
 // One shared CSSStyleSheet per distinct CSS text, adopted into every registered root - so N
-// components pulling in the same plain-CSS dependency each get it on their own root, without
+// components pulling in the same side-effect CSS import each get it on their own root, without
 // re-parsing or duplicating the stylesheet. Registration and injection are order-independent:
 // a root registering late still gets caught up, and CSS injected before any root exists still
 // applies once one registers - needed since a lazily `import()`ed CSS dependency's top-level code
@@ -7,7 +7,7 @@
 const styleSheets = new Map<string, CSSStyleSheet>();
 const knownRoots = new Set<DocumentOrShadowRoot>();
 const adoptedRoots = new WeakMap<CSSStyleSheet, WeakSet<DocumentOrShadowRoot>>();
-// `@font-face` text already adopted onto the real top-level `document` - see `injectGlobalStyle`.
+// `@font-face` text already adopted onto the real top-level `document` - see `injectSideEffectStyle`.
 const knownFontFaces = new Set<string>();
 
 const adopt = (root: DocumentOrShadowRoot, sheet: CSSStyleSheet) => {
@@ -23,12 +23,13 @@ const adopt = (root: DocumentOrShadowRoot, sheet: CSSStyleSheet) => {
 };
 
 /**
- * Registers a root (a shadow root, or `document`) to receive every plain (non-component) global
- * style, now and in future. Call in `connectedCallback`, paired with `unregisterGlobalStyleTarget`
- * in `disconnectedCallback` so the registry doesn't hold disconnected roots forever.
+ * Registers a root (a shadow root, or `document`) to receive every side-effect CSS import
+ * (a plain, non-component `import './foo.css'`), now and in future. Call in `connectedCallback`,
+ * paired with `unregisterSideEffectStyleTarget` in `disconnectedCallback` so the registry doesn't
+ * hold disconnected roots forever.
  * @param root the root to register
  */
-export function registerGlobalStyleTarget(root: DocumentOrShadowRoot): void {
+export function registerSideEffectStyleTarget(root: DocumentOrShadowRoot): void {
   knownRoots.add(root);
   for (const sheet of styleSheets.values()) {
     adopt(root, sheet);
@@ -36,10 +37,10 @@ export function registerGlobalStyleTarget(root: DocumentOrShadowRoot): void {
 }
 
 /**
- * Removes a root registered via `registerGlobalStyleTarget` - call in `disconnectedCallback`.
+ * Removes a root registered via `registerSideEffectStyleTarget` - call in `disconnectedCallback`.
  * @param root the root to unregister
  */
-export function unregisterGlobalStyleTarget(root: DocumentOrShadowRoot): void {
+export function unregisterSideEffectStyleTarget(root: DocumentOrShadowRoot): void {
   knownRoots.delete(root);
 }
 
@@ -69,7 +70,7 @@ export function splitFontFaces(cssText: string): { fontFaceText: string | null; 
  * (Chromium (https://issues.chromium.org/issues/41085401) per-root never loads).
  * @param cssText the CSS text to apply
  */
-export function injectGlobalStyle(cssText: string): void {
+export function injectSideEffectStyle(cssText: string): void {
   const { fontFaceText, rest } = splitFontFaces(cssText);
   if (fontFaceText && !knownFontFaces.has(fontFaceText)) {
     knownFontFaces.add(fontFaceText);

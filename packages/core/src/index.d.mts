@@ -57,7 +57,7 @@ export {
   Prop,
   readTask,
   ReactiveControllerHost,
-  registerGlobalStyleTarget,
+  registerSideEffectStyleTarget,
   render,
   resolveVar,
   setAssetPath,
@@ -68,7 +68,7 @@ export {
   setTagTransformer,
   State,
   transformTag,
-  unregisterGlobalStyleTarget,
+  unregisterSideEffectStyleTarget,
   Watch,
   writeTask,
 } from './declarations/stencil-public-runtime';
