@@ -8,6 +8,7 @@ export const config: Config = {
   srcDir: 'src',
   sourceMap: true,
   outputTargets: [{ type: 'loader-bundle' }],
+  devServer: { port: 3339 },
   plugins: [
     {
       name: 'monaco-preserve-side-effects',

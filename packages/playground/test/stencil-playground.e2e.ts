@@ -1,58 +1,41 @@
-import { describe, expect, it } from 'vitest';
+import { expect } from '@playwright/test';
+import { test } from '@stencil/playwright';
+import type { Page } from '@playwright/test';
 
-import { defineCustomElements } from '../dist/loader-bundle/loader/index.js';
 import type { PlaygroundFile } from '../src/utils';
-await defineCustomElements();
 
-const EVENT_TIMEOUT = 20000;
+interface PreviewResult {
+  ok: boolean;
+  message?: string;
+}
 
-const waitForPreviewResult = (el: HTMLElement) =>
-  new Promise<{ ok: boolean; message?: string }>((resolve, reject) => {
-    const timer = setTimeout(
-      () => reject(new Error('timed out waiting for previewResult')),
-      EVENT_TIMEOUT,
-    );
-    el.addEventListener('previewResult', ((ev: CustomEvent) => {
-      clearTimeout(timer);
-      resolve(ev.detail);
-    }) as EventListener);
-  });
-
-const waitForEditorReady = (el: HTMLElement) =>
-  new Promise<void>((resolve, reject) => {
-    const timer = setTimeout(
-      () => reject(new Error('timed out waiting for editorReady')),
-      EVENT_TIMEOUT,
-    );
-    el.addEventListener(
-      'editorReady',
-      () => {
-        clearTimeout(timer);
-        resolve();
-      },
-      { once: true },
-    );
-  });
-
-const mount = async (files?: PlaygroundFile[]) => {
-  const el = document.createElement('stencil-playground');
-  if (files) (el as HTMLElement & { files: PlaygroundFile[] }).files = files;
-  document.body.appendChild(el);
-  try {
-    return await waitForPreviewResult(el);
-  } finally {
-    el.remove(); // remove even on timeout, or its editor keeps loading in the background
-  }
+const mount = async (page: Page, files?: PlaygroundFile[]): Promise<PreviewResult> => {
+  const previewResult = await page.spyOnEvent('previewResult');
+  await page.evaluate((mountFiles) => {
+    const el = document.createElement('stencil-playground');
+    if (mountFiles) (el as HTMLElement & { files: PlaygroundFile[] }).files = mountFiles;
+    document.body.appendChild(el);
+  }, files);
+  const ev = await previewResult.next();
+  return ev.detail;
 };
 
-describe('stencil-playground', () => {
-  it('compiles user-typed source and renders it in the sandboxed preview iframe', async () => {
-    const result = await mount();
-    expect(result).toEqual({ ok: true, message: undefined });
-  }, 30000);
+test.beforeEach(async ({ page }) => {
+  await page.goto('/test/fixture.html');
+});
 
-  it('resolves an import between two project files and auto-mounts every component found', async () => {
-    const result = await mount([
+test.describe('stencil-playground', () => {
+  test('compiles user-typed source and renders it in the sandboxed preview iframe', async ({
+    page,
+  }) => {
+    const result = await mount(page);
+    expect(result).toEqual({ ok: true, message: undefined });
+  });
+
+  test('resolves an import between two project files and auto-mounts every component found', async ({
+    page,
+  }) => {
+    const result = await mount(page, [
       {
         name: 'greeting.ts',
         content: `export const greeting = 'Hello from a sibling module!';`,
@@ -72,10 +55,10 @@ export class MyComponent {
       },
     ]);
     expect(result).toEqual({ ok: true, message: undefined });
-  }, 30000);
+  });
 
-  it('uses a supplied index.html as the preview template', async () => {
-    const result = await mount([
+  test('uses a supplied index.html as the preview template', async ({ page }) => {
+    const result = await mount(page, [
       {
         name: 'my-component.tsx',
         content: `import { Component, h } from '@stencil/core';
@@ -96,10 +79,12 @@ export class MyComponent {
       },
     ]);
     expect(result).toEqual({ ok: true, message: undefined });
-  }, 30000);
+  });
 
-  it('resolves an index.html script src referencing the compiled .js name against its .tsx source', async () => {
-    const result = await mount([
+  test('resolves an index.html script src referencing the compiled .js name against its .tsx source', async ({
+    page,
+  }) => {
+    const result = await mount(page, [
       {
         name: 'my-component.tsx',
         content: `import { Component, h } from '@stencil/core';
@@ -120,10 +105,12 @@ export class MyComponent {
       },
     ]);
     expect(result).toEqual({ ok: true, message: undefined });
-  }, 30000);
+  });
 
-  it('executes a supplied stencil.config.ts and applies its tsCompilerOptions', async () => {
-    const result = await mount([
+  test('executes a supplied stencil.config.ts and applies its tsCompilerOptions', async ({
+    page,
+  }) => {
+    const result = await mount(page, [
       {
         name: 'my-component.tsx',
         content: `import { Component, h } from '@stencil/core';
@@ -147,10 +134,12 @@ export const config: Config = {
       },
     ]);
     expect(result).toEqual({ ok: true, message: undefined });
-  }, 30000);
+  });
 
-  it('renders @stencil/core/signals without an explicit h import (automatic JSX runtime)', async () => {
-    const result = await mount([
+  test('renders @stencil/core/signals without an explicit h import (automatic JSX runtime)', async ({
+    page,
+  }) => {
+    const result = await mount(page, [
       {
         name: 'my-stats.tsx',
         content: `import { Component, State } from '@stencil/core';
@@ -175,16 +164,23 @@ export class MyStats {
       },
     ]);
     expect(result).toEqual({ ok: true, message: undefined });
-  }, 30000);
+  });
 
-  it('reflects a new `files` value set on an already-connected element', async () => {
-    const el = document.createElement('stencil-playground');
-    document.body.appendChild(el);
-    try {
-      await waitForPreviewResult(el); // initial default render
+  test('reflects a new `files` value set on an already-connected element', async ({ page }) => {
+    const previewResult = await page.spyOnEvent('previewResult');
+    await page.evaluate(() => {
+      document.body.appendChild(document.createElement('stencil-playground'));
+    });
+    await previewResult.next(); // initial default render
 
-      const secondResult = waitForPreviewResult(el);
-      (el as HTMLElement & { files: PlaygroundFile[] }).files = [
+    await page.evaluate(
+      (files) => {
+        const el = document.querySelector('stencil-playground') as HTMLElement & {
+          files: PlaygroundFile[];
+        };
+        el.files = files;
+      },
+      [
         {
           name: 'my-other-component.tsx',
           content: `import { Component, h } from '@stencil/core';
@@ -197,18 +193,19 @@ export class MyOtherComponent {
 }
 `,
         },
-      ];
-      const result = await secondResult;
-      expect(result).toEqual({ ok: true, message: undefined });
-    } finally {
-      el.remove(); // remove even on failure, or its editor keeps loading in the background
-    }
-  }, 30000);
+      ],
+    );
+    const ev = await previewResult.next();
+    expect(ev.detail).toEqual({ ok: true, message: undefined });
+  });
 
-  it('accepts a `files` value containing only a stencil.config.ts, set right after connecting', async () => {
+  test('accepts a `files` value containing only a stencil.config.ts, set right after connecting', async ({
+    page,
+  }) => {
     // Regression test: used to throw "Failed to resolve module specifier '@stencil/core/app-data'".
-    const el = document.createElement('stencil-playground');
-    try {
+    const editorReady = await page.spyOnEvent('editorReady');
+    const elHandle = await page.evaluateHandle(async () => {
+      const el = document.createElement('stencil-playground');
       document.body.appendChild(el);
       // `componentOnReady()`, not the `editorReady` event: the event fires from inside the child
       // editor's own componentDidLoad, which can resolve one tick before Stencil actually marks
@@ -216,32 +213,45 @@ export class MyOtherComponent {
       // which itself waits on the child's). Setting `.files` between those two points is a real
       // race - the watch silently no-ops for that change since it isn't "watch ready" yet.
       await (el as unknown as { componentOnReady(): Promise<unknown> }).componentOnReady();
+      return el;
+    });
+    await editorReady.next(); // editor's initial mount, with the default files
 
-      const secondReady = waitForEditorReady(el);
+    await page.evaluate((el) => {
       (el as HTMLElement & { files: PlaygroundFile[] }).files = [
         {
           name: 'stencil.config.ts',
           content: `import type { Config } from '@stencil/core';\n\nexport const config: Config = {\n  signalBacking: true,\n};\n`,
         },
       ];
-      await secondReady;
-      // Model creation is synchronous, but Monaco's own rendering of that model into `.view-lines`
-      // happens on a later animation frame.
-      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    }, elHandle);
+    await editorReady.next(); // re-mount triggered by the new `files` value
 
-      const editorEl = el.shadowRoot!.querySelector('stencil-playground-editor')!;
-      const viewLines = editorEl.shadowRoot!.querySelector('.view-lines');
-      expect(viewLines?.textContent ?? '').toContain('signalBacking');
-    } finally {
-      el.remove(); // remove even on failure, or its editor keeps loading in the background
-    }
-  }, 30000);
+    // Model creation is synchronous, but Monaco's own rendering of that model into `.view-lines`
+    // happens on a later animation frame.
+    const viewLinesText = await page.evaluate(
+      (el) =>
+        new Promise<string>((resolve) => {
+          requestAnimationFrame(() =>
+            requestAnimationFrame(() => {
+              const editorEl = el.shadowRoot!.querySelector('stencil-playground-editor')!;
+              const viewLines = editorEl.shadowRoot!.querySelector('.view-lines');
+              resolve(viewLines?.textContent ?? '');
+            }),
+          );
+        }),
+      elHandle,
+    );
+    expect(viewLinesText).toContain('signalBacking');
+  });
 
-  it('resolves a Mixin(...) ancestor across files instead of crashing on ts.sys resolution', async () => {
+  test('resolves a Mixin(...) ancestor across files instead of crashing on ts.sys resolution', async ({
+    page,
+  }) => {
     // Regression test: without a `resolveImport` callback, class-extension resolution falls back
     // to the compiler's real TS-module-resolution path, which throws "Cannot read properties of
     // undefined (reading 'directoryExists')" in a browser bundle (`ts.sys` is a no-op there).
-    const result = await mount([
+    const result = await mount(page, [
       {
         name: 'countable.ts',
         content: `import { State } from '@stencil/core';
@@ -273,14 +283,14 @@ export class MyCounter extends Mixin(Countable) {
       },
     ]);
     expect(result).toEqual({ ok: true, message: undefined });
-  }, 30000);
+  });
 
-  it('resolves a bare `@stencil/core` import that survives compilation', async () => {
+  test('resolves a bare `@stencil/core` import that survives compilation', async ({ page }) => {
     // Regression test: `@Component` is always elided by the static transform, and an *invoked*
     // `Mixin(...)` is rewritten away, but a real runtime symbol like `Host` (or a merely
     // imported-and-unused `Mixin`) survives as a literal `from '@stencil/core'` in the compiled
     // output - used to throw "Failed to resolve module specifier '@stencil/core'".
-    const result = await mount([
+    const result = await mount(page, [
       {
         name: 'my-component.tsx',
         content: `import { Component, Host, Mixin, h } from '@stencil/core';
@@ -295,15 +305,17 @@ export class MyComponent {
       },
     ]);
     expect(result).toEqual({ ok: true, message: undefined });
-  }, 30000);
+  });
 
-  it('resolves @import "stencil-globals"/"stencil-hydrate" in a global stylesheet', async () => {
+  test('resolves @import "stencil-globals"/"stencil-hydrate" in a global stylesheet', async ({
+    page,
+  }) => {
     // Regression test: previously threw "Failed to resolve module specifier './stencil-globals'"
     // - transpileSync's CSS-to-ESM transform treated the virtual specifier as a real relative
     // import. `stencil-globals` should collect the component's `globalStyleUrl` CSS;
     // `stencil-hydrate` has nothing to produce in a live preview (no SSR/hydration boundary), so
     // it should just resolve to nothing rather than crash.
-    const result = await mount([
+    const result = await mount(page, [
       {
         name: 'my-component.tsx',
         content: `import { Component, h } from '@stencil/core';
@@ -339,10 +351,12 @@ export class MyComponent {
       },
     ]);
     expect(result).toEqual({ ok: true, message: undefined });
-  }, 30000);
+  });
 
-  it('auto-detects global.css/global.ts by convention with no stencil.config.ts at all', async () => {
-    const result = await mount([
+  test('auto-detects global.css/global.ts by convention with no stencil.config.ts at all', async ({
+    page,
+  }) => {
+    const result = await mount(page, [
       {
         name: 'my-component.tsx',
         content: `import { Component, h } from '@stencil/core';
@@ -379,13 +393,13 @@ export class MyComponent {
       },
     ]);
     expect(result).toEqual({ ok: true, message: undefined });
-  }, 30000);
+  });
 
-  it('executes a configured Config.globalScript before the preview mounts', async () => {
+  test('executes a configured Config.globalScript before the preview mounts', async ({ page }) => {
     // The preview iframe is sandboxed with `allow-scripts` only (opaque origin), so its
     // document is cross-origin from this test - verified from inside the iframe instead, via the
     // same throw -> setErrorHandler -> previewResult path the other tests rely on.
-    const result = await mount([
+    const result = await mount(page, [
       {
         name: 'my-component.tsx',
         content: `import { Component, h } from '@stencil/core';
@@ -421,10 +435,10 @@ export const config: Config = {
       },
     ]);
     expect(result).toEqual({ ok: true, message: undefined });
-  }, 30000);
+  });
 
-  it('injects a configured Config.globalStyle into the preview', async () => {
-    const result = await mount([
+  test('injects a configured Config.globalStyle into the preview', async ({ page }) => {
+    const result = await mount(page, [
       {
         name: 'my-component.tsx',
         content: `import { Component, h } from '@stencil/core';
@@ -460,10 +474,10 @@ export const config: Config = {
       },
     ]);
     expect(result).toEqual({ ok: true, message: undefined });
-  }, 30000);
+  });
 
-  it('compiles and injects every explicit `global-style` output target', async () => {
-    const result = await mount([
+  test('compiles and injects every explicit `global-style` output target', async ({ page }) => {
+    const result = await mount(page, [
       {
         name: 'my-component.tsx',
         content: `import { Component, h } from '@stencil/core';
@@ -507,5 +521,5 @@ export const config: Config = {
       },
     ]);
     expect(result).toEqual({ ok: true, message: undefined });
-  }, 30000);
+  });
 });

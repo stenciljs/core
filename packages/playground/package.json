@@ -20,20 +20,20 @@
     "start": "node build/copy-vendor.js && node build/copy-core-types.js && stencil build --serve --dev --watch",
     "build": "node build/copy-core-types.js && stencil build && node build/copy-vendor.js",
     "typecheck": "tsc --noEmit",
-    "test:browser": "vitest run"
+    "test:browser": "playwright test"
   },
   "dependencies": {
     "@stencil/core": "workspace:*",
     "monaco-editor": "^0.56.0"
   },
   "devDependencies": {
+    "@playwright/test": "catalog:",
     "@preact/signals-core": "catalog:",
-    "@vitest/browser-playwright": "catalog:",
+    "@stencil/playwright": "catalog:",
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
     "process": "^0.11.10",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
+    "typescript": "catalog:"
   },
   "volta": {
     "extends": "../../package.json"
