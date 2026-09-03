@@ -2,33 +2,49 @@ name: Perf Benchmark - Build
 
 on:
   workflow_call:
-    # Make this a reusable workflow, no value needed
-    # https://docs.github.com/en/actions/using-workflows/reusing-workflows
+    inputs:
+      ref:
+        description: 'commit SHA to check out and benchmark'
+        required: true
+        type: string
+      artifact-run-id:
+        description: 'run id of the CI run to download the stencil-core build artifact from'
+        required: true
+        type: string
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   perf_build_cold:
     name: Compile Time (cold)
-    if: ${{ github.event_name != 'merge_group' }}
+    environment: perf-approval
     runs-on: codspeed-macro
     permissions:
       contents: read
+      actions: read
       id-token: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          ref: ${{ inputs.ref }}
 
       - name: Get Core Dependencies
         uses: ./.github/workflows/actions/get-core-dependencies
 
       - name: Download Build Archive
-        uses: ./.github/workflows/actions/download-archive
+        uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
         with:
           name: stencil-core
           path: .
-          filename: stencil-core-build.zip
+          run-id: ${{ inputs.artifact-run-id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Build Archive
+        run: unzip -q -o stencil-core-build.zip -d .
+        shell: bash
 
       - name: Install test/end-to-end Dependencies
         run: npm ci
@@ -63,24 +79,32 @@ jobs:
 
   perf_build_warm:
     name: Compile Time (warm)
-    if: ${{ github.event_name != 'merge_group' }}
+    environment: perf-approval
     runs-on: codspeed-macro
     permissions:
       contents: read
+      actions: read
       id-token: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          ref: ${{ inputs.ref }}
 
       - name: Get Core Dependencies
         uses: ./.github/workflows/actions/get-core-dependencies
 
       - name: Download Build Archive
-        uses: ./.github/workflows/actions/download-archive
+        uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
         with:
           name: stencil-core
           path: .
-          filename: stencil-core-build.zip
+          run-id: ${{ inputs.artifact-run-id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Build Archive
+        run: unzip -q -o stencil-core-build.zip -d .
+        shell: bash
 
       - name: Install test/end-to-end Dependencies
         run: npm ci
