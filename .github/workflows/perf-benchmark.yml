@@ -1,0 +1,79 @@
+name: Perf Benchmark
+
+# Runs after CI completes, as its own workflow run, rather than as jobs inside
+# main.yml. That keeps a perf job paused on the perf-approval environment gate
+# from leaving the CI run itself "in progress" - which would block re-running
+# other (e.g. flaky) jobs there until the perf approval is resolved.
+#
+# Skipped for fork PRs: jobs here check out and execute the PR's own code, same
+# as the perf jobs used to when they ran inside the pull_request-triggered CI
+# run - but there, GitHub automatically forces a read-only, secret-less token
+# for forks. That protection is specific to the pull_request event and does not
+# apply here, so fork PRs are excluded outright rather than relying on manually
+# kept-minimal permissions to reproduce the same guarantee.
+
+on:
+  workflow_run:
+    workflows: ['CI']
+    types: [completed]
+
+permissions:
+  contents: read
+
+jobs:
+  load_context:
+    name: Load Perf Context
+    if: >-
+      ${{ github.event.workflow_run.conclusion == 'success' &&
+          github.event.workflow_run.event != 'merge_group' &&
+          github.event.workflow_run.head_repository.full_name == github.event.workflow_run.repository.full_name }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      head_sha: ${{ steps.context.outputs.head_sha }}
+      pr_number: ${{ steps.context.outputs.pr_number }}
+      base_sha: ${{ steps.context.outputs.base_sha }}
+    steps:
+      - name: Download Perf Context
+        uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
+        with:
+          name: perf-context
+          path: perf-context
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Read Perf Context
+        id: context
+        run: |
+          echo "head_sha=$(cat perf-context/head-sha.txt)" >> "$GITHUB_OUTPUT"
+          echo "pr_number=$(cat perf-context/pr-number.txt)" >> "$GITHUB_OUTPUT"
+          echo "base_sha=$(cat perf-context/base-sha.txt)" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+  perf_build_benchmark:
+    name: Perf Benchmark - Build
+    needs: [load_context]
+    uses: ./.github/workflows/test-perf-build.yml
+    with:
+      ref: ${{ needs.load_context.outputs.head_sha }}
+      artifact-run-id: ${{ github.event.workflow_run.id }}
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+
+  perf_runtime_benchmark:
+    name: Perf Benchmark - Runtime
+    needs: [load_context]
+    if: ${{ success() && github.event.workflow_run.event == 'pull_request' }}
+    uses: ./.github/workflows/test-perf-runtime.yml
+    with:
+      head-ref: ${{ needs.load_context.outputs.head_sha }}
+      base-ref: ${{ needs.load_context.outputs.base_sha }}
+      pr-number: ${{ needs.load_context.outputs.pr_number }}
+      artifact-run-id: ${{ github.event.workflow_run.id }}
+    permissions:
+      contents: read
+      actions: read
