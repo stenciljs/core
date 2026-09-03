@@ -30,6 +30,13 @@ jobs:
           node-version: ${{ matrix.node }}
           cache: 'npm'
 
+      - name: Update npm
+        # work around an npm arborist bug ("Cannot read properties of null (reading 'edgesOut')")
+        # present in the npm 10.9.x versions bundled with some Node runners; fixed in npm 11.6.0+
+        # https://github.com/npm/cli/issues/8261
+        run: npm install -g npm@^11.6.0
+        shell: bash
+
       - name: Create Pack Directory
         # `mkdir` will fail if this directory already exists.
         # in the next steps, we'll immediately put the packed build archive in this directory.
