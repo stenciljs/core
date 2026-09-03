@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { hasNestedHtmlFile } from '../handlers';
+import { appendDevServerClientIframe, hasNestedHtmlFile } from '../handlers';
 import type { DevServerContext } from '../types';
 
 const mockSys = (filesByDir: Record<string, string[]>): DevServerContext['sys'] =>
@@ -54,5 +54,44 @@ describe('hasNestedHtmlFile', () => {
 
     const result = await hasNestedHtmlFile(sys, await sys.readDir('/src/my-cmp'));
     expect(result).toBe(true);
+  });
+});
+
+describe('appendDevServerClientIframe', () => {
+  const iframe = '<iframe title="connector"></iframe>';
+
+  it('inserts before the real closing </body>, not an earlier one embedded as page content', () => {
+    // A docs page embedding literal HTML source (e.g. a usage example) as text - the embedded
+    // `</body>` must not be mistaken for the page's own.
+    const content =
+      '<html><body>Example: <code>&lt;/body&gt;</code> is a closing tag</body></html>';
+    const result = appendDevServerClientIframe(content, iframe);
+    expect(result).toBe(
+      '<html><body>Example: <code>&lt;/body&gt;</code> is a closing tag' +
+        iframe +
+        '</body></html>',
+    );
+  });
+
+  it('inserts before the real closing </html>, not an earlier one embedded as page content', () => {
+    // No `</body>` anywhere, so the `</html>` fallback path is what's under test - and there are
+    // two `</html>` substrings: an embedded one (page content) and the page's own, real one.
+    const content = '<html>Example: <script>const s = "</html>";</script></html>';
+    const result = appendDevServerClientIframe(content, iframe);
+    expect(result).toBe(
+      '<html>Example: <script>const s = "</html>";</script>' + iframe + '</html>',
+    );
+  });
+
+  it('prefers </body> over </html> when both are present', () => {
+    const content = '<html><body>hi</body></html>';
+    const result = appendDevServerClientIframe(content, iframe);
+    expect(result).toBe('<html><body>hi' + iframe + '</body></html>');
+  });
+
+  it('appends at the end when neither closing tag is present', () => {
+    const content = 'plain text, not an html document';
+    const result = appendDevServerClientIframe(content, iframe);
+    expect(result).toBe(content + iframe);
   });
 });

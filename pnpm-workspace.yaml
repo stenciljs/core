@@ -4,6 +4,7 @@ packages:
 
 catalog:
   '@playwright/test': ^1.62.1
+  '@preact/signals-core': ^1.14.4
   '@stencil/playwright': '~0.4.3'
   '@stencil/vitest': '^1.14.0'
   '@vitest/browser': ^4.1.10

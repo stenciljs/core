@@ -9,6 +9,9 @@ catalogs:
     '@playwright/test':
       specifier: ^1.62.1
       version: 1.62.1
+    '@preact/signals-core':
+      specifier: ^1.14.4
+      version: 1.14.4
     '@stencil/playwright':
       specifier: ~0.4.3
       version: 0.4.3
@@ -103,7 +106,7 @@ importers:
         specifier: ^2.6.0
         version: 2.6.0
       '@preact/signals-core':
-        specifier: ^1.14.4
+        specifier: 'catalog:'
         version: 1.14.4
       '@rollup/pluginutils':
         specifier: ^5.4.0
@@ -187,6 +190,9 @@ importers:
 
   packages/dev-server:
     dependencies:
+      '@stencil/core':
+        specifier: workspace:*
+        version: link:../core
       launch-editor:
         specifier: ^2.14.1
         version: 2.14.1
@@ -197,9 +203,6 @@ importers:
         specifier: ^8.21.3
         version: 8.21.3
     devDependencies:
-      '@stencil/core':
-        specifier: workspace:*
-        version: link:../core
       '@tsdown/css':
         specifier: ^0.22.14
         version: 0.22.14(jiti@2.7.0)(postcss@8.5.26)(sass-embedded@1.100.0)(sass@1.102.0)(tsdown@0.22.14)(tsx@4.23.12)(yaml@2.9.0)
@@ -234,6 +237,37 @@ importers:
       tsdown:
         specifier: 'catalog:'
         version: 0.22.14(@tsdown/css@0.22.14)(oxc-resolver@11.24.2)(tsx@4.23.12)(typescript@6.0.3)(unrun@0.2.34(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2))
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.10(@types/node@26.2.0)(@vitest/browser-playwright@4.1.10)(jsdom@28.0.0)(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(less@4.8.1)(sass-embedded@1.100.0)(sass@1.102.0)(terser@5.50.0)(tsx@4.23.12)(yaml@2.9.0))
+
+  packages/playground:
+    dependencies:
+      '@stencil/core':
+        specifier: workspace:*
+        version: link:../core
+      monaco-editor:
+        specifier: ^0.56.0
+        version: 0.56.0
+    devDependencies:
+      '@preact/signals-core':
+        specifier: 'catalog:'
+        version: 1.14.4
+      '@vitest/browser-playwright':
+        specifier: 'catalog:'
+        version: 4.1.10(playwright@1.62.1)(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(less@4.8.1)(sass-embedded@1.100.0)(sass@1.102.0)(terser@5.50.0)(tsx@4.23.12)(yaml@2.9.0))(vitest@4.1.10)
+      os-browserify:
+        specifier: ^0.3.0
+        version: 0.3.0
+      path-browserify:
+        specifier: ^1.0.1
+        version: 1.0.1
+      process:
+        specifier: ^0.11.10
+        version: 0.11.10
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -2730,6 +2764,9 @@ packages:
   '@types/node@26.2.0':
     resolution: {integrity: sha512-5IviulTZeRNp2vAJ514cc/HUlY5nZ9fCbq9DMyC52BrhFZACo3nI0R7qBxhQmo/d27NFe96ur/b7Wwxklda+kg==}
 
+  '@types/trusted-types@2.0.7':
+    resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
+
   '@types/video.js@7.3.58':
     resolution: {integrity: sha512-1CQjuSrgbv1/dhmcfQ83eVyYbvGyqhTvb2Opxr0QCV+iJ4J6/J+XWQ3Om59WiwCd1MN3rDUHasx5XRrpUtewYQ==}
 
@@ -3524,6 +3561,9 @@ packages:
 
   dom-walk@0.1.2:
     resolution: {integrity: sha512-6QvTW9mrGeIegrFXdtQi9pk7O/nSK6lSdXW2eqUspN5LWD7UTji2Fqw5V2YLjBpHEoU9Xl/eUWNpDeZvoyOv2w==}
+
+  dompurify@3.4.8:
+    resolution: {integrity: sha512-yb1cEmaOum7wFvOCSQxyfgVlv5D47Rc30iZWoMpbDIWTnJ6grDDQyu2KFJzB2k7u0pMuJcQ1zphH//fFnw2tjQ==}
 
   dts-resolver@3.0.0:
     resolution: {integrity: sha512-1T1f+z+4tl9XD+m+0HBgWoL/nm0bOIffyWaUuUSBlFg/86IWvfx+wjNaO/ybU0AJzG9/Mi5hBUgGV6zCmWEN7Q==}
@@ -4417,6 +4457,11 @@ packages:
     resolution: {integrity: sha512-4y7uGv8bd2WdM9vpQsiQNo41Ln1NvhvDRuVt0k2JZQ+ezN2uaQes7lZeZ+QQUHOLQAtDaBJ+7wCbi+ab/KFs+w==}
     engines: {node: '>=0.10.0'}
 
+  marked@14.0.0:
+    resolution: {integrity: sha512-uIj4+faQ+MgHgwUW1l2PsPglZLOLOT1uErt06dAPtx2kjteLAkbsd/0FiYg/MGS+i7ZKLb7w2WClxHkzOOuryQ==}
+    engines: {node: '>= 18'}
+    hasBin: true
+
   math-intrinsics@1.1.0:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
@@ -4508,6 +4553,9 @@ packages:
 
   mlly@1.8.2:
     resolution: {integrity: sha512-d+ObxMQFmbt10sretNDytwt85VrbkhhUA/JBGm1MPaWJ65Cl4wOgLaB1NYvJSZ0Ef03MMEU/0xpPMXUIQ29UfA==}
+
+  monaco-editor@0.56.0:
+    resolution: {integrity: sha512-sXboRm3BeBeLm938eaiyLMe0OxzfXIlZvbv4ir/jVgQy1zDhWjgmny0WoN45fuDKhCCQsYMbBJrv/A6jd8aCUg==}
 
   mpd-parser@0.22.1:
     resolution: {integrity: sha512-fwBebvpyPUU8bOzvhX0VQZgSohncbgYwUyJJoTSNpmy7ccD2ryiCvM7oRkn/xQH5cv73/xU7rJSNCLjdGFor0Q==}
@@ -4630,6 +4678,9 @@ packages:
     resolution: {integrity: sha512-smsWv2LzFjP03xmvFoJ331ss6h+jixfA4UUV/Bsiyuu4YJPfN+FIQGOIiv4w9/+MoHkfkJ22UIaQWRVFRfH6Vw==}
     engines: {node: '>=20'}
 
+  os-browserify@0.3.0:
+    resolution: {integrity: sha512-gjcpUc3clBf9+210TRaDWbf+rZZZEshZ+DlXMRCeAjp0xhTrnQsKHypIy1J3d5hKdUzj69t708EHtU8P6bUn0A==}
+
   outdent@0.5.0:
     resolution: {integrity: sha512-/jHxFIzoMXdqPzTaCpFzAAWhpkSjZPF4Vsn6jAfNpmbH/ymsmd7Qc6VE9BGn0L6YMj6uwpQLxCECpus4ukKS9Q==}
 
@@ -4722,6 +4773,9 @@ packages:
   pascalcase@0.1.1:
     resolution: {integrity: sha512-XHXfu/yOQRy9vYOtUDVMN60OEJjW013GoObG1o+xwQTpB9eYJX/BjXMsdW13ZDPruFhYYn0AG22w0xgQMwl3Nw==}
     engines: {node: '>=0.10.0'}
+
+  path-browserify@1.0.1:
+    resolution: {integrity: sha512-b7uo2UCUOYZcnF/3ID0lulOJi/bafxa1xPe7ZPsammBSpjSWQkjNxlt635YGS2MiR9GjvuXCtz2emr3jbsz98g==}
 
   path-exists@3.0.0:
     resolution: {integrity: sha512-bpC7GYwiDYQ4wYLe+FA8lhRjhQCMcQGuSgGGqDkg/QerRWw9CmGRT0iSOVRSZJ29NMLZgIzqaljJ63oaL4NIJQ==}
@@ -7493,6 +7547,9 @@ snapshots:
     dependencies:
       undici-types: 8.3.0
 
+  '@types/trusted-types@2.0.7':
+    optional: true
+
   '@types/video.js@7.3.58': {}
 
   '@types/ws@8.18.1':
@@ -8340,6 +8397,10 @@ snapshots:
       path-type: 4.0.0
 
   dom-walk@0.1.2: {}
+
+  dompurify@3.4.8:
+    optionalDependencies:
+      '@types/trusted-types': 2.0.7
 
   dts-resolver@3.0.0(oxc-resolver@11.24.2):
     optionalDependencies:
@@ -9333,6 +9394,8 @@ snapshots:
     dependencies:
       object-visit: 1.0.1
 
+  marked@14.0.0: {}
+
   math-intrinsics@1.1.0: {}
 
   md5.js@1.3.5:
@@ -9431,6 +9494,11 @@ snapshots:
       pathe: 2.0.3
       pkg-types: 1.3.1
       ufo: 1.6.4
+
+  monaco-editor@0.56.0:
+    dependencies:
+      dompurify: 3.4.8
+      marked: 14.0.0
 
   mpd-parser@0.22.1:
     dependencies:
@@ -9562,6 +9630,8 @@ snapshots:
       is-inside-container: 1.0.0
       powershell-utils: 0.1.0
       wsl-utils: 0.3.1
+
+  os-browserify@0.3.0: {}
 
   outdent@0.5.0: {}
 
@@ -9719,6 +9789,8 @@ snapshots:
       entities: 8.0.0
 
   pascalcase@0.1.1: {}
+
+  path-browserify@1.0.1: {}
 
   path-exists@3.0.0: {}
 

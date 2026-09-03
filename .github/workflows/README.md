@@ -46,7 +46,7 @@ Runs quality checks (Linux only):
 |----------|--------|-------------|
 | `test-unit.yml` | Linux | Unit tests for packages (`pnpm test`) |
 | `test-build.yml` | Linux/Windows × Node 22/24 | Build test suite (`test/build`) |
-| `test-integration.yml` | Linux/Windows × Node 22/24 | Integration tests (`test/integration`) |
+| `test-integration.yml` | Linux/Windows × Node 22/24 | Integration tests (`test/integration`), plus unplugin and playground browser tests |
 | `test-runtime.yml` | Linux/Windows × Node 22/24 | Runtime tests (`test/runtime`) |
 | `test-special-config.yml` | Linux/Windows × Node 22/24 | Special config tests (`test/special-config`) |
 | `test-ssr.yml` | Linux/Windows × Node 22/24 | SSR tests (`test/ssr`) |

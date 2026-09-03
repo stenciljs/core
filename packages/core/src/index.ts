@@ -23,9 +23,11 @@ export {
   getRenderingRef,
   h,
   Host,
+  injectSideEffectStyle,
   Mixin,
   readTask,
   ReactiveControllerHost,
+  registerSideEffectStyleTarget,
   render,
   setAssetPath,
   setErrorHandler,
@@ -33,5 +35,6 @@ export {
   setPlatformHelpers,
   setTagTransformer,
   transformTag,
+  unregisterSideEffectStyleTarget,
   writeTask,
 } from './client/index.js';

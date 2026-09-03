@@ -45,7 +45,6 @@
     "ws": "^8.21.3"
   },
   "devDependencies": {
-    "@stencil/core": "workspace:*",
     "@tsdown/css": "^0.22.14",
     "@types/ws": "^8.18.1",
     "tsdown": "catalog:",

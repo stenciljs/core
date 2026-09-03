@@ -199,5 +199,52 @@ describe('mergeExtendedClassMeta', () => {
       expect(buildCtx.diagnostics).toHaveLength(1);
       expect(buildCtx.diagnostics[0].messageText).toContain('Unable to find "BaseInput"');
     });
+
+    it('warns instead of silently dropping a mixin factory whose class is an unnamed arrow-body expression', async () => {
+      const { compilerCtx, buildCtx } = setup();
+
+      const mixinFileName = '/src/components/shared/focus-mixin.ts';
+      await writeModule(
+        compilerCtx,
+        mixinFileName,
+        `export const FocusMixin = (Base) =>
+          class extends Base {
+            isFocused;
+            static get properties() {
+              return { isFocused: { attribute: 'is-focused', type: 'boolean', reflect: false, mutable: false } };
+            }
+          };`,
+      );
+
+      const cmpFileName = '/src/components/data-entry/checkbox/checkbox.tsx';
+      const cmpSource = ts.createSourceFile(
+        cmpFileName,
+        `import { Mixin } from '@stencil/core';
+        import { FocusMixin } from '../../shared/focus-mixin';
+        export class Checkbox extends Mixin(FocusMixin) {
+          static get is() { return 'my-checkbox'; }
+        }`,
+        ts.ScriptTarget.ESNext,
+        true,
+      );
+      const cmpModule = mockModule({ sourceFilePath: cmpFileName, staticSourceFile: cmpSource });
+      const cmpClass = cmpSource.statements.find(ts.isClassDeclaration)!;
+      const staticMembers = cmpClass.members.filter(isStaticGetter);
+
+      const result = mergeExtendedClassMeta(
+        compilerCtx,
+        undefined as unknown as ts.TypeChecker,
+        buildCtx,
+        cmpClass,
+        staticMembers,
+        cmpModule,
+      );
+
+      expect(result.doesExtend).toBe(false);
+      expect(result.properties).toHaveLength(0);
+      expect(buildCtx.diagnostics).toHaveLength(1);
+      expect(buildCtx.diagnostics[0].messageText).toContain('Found "FocusMixin"');
+      expect(buildCtx.diagnostics[0].messageText).toContain("couldn't find a class declaration");
+    });
   });
 });

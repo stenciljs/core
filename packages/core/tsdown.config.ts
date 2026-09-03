@@ -335,7 +335,16 @@ export default defineConfig([
     deps: {
       neverBundle: true,
       // force through resolution so `alias` gets a chance to redirect to browser stubs.
-      alwaysBundle: ['@stencil/core', 'resolve', 'lightningcss', 'browserslist'],
+      // deps & transitive imports of these packages will be bundled into the browser build
+      alwaysBundle: [
+        '@stencil/core',
+        'resolve',
+        'lightningcss',
+        'browserslist',
+        'postcss-selector-parser',
+        'util-deprecate',
+        'cssesc',
+      ],
     },
     define: defines,
     alias: {
@@ -344,6 +353,7 @@ export default defineConfig([
       resolve: resolve(__dirname, 'src/compiler/sys/browser-stubs/resolve.ts'),
       lightningcss: resolve(__dirname, 'src/compiler/sys/browser-stubs/lightningcss.ts'),
       browserslist: resolve(__dirname, 'src/compiler/sys/browser-stubs/browserslist.ts'),
+      'util-deprecate': resolve(__dirname, 'src/compiler/sys/browser-stubs/util-deprecate.cjs'),
     },
   },
 ]);

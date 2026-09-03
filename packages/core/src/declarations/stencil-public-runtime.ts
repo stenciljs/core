@@ -530,7 +530,7 @@ export declare function getAssetPath(path: string): string;
  * @param vnode - The virtual DOM tree to render
  * @param container - The container element to render the virtual DOM tree to
  */
-export declare function render(vnode: VNode, container: Element): void;
+export declare function render(vnode: VNode, container: globalThis.Element): void;
 
 /**
  * Used to manually set the base path where assets can be found. For lazy-loaded
@@ -647,6 +647,24 @@ export declare function setTagTransformer(transformer: TagTransformer): void;
  * @returns the transformed tag e.g. `new-my-tag`
  */
 export declare function transformTag(tag: string): string;
+
+/**
+ * Registers a root - a shadowRoot, or `document` - to receive every plain CSS import
+ * (e.g. a dependency's own `import './foo.css'`) applied as a side effect.
+ * Call once per component instance that needs it, e.g. in `connectedCallback`.
+ * Pair with {@link unregisterSideEffectStyleTarget} in `disconnectedCallback`.
+ *
+ * @param root the root to register
+ */
+export declare function registerSideEffectStyleTarget(root: DocumentOrShadowRoot): void;
+
+/**
+ * Removes a root registered via {@link registerSideEffectStyleTarget} - call in
+ * `disconnectedCallback`.
+ *
+ * @param root the root to unregister
+ */
+export declare function unregisterSideEffectStyleTarget(root: DocumentOrShadowRoot): void;
 
 type MixinFactory = (base: MixedInCtor) => MixedInCtor;
 
@@ -1329,7 +1347,7 @@ export namespace JSXBase {
 
     // popover
     popoverTargetAction?: string;
-    popoverTargetElement?: Element | null;
+    popoverTargetElement?: globalThis.Element | null;
     popoverTarget?: string;
 
     // invoker commands
@@ -1519,7 +1537,7 @@ export namespace JSXBase {
 
     // popover
     popoverTargetAction?: string;
-    popoverTargetElement?: Element | null;
+    popoverTargetElement?: globalThis.Element | null;
     popoverTarget?: string;
   }
 
@@ -2316,7 +2334,7 @@ export namespace JSXBase {
   }
 }
 
-export interface JSXAttributes<T = Element> {
+export interface JSXAttributes<T = globalThis.Element> {
   // vdom specific
   key?: string | number;
   ref?: (elm?: T) => void;

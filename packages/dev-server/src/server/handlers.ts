@@ -369,12 +369,17 @@ export function appendDevServerClientScript(
   return appendDevServerClientIframe(content, iframe);
 }
 
-function appendDevServerClientIframe(content: string, iframe: string): string {
-  if (content.includes('</body>')) {
-    return content.replace('</body>', `${iframe}</body>`);
+export function appendDevServerClientIframe(content: string, iframe: string): string {
+  // The *last* occurrence, not the first: a page can legitimately contain `</body>`/`</html>` as
+  // literal text earlier on (e.g. a docs page embedding example HTML source) - inserting at the
+  // first match would land inside that embedded text instead of at the page's real end.
+  const bodyIndex = content.lastIndexOf('</body>');
+  if (bodyIndex !== -1) {
+    return content.slice(0, bodyIndex) + iframe + content.slice(bodyIndex);
   }
-  if (content.includes('</html>')) {
-    return content.replace('</html>', `${iframe}</html>`);
+  const htmlIndex = content.lastIndexOf('</html>');
+  if (htmlIndex !== -1) {
+    return content.slice(0, htmlIndex) + iframe + content.slice(htmlIndex);
   }
   return `${content}${iframe}`;
 }

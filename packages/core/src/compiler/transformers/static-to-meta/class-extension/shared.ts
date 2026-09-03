@@ -2,12 +2,39 @@ import { dirname } from 'path';
 import ts from 'typescript';
 import type * as d from '@stencil/core';
 
-import { join, normalizePath, relative } from '../../../../utils';
+import {
+  augmentDiagnosticWithNode,
+  buildWarn,
+  join,
+  normalizePath,
+  relative,
+} from '../../../../utils';
 import { isNodeModulePath } from '../../../sys/resolve/resolve-utils';
 
 // Helpers shared by both merge paths: compiler-ctx-merge.ts (the full
 // compiler build) and resolve-import-merge.ts (the stateless transpile()
 // path). Neither owns these - they're common ground between the two.
+
+/**
+ * Warns when an `extends`/`Mixin(...)` target resolved to *something* but no class declaration
+ * could be found inside it - e.g. a mixin factory whose class isn't a named declaration
+ * (`(Base) => class extends Base {}` rather than `(Base) => { class Foo extends Base {} return
+ * Foo; }`). Without this, the target is silently dropped: any `@Prop`/`@State` etc. it declares
+ * just never appears on the extending component, with no diagnostic explaining why.
+ * @param buildCtx used to surface the warning - omit to warn silently (e.g. from tests)
+ * @param targetName the identifier the target was reached through
+ * @param anchor the node to attach the warning to
+ */
+export function warnMixinFactoryClassNotFound(
+  buildCtx: d.BuildCtx | undefined,
+  targetName: string,
+  anchor: ts.Node,
+): void {
+  if (!buildCtx) return;
+  const err = buildWarn(buildCtx.diagnostics);
+  err.messageText = `Found "${targetName}", but couldn't find a class declaration inside it. If it's meant to be a mixin factory, make sure it declares and returns a named class, e.g. \`(Base) => { class ${targetName}Class extends Base {} return ${targetName}Class; }\` - a factory that returns a class expression directly (\`(Base) => class extends Base {}\`) isn't recognized, and any \`@Prop\`/\`@State\`/etc. it declares won't be applied.`;
+  if (!buildCtx.config._isTesting) augmentDiagnosticWithNode(err, anchor);
+}
 
 /**
  * Walks the AST looking for a class declaration, optionally by name - descends

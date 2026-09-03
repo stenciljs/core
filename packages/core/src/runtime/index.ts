@@ -8,6 +8,11 @@ export { getElement, getShadowRoot } from './element';
 export { createEvent } from './event-emitter';
 export { Fragment } from './fragment';
 export { addHostEventListeners } from './host-listener';
+export {
+  injectSideEffectStyle,
+  registerSideEffectStyleTarget,
+  unregisterSideEffectStyleTarget,
+} from './inject-side-effect-style';
 export { Mixin } from './mixin';
 export { getMode, setMode } from './mode';
 export { setNonce } from './nonce';

@@ -15,7 +15,7 @@ import { scopeCss } from '../../utils/shadow-css';
 import { STENCIL_CORE_ID } from '../bundle/entry-alias-ids';
 import { parseStyleDocs } from '../docs/style-docs';
 import { optimizeCss } from '../optimize/optimize-css';
-import { TRANSFORM_TAG } from '../transformers/core-runtime-apis';
+import { INJECT_SIDE_EFFECT_STYLE, TRANSFORM_TAG } from '../transformers/core-runtime-apis';
 import { serializeImportPath } from '../transformers/stencil-import-path';
 import { addTagTransformToCssString } from '../transformers/transform-utils';
 import { getScopeId } from './scope-css';
@@ -206,42 +206,69 @@ const generateTransformCssToEsm = (
   // Note: Style docs have already been parsed in transformCssToEsmModule
   results.styleText = stripCssComments(results.styleText);
 
+  // A component's `styleUrl` CSS is deferred behind a function: it needs to be recomputed at call
+  // time than baked in once at module-eval time.
+  //
+  // A plain CSS file with no tag (almost always a 3rd-party dep's own `import './foo.css'`) is just the plain css
+  // so importing it silently does nothing / never attaches to the document. So we call `injectSideEffectStyle`
+  // as the module loads - injecting the style into participating shadowRoots or document.head
+  // see `runtime/inject-global-style.ts`
+  const isComponentStyle = isString(input.tag);
+  const defaultAssignment = `const ${results.defaultVarName} = ${isComponentStyle ? '() => ' : ''}`;
+
   if (input.module === 'cjs') {
     // CommonJS
     if (input.addTagTransformers) {
       s.append(`const ${TRANSFORM_TAG} = require('${STENCIL_CORE_ID}').transformTag;\n`);
     }
+    if (!isComponentStyle) {
+      s.append(
+        `const ${INJECT_SIDE_EFFECT_STYLE} = require('${STENCIL_CORE_ID}').injectSideEffectStyle;\n`,
+      );
+    }
     results.imports.forEach((cssImport) => {
       s.append(`const ${cssImport.varName} = require('${cssImport.importPath}');\n`);
     });
 
-    s.append(`const ${results.defaultVarName} = () => `);
+    s.append(defaultAssignment);
 
     results.imports.forEach((cssImport) => {
       s.append(`${cssImport.varName} + `);
     });
 
     s.append(`\`${results.styleText}\`;\n`);
+    if (!isComponentStyle) {
+      s.append(`${INJECT_SIDE_EFFECT_STYLE}(${results.defaultVarName});\n`);
+    }
     s.append(`module.exports = ${results.defaultVarName};`);
   } else {
     // ESM
     if (input.addTagTransformers) {
       s.append(`import { transformTag as ${TRANSFORM_TAG}  } from '${STENCIL_CORE_ID}';\n`);
     }
+    if (!isComponentStyle) {
+      s.append(
+        `import { injectSideEffectStyle as ${INJECT_SIDE_EFFECT_STYLE} } from '${STENCIL_CORE_ID}';\n`,
+      );
+    }
     results.imports.forEach((cssImport) => {
       s.append(`import ${cssImport.varName} from '${cssImport.importPath}';\n`);
     });
 
-    s.append(`const ${results.defaultVarName} = () => `);
+    s.append(defaultAssignment);
 
     results.imports.forEach((cssImport) => {
       s.append(`${cssImport.varName} + `);
     });
 
     s.append(`\`${results.styleText}\`;\n`);
+    if (!isComponentStyle) {
+      s.append(`${INJECT_SIDE_EFFECT_STYLE}(${results.defaultVarName});\n`);
+    }
     s.append(`export default ${results.defaultVarName};`);
   }
 
+  results.moduleSideEffects = !isComponentStyle;
   results.output = s.toString();
   return results;
 };
@@ -284,6 +311,10 @@ const getCssToEsmImports = (
 
     if (!isLocalCssImport(cssImportData.srcImportText)) {
       // do nothing for @import url(http://external.css)
+      continue;
+    } else if (cssImportData.url === 'stencil-globals' || cssImportData.url === 'stencil-hydrate') {
+      // virtual imports resolved by Stencil at build time (see css-imports.ts's getCssImports,
+      // which skips them the same way) - not a real file, leave them in the CSS unchanged.
       continue;
     } else if (isCssNodeModule(cssImportData.url)) {
       // Node module import with ~ prefix
