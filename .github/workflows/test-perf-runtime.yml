@@ -2,22 +2,41 @@ name: Perf Benchmark - Runtime
 
 on:
   workflow_call:
-    # Make this a reusable workflow, no value needed
-    # https://docs.github.com/en/actions/using-workflows/reusing-workflows
+    inputs:
+      head-ref:
+        description: 'PR commit SHA to check out and benchmark'
+        required: true
+        type: string
+      base-ref:
+        description: 'base commit SHA to benchmark against'
+        required: true
+        type: string
+      pr-number:
+        description: 'PR number, forwarded to the results artifact for the comment-posting workflow'
+        required: true
+        type: string
+      artifact-run-id:
+        description: 'run id of the CI run to download the stencil-core build artifact from'
+        required: true
+        type: string
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   perf_runtime_diff:
     name: Runtime Benchmark (PR vs base)
-    if: ${{ github.event_name == 'pull_request' }}
+    environment: perf-approval
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      actions: read
     steps:
       - name: Checkout PR Head
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ inputs.head-ref }}
 
       - name: Get Core Dependencies
         uses: ./.github/workflows/actions/get-core-dependencies
@@ -27,6 +46,8 @@ jobs:
         with:
           name: stencil-build
           path: packages/
+          run-id: ${{ inputs.artifact-run-id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Playwright Browsers
         uses: ./.github/workflows/actions/install-playwright
@@ -45,7 +66,7 @@ jobs:
       - name: Checkout Base Branch
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          ref: ${{ github.event.pull_request.base.sha }}
+          ref: ${{ inputs.base-ref }}
           path: base
 
       - name: Detect Base Package Manager
@@ -123,13 +144,13 @@ jobs:
         shell: bash
 
       - name: Write PR Number
-        run: echo "${{ github.event.pull_request.number }}" > pr-number.txt
+        run: echo "${{ inputs.pr-number }}" > pr-number.txt
         shell: bash
 
       # Uploaded as data only, for a separate privileged workflow to read and post
-      # a comment - this job never gets write access (forks always get a read-only
-      # GITHUB_TOKEN for pull_request-triggered runs, by GitHub's design), and it
-      # must stay that way since this job builds and executes the PR's own code.
+      # a comment - this job's token is deliberately kept read-only (no write scopes
+      # declared anywhere in its permissions, here or in the caller), since it builds
+      # and executes the PR's own code, including fork PRs.
       - name: Upload Benchmark Results
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:

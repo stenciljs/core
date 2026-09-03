@@ -108,6 +108,19 @@ describe('scopeCSS', function () {
     expect(s(css, 'a')).toEqual(expected);
   });
 
+  it('should handle layer rules', () => {
+    const css = '@layer defaults {section {display: block;}}';
+    const expected = '@layer defaults {section.a {display:block;}}';
+    expect(s(css, 'a')).toEqual(expected);
+  });
+
+  it('should preserve original selectors in nested grouping rules', () => {
+    const css = '@layer defaults {@media (min-width: 640px) {:host {display: block;}}}';
+    const expected =
+      '@layer defaults {@media (min-width:640px) {/*!@:host*/.a-h {display:block;}}}';
+    expect(s(css, 'a', true)).toEqual(expected);
+  });
+
   // Check that the browser supports un-prefixed CSS animation
   it('should handle keyframes rules', () => {
     const css = '@keyframes foo {0% {transform:translate(-50%) scaleX(0);}}';

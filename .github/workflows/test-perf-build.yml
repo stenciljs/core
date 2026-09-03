@@ -2,23 +2,34 @@ name: Perf Benchmark - Build
 
 on:
   workflow_call:
-    # Make this a reusable workflow, no value needed
-    # https://docs.github.com/en/actions/using-workflows/reusing-workflows
+    inputs:
+      ref:
+        description: 'commit SHA to check out and benchmark'
+        required: true
+        type: string
+      artifact-run-id:
+        description: 'run id of the CI run to download the stencil-core build artifact from'
+        required: true
+        type: string
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   perf_build_cold:
     name: Compile Time (cold)
-    if: ${{ github.event_name != 'merge_group' }}
+    environment: perf-approval
     runs-on: codspeed-macro
     permissions:
       contents: read
+      actions: read
       id-token: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ inputs.ref }}
 
       - name: Get Core Dependencies
         uses: ./.github/workflows/actions/get-core-dependencies
@@ -28,6 +39,8 @@ jobs:
         with:
           name: stencil-build
           path: packages/
+          run-id: ${{ inputs.artifact-run-id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Clear Compile Cache
         run: rm -rf .stencil
@@ -57,14 +70,17 @@ jobs:
 
   perf_build_warm:
     name: Compile Time (warm)
-    if: ${{ github.event_name != 'merge_group' }}
+    environment: perf-approval
     runs-on: codspeed-macro
     permissions:
       contents: read
+      actions: read
       id-token: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ inputs.ref }}
 
       - name: Get Core Dependencies
         uses: ./.github/workflows/actions/get-core-dependencies
@@ -74,6 +90,8 @@ jobs:
         with:
           name: stencil-build
           path: packages/
+          run-id: ${{ inputs.artifact-run-id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Warm Compile Cache
         run: |

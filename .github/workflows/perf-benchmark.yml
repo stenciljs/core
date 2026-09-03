@@ -1,0 +1,138 @@
+name: Perf Benchmark
+
+# Runs after CI completes, as its own workflow run, rather than as jobs inside
+# main.yml. That keeps a perf job paused on the perf-approval environment gate
+# from leaving the CI run itself "in progress" - which would block re-running
+# other (e.g. flaky) jobs there until the perf approval is resolved.
+#
+# Jobs here check out and execute the PR's own code, including fork PRs. Unlike
+# a pull_request-triggered run, GitHub does not automatically force a read-only,
+# secret-less token for forks here - so every job in this chain (and in
+# test-perf-build.yml / test-perf-runtime.yml) must keep its own `permissions:`
+# free of any write scope. Do not add write permissions, `secrets: inherit`, or
+# anything beyond `id-token: write` (needed only for CodSpeed's build jobs)
+# without re-examining this.
+#
+# report_pending/report_result are the one exception: workflow_run runs always
+# execute in the default branch's context, so any check-runs they'd naturally
+# produce get attached to the default branch's tip commit, never the PR's head -
+# nothing shows on the PR itself, and an approval notification doesn't link back
+# to it either. These two jobs work around that by posting a commit status
+# directly against the real PR head SHA via the Statuses API. They need
+# `statuses: write`, but - like perf-runtime-comment.yml - never check out or
+# execute anything from the PR; they only make a metadata API call.
+
+on:
+  workflow_run:
+    workflows: ['CI']
+    types: [completed]
+
+permissions:
+  contents: read
+
+jobs:
+  load_context:
+    name: Load Perf Context
+    if: >-
+      ${{ github.event.workflow_run.conclusion == 'success' &&
+          github.event.workflow_run.event != 'merge_group' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      head_sha: ${{ steps.context.outputs.head_sha }}
+      pr_number: ${{ steps.context.outputs.pr_number }}
+      base_sha: ${{ steps.context.outputs.base_sha }}
+    steps:
+      - name: Download Perf Context
+        uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
+        with:
+          name: perf-context
+          path: perf-context
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Read Perf Context
+        id: context
+        run: |
+          echo "head_sha=$(cat perf-context/head-sha.txt)" >> "$GITHUB_OUTPUT"
+          echo "pr_number=$(cat perf-context/pr-number.txt)" >> "$GITHUB_OUTPUT"
+          echo "base_sha=$(cat perf-context/base-sha.txt)" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+  perf_build_benchmark:
+    name: Perf Benchmark - Build
+    needs: [load_context]
+    uses: ./.github/workflows/test-perf-build.yml
+    with:
+      ref: ${{ needs.load_context.outputs.head_sha }}
+      artifact-run-id: ${{ github.event.workflow_run.id }}
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+
+  perf_runtime_benchmark:
+    name: Perf Benchmark - Runtime
+    needs: [load_context]
+    if: ${{ success() && github.event.workflow_run.event == 'pull_request' }}
+    uses: ./.github/workflows/test-perf-runtime.yml
+    with:
+      head-ref: ${{ needs.load_context.outputs.head_sha }}
+      base-ref: ${{ needs.load_context.outputs.base_sha }}
+      pr-number: ${{ needs.load_context.outputs.pr_number }}
+      artifact-run-id: ${{ github.event.workflow_run.id }}
+    permissions:
+      contents: read
+      actions: read
+
+  report_pending:
+    name: Report Pending Status
+    needs: [load_context]
+    if: ${{ needs.load_context.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      statuses: write
+    steps:
+      - name: Set Pending Status
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api "repos/${{ github.repository }}/statuses/${{ needs.load_context.outputs.head_sha }}" \
+            -f state=pending \
+            -f context="Perf Benchmark" \
+            -f target_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            -f description="Waiting for perf-approval review"
+        shell: bash
+
+  report_result:
+    name: Report Final Status
+    needs: [load_context, perf_build_benchmark, perf_runtime_benchmark]
+    if: ${{ always() && needs.load_context.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      statuses: write
+    steps:
+      - name: Set Final Status
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BUILD_RESULT: ${{ needs.perf_build_benchmark.result }}
+          RUNTIME_RESULT: ${{ needs.perf_runtime_benchmark.result }}
+        run: |
+          if [[ "$BUILD_RESULT" == "success" && ( "$RUNTIME_RESULT" == "success" || "$RUNTIME_RESULT" == "skipped" ) ]]; then
+            state=success
+            description="Perf benchmarks completed"
+          elif [[ "$BUILD_RESULT" == "skipped" && "$RUNTIME_RESULT" == "skipped" ]]; then
+            state=success
+            description="Perf benchmarks skipped"
+          else
+            state=failure
+            description="Perf benchmarks failed"
+          fi
+          gh api "repos/${{ github.repository }}/statuses/${{ needs.load_context.outputs.head_sha }}" \
+            -f state="$state" \
+            -f context="Perf Benchmark" \
+            -f target_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            -f description="$description"
+        shell: bash
