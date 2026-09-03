@@ -15,7 +15,7 @@
   "type": "module",
   "main": "dist/loader-bundle/index.js",
   "module": "dist/loader-bundle/index.js",
-  "types": "dist/types/components.d.ts",
+  "types": "dist/types/loader.d.ts",
   "scripts": {
     "start": "node build/copy-vendor.js && node build/copy-core-types.js && stencil build --serve --dev --watch",
     "build": "node build/copy-core-types.js && stencil build && node build/copy-vendor.js",
