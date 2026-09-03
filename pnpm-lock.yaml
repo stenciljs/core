@@ -190,6 +190,9 @@ importers:
 
   packages/dev-server:
     dependencies:
+      '@stencil/core':
+        specifier: workspace:*
+        version: link:../core
       launch-editor:
         specifier: ^2.14.1
         version: 2.14.1
@@ -200,9 +203,6 @@ importers:
         specifier: ^8.21.3
         version: 8.21.3
     devDependencies:
-      '@stencil/core':
-        specifier: workspace:*
-        version: link:../core
       '@tsdown/css':
         specifier: ^0.22.14
         version: 0.22.14(jiti@2.7.0)(postcss@8.5.26)(sass-embedded@1.100.0)(sass@1.102.0)(tsdown@0.22.14)(tsx@4.23.12)(yaml@2.9.0)
@@ -249,9 +249,6 @@ importers:
       '@stencil/core':
         specifier: workspace:*
         version: link:../core
-      '@stencil/dev-server':
-        specifier: workspace:*
-        version: link:../dev-server
       monaco-editor:
         specifier: ^0.56.0
         version: 0.56.0

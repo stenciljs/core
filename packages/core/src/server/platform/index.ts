@@ -255,6 +255,7 @@ export {
   getShadowRoot,
   getValue,
   Host,
+  injectSideEffectStyle,
   jsx,
   jsxs,
   Mixin,
@@ -262,11 +263,13 @@ export {
   postUpdateComponent,
   proxyComponent,
   proxyCustomElement,
+  registerSideEffectStyleTarget,
   setMode,
   setNonce,
   setTagTransformer,
   setValue,
   transformTag,
+  unregisterSideEffectStyleTarget,
 } from '../../runtime';
 export { insertVdomAnnotations } from '../../runtime/vdom/vdom-annotations';
 export { renderVdom } from '../../runtime/vdom/vdom-render';

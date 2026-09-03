@@ -24,7 +24,6 @@
   },
   "dependencies": {
     "@stencil/core": "workspace:*",
-    "@stencil/dev-server": "workspace:*",
     "monaco-editor": "^0.56.0"
   },
   "devDependencies": {
