@@ -77,7 +77,7 @@ jobs:
   # same run.
   perf_build_benchmark:
     name: Perf Benchmark - Build
-    needs: [build_core]
+    needs: [build]
     uses: ./.github/workflows/test-perf-build.yml
     permissions:
       contents: read
@@ -85,7 +85,7 @@ jobs:
 
   perf_runtime_benchmark:
     name: Perf Benchmark - Runtime
-    needs: [build_core]
+    needs: [build]
     uses: ./.github/workflows/test-perf-runtime.yml
     permissions:
       contents: read
