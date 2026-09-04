@@ -69,29 +69,23 @@ jobs:
     needs: [build]
     uses: ./.github/workflows/test-component-starter.yml
 
-  # Perf benchmarks aren't run as jobs of this workflow - a job paused on the
-  # perf-approval environment gate would leave this whole run "in progress",
-  # which blocks re-running any other (e.g. flaky) job here until it resolves.
-  # Instead this job only records what a downstream run needs to benchmark the
-  # right commit; see perf-benchmark.yml, triggered by this workflow's completion.
-  perf_context:
-    name: Perf Context
-    if: ${{ github.event_name != 'merge_group' }}
-    runs-on: ubuntu-latest
+  # Only run on push (post-merge baseline tracking) or on a PR explicitly opted
+  # in via the "Build Performance"/"Runtime Performance" labels - most PRs don't
+  # touch perf-sensitive code, and CodSpeed minutes are limited. These run as
+  # normal jobs of this workflow: an unlabeled PR just shows them as skipped (a
+  # terminal state), so nothing here ever blocks re-running another job in this
+  # same run.
+  perf_build_benchmark:
+    name: Perf Benchmark - Build
+    needs: [build_core]
+    uses: ./.github/workflows/test-perf-build.yml
     permissions:
       contents: read
-    steps:
-      - name: Write Perf Context
-        run: |
-          mkdir -p perf-context
-          echo "${{ github.sha }}" > perf-context/head-sha.txt
-          echo "${{ github.event.pull_request.number }}" > perf-context/pr-number.txt
-          echo "${{ github.event.pull_request.base.sha }}" > perf-context/base-sha.txt
-        shell: bash
+      id-token: write
 
-      - name: Upload Perf Context
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
-        with:
-          name: perf-context
-          path: perf-context/
-          retention-days: 1
+  perf_runtime_benchmark:
+    name: Perf Benchmark - Runtime
+    needs: [build_core]
+    uses: ./.github/workflows/test-perf-runtime.yml
+    permissions:
+      contents: read

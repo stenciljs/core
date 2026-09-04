@@ -1,16 +1,16 @@
 name: Perf Benchmark - Runtime Comment
 
-# Split out from the "Perf Benchmark - Runtime" job (test-perf-runtime.yml, called from
-# perf-benchmark.yml) specifically so its read-only token never has to be paired with
-# write access. That job builds and executes the PR's own code with a read-only token;
-# this workflow runs with a write-scoped token but MUST NEVER check out or execute
-# anything from the PR - it only ever reads plain data (numbers, a PR number) from the
-# artifact the other job uploaded, and posts it as a comment. Do not add a `ref:` to the
-# checkout below.
+# Split out from the "Perf Benchmark - Runtime" job in main.yml (test-perf-runtime.yml)
+# specifically so a fork PR's read-only GITHUB_TOKEN (forced by GitHub regardless of any
+# `permissions:` we declare) never has to be paired with write access. That job builds
+# and executes the PR's own code with a read-only token; this workflow runs with a
+# write-scoped token but MUST NEVER check out or execute anything from the PR/fork - it
+# only ever reads plain data (numbers, a PR number) from the artifact the other job
+# uploaded, and posts it as a comment. Do not add a `ref:` to the checkout below.
 
 on:
   workflow_run:
-    workflows: ['Perf Benchmark']
+    workflows: ['CI']
     types: [completed]
 
 permissions:
