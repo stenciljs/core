@@ -169,4 +169,90 @@ describe('renderToString', () => {
     expect(styles[0].content).toContain('.sc-scoped-car-list-h{display:block;');
     expect(styles[1].content).toContain('.video-js {');
   });
+
+  it('reuses a window without changing fragment parsing', async () => {
+    const input = '<link rel="stylesheet" href="/style.css"><slot-cmp>Hello World</slot-cmp>';
+    const options = {
+      fullDocument: false,
+      reuseWindow: true,
+      serializeShadowRoot: 'declarative-shadow-dom' as const,
+    };
+
+    const first = await renderToString(input, options);
+    const second = await renderToString(input, options);
+
+    expect(first.html).not.toContain('<link');
+    expect(second.html).not.toContain('<link');
+    expect(second.html).toContain('<slot-cmp');
+    expect(second.html).toContain('Hello World');
+  });
+
+  it('serializes reused renders that use the same shadow mode', async () => {
+    let releaseFirstRender!: () => void;
+    let firstRenderStarted!: () => void;
+    let secondRenderStarted = false;
+    const firstRenderGate = new Promise<void>((resolve) => (releaseFirstRender = resolve));
+    const firstRenderStart = new Promise<void>((resolve) => (firstRenderStarted = resolve));
+    const options = {
+      fullDocument: false,
+      reuseWindow: true,
+      serializeShadowRoot: 'scoped' as const,
+    };
+
+    const firstRender = renderToString('<slot-cmp>First</slot-cmp>', {
+      ...options,
+      beforeHydrate: () => {
+        firstRenderStarted();
+        return firstRenderGate;
+      },
+    });
+    await firstRenderStart;
+
+    const secondRender = renderToString('<slot-cmp>Second</slot-cmp>', {
+      ...options,
+      beforeHydrate: () => {
+        secondRenderStarted = true;
+      },
+    });
+    await Promise.resolve();
+    expect(secondRenderStarted).toBe(false);
+
+    releaseFirstRender();
+    await Promise.all([firstRender, secondRender]);
+    expect(secondRenderStarted).toBe(true);
+  });
+
+  it('runs reused renders with different shadow modes concurrently', async () => {
+    let releaseRenders!: () => void;
+    let rendersStarted = 0;
+    let bothRendersStarted!: () => void;
+    const renderGate = new Promise<void>((resolve) => (releaseRenders = resolve));
+    const renderStart = new Promise<void>((resolve) => (bothRendersStarted = resolve));
+    const beforeHydrate = () => {
+      rendersStarted++;
+      if (rendersStarted === 2) {
+        bothRendersStarted();
+      }
+      return renderGate;
+    };
+
+    const declarativeRender = renderToString('<slot-cmp>Declarative</slot-cmp>', {
+      beforeHydrate,
+      fullDocument: false,
+      reuseWindow: true,
+      serializeShadowRoot: 'declarative-shadow-dom',
+    });
+    const scopedRender = renderToString('<slot-cmp>Scoped</slot-cmp>', {
+      beforeHydrate,
+      fullDocument: false,
+      reuseWindow: true,
+      serializeShadowRoot: 'scoped',
+    });
+
+    await renderStart;
+    expect(rendersStarted).toBe(2);
+
+    releaseRenders();
+    await Promise.all([declarativeRender, scopedRender]);
+  });
 });

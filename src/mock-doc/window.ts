@@ -1,7 +1,7 @@
 import { MockHeaders } from '.';
 import { createConsole } from './console';
 import { MockCustomElementRegistry } from './custom-element-registry';
-import { MockDocument, resetDocument } from './document';
+import { MockDocument, resetDocument, resetDocumentForReuse } from './document';
 import { MockDocumentFragment } from './document-fragment';
 import { MockSVGElement } from './element';
 import {
@@ -836,6 +836,68 @@ export function cloneDocument(srcDoc: Document) {
   return dstWin?.document || null;
 }
 
+export function resetWindowForReuse(win: MockWindow, html: string) {
+  const retained = {
+    console: win.console,
+    document: win.document as unknown as MockDocument,
+    eventCounts: win.performance.eventCounts as Map<string, number>,
+    history: win.history,
+    localStorage: win.localStorage,
+    location: win.location,
+    navigator: win.navigator,
+    orientation: win.screen.orientation,
+    performance: win.performance,
+    screen: win.screen,
+    sessionStorage: win.sessionStorage,
+  };
+
+  if (win.__timeouts) {
+    win.__timeouts.forEach((timeoutId) => {
+      nativeClearInterval(timeoutId);
+      nativeClearTimeout(timeoutId);
+    });
+  }
+
+  resetObject(retained.console, createConsole());
+  resetObject(retained.history, new MockHistory());
+  resetObject(retained.location, new MockLocation());
+  resetObject(retained.navigator, new MockNavigator());
+  retained.localStorage.clear();
+  retained.sessionStorage.clear();
+  retained.eventCounts.clear();
+  resetObject(retained.eventCounts, {});
+  resetObject(retained.performance, {
+    eventCounts: retained.eventCounts,
+    timeOrigin: Date.now(),
+  });
+
+  for (const key of Reflect.ownKeys(win)) {
+    delete (win as any)[key];
+  }
+
+  resetWindowDefaults(win);
+  resetWindowDimensions(win);
+  const defaultScreen = win.screen;
+  resetObject(retained.orientation, defaultScreen.orientation);
+  resetObject(retained.screen, {
+    ...defaultScreen,
+    orientation: retained.orientation,
+  });
+
+  win.console = retained.console;
+  win.customElements = null;
+  win.document = retained.document as any;
+  win.history = retained.history;
+  win.localStorage = retained.localStorage;
+  win.location = retained.location;
+  win.navigator = retained.navigator;
+  win.performance = retained.performance;
+  win.screen = retained.screen;
+  win.sessionStorage = retained.sessionStorage;
+
+  resetDocumentForReuse(retained.document, win, html);
+}
+
 // TODO(STENCIL-345) - Evaluate reconciling MockWindow, Window differences
 /**
  * Constrain setTimeout() to 1ms, but still async. Also
@@ -920,4 +982,11 @@ function resetWindowDimensions(win: MockWindow) {
       width: win.innerWidth,
     } as any;
   } catch (e) {}
+}
+
+function resetObject(target: object, defaults: object) {
+  for (const key of Reflect.ownKeys(target)) {
+    delete (target as any)[key];
+  }
+  Object.assign(target, defaults);
 }

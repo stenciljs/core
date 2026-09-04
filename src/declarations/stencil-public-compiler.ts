@@ -948,6 +948,14 @@ export interface HydrateDocumentOptions {
    */
   referrer?: string;
   /**
+   * Reuse a process-global mock window across `renderToString()`/`hydrateDocument()`
+   * calls that receive an HTML string. This avoids re-executing the entire hydrate
+   * platform closure (runtime, vdom and all component definitions) on every call.
+   * Applies only to fragment renders (`fullDocument: false`) using a built-in
+   * `serializeShadowRoot` mode. Renders using the same mode are serialized.
+   */
+  reuseWindow?: boolean;
+  /**
    * Removes every `<script>` element found in the `document`. Defaults to `false`.
    */
   removeScripts?: boolean;
