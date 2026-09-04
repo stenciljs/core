@@ -12,9 +12,9 @@ jobs:
   perf_build_cold:
     name: Compile Time (cold)
     # Runs on every push (main-branch baseline tracking) or on a PR labeled
-    # "build-performance" - most PRs don't touch perf-sensitive code, and
+    # "Build Performance" - most PRs don't touch perf-sensitive code, and
     # CodSpeed minutes are limited.
-    if: ${{ github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'build-performance') }}
+    if: ${{ github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'Build Performance') }}
     runs-on: codspeed-macro
     permissions:
       contents: read

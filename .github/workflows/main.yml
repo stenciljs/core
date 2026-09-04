@@ -72,7 +72,7 @@ jobs:
     uses: ./.github/workflows/test-wdio.yml
 
   # Only run on push (post-merge baseline tracking) or on a PR explicitly opted
-  # in via the "build-performance"/"runtime-performance" labels - most PRs don't
+  # in via the "Build Performance"/"Runtime Performance" labels - most PRs don't
   # touch perf-sensitive code, and CodSpeed minutes are limited. These run as
   # normal jobs of this workflow: an unlabeled PR just shows them as skipped (a
   # terminal state), so nothing here ever blocks re-running another job in this

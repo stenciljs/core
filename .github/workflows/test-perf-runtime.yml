@@ -11,10 +11,10 @@ permissions:
 jobs:
   perf_runtime_diff:
     name: Runtime Benchmark (PR vs base)
-    # Only on a PR labeled "runtime-performance" - most PRs don't touch
+    # Only on a PR labeled "Runtime Performance" - most PRs don't touch
     # perf-sensitive code, and CodSpeed minutes are limited. Doesn't apply to
     # push (nothing to diff against) or merge_group.
-    if: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'runtime-performance') }}
+    if: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'Runtime Performance') }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
