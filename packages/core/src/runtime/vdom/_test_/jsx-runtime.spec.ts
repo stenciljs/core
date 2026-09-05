@@ -1,0 +1,79 @@
+import { expect, describe, it, vi } from '@stencil/vitest';
+
+import { jsx, jsxs } from '../jsx-runtime';
+
+describe('jsx-runtime', () => {
+  describe('jsx() and jsxs()', () => {
+    it('should create a vnode with no props', () => {
+      const vnode = jsx('div', {});
+      expect(vnode.$tag$).toBe('div');
+      expect(vnode.$attrs$).toBe(null);
+    });
+
+    it('should create a vnode with basic props', () => {
+      const vnode = jsx('div', { id: 'test', class: 'foo' });
+      expect(vnode.$tag$).toBe('div');
+      expect(vnode.$attrs$).toEqual({ id: 'test', class: 'foo' });
+    });
+
+    it('should handle key passed as separate parameter', () => {
+      const vnode = jsx('div', { id: 'test' }, 'my-key');
+      expect(vnode.$tag$).toBe('div');
+      expect(vnode.$key$).toBe('my-key');
+      expect(vnode.$attrs$).toEqual({ id: 'test', key: 'my-key' });
+    });
+
+    it('should handle key passed in props', () => {
+      const vnode = jsx('div', { id: 'test', key: 'props-key' });
+      expect(vnode.$tag$).toBe('div');
+      expect(vnode.$key$).toBe('props-key');
+      expect(vnode.$attrs$).toEqual({ id: 'test', key: 'props-key' });
+    });
+
+    it('should prefer key from props over parameter', () => {
+      const vnode = jsx('div', { id: 'test', key: 'props-key' }, 'param-key');
+      expect(vnode.$tag$).toBe('div');
+      expect(vnode.$key$).toBe('props-key');
+      expect(vnode.$attrs$).toEqual({ id: 'test', key: 'props-key' });
+    });
+
+    it('should handle ref in props', () => {
+      const refCallback = vi.fn();
+      const vnode = jsx('div', { id: 'test', ref: refCallback });
+      expect(vnode.$tag$).toBe('div');
+      expect(vnode.$attrs$).toEqual({ id: 'test', ref: refCallback });
+    });
+
+    it('should handle both key and ref', () => {
+      const refCallback = vi.fn();
+      const vnode = jsx('div', { id: 'test', key: 'my-key', ref: refCallback }, undefined);
+      expect(vnode.$tag$).toBe('div');
+      expect(vnode.$key$).toBe('my-key');
+      expect(vnode.$attrs$).toEqual({ id: 'test', key: 'my-key', ref: refCallback });
+    });
+
+    it('should handle children as array', () => {
+      const vnode = jsx('div', { children: ['Hello', 'World'] });
+      expect(vnode.$tag$).toBe('div');
+      expect(vnode.$children$?.length).toBe(1);
+      expect(vnode.$children$![0].$text$).toBe('HelloWorld');
+    });
+
+    it('should handle single child', () => {
+      const vnode = jsx('div', { children: 'Hello' });
+      expect(vnode.$tag$).toBe('div');
+      expect(vnode.$children$?.length).toBe(1);
+    });
+
+    it('should not include children in attrs', () => {
+      const vnode = jsx('div', { id: 'test', children: 'Hello' });
+      expect(vnode.$attrs$).toEqual({ id: 'test' });
+    });
+
+    it('jsxs should work the same as jsx', () => {
+      const vnode = jsxs('div', { id: 'test' }, 'my-key');
+      expect(vnode.$tag$).toBe('div');
+      expect(vnode.$attrs$).toEqual({ id: 'test', key: 'my-key' });
+    });
+  });
+});

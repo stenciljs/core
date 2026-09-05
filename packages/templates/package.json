@@ -1,0 +1,46 @@
+{
+  "name": "@stencil/templates",
+  "version": "5.0.0-beta.3",
+  "description": "Project and generate templates for Stencil",
+  "keywords": [
+    "scaffolding",
+    "stencil",
+    "templates"
+  ],
+  "homepage": "https://stenciljs.com/",
+  "license": "MIT",
+  "author": "StencilJs Contributors",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stenciljs/core.git"
+  },
+  "files": [
+    "dist/",
+    "templates/"
+  ],
+  "type": "module",
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "@stencil/core": "^5.0.0 || workspace:*"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

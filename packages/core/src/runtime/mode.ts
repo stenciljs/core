@@ -1,0 +1,10 @@
+import { getHostRef, modeResolutionChain } from 'virtual:platform';
+import type * as d from '@stencil/core';
+
+// Private
+export const computeMode = (elm: d.HostElement) =>
+  modeResolutionChain.map((h) => h(elm)).find((m) => !!m);
+
+// Public
+export const setMode = (handler: d.ResolutionHandler) => modeResolutionChain.push(handler);
+export const getMode = (ref: d.RuntimeRef) => getHostRef(ref)?.$modeName$;

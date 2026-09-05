@@ -1,0 +1,17 @@
+import { Config } from '@stencil/core';
+
+export const config: Config = {
+  namespace: 'bundlesize-shadow',
+  outputTargets: [
+    { type: 'loader-bundle', hashFileNames: false },
+    {
+      type: 'standalone',
+    },
+    {
+      type: 'global-style',
+      input: 'src/global-style.css',
+    },
+  ],
+  enableCache: false,
+  jsMinifier: 'terser',
+};

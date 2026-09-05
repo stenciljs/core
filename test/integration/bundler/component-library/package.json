@@ -1,0 +1,35 @@
+{
+  "name": "@stencil-core-tests/bundler-component-library",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Test component library for bundler integration tests",
+  "license": "MIT",
+  "files": [
+    "dist/"
+  ],
+  "type": "module",
+  "types": "dist/types/components.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/loader-bundle/index.js",
+      "require": "./dist/loader-bundle/index.cjs",
+      "types": "./dist/types/components.d.ts"
+    },
+    "./loader": {
+      "import": "./dist/loader-bundle/esm/loader.js",
+      "require": "./dist/loader-bundle/cjs/loader.cjs",
+      "types": "./dist/types/loader.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "stencil build --docs",
+    "start": "stencil build --dev --watch --serve"
+  },
+  "dependencies": {
+    "@stencil/core": "workspace:*"
+  },
+  "volta": {
+    "extends": "../../../../package.json"
+  },
+  "collection": "dist/collection/collection-manifest.json"
+}
