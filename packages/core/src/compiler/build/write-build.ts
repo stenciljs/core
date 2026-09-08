@@ -37,8 +37,8 @@ export const writeBuild = async (
     buildCtx.debug(`in-memory-fs: ${compilerCtx.fs.getMemoryStats()}`);
     buildCtx.debug(`cache: ${compilerCtx.cache.getMemoryStats()}`);
 
-    if (config.generateExportMaps) {
-      writeExportMaps(config, buildCtx);
+    if (config.generateExportMaps && !config.devMode) {
+      writeExportMaps(config, compilerCtx, buildCtx);
     }
 
     await outputServiceWorkers(config, buildCtx);

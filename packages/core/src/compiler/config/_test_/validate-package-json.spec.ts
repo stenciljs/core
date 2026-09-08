@@ -118,7 +118,9 @@ describe('validateBuildPackageJson', () => {
       expect(buildCtx.diagnostics.length).toBe(1);
       expect(buildCtx.diagnostics[0].level).toBe('warn');
       expect(buildCtx.diagnostics[0].messageText).toContain("doesn't exist");
-      expect(buildCtx.diagnostics[0].messageText).toContain('./dist/loader-bundle/index.js');
+      // No src/index.ts (accessSync mocked to false) - recommendation falls back to the
+      // loader script itself, since dist/loader-bundle/index.js would just be an empty stub
+      expect(buildCtx.diagnostics[0].messageText).toContain('./dist/loader-bundle/esm/loader.js');
     });
 
     it('should not warn when module path exists but differs from recommended', async () => {

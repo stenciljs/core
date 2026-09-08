@@ -63,12 +63,21 @@ const getPackageJsonRecommendations = (
   const standalone = config.outputTargets.find(isOutputTargetStandalone);
   const types = config.outputTargets.find(isOutputTargetTypes);
 
+  // Without a src/index.ts, the loader-bundle's own index.js is just an
+  // empty auto-generated stub - the real entry point is the esm/loader.js it forwards to.
+  const srcIndexPath = join(config.srcDir, 'index.ts');
+  const hasSrcIndex = compilerCtx.fs.accessSync(srcIndexPath);
+
   // moduleOptions: collect entry points from each configured output target
   const moduleOptions: string[] = [];
 
-  // loader-bundle provides an entry at its dir (e.g. dist/loader-bundle/index.js)
+  // loader-bundle provides an entry at its dir (e.g. dist/loader-bundle/index.js),
+  // falling back to the loader script itself when there's no user index.ts to bundle
   if (loaderBundle?.dir) {
-    moduleOptions.push(normalizePath(relative(config.rootDir, join(loaderBundle.dir, 'index.js'))));
+    const loaderEntry = hasSrcIndex
+      ? join(loaderBundle.dir, 'index.js')
+      : join(loaderBundle.dir, 'esm', 'loader.js');
+    moduleOptions.push(normalizePath(relative(config.rootDir, loaderEntry)));
   }
 
   // standalone provides an entry at its dir (defaults to dist/standalone)
@@ -83,9 +92,6 @@ const getPackageJsonRecommendations = (
   // 4. components.d.ts as last resort (only if no other options)
   const typesOptions: string[] = [];
   if (types?.dir) {
-    const srcIndexPath = join(config.srcDir, 'index.ts');
-    const hasSrcIndex = compilerCtx.fs.accessSync(srcIndexPath);
-
     if (hasSrcIndex) {
       typesOptions.push(normalizePath(relative(config.rootDir, join(types.dir, 'index.d.ts'))));
     } else {

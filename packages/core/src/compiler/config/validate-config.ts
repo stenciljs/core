@@ -145,7 +145,12 @@ export const validateConfig = (
     ...config,
     devMode,
     compat: config.compat || {},
-    generateExportMaps: isBoolean(config.generateExportMaps) ? config.generateExportMaps : false,
+    // Defaults to true for "no-config" projects (no stencil.config.ts/.js found by loadConfig,
+    // which sets configPath to null) - otherwise stays opt-in so an existing config isn't
+    // silently changed.
+    generateExportMaps: isBoolean(config.generateExportMaps)
+      ? config.generateExportMaps
+      : !isString(config.configPath),
     hydratedFlag: validateHydrated(config),
     logLevel,
     logger,

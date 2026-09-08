@@ -98,7 +98,7 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
 - **`devMode` config option removed from `stencil.config.ts`.** Build mode is now exclusively controlled by the `--dev` CLI flag.
 - **`isPrimaryPackageOutputTarget` removed from output targets.** Package.json validation now auto-detects based on configured outputs.
 - **`validatePrimaryPackageOutputTarget` config option renamed to `validatePackageJson`.**
-- **Export maps generation uses smart defaults.** Priority: `loader-bundle` > `standalone` for the root export. Types always come from the `types` output target.
+- **Export maps generation uses smart defaults.** `generateExportMaps` defaults to `true` for "no-config" projects (no `stencil.config.ts`/`.js` found - `loadConfig` sets `configPath: null` in that case) and `false` whenever a config file exists, so existing projects aren't silently opted in; set it explicitly to override either way. Implemented in [validate-config.ts](packages/core/src/compiler/config/validate-config.ts). Priority: `loader-bundle` > `standalone` for the root export. Types always come from the `types` output target. Export map generation is skipped entirely on dev builds (`config.devMode`) regardless of the `generateExportMaps` value, since it exists to keep the published `package.json` accurate and has no reason to run on every watch rebuild. It shells out to `npm pkg set`; if that fails (e.g. no `npm` binary on PATH), the build emits one warning and skips the rest of export map generation rather than failing the build. Without a `src/index.ts`, the root `"."` export falls back to the loader-bundle's `esm/loader.js` (and matching `loader.d.ts`) instead of the auto-generated, effectively-empty `index.js`/`index.d.ts` - mirrors the fallback `validatePackageJson`'s `module`/`types` suggestions already used. Same fallback logic in [validate-package-json.ts](packages/core/src/compiler/config/validate-package-json.ts) and [write-export-maps.ts](packages/core/src/compiler/build/write-export-maps.ts). Note: the "smart default" (don't clobber an existing valid-looking root export) means a project that already generated the old, wrong `index.js` value will keep it on rebuild - only a fresh/cleared `exports["."]` picks up the corrected default.
 - **`collection` field in package.json renamed to `collection`.**
 - **Output file extensions modernized:**
   - ESM files now use `.js` extension (was `.esm.js`)
@@ -579,6 +579,25 @@ pnpm run dev       # Watch mode
 
 ---
 
+## 💡 Post-v5 Ideas (Backlog)
+
+Not scoped for v5 — parking here so they're not lost.
+
+### Manifest/typing for built-in element variants (design-system-styled `<button>`, `<progress class="ring">`, etc.)
+Prompted by [Lea Verou's post](https://bsky.app/profile/lea.verou.me/post/3muckxg75rc22) asking whether anyone's generalizing Custom Elements Manifest to cover non-custom-element design system components — a `<button>` or styled `<progress>` documented the same way as a custom element, no runtime needed.
+
+Scoped down to: documentation with autocomplete as a bonus, not type-safety guarantees. Findings from discussion + a live spike:
+- **Author as a declarative source, not a real type.** e.g. `interface MyAnchor extends HTMLAnchorElement { className: 'my-thing' | 'my-other-thing' }` in a `.d.ts`-shaped file, parsed by the compiler via AST (same static-analysis pattern already used for `@Component` classes) — never imported/used as an actual variable type, since attributes like `data-variant` don't reflect real DOM properties (they'd live on `.dataset`).
+- **Attribute typing is basically free** — literal string unions on individual attributes already work with existing TS mechanisms (JSX intrinsic augmentation), no new infra needed.
+- **Class name typing needs the `KnownClass | (string & {})` escape-hatch pattern** (single known-literal union + a `string & {}` fallback so arbitrary classes still type-check). Verified via spike: this gives real, automatic autocomplete for a *single* class name.
+- **Multi-token (space-separated) class list completion doesn't hold up.** Tried both a hand-unrolled union (`` `${K} ${K}` | `${K} ${K} ${K}` ``) and a depth-capped recursive template literal type — TS expands the recursive form to the exact same flat materialized union under the hood (confirmed via the literal error message), so there's no representational win from recursion. Cost is combinatorial (N known classes → N² + N³ members for 2-3 slots; ~20 classes ≈ 8,400 members), and in practice VS Code's completion list gets noisier, not more useful, as the vocabulary grows. Also, completion only fires automatically for the first token — anything after a space needs a manual invoke. Not worth pursuing further without a fundamentally different mechanism (e.g. a real language-service/editor extension computing suggestions dynamically, Tailwind-CSS-IntelliSense-style, rather than encoding them in the type system).
+- **JSX intrinsic augmentation is global per compilation**, not scoped per design system. If multiple `.d.ts` sources each did their own `declare global` merge into e.g. `AnchorHTMLAttributes.className`, conflicting literal sets would hard-error (TS requires merged property redeclarations to match exactly). Fix: don't let source files merge directly — have the compiler collect all the interfaces project-wide and emit one generated augmentation with the unioned literals, same pattern already used for `components.d.ts`.
+- **Real ceiling, not a blocker to design around:** type checking only fires on literal strings — `className={clsx(...)}` or any computed value gets no validation, and that's most real-world JSX class usage. And two unrelated libraries independently choosing the same class name with different meaning is undetectable by this (or any) type-level scheme — that's inherent to CSS's global class namespace, not something this introduces.
+
+If picked up later: prototype the compiler-owned aggregation step first (the actual novel infra), treat single-token class completion as the ceiling for the class-name half, and don't re-attempt multi-token completion via the type system without a different approach in hand.
+
+---
+
 ## Known Test Coverage Gaps
 - `validatePublicName` (`compiler/transformers/reserved-public-members.ts`) has no dedicated unit tests - only its event-name counterpart (`compat.suppressEventNameWarnings`, tested in `parse-events.spec.ts`) is covered.
 
@@ -593,4 +612,4 @@ pnpm run dev       # Watch mode
 
 ---
 
-*Last updated: 2026-08-28*
+*Last updated: 2026-09-07*
