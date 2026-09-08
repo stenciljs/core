@@ -42,6 +42,34 @@ describe('validation', () => {
     });
   });
 
+  describe('generateExportMaps default', () => {
+    it('defaults to true for a no-config project (configPath: null)', () => {
+      userConfig.configPath = null;
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.generateExportMaps).toBe(true);
+    });
+
+    it('defaults to false when a stencil.config.ts/.js was loaded', () => {
+      userConfig.configPath = '/User/some/path/stencil.config.ts';
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.generateExportMaps).toBe(false);
+    });
+
+    it('respects an explicit true even with a config file present', () => {
+      userConfig.configPath = '/User/some/path/stencil.config.ts';
+      userConfig.generateExportMaps = true;
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.generateExportMaps).toBe(true);
+    });
+
+    it('respects an explicit false for a no-config project', () => {
+      userConfig.configPath = null;
+      userConfig.generateExportMaps = false;
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.generateExportMaps).toBe(false);
+    });
+  });
+
   describe('devMode validation', () => {
     it('defaults devMode to false (production) when not set by CLI', () => {
       // devMode is not user-settable in stencil.config.ts; it is injected by

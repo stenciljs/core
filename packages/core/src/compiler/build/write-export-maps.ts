@@ -2,6 +2,7 @@ import { execSync } from 'child_process';
 import type * as d from '@stencil/core';
 
 import {
+  buildWarn,
   isOutputTargetLoaderBundle,
   isOutputTargetStandalone,
   isOutputTargetTypes,
@@ -9,6 +10,34 @@ import {
   normalizePath,
   relative,
 } from '../../utils';
+
+/**
+ * A function that runs `npm pkg set <cmd>`, tolerating an unusable `npm` CLI.
+ * Once a call fails, all subsequent calls become no-ops for the rest of the build
+ * (the CLI being unavailable isn't something that recovers mid-build).
+ */
+type NpmPkgSet = (cmd: string) => void;
+
+/**
+ * Create the shared {@link NpmPkgSet} used across a single `writeExportMaps` run.
+ * @param buildCtx The build context to report a warning diagnostic on if `npm` can't be run
+ * @returns A function that shells out to `npm pkg set`, swallowing failure after warning once
+ */
+const createNpmPkgSet = (buildCtx: d.BuildCtx): NpmPkgSet => {
+  let npmAvailable = true;
+  return (cmd: string): void => {
+    if (!npmAvailable) {
+      return;
+    }
+    try {
+      execSync(`npm pkg set ${cmd}`);
+    } catch (e: any) {
+      npmAvailable = false;
+      const warn = buildWarn(buildCtx.diagnostics);
+      warn.messageText = `Unable to generate "exports" map in package.json: the "npm" CLI could not be run (${e.message ?? e}). Set "generateExportMaps: false" in your Stencil config to silence this warning.`;
+    }
+  };
+};
 
 /**
  * Create export map entry point definitions for the `package.json` file using the npm CLI.
@@ -21,25 +50,31 @@ import {
  * - Generate per-component exports for standalone output
  *
  * @param config The validated Stencil config
+ * @param compilerCtx The compiler context (used to detect a user-authored src/index.ts)
  * @param buildCtx The build context containing the components to generate export maps for
  */
-export const writeExportMaps = (config: d.ValidatedConfig, buildCtx: d.BuildCtx): void => {
+export const writeExportMaps = (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+): void => {
   const loaderBundle = config.outputTargets.find(isOutputTargetLoaderBundle);
   const standalone = config.outputTargets.find(isOutputTargetStandalone);
   const types = config.outputTargets.find(isOutputTargetTypes);
+  const npmPkgSet = createNpmPkgSet(buildCtx);
 
   // Generate root export - use smart default approach
-  generateRootExport(config, buildCtx, loaderBundle, standalone, types);
+  generateRootExport(config, compilerCtx, buildCtx, loaderBundle, standalone, types, npmPkgSet);
 
   // Generate loader export if loader-bundle exists
   // Points directly to esm/loader.js (no separate loader directory)
   if (loaderBundle) {
-    generateLoaderExport(config, loaderBundle, types);
+    generateLoaderExport(config, loaderBundle, types, npmPkgSet);
   }
 
   // Generate per-component exports for standalone
   if (standalone) {
-    generateComponentExports(config, buildCtx, standalone);
+    generateComponentExports(config, buildCtx, standalone, npmPkgSet);
   }
 };
 
@@ -51,22 +86,31 @@ export const writeExportMaps = (config: d.ValidatedConfig, buildCtx: d.BuildCtx)
  * - If valid, leave it alone
  * - If missing or invalid, set default (loader-bundle > standalone priority)
  * @param config The validated Stencil config
+ * @param compilerCtx The compiler context (used to detect a user-authored src/index.ts)
  * @param buildCtx The build context containing the components to generate export maps for
  * @param loaderBundle The loader-bundle output target, if it exists
  * @param standalone The standalone output target, if it exists
  * @param types The types output target, if it exists
+ * @param npmPkgSet Function used to run `npm pkg set`, tolerating an unavailable npm CLI
  */
 const generateRootExport = (
   config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   loaderBundle: d.OutputTargetLoaderBundle | undefined,
   standalone: d.OutputTargetStandalone | undefined,
   types: d.OutputTargetTypes | undefined,
+  npmPkgSet: NpmPkgSet,
 ): void => {
   // No distributable outputs - nothing to do
   if (!loaderBundle && !standalone) {
     return;
   }
+
+  // Without a src/index.ts, the loader-bundle's own index.js/index.d.ts are just an
+  // empty auto-generated stub - the real entry point is the esm/loader.js it forwards to.
+  const hasSrcIndex = compilerCtx.fs.accessSync(join(config.srcDir, 'index.ts'));
+  const rootUsesEmptyLoaderIndex = !!loaderBundle && !hasSrcIndex;
 
   // Check if the current root export already points to a valid output
   const currentExports = buildCtx.packageJson?.exports as Record<string, unknown> | undefined;
@@ -82,23 +126,26 @@ const generateRootExport = (
     // Priority: loader-bundle > standalone
     const primaryDir = loaderBundle?.dir ?? standalone?.dir;
     if (primaryDir) {
-      const importPath = normalizePath(relative(config.rootDir, join(primaryDir, 'index.js')));
-      execSync(`npm pkg set "exports[.][import]"="${importPath}"`);
+      const entryFile = rootUsesEmptyLoaderIndex ? join('esm', 'loader.js') : 'index.js';
+      const importPath = normalizePath(relative(config.rootDir, join(primaryDir, entryFile)));
+      npmPkgSet(`"exports[.][import]"="${importPath}"`);
 
       // Set CJS require path if loader-bundle has CJS enabled
       if (loaderBundle?.cjs) {
+        const cjsEntryFile = rootUsesEmptyLoaderIndex ? join('cjs', 'loader.cjs') : 'index.cjs';
         const requirePath = normalizePath(
-          relative(config.rootDir, join(loaderBundle.dir, 'index.cjs')),
+          relative(config.rootDir, join(loaderBundle.dir, cjsEntryFile)),
         );
-        execSync(`npm pkg set "exports[.][require]"="${requirePath}"`);
+        npmPkgSet(`"exports[.][require]"="${requirePath}"`);
       }
     }
   }
 
   // Always ensure types is set correctly (from the types output target)
   if (types?.dir) {
-    const typesPath = normalizePath(relative(config.rootDir, join(types.dir, 'index.d.ts')));
-    execSync(`npm pkg set "exports[.][types]"="${typesPath}"`);
+    const typesFile = rootUsesEmptyLoaderIndex ? 'loader.d.ts' : 'index.d.ts';
+    const typesPath = normalizePath(relative(config.rootDir, join(types.dir, typesFile)));
+    npmPkgSet(`"exports[.][types]"="${typesPath}"`);
   }
 };
 
@@ -160,18 +207,20 @@ const ensureRelativePrefix = (path: string): string => {
  * @param config The validated Stencil config
  * @param loaderBundle The loader-bundle output target
  * @param types The types output target, if it exists
+ * @param npmPkgSet Function used to run `npm pkg set`, tolerating an unavailable npm CLI
  */
 const generateLoaderExport = (
   config: d.ValidatedConfig,
   loaderBundle: d.OutputTargetLoaderBundle,
   types: d.OutputTargetTypes | undefined,
+  npmPkgSet: NpmPkgSet,
 ): void => {
   const esmDir = join(loaderBundle.dir, 'esm');
   const esmLoaderPath = ensureRelativePrefix(
     normalizePath(relative(config.rootDir, join(esmDir, 'loader.js'))),
   );
 
-  execSync(`npm pkg set "exports[./loader][import]"="${esmLoaderPath}"`);
+  npmPkgSet(`"exports[./loader][import]"="${esmLoaderPath}"`);
 
   // Set CJS require path if CJS is enabled
   if (loaderBundle.cjs) {
@@ -179,7 +228,7 @@ const generateLoaderExport = (
     const cjsLoaderPath = ensureRelativePrefix(
       normalizePath(relative(config.rootDir, join(cjsDir, 'loader.cjs'))),
     );
-    execSync(`npm pkg set "exports[./loader][require]"="${cjsLoaderPath}"`);
+    npmPkgSet(`"exports[./loader][require]"="${cjsLoaderPath}"`);
   }
 
   // Types for the loader entry point
@@ -187,7 +236,7 @@ const generateLoaderExport = (
     const typesPath = ensureRelativePrefix(
       normalizePath(relative(config.rootDir, join(types.dir, 'loader.d.ts'))),
     );
-    execSync(`npm pkg set "exports[./loader][types]"="${typesPath}"`);
+    npmPkgSet(`"exports[./loader][types]"="${typesPath}"`);
   }
 };
 
@@ -197,11 +246,13 @@ const generateLoaderExport = (
  * @param config The validated Stencil config
  * @param buildCtx The build context containing the components to generate export maps for
  * @param standalone The standalone output target
+ * @param npmPkgSet Function used to run `npm pkg set`, tolerating an unavailable npm CLI
  */
 const generateComponentExports = (
   config: d.ValidatedConfig,
   buildCtx: d.BuildCtx,
   standalone: d.OutputTargetStandalone,
+  npmPkgSet: NpmPkgSet,
 ): void => {
   let outDir = relative(config.rootDir, standalone.dir!);
   if (!outDir.startsWith('.')) {
@@ -209,7 +260,7 @@ const generateComponentExports = (
   }
 
   buildCtx.components.forEach((cmp) => {
-    execSync(`npm pkg set "exports[./${cmp.tagName}][import]"="${outDir}/${cmp.tagName}.js"`);
-    execSync(`npm pkg set "exports[./${cmp.tagName}][types]"="${outDir}/${cmp.tagName}.d.ts"`);
+    npmPkgSet(`"exports[./${cmp.tagName}][import]"="${outDir}/${cmp.tagName}.js"`);
+    npmPkgSet(`"exports[./${cmp.tagName}][types]"="${outDir}/${cmp.tagName}.d.ts"`);
   });
 };
