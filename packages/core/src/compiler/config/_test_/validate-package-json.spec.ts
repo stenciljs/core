@@ -499,4 +499,60 @@ describe('validateBuildPackageJson', () => {
       expect(typeWarning).toBeUndefined();
     });
   });
+
+  describe('files field', () => {
+    beforeEach(() => {
+      config.outputTargets = [
+        {
+          type: 'collection',
+          dir: '/dist/collection',
+        },
+      ];
+    });
+
+    it('should warn when "files" is missing and there is no .npmignore', async () => {
+      compilerCtx.fs.access = async () => false;
+      delete buildCtx.packageJson.files;
+
+      await validateBuildPackageJson(config, compilerCtx, buildCtx);
+
+      const filesWarning = buildCtx.diagnostics.find((d) => d.messageText.includes('"files"'));
+      expect(filesWarning).toBeDefined();
+      expect(filesWarning?.level).toBe('warn');
+      expect(filesWarning?.messageText).toContain('missing a "files" array');
+      expect(filesWarning?.messageText).toContain('dist/collection/');
+    });
+
+    it('should not warn when "files" is missing but a .npmignore exists', async () => {
+      compilerCtx.fs.access = async (p: string) => p.includes('.npmignore');
+      delete buildCtx.packageJson.files;
+
+      await validateBuildPackageJson(config, compilerCtx, buildCtx);
+
+      const filesWarning = buildCtx.diagnostics.find((d) => d.messageText.includes('"files"'));
+      expect(filesWarning).toBeUndefined();
+    });
+
+    it('should warn when "files" does not contain the distribution directory', async () => {
+      buildCtx.packageJson.files = ['README.md'];
+
+      await validateBuildPackageJson(config, compilerCtx, buildCtx);
+
+      const filesWarning = buildCtx.diagnostics.find((d) => d.messageText.includes('"files"'));
+      expect(filesWarning).toBeDefined();
+      expect(filesWarning?.messageText).toContain(
+        'must contain the distribution directory "./dist/collection/"',
+      );
+    });
+
+    it('should not warn when "files" contains the distribution directory', async () => {
+      compilerCtx.fs.access = async () => true;
+      buildCtx.packageJson.files = ['dist'];
+
+      await validateBuildPackageJson(config, compilerCtx, buildCtx);
+
+      const filesWarning = buildCtx.diagnostics.find((d) => d.messageText.includes('"files"'));
+      expect(filesWarning).toBeUndefined();
+    });
+  });
 });
