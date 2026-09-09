@@ -363,11 +363,13 @@ export const generateEntryPoint = (
     `export * from '${USER_INDEX_ENTRY_ID}';`,
   );
 
-  // Auto-configure asset path if components use assets
+  // Auto-configure asset path if components use assets. Also export setAssetPath so a
+  // consuming bundler can override the default if it relocates the assets elsewhere.
   if (relativeAssetPath) {
     imports.push(
       `import { setAssetPath } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';`,
     );
+    exports.push(`export { setAssetPath };`);
     // Use import.meta.url for runtime resolution that works regardless of where bundle is hosted
     body.push(`setAssetPath(new URL('${relativeAssetPath}', import.meta.url).href);`);
   }

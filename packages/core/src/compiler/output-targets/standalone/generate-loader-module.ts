@@ -32,7 +32,7 @@ export const generateLoaderModule = (
     .join('\n');
 
   const assetPathImport = relativeAssetPath
-    ? `import { setAssetPath } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';\n`
+    ? `import { setAssetPath } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';\nexport { setAssetPath };\n`
     : '';
   const assetPathInit = relativeAssetPath
     ? `setAssetPath(new URL('${relativeAssetPath}', String(import.meta.url)).href);\n`

@@ -266,7 +266,12 @@ function createEntryModule(cmps: d.ComponentCompilerMeta[]): d.EntryModule {
 
 const getLazyEntry = (isBrowser: boolean, assetPath?: string, externalRuntime = false): string => {
   const s = new MagicString(``);
-  s.append(`export { setNonce, setRegistry, setTagTransformer } from '${STENCIL_CORE_ID}';\n`);
+  const platformExports = ['setNonce', 'setRegistry', 'setTagTransformer'];
+  // Exported (when there's a path to override) on both builds
+  if (assetPath) {
+    platformExports.push('setAssetPath');
+  }
+  s.append(`export { ${platformExports.join(', ')} } from '${STENCIL_CORE_ID}';\n`);
   s.append(`import { bootstrapLazy } from '${STENCIL_CORE_ID}';\n`);
 
   if (isBrowser) {

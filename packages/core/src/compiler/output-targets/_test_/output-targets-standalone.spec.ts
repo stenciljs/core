@@ -5,7 +5,7 @@ import type * as d from '@stencil/core';
 
 import { mockCompilerSystem, mockModule, mockValidatedConfig } from '../../../testing';
 import { mockBuildCtx, mockCompilerCtx } from '../../../testing/compiler';
-import { STANDALONE } from '../../../utils';
+import { ASSETS, STANDALONE } from '../../../utils';
 import {
   STENCIL_APP_GLOBALS_ID,
   STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID,
@@ -390,6 +390,33 @@ export const defineCustomElements = (opts) => {
         addStandaloneInputs(config, buildCtx, bundleOptions, outputTarget);
 
         expect(bundleOptions.inputs['my-custom-loader']).toBe('\0loader');
+      });
+
+      it('exports setAssetPath from the loader module so it is usable via a bundler, not just a CDN <script> tag', () => {
+        const component = stubComponentCompilerMeta({
+          assetsDirs: [
+            {
+              absolutePath: '/src/assets',
+              cmpRelativePath: 'assets',
+              originalComponentPath: 'assets',
+            },
+          ],
+        });
+        buildCtx.components = [component];
+
+        config.outputTargets.push({ type: ASSETS, dir: '/dist/assets' });
+        const outputTarget = config.outputTargets[0] as OutputTargetStandalone;
+        outputTarget.dir = '/dist/standalone';
+        outputTarget.autoLoader = { fileName: 'loader', autoStart: true };
+
+        const bundleOptions = getBundleOptions(config, buildCtx, compilerCtx, outputTarget);
+        addStandaloneInputs(config, buildCtx, bundleOptions, outputTarget);
+
+        const loaderContent = bundleOptions.loader['\0loader'];
+        expect(loaderContent).toContain(
+          `import { setAssetPath } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';`,
+        );
+        expect(loaderContent).toContain('export { setAssetPath };');
       });
 
       it('should not add loader when autoLoader is not set', () => {

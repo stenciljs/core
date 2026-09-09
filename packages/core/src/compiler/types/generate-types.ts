@@ -75,16 +75,22 @@ const generateTypesOutput = async (
     await generateStandaloneTypes(config, compilerCtx, buildCtx, typesDir);
   }
 
+  // setAssetPath is only exported from the generated bundles when at least one
+  // component declares assets
+  const hasAssets = buildCtx.components.some(
+    (cmp) => cmp.assetsDirs != null && cmp.assetsDirs.length > 0,
+  );
+
   // Generate loader.d.ts if loader-bundle output target exists
   const hasLoaderBundle = config.outputTargets.some(isOutputTargetLoaderBundle);
   if (hasLoaderBundle) {
-    await generateLoaderTypes(compilerCtx, typesDir);
+    await generateLoaderTypes(compilerCtx, typesDir, hasAssets);
   }
 
   // Generate standalone.d.ts if standalone output target exists
   const hasStandalone = config.outputTargets.some(isOutputTargetStandalone);
   if (hasStandalone) {
-    await generateStandaloneApiTypes(compilerCtx, typesDir);
+    await generateStandaloneApiTypes(compilerCtx, typesDir, hasAssets);
   }
 };
 
@@ -94,8 +100,13 @@ const generateTypesOutput = async (
  *
  * @param compilerCtx the current compiler context
  * @param typesDir the directory to write the loader.d.ts file to
+ * @param hasAssets whether any component declares assets, matching whether setAssetPath is actually exported
  */
-const generateLoaderTypes = async (compilerCtx: d.CompilerCtx, typesDir: string): Promise<void> => {
+const generateLoaderTypes = async (
+  compilerCtx: d.CompilerCtx,
+  typesDir: string,
+  hasAssets: boolean,
+): Promise<void> => {
   const loaderDtsContent = `export * from './components';
 export interface CustomElementsDefineOptions {
   exclude?: string[];
@@ -131,7 +142,21 @@ export type TagTransformer = (tag: string) => string;
  * Useful for namespacing (e.g. \`my-button\` → \`acme-button\`) in multi-library pages.
  */
 export declare function setTagTransformer(transformer: TagTransformer): void;
-`;
+${
+  hasAssets
+    ? `
+/**
+ * Used to manually set the base path where component assets can be found. The
+ * default is relative to this module's own location, which may not hold once a
+ * bundler relocates it, or once its CDN URL diverges from the assets' own -
+ * import and call this before the module's default has been used to override it.
+ * @param path the asset path to set
+ * @returns the set path
+ */
+export declare function setAssetPath(path: string): string;
+`
+    : ''
+}`;
 
   const loaderDtsPath = join(typesDir, 'loader.d.ts');
   await compilerCtx.fs.writeFile(loaderDtsPath, loaderDtsContent);
@@ -143,10 +168,12 @@ export declare function setTagTransformer(transformer: TagTransformer): void;
  *
  * @param compilerCtx the current compiler context
  * @param typesDir the directory to write the standalone.d.ts file to
+ * @param hasAssets whether any component declares assets, matching whether setAssetPath is actually exported
  */
 const generateStandaloneApiTypes = async (
   compilerCtx: d.CompilerCtx,
   typesDir: string,
+  hasAssets: boolean,
 ): Promise<void> => {
   const standaloneDtsContent = `/**
  * Used to specify a nonce value that corresponds with an application's CSP.
@@ -180,7 +207,20 @@ export interface SetPlatformOptions {
   rel?: (el: EventTarget, eventName: string, listener: EventListenerOrEventListenerObject, options: boolean | AddEventListenerOptions) => void;
 }
 export declare const setPlatformOptions: (opts: SetPlatformOptions) => void;
-`;
+${
+  hasAssets
+    ? `
+/**
+ * Used to manually set the base path where component assets can be found. The
+ * default is relative to this module's own location, which may not hold once a
+ * consuming bundler relocates it - call this before any component module is imported to override.
+ * @param path the asset path to set
+ * @returns the set path
+ */
+export declare const setAssetPath: (path: string) => string;
+`
+    : ''
+}`;
 
   const standaloneDtsPath = join(typesDir, 'standalone.d.ts');
   await compilerCtx.fs.writeFile(standaloneDtsPath, standaloneDtsContent);
