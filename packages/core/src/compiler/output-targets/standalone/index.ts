@@ -262,12 +262,38 @@ export const addStandaloneInputs = (
   // function on the `bundle` export behavior option
   const exportNames: string[] = [];
 
+  // Compute relative path from standalone dir to assets dir if components have assets. Computed
+  // up front (rather than after the loop below) because it's also injected into every individual
+  // per-component chunk
+  let relativeAssetPath: string | undefined;
+  const hasComponentsWithAssets = components.some(
+    (cmp) => cmp.assetsDirs != null && cmp.assetsDirs.length > 0,
+  );
+  if (hasComponentsWithAssets) {
+    const assetsTarget = config.outputTargets.find(isOutputTargetAssets);
+    if (assetsTarget?.dir && outputTarget.dir) {
+      // Compute relative path and ensure it ends with '/'
+      const rel = relative(outputTarget.dir, assetsTarget.dir);
+      relativeAssetPath = rel.endsWith('/') ? rel : rel + '/';
+    }
+  }
+
   components.forEach((cmp) => {
     const exp: string[] = [];
     const exportName = dashToPascalCase(cmp.tagName);
     const importName = cmp.componentClassName;
     const importAs = `$Cmp${exportName}`;
     const coreKey = `\0${exportName}`;
+
+    // All per-component chunks are written flat into the same directory as '\0core' (see
+    // `entryFileNames`/`chunkFileNames` in `bundleStandalone`), so the same relative path works
+    // from any of them. Exported too, so a consumer who only ever imports this subpath can still
+    // override the default without also having to import the aggregate index.
+    if (relativeAssetPath) {
+      exp.push(`import { setAssetPath } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';`);
+      exp.push(`export { setAssetPath };`);
+      exp.push(`setAssetPath(new URL('${relativeAssetPath}', import.meta.url).href);`);
+    }
 
     if (cmp.isPlain) {
       exp.push(`export { ${importName} as ${exportName} } from '${cmp.sourceFilePath}';`);
@@ -297,20 +323,6 @@ export const addStandaloneInputs = (
     bundleOpts.inputs[cmp.tagName] = coreKey;
     bundleOpts.loader![coreKey] = exp.join('\n');
   });
-
-  // Compute relative path from standalone dir to assets dir if components have assets
-  let relativeAssetPath: string | undefined;
-  const hasComponentsWithAssets = components.some(
-    (cmp) => cmp.assetsDirs != null && cmp.assetsDirs.length > 0,
-  );
-  if (hasComponentsWithAssets) {
-    const assetsTarget = config.outputTargets.find(isOutputTargetAssets);
-    if (assetsTarget?.dir && outputTarget.dir) {
-      // Compute relative path and ensure it ends with '/'
-      const rel = relative(outputTarget.dir, assetsTarget.dir);
-      relativeAssetPath = rel.endsWith('/') ? rel : rel + '/';
-    }
-  }
 
   // Generate the contents of the entry file to be created by the bundler
   bundleOpts.loader!['\0core'] = generateEntryPoint(
