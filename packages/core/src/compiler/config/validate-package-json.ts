@@ -466,11 +466,20 @@ const validatePackageFiles = async (
   buildCtx: d.BuildCtx,
   outputTarget: d.OutputTargetCollection,
 ) => {
+  const actualDistDir = normalizePath(relative(config.rootDir, outputTarget.dir));
+
   if (!Array.isArray(buildCtx.packageJson.files)) {
+    // Without a "files" array (and no .npmignore), `npm publish` falls back to
+    // .gitignore to decide what to include - silently dropping a gitignored dist
+    // directory from the published package.
+    const npmignorePath = join(dirname(config.packageJsonFilePath), '.npmignore');
+    const hasNpmignore = await compilerCtx.fs.access(npmignorePath);
+    if (!hasNpmignore) {
+      const msg = `package.json is missing a "files" array. Without one, "npm publish" falls back to ".gitignore" to decide what to include, which will likely exclude the distribution directory "${actualDistDir}/". Add "files": ["${actualDistDir}/"] to package.json (or add a ".npmignore").`;
+      packageJsonWarn(config, compilerCtx, buildCtx, msg, `"files"`);
+    }
     return;
   }
-
-  const actualDistDir = normalizePath(relative(config.rootDir, outputTarget.dir));
 
   // Check if the files array contains the distribution directory directly,
   // or a parent directory that would include it (e.g., "dist/" covers "dist/collection/")
