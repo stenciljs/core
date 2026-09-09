@@ -3,6 +3,7 @@ import type * as d from '@stencil/core';
 
 import { mockValidatedConfig } from '../../../testing';
 import { mockBuildCtx, mockCompilerCtx } from '../../../testing/compiler';
+import { stubComponentCompilerMeta } from '../../types/_tests_/ComponentCompilerMeta.stub';
 import { validateBuildPackageJson } from '../validate-package-json';
 
 describe('validateBuildPackageJson', () => {
@@ -18,12 +19,15 @@ describe('validateBuildPackageJson', () => {
 
     compilerCtx = mockCompilerCtx(config);
     compilerCtx.fs.accessSync = () => true;
+    compilerCtx.fs.access = async () => true;
 
     buildCtx = mockBuildCtx(config, compilerCtx);
     buildCtx.packageJson = {};
     buildCtx.packageJson.module = 'dist/loader-bundle/index.js';
     buildCtx.packageJson.types = 'dist/types/index.d.ts';
     buildCtx.packageJson.type = 'module';
+    // covers every distributable output dir by default; the "files field" tests below override this
+    buildCtx.packageJson.files = ['dist/'];
   });
 
   it('should not validate when no distributable outputs are configured', async () => {
@@ -553,6 +557,101 @@ describe('validateBuildPackageJson', () => {
 
       const filesWarning = buildCtx.diagnostics.find((d) => d.messageText.includes('"files"'));
       expect(filesWarning).toBeUndefined();
+    });
+
+    it('should warn even without a collection output target (loader-bundle only)', async () => {
+      config.outputTargets = [
+        {
+          type: 'loader-bundle',
+          dir: '/dist/loader-bundle',
+          buildDir: '/dist/loader-bundle',
+          copy: [],
+          empty: true,
+          cjs: false,
+          skipInDev: false,
+        },
+      ];
+      compilerCtx.fs.access = async () => false;
+      delete buildCtx.packageJson.files;
+
+      await validateBuildPackageJson(config, compilerCtx, buildCtx);
+
+      const filesWarning = buildCtx.diagnostics.find((d) => d.messageText.includes('"files"'));
+      expect(filesWarning).toBeDefined();
+      expect(filesWarning?.messageText).toContain('dist/loader-bundle/');
+    });
+
+    it("should list every uncovered distributable directory, not just collection's", async () => {
+      config.outputTargets = [
+        {
+          type: 'loader-bundle',
+          dir: '/dist/loader-bundle',
+          buildDir: '/dist/loader-bundle',
+          copy: [],
+          empty: true,
+          cjs: false,
+          skipInDev: false,
+        },
+        {
+          type: 'types',
+          dir: '/dist/types',
+          empty: true,
+          skipInDev: true,
+        },
+        {
+          type: 'collection',
+          dir: '/dist/collection',
+        },
+      ];
+      // covers collection but not loader-bundle or types
+      buildCtx.packageJson.files = ['dist/collection/'];
+
+      await validateBuildPackageJson(config, compilerCtx, buildCtx);
+
+      const filesWarning = buildCtx.diagnostics.find((d) => d.messageText.includes('"files"'));
+      expect(filesWarning).toBeDefined();
+      expect(filesWarning?.messageText).toContain('dist/loader-bundle/');
+      expect(filesWarning?.messageText).toContain('dist/types/');
+      expect(filesWarning?.messageText).not.toContain('dist/collection/');
+    });
+
+    it('should warn about the assets directory when components have assetsDirs', async () => {
+      config.outputTargets.push({
+        type: 'assets',
+        dir: '/dist/assets',
+        skipInDev: false,
+      });
+      buildCtx.components = [
+        stubComponentCompilerMeta({
+          tagName: 'my-component',
+          assetsDirs: [{ cmpRelativePath: 'assets' }],
+        }),
+      ];
+      compilerCtx.fs.access = async () => false;
+      delete buildCtx.packageJson.files;
+
+      await validateBuildPackageJson(config, compilerCtx, buildCtx);
+
+      const filesWarning = buildCtx.diagnostics.find((d) => d.messageText.includes('"files"'));
+      expect(filesWarning).toBeDefined();
+      expect(filesWarning?.messageText).toContain('dist/assets/');
+    });
+
+    it('should not mention the assets directory when no component has assetsDirs', async () => {
+      config.outputTargets.push({
+        type: 'assets',
+        dir: '/dist/assets',
+        skipInDev: false,
+      });
+      buildCtx.components = [stubComponentCompilerMeta({ tagName: 'my-component' })];
+      compilerCtx.fs.access = async () => false;
+      delete buildCtx.packageJson.files;
+
+      await validateBuildPackageJson(config, compilerCtx, buildCtx);
+
+      const filesWarning = buildCtx.diagnostics.find((d) => d.messageText.includes('"files"'));
+      expect(filesWarning).toBeDefined();
+      expect(filesWarning?.messageText).not.toContain('dist/assets/');
     });
   });
 });
