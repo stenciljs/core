@@ -31,12 +31,6 @@ export const generateLoaderModule = (
     )
     .join('\n');
 
-  // setAssetPath is re-exported so a consumer can override the default relative path, the
-  // same way setTagTransformer already works: `start()` (if autoStart) only kicks off async
-  // work (dynamic per-tag imports, then component upgrade/render, where assets actually get
-  // resolved), so a static `import { setAssetPath } from '.../loader.js'; setAssetPath(...);`
-  // reliably lands before any of that - whether the importer is a bundler or a raw
-  // <script type="module"> tag.
   const assetPathImport = relativeAssetPath
     ? `import { setAssetPath } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';\nexport { setAssetPath };\n`
     : '';

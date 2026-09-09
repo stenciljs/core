@@ -76,8 +76,7 @@ const generateTypesOutput = async (
   }
 
   // setAssetPath is only exported from the generated bundles when at least one
-  // component declares assets - mirrors the runtime codegen in lazy-output.ts
-  // and standalone/index.ts, so the types stay in sync with what's actually exported.
+  // component declares assets
   const hasAssets = buildCtx.components.some(
     (cmp) => cmp.assetsDirs != null && cmp.assetsDirs.length > 0,
   );

@@ -267,14 +267,7 @@ function createEntryModule(cmps: d.ComponentCompilerMeta[]): d.EntryModule {
 const getLazyEntry = (isBrowser: boolean, assetPath?: string, externalRuntime = false): string => {
   const s = new MagicString(``);
   const platformExports = ['setNonce', 'setRegistry', 'setTagTransformer'];
-  // Exported (when there's a path to override) on both builds, same as setTagTransformer.
-  // External build: defineCustomElements() is only invoked whenever the consumer calls it,
-  // well after import, so there's no race at all. Browser build: a static import fully
-  // evaluates this module - including the default setAssetPath call, which runs before the
-  // IIFE's first `await` below - before the importing script's own top-level code runs;
-  // bootstrapLazy() only resumes after that `await`, i.e. at least one microtask later. Either
-  // way, a consumer's own `import { setAssetPath } from '.../index.esm.js'; setAssetPath(...);`
-  // reliably lands before it's needed - exactly like the documented setTagTransformer usage.
+  // Exported (when there's a path to override) on both builds
   if (assetPath) {
     platformExports.push('setAssetPath');
   }
