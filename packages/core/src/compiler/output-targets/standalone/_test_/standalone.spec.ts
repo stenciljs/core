@@ -7,6 +7,7 @@ import { mockBuildCtx, mockCompilerCtx } from '../../../../testing/compiler';
 import { ASSETS, STANDALONE } from '../../../../utils';
 import { BundleOptions } from '../../../bundle/bundle-interface';
 import * as bundleOutputMod from '../../../bundle/bundle-output';
+import { STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID } from '../../../bundle/entry-alias-ids';
 import * as optimizeModuleMod from '../../../optimize/optimize-module';
 import { stubComponentCompilerMeta } from '../../../types/_tests_/ComponentCompilerMeta.stub';
 import { addStandaloneInputs, bundleStandalone } from '../index';
@@ -99,6 +100,40 @@ describe('standalone', () => {
       expect(bundleOpts.loader['\x00core']).toContain('export { setAssetPath };');
     });
 
+    it('is also exported and called from each per-component chunk, not just the aggregate index - the `default` export behavior (tree-shakable subpath imports) never touches the aggregate index at all', () => {
+      const cmpMeta = stubComponentCompilerMeta({
+        assetsDirs: [
+          {
+            absolutePath: '/src/assets',
+            cmpRelativePath: 'assets',
+            originalComponentPath: 'assets',
+          },
+        ],
+      });
+      const config = mockValidatedConfig({
+        outputTargets: [{ type: ASSETS, dir: '/dist/assets' }],
+      });
+      const buildCtx = mockBuildCtx(config);
+      buildCtx.components = [cmpMeta];
+      const bundleOpts: BundleOptions = {
+        id: 'customElements',
+        platform: 'client',
+        inputs: {},
+        loader: {},
+      };
+      const outputTarget: d.OutputTargetStandalone = {
+        type: STANDALONE,
+        dir: '/dist/standalone',
+      };
+      addStandaloneInputs(config, buildCtx, bundleOpts, outputTarget);
+      const perComponentChunk = bundleOpts.loader['\x00StubCmp'];
+      expect(perComponentChunk).toContain(
+        `import { setAssetPath } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';`,
+      );
+      expect(perComponentChunk).toContain('export { setAssetPath };');
+      expect(perComponentChunk).toContain(`setAssetPath(new URL(`);
+    });
+
     it('does not export setAssetPath when no components have assets', () => {
       const cmpMeta = stubComponentCompilerMeta({ assetsDirs: [] });
       const config = mockValidatedConfig();
@@ -117,6 +152,7 @@ describe('standalone', () => {
       };
       addStandaloneInputs(config, buildCtx, bundleOpts, outputTarget);
       expect(bundleOpts.loader['\x00core']).not.toContain('setAssetPath');
+      expect(bundleOpts.loader['\x00StubCmp']).not.toContain('setAssetPath');
     });
   });
 
