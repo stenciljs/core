@@ -60,6 +60,38 @@ describe('outputLazy', () => {
       const entry = getLoaderEntry(vi.mocked(bundleOutput).mock.calls[0], LAZY_EXTERNAL_ENTRY_ID);
       expect(entry).not.toContain('(async () =>');
     });
+
+    it('exports setAssetPath when components have assetsDirs, so a consuming bundler can override the default', async () => {
+      const { config, compilerCtx, buildCtx } = setup([
+        { type: DIST_LAZY, esmDir: '/dist/esm' },
+        { type: ASSETS, dir: '/dist/assets' },
+      ]);
+      buildCtx.components = [
+        stubComponentCompilerMeta({
+          assetsDirs: [
+            {
+              absolutePath: '/src/assets',
+              cmpRelativePath: 'assets',
+              originalComponentPath: 'assets',
+            },
+          ],
+        }),
+      ];
+      await outputLazy(config, compilerCtx, buildCtx);
+
+      const entry = getLoaderEntry(vi.mocked(bundleOutput).mock.calls[0], LAZY_EXTERNAL_ENTRY_ID);
+      expect(entry).toContain(
+        `export { setNonce, setRegistry, setTagTransformer, setAssetPath } from '${STENCIL_CORE_ID}';`,
+      );
+    });
+
+    it('does not export setAssetPath when no components have assets', async () => {
+      const { config, compilerCtx, buildCtx } = setup([{ type: DIST_LAZY, esmDir: '/dist/esm' }]);
+      await outputLazy(config, compilerCtx, buildCtx);
+
+      const entry = getLoaderEntry(vi.mocked(bundleOutput).mock.calls[0], LAZY_EXTERNAL_ENTRY_ID);
+      expect(entry).not.toContain('setAssetPath');
+    });
   });
 
   describe('browser entry', () => {
@@ -119,6 +151,13 @@ describe('outputLazy', () => {
         expect(entry).toContain(`import { setAssetPath } from '${STENCIL_CORE_ID}';`);
         expect(entry).toContain(`setAssetPath(new URL(`);
         expect(entry).toContain(`import.meta.url)).href);`);
+        // exported just like setTagTransformer: a static import fully evaluates this
+        // module - including the default setAssetPath call, which runs before the
+        // IIFE's first `await` - before the importing script's own code runs, so a
+        // consumer can override it via `import {setAssetPath} from '.../index.esm.js'`
+        expect(entry).toContain(
+          `export { setNonce, setRegistry, setTagTransformer, setAssetPath } from '${STENCIL_CORE_ID}';`,
+        );
       });
 
       it('calls setAssetPath before globalScripts and bootstrapLazy', async () => {

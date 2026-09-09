@@ -652,5 +652,27 @@ describe('validateGlobalStyleOutputTarget', () => {
       );
       expect(globalStyleWarning).toBeUndefined();
     });
+
+    it('does not emit warning when explicit input is used and a src/global.css file happens to exist on disk', () => {
+      // config.globalStyle is not set by the user, but the auto-detect convention
+      // would otherwise pick up src/global.css and falsely trigger the "both configured" warning
+      config.globalStyle = undefined;
+      (config.sys as d.CompilerSystem).writeFileSync(join(rootDir, 'src', 'global.css'), '');
+      config.outputTargets = [
+        {
+          type: GLOBAL_STYLE,
+          input: './src/theme.css',
+        },
+      ];
+
+      const { config: validatedConfig, diagnostics } = validateConfig(config, mockLoadConfigInit());
+
+      const warnings = diagnostics.filter((d) => d.level === 'warn');
+      const globalStyleWarning = warnings.find(
+        (w) => w.messageText.includes('globalStyle') && w.messageText.includes('global-style'),
+      );
+      expect(globalStyleWarning).toBeUndefined();
+      expect(validatedConfig.globalStyle).toBeUndefined();
+    });
   });
 });

@@ -159,7 +159,12 @@ const generateStandaloneTypesOutput = async (
         ? outputTarget.autoLoader.fileName || 'loader'
         : 'loader';
     const loaderDtsPath = join(outputTarget.dir!, `${loaderFileName}.d.ts`);
-    const loaderDtsCode = generateLoaderType();
+    // matches the hasComponentsWithAssets check in addStandaloneInputs, which decides
+    // whether setAssetPath is actually exported from the generated loader module
+    const hasAssets = buildCtx.components.some(
+      (cmp) => cmp.assetsDirs != null && cmp.assetsDirs.length > 0,
+    );
+    const loaderDtsCode = generateLoaderType(hasAssets);
     await compilerCtx.fs.writeFile(loaderDtsPath, loaderDtsCode, {
       outputTargetType: outputTarget.type,
     });
@@ -168,9 +173,10 @@ const generateStandaloneTypesOutput = async (
 
 /**
  * Generate a type declaration file for the auto-loader module
+ * @param hasAssets whether any component declares assets, matching whether setAssetPath is actually exported
  * @returns the contents of the type declaration file for the loader
  */
-const generateLoaderType = (): string => {
+const generateLoaderType = (hasAssets: boolean): string => {
   return [
     `/**`,
     ` * Start the auto-loader, scanning the DOM and watching for changes.`,
@@ -185,6 +191,19 @@ const generateLoaderType = (): string => {
     ` */`,
     `export declare function stop(): void;`,
     ``,
+    ...(hasAssets
+      ? [
+          `/**`,
+          ` * Used to manually set the base path where component assets can be found. The`,
+          ` * default is relative to this module's own location, which may not hold once a`,
+          ` * consuming bundler relocates it - call this before start() to override.`,
+          ` * @param path the asset path to set`,
+          ` * @returns the set path`,
+          ` */`,
+          `export declare function setAssetPath(path: string): string;`,
+          ``,
+        ]
+      : []),
   ].join('\n');
 };
 

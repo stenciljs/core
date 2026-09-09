@@ -9,7 +9,7 @@ import {
 } from '@stencil/core';
 
 import { createNodeLogger, createNodeSys } from '../../sys/node';
-import { isBoolean, isString, sortBy, STYLE_EXT } from '../../utils';
+import { isBoolean, isOutputTargetGlobalStyle, isString, sortBy, STYLE_EXT } from '../../utils';
 import { setBooleanConfig } from './config-utils';
 import { DEFAULT_DEV_MODE } from './constants';
 import { validateOutputTargets } from './outputs';
@@ -104,6 +104,13 @@ export const validateConfig = (
   // Derive sys early — needed for namespace derivation from package.json before the config object is fully formed.
   const sys = config.sys ?? bootstrapConfig.sys ?? createNodeSys({ logger });
 
+  // An explicit `global-style` output target with `input` means the user has taken
+  // control of global styles that way; skip the `globalStyle` auto-detect below so it
+  // doesn't set `config.globalStyle` and trigger a misleading "both configured" warning.
+  const hasExplicitGlobalStyleWithInput = (config.outputTargets || []).some(
+    (o) => isOutputTargetGlobalStyle(o) && isString(o.input),
+  );
+
   // Auto-detect global style / script if not explicitly configured.
   // Checks src/global.{css,scss,sass} and src/global.{ts,js} respectively.
   if (
@@ -119,7 +126,7 @@ export const validateConfig = (
           : join(preRootDir, config.srcDir)
         : join(preRootDir, 'src');
 
-    if (!isString(config.globalStyle)) {
+    if (!isString(config.globalStyle) && !hasExplicitGlobalStyleWithInput) {
       for (const ext of STYLE_EXT) {
         const candidate = join(srcDir, `global.${ext}`);
         if (sys.accessSync(candidate)) {

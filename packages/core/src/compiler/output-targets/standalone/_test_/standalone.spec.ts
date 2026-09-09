@@ -4,7 +4,7 @@ import type * as d from '@stencil/core';
 
 import { mockValidatedConfig } from '../../../../testing';
 import { mockBuildCtx, mockCompilerCtx } from '../../../../testing/compiler';
-import { STANDALONE } from '../../../../utils';
+import { ASSETS, STANDALONE } from '../../../../utils';
 import { BundleOptions } from '../../../bundle/bundle-interface';
 import * as bundleOutputMod from '../../../bundle/bundle-output';
 import * as optimizeModuleMod from '../../../optimize/optimize-module';
@@ -66,6 +66,58 @@ describe('standalone', () => {
     expect(bundleOpts.loader['\x00core']).toContain(
       `export { MyTag, defineCustomElement as defineCustomElementMyTag } from '\x00MyTag';\n`,
     );
+  });
+
+  describe('asset path', () => {
+    it('exports setAssetPath so a consuming bundler can override the default when components have assets', () => {
+      const cmpMeta = stubComponentCompilerMeta({
+        assetsDirs: [
+          {
+            absolutePath: '/src/assets',
+            cmpRelativePath: 'assets',
+            originalComponentPath: 'assets',
+          },
+        ],
+      });
+      const config = mockValidatedConfig({
+        outputTargets: [{ type: ASSETS, dir: '/dist/assets' }],
+      });
+      const buildCtx = mockBuildCtx(config);
+      buildCtx.components = [cmpMeta];
+      const bundleOpts: BundleOptions = {
+        id: 'customElements',
+        platform: 'client',
+        inputs: {},
+        loader: {},
+      };
+      const outputTarget: d.OutputTargetStandalone = {
+        type: STANDALONE,
+        dir: '/dist/standalone',
+        customElementsExportBehavior: 'single-export-module',
+      };
+      addStandaloneInputs(config, buildCtx, bundleOpts, outputTarget);
+      expect(bundleOpts.loader['\x00core']).toContain('export { setAssetPath };');
+    });
+
+    it('does not export setAssetPath when no components have assets', () => {
+      const cmpMeta = stubComponentCompilerMeta({ assetsDirs: [] });
+      const config = mockValidatedConfig();
+      const buildCtx = mockBuildCtx(config);
+      buildCtx.components = [cmpMeta];
+      const bundleOpts: BundleOptions = {
+        id: 'customElements',
+        platform: 'client',
+        inputs: {},
+        loader: {},
+      };
+      const outputTarget: d.OutputTargetStandalone = {
+        type: STANDALONE,
+        dir: '/dist/standalone',
+        customElementsExportBehavior: 'single-export-module',
+      };
+      addStandaloneInputs(config, buildCtx, bundleOpts, outputTarget);
+      expect(bundleOpts.loader['\x00core']).not.toContain('setAssetPath');
+    });
   });
 
   describe('minification', () => {

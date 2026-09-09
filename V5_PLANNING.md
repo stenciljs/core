@@ -600,6 +600,7 @@ If picked up later: prototype the compiler-owned aggregation step first (the act
 
 ## Known Test Coverage Gaps
 - `validatePublicName` (`compiler/transformers/reserved-public-members.ts`) has no dedicated unit tests - only its event-name counterpart (`compat.suppressEventNameWarnings`, tested in `parse-events.spec.ts`) is covered.
+- `generate-types.ts`'s hand-written `.d.ts` template strings (`generateLoaderTypes`, `generateStandaloneApiTypes`) have no unit tests at all - nothing catches the type declarations drifting out of sync with what the corresponding JS entry actually exports (e.g. the `setAssetPath` gap fixed alongside this note). Not infra-blocked - a real end-to-end `compiler.build()` test (`devMode: false` to trigger types output) confirmed `dist/types/loader.d.ts` is produced and readable in the test FS; a proper test just hasn't been written yet.
 
 ---
 
