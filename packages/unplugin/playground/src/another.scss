@@ -1,0 +1,14 @@
+.btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 1.25rem;
+  line-height: 1;
+  border: 2px solid #5c6ac4;
+  background: hsl(0, 0%, 100%);
+  color: #5c6ac4;
+  border-radius: 50%;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}

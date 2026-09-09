@@ -4,10 +4,339 @@ This is a comprehensive list of the breaking changes introduced in the major ver
 
 ## Versions
 
+- [Stencil 5.x](#stencil-v500)
 - [Stencil 4.x](#stencil-v400)
 - [Stencil 3.x](#stencil-v300)
 - [Stencil 2.x](#stencil-two)
 - [Stencil 1.x](#stencil-one)
+
+## Stencil v5.0.0
+
+Stencil recently had its 10th birthday - this release is a consolidation, organization, and deprecation pass to pay down 10 years of technical debt. Most changes have an automatic migration path via `stencil migrate` (run `stencil migrate --dry-run` to preview changes before applying them).
+
+- [General Changes](#general-changes)
+  - [Integrated Testing Removed](#integrated-testing-removed)
+  - [`@Component` API: `encapsulation` Replaces `shadow` / `scoped` / `formAssociated`](#component-api-encapsulation-replaces-shadow--scoped--formassociated)
+  - [Stencil's Own Package Is Now Pure ESM](#stencils-own-package-is-now-pure-esm)
+  - [`loader-bundle` and `ssr` No Longer Generate CommonJS by Default](#loader-bundle-and-ssr-no-longer-generate-commonjs-by-default)
+  - [ES5 Builds & Legacy Polyfills Removed](#es5-builds--legacy-polyfills-removed)
+  - [`scriptDataOpts` and Legacy `patchBrowser` Removed](#scriptdataopts-and-legacy-patchbrowser-removed)
+  - [Internal Package Restructuring](#internal-package-restructuring)
+  - [`openBrowser` Defaults to `false`](#openbrowser-defaults-to-false)
+  - [`@Watch` Handlers No Longer Fire Before the Component Has Rendered](#watch-handlers-no-longer-fire-before-the-component-has-rendered)
+  - [`componentShouldUpdate` Batching](#componentshouldupdate-batching)
+  - [Rollup Replaced with Rolldown](#rollup-replaced-with-rolldown)
+  - [JSX Types](#jsx-types)
+  - [`extras` Renamed to `compat`](#extras-renamed-to-compat)
+  - [Collection Importing / Re-bundling](#collection-importing--re-bundling)
+- [Output Target Changes](#output-target-changes)
+  - [Core Output Targets Renamed](#core-output-targets-renamed)
+  - [`ssr` Output Target (formerly `dist-hydrate-script`)](#ssr-output-target-formerly-dist-hydrate-script)
+  - [`standalone`: `externalRuntime` Defaults to `false`](#standalone-externalruntime-defaults-to-false)
+  - [`www`: `serviceWorker` Defaults to `null`](#www-serviceworker-defaults-to-null)
+  - [`hashFileNames` / `hashedFileNameLength` Moved to Output Targets](#hashfilenames--hashedfilenamelength-moved-to-output-targets)
+  - [Global Styles & Assets Modernized](#global-styles--assets-modernized)
+  - [Output File Extensions Modernized](#output-file-extensions-modernized)
+- [Configuration](#configuration)
+  - [`buildDist` and `buildDocs` Removed](#builddist-and-builddocs-removed)
+  - [`--prod` Flag and `devMode` Config Removed](#--prod-flag-and-devmode-config-removed)
+  - [Ambient Asset Imports Require a `?stencil` Suffix](#ambient-asset-imports-require-a-stencil-suffix)
+  - [`docs-readme` No Longer Auto-Injected](#docs-readme-no-longer-auto-injected)
+- [Compiler API](#compiler-api)
+  - [`@stencil/core/compiler` No Longer Wildcard-Exports `stencil-private`](#stencilcorecompiler-no-longer-wildcard-exports-stencil-private)
+
+### General Changes
+
+#### Integrated Testing Removed
+
+Stencil's integrated `--spec` (Jest) and `--e2e` (Puppeteer) testing has been removed, along with the `stencil test` CLI task. This coupling required Stencil to ship a custom Jest environment per major Jest version, reached into Stencil's internals to bootstrap components (which never fully supported `extends`/Mixin), and hard-baked e2e testing to Puppeteer.
+
+To migrate:
+- For `--spec`-style unit tests, use [`@stencil/vitest`](https://github.com/stenciljs/vitest). It has a similar API to the previous Jest integration, but lets you test against different bundles/outputs, test in a real browser (accessibility, visual regressions, etc.), and pick your own DOM implementation (e.g. happy-dom, JSDOM) instead of being locked to Stencil's `MockDoc`.
+- For `--e2e`-style tests, many library authors actually want isolated *component* tests that happen to run in a browser - `@stencil/vitest` covers this too. For true end-to-end tests (routing, full applications, onload initialization, SSR), use [`@stencil/playwright`](https://github.com/stenciljs/playwright).
+
+#### `@Component` API: `encapsulation` Replaces `shadow` / `scoped` / `formAssociated`
+
+The `shadow`, `scoped`, and `formAssociated` properties on the `@Component()` decorator have been consolidated into a single `encapsulation` property:
+
+```diff
+@Component({
+  tag: 'my-component',
+- shadow: { delegatesFocus: true },
+- formAssociated: true,
++ encapsulation: { type: 'shadow', delegatesFocus: true },
+})
+```
+
+```ts
+type Encapsulation =
+  | {
+      type: 'shadow';
+      mode?: 'open' | 'closed';
+      delegatesFocus?: boolean;
+      slotAssignment?: 'manual' | 'named';
+      clonable?: boolean;
+      serializable?: boolean;
+    }
+  | { type: 'scoped'; patches?: ('all' | 'children' | 'clone' | 'insert')[] }
+  | { type: 'none'; patches?: ('all' | 'children' | 'clone' | 'insert')[] };
+```
+
+- `shadow: true` → `encapsulation: { type: 'shadow' }`
+- `scoped: true` → `encapsulation: { type: 'scoped' }`
+- No encapsulation (default) → `encapsulation: { type: 'none' }` (the property may be omitted entirely - `'none'` is the default)
+- `formAssociated: true` → use the `@AttachInternals()` decorator instead, which automatically sets `formAssociated: true`. To use `@AttachInternals` without form association, use `@AttachInternals({ formAssociated: false })`.
+- **New:** `encapsulation: { type: 'shadow', mode: 'closed' }` enables closed shadow DOM.
+- **New:** per-component slot patches via `encapsulation: { type: 'scoped', patches: [...] }` (previously only settable globally).
+- **New:** `encapsulation: { type: 'shadow', clonable: true }` preserves the shadow root when the host is deep-cloned via `Node.cloneNode(true)` (without it, cloning a shadow host produces an empty shell).
+- **New:** `encapsulation: { type: 'shadow', serializable: true }` marks the shadow root serializable, so it's included when the host is serialized via `Element.getHTML({ serializableShadowRoots: true })`.
+
+Run `stencil migrate --dry-run` to preview the automatic migration, or `stencil migrate` to apply it. Running `stencil build` when there are pending migrations will raise a warning and invite you to run migrations before continuing.
+
+#### Stencil's Own Package Is Now Pure ESM
+
+Stencil's own internal source - the compiler, CLI, and dev server - has moved from CommonJS to ESM. Every subpath in `@stencil/core`'s `package.json` `exports` map now declares only an `import` condition, with no `require` fallback, so `require('@stencil/core/...')` fails to resolve regardless of Node.js version.
+
+#### `loader-bundle` and `ssr` No Longer Generate CommonJS by Default
+
+The `loader-bundle` and `ssr` output targets no longer generate CommonJS bundles by default - CJS output is now opt-in.
+
+To migrate, add `cjs: true` to any `loader-bundle` or `ssr` output target that still needs CommonJS output:
+
+```diff
+outputTargets: [
+  {
+    type: 'loader-bundle',
++   cjs: true,
+  },
+]
+```
+
+#### ES5 Builds & Legacy Polyfills Removed
+
+All ES5/SystemJS output and the associated legacy browser polyfills/shims have been removed. Stencil now targets ES2017+ only; IE11 and Edge 18 and below are no longer supported.
+
+To migrate:
+- Remove any imports of and calls to `applyPolyfills()` from your `loader-bundle` output.
+- Remove the `buildEs5` config option from `stencil.config.ts`.
+- Remove any of `extras.__deprecated__cssVarsShim`, `extras.__deprecated__dynamicImportShim`, `extras.__deprecated__safari10`, `extras.__deprecated__shadowDomShim` (already deprecated as of v4) from `stencil.config.ts`.
+
+#### `scriptDataOpts` and Legacy `patchBrowser` Removed
+
+The deprecated `scriptDataOpts` option (which had the runtime scan the `<script>` tag that loaded the bundle for a `data-opts`/`data-stencil-namespace` attribute to source bootstrap options) and the legacy `patchBrowser()` client bootstrap path it lived on (which also carried an IE11-era `cloneNode()` polyfill for slot-polyfilled components) have been removed entirely, with no replacement.
+
+To migrate, remove any `<script data-opts="...">` attributes and any `scriptDataOpts` config option - they no longer have any effect.
+
+#### Internal Package Restructuring
+
+A number of internal import paths have moved, either as part of the mono-repo restructure or the CJS-to-ESM migration:
+
+- `@stencil/core/internal` → `@stencil/core/runtime`
+- `@stencil/core/internal/client` → `@stencil/core/runtime/client`
+- `@stencil/core/internal/hydrate` → `@stencil/core/runtime/server`
+- `@stencil/core/cli` → `@stencil/cli`
+- `@stencil/core/dev-server` → `@stencil/dev-server`
+- `@stencil/core/mock-doc` → `@stencil/mock-doc`
+
+#### `openBrowser` Defaults to `false`
+
+The dev server no longer opens a browser tab automatically.
+
+To migrate, if you relied on the previous auto-open behavior, pass `--open` on the CLI or set `openBrowser: true` in your `devServer` config. If you were previously passing `--no-open` to suppress this, it's no longer necessary and can be removed.
+
+#### `@Watch` Handlers No Longer Fire Before the Component Has Rendered
+
+Per [Stencil's documented lifecycle](https://stenciljs.com/docs/component-lifecycle#component-lifecycle-methods), `@Watch()` handlers should not fire until a component has fully rendered for the first time. Previously - especially in the `loader-bundle` output - watch methods could be called during earlier lifecycle stages. In v5, `@Watch` now adheres to the documented behavior. This is technically a bug fix, but the previous behavior was long-standing enough that some codebases may have come to rely on it.
+
+To migrate, if you need a watcher to run before the component has finished rendering, call it manually from an earlier lifecycle method, or use `@Watch('propName', { immediate: true })`.
+
+#### `componentShouldUpdate` Batching
+
+`componentShouldUpdate` now fires once per render cycle instead of once per changed `@Prop`/`@State` member. The callback signature changed from `(newVal, oldVal, propName)` to a single `changes` argument - a map of every prop/state name that changed since the last render to its `{ newVal, oldVal }`:
+
+```diff
+- componentShouldUpdate(newVal, oldVal, propName) {
+-   if (propName === 'prop1' && newVal === oldVal) {
+-     return false;
+-   }
+- }
++ componentShouldUpdate(changes) {
++   if (changes['prop1'] && changes['prop1'].newVal === changes['prop1'].oldVal) {
++     return false;
++   }
++ }
+```
+
+For stricter per-prop typing, use the new `ComponentShouldUpdateChanges<this>` type:
+
+```ts
+componentShouldUpdate(changes: ComponentShouldUpdateChanges<this>) {
+  if (changes['prop1']?.newVal === changes['prop1']?.oldVal) {
+    return false;
+  }
+}
+```
+
+A compiler warning is now raised if `componentShouldUpdate` is declared with more than one parameter.
+
+#### Rollup Replaced with Rolldown
+
+Rollup has been replaced with [Rolldown](https://rolldown.rs/) as Stencil's bundler. Any `rollup*`-prefixed configuration in `stencil.config.ts` has been renamed to `rolldown*` (e.g. `rollupConfig` → `rolldownConfig`).
+
+To migrate, run `stencil migrate` to rename these fields automatically. A number of previously supported Rollup options have no Rolldown equivalent and will be removed; others have new names and will be renamed. If you reference Rollup types or internals directly, check the [Rolldown documentation](https://rolldown.rs/) for the closest equivalent.
+
+#### JSX Types
+
+`JSX.Element` was previously left undefined in the `h` namespace, which caused TypeScript to silently fall back to `any` for JSX expressions (surfacing as `no-unsafe-return` errors under strict `@typescript-eslint` configs). Three related type-level changes:
+
+| Type                  | Was                          | Now                  |
+| ---------------------- | ----------------------------- | --------------------- |
+| `h.JSX.Element`         | (undefined / fell back to `any`) | `VNode`             |
+| `Host` / `Fragment`     | `FunctionalComponent<...>`    | `(props) => VNode`    |
+| `FunctionalComponent`'s return type | `VNode \| VNode[] \| null` | `VNode \| null` |
+
+These are type-only changes with no runtime impact. If you have a `FunctionalComponent<T>` that returns an array (e.g. via `utils.map`), wrap the result in a fragment:
+
+```diff
+- const MyList: FunctionalComponent<Props> = (props, children, utils) => utils.map(children, transform);
++ const MyList: FunctionalComponent<Props> = (props, children, utils) => <>{utils.map(children, transform)}</>;
+```
+
+#### `extras` Renamed to `compat`
+
+The `extras` section of `stencil.config.ts` has been renamed to `compat`. Within it:
+
+- `experimentalSlotFixes` (and the individual `slotChildNodesFix`, `scopedSlotTextContentFix`, `appendChildSlotFix` flags) have been consolidated into a single `lightDomPatches` option:
+  ```ts
+  lightDomPatches?: boolean | {
+    slotChildNodes: boolean,
+    slotCloneNode: boolean,
+    slotDomMutations: boolean,
+    slotTextContent: boolean,
+  };
+  ```
+  `lightDomPatches` is `true` by default, but is only bundled into a build if light DOM components with slots are actually used. The `insertAdjacentText`/`insertAdjacentElement` patched methods have been removed entirely to save runtime bytes.
+- `enableImportInjection` was previously opt-in; it is now opt-out (defaults to `true`).
+- The deprecated `tagNameTransform`, `experimentalImportInjection`, and `experimentalScopedSlotChanges` options have been removed. Any functionality previously unique to `experimentalScopedSlotChanges` is now covered by the `lightDomPatches` options above.
+- `suppressReservedPublicNameWarnings` / `suppressReservedEventNameWarnings` are renamed to `compat.suppressPublicNameWarnings` / `compat.suppressEventNameWarnings`.
+
+To migrate, run `stencil migrate` - it will rename `extras` to `compat` and migrate the explicit `*Fix` options automatically.
+
+#### Collection Importing / Re-bundling
+
+In v4, importing *any* module/utility/type from a third-party Stencil-built library would re-bundle the *entire* library, even though this was never documented (only importing as a side effect, e.g. `import '@ionic/core'`, was documented). This implicit behavior is no longer supported.
+
+To migrate, choose one of:
+1. Import the library as a documented side effect: `import '@ionic/core'`.
+2. Add the library to a new top-level `collections: string[]` config option in `stencil.config.ts`.
+
+### Output Target Changes
+
+#### Core Output Targets Renamed
+
+`dist` and `dist-custom-elements` were never obvious about what they produced - the naming reflected historical decisions rather than intent, and `dist-custom-elements` always felt like an afterthought (missing features like global styles that `dist` had). In v5 the two are equally-weighted, clearly-named output targets, and previously-implicit sub-outputs are now explicit, first-class output targets in their own right:
+
+| Was                              | Now                | Default directory      |
+| ---------------------------------- | -------------------- | ------------------------- |
+| `dist`                            | `loader-bundle`      | `dist/loader-bundle/`     |
+| `dist-custom-elements`            | `standalone`         | `dist/standalone/`        |
+| `dist-hydrate-script`             | `ssr`                | `dist/ssr/`                |
+| (implicit sub-output of `dist`)    | `types` *(new, optional, auto-generated in production)* | `dist/types/`      |
+| (implicit sub-output of `dist`)    | `collection` *(new, optional, auto-generated in production)* | `dist/collection/` |
+
+Additional related changes:
+- `dist.typesDir` removed - use `types.dir`.
+- `dist.collectionsDir` removed - use `collection.dir`.
+- `collectionDir` and `typesDir` removed from `loader-bundle` config entirely.
+- `dist-custom-elements.isPrimaryPackageOutputTarget` removed - choose your own default export in `package.json` (CLI hints will guide you based on your configured outputs). `validatePrimaryPackageOutputTarget` config option renamed to `validatePackageJson`.
+- `dist-custom-elements.generateTypeDeclarations` removed - types are now always generated and written to `types.dir`.
+- `dist.esmLoaderPath` renamed to `loaderPath` - and its path is now calculated relative to `dist/loader-bundle` instead of `dist` (use `loaderPath: '../'` to reproduce the old resolved path).
+- Export map generation now uses smart defaults: `loader-bundle` takes priority over `standalone` for the root package export, and types always come from the `types` output target.
+
+To migrate, `stencil migrate` detects the deprecated output target types and config options and rewrites them automatically. Afterwards, double check your `package.json` `exports`/`main`/`module` fields against the new default directories - you may need to set an explicit `dir` on an output target to preserve an old path, or set `buildDir: '../'` on `loader-bundle` if you want its CDN-facing path to remain at the project's `dist/` root rather than `dist/loader-bundle/`.
+
+#### `ssr` Output Target (formerly `dist-hydrate-script`)
+
+Beyond the rename covered above:
+
+- The output no longer writes a `package.json` file. Expose the SSR script via `exports` in your library's own `package.json` instead.
+- The default script is now ESM (`index.js`); CommonJS is opt-in via `cjs: true` and outputs as `index.cjs` (previously `hydrate.js`/`hydrate.cjs.js`).
+- The exported `hydrateDocument` function is renamed to `ssrDocument` (`hydrateDocument` remains exported, marked `@deprecated`).
+- Config options prefixed `*Hydrate` are renamed to `*Ssr`: `beforeHydrate`/`afterHydrate` → `beforeSsr`/`afterSsr` (the old names remain exported, marked `@deprecated`).
+- To make the output runtime-agnostic (not just Node.js), `streamToString()`'s return type changed from Node.js `Readable` to the web-standard `ReadableStream<string>`, which works in Node 22+, Cloudflare Workers, Deno, Bun, and other WinterCG runtimes.
+
+#### `standalone`: `externalRuntime` Defaults to `false`
+
+`externalRuntime` (on the output target formerly known as `dist-custom-elements`) now defaults to `false` - component bundles are self-contained by default, with the runtime included as a local shared chunk rather than left as an external `@stencil/core/runtime/client` import.
+
+To migrate, set `externalRuntime: true` if you need multiple Stencil component libraries (or components from different libraries) on the same page to share a single runtime instance and avoid shipping it multiple times. Run `stencil migrate` to remove any now-redundant `externalRuntime: false`.
+
+#### `www`: `serviceWorker` Defaults to `null`
+
+The `www` output target's `serviceWorker` option now defaults to `null` (previously it generated a Workbox-powered service worker by default).
+
+To migrate, set `serviceWorker: true` to restore automatic service worker generation. Run `stencil migrate` to remove any now-redundant `serviceWorker: null`.
+
+#### `hashFileNames` / `hashedFileNameLength` Moved to Output Targets
+
+These were previously top-level `stencil.config.ts` options, but only make sense for output targets that are loaded directly in the browser/CDN and have a single entry point. They've moved onto the `loader-bundle` and `www` output targets.
+
+To migrate, run `stencil migrate` to move any explicit values into the appropriate output target(s) automatically.
+
+#### Global Styles & Assets Modernized
+
+`globalStyle` is now backed by its own first-class, configurable `global-style` output target (and multiple `global-style` outputs are now supported). The `extras.addGlobalStyleToComponents` option has been removed in favor of an `inject` property on the output target:
+
+```ts
+{
+  type: 'global-style',
+  inject: 'client', // 'none' (default) | 'client' | 'all'
+}
+```
+
+Similarly, component `assetsDirs` are now backed by a first-class `assets` output target, auto-generated when components declare assets. Both `global-style` and `assets` write into a unified `dist/assets/` location, and `copyAssets` has been removed from the `loader-bundle` and `www` output targets accordingly.
+
+To migrate, run `stencil migrate` - an explicit `extras.addGlobalStyleToComponents` is detected and rewritten into a `global-style` output target with the equivalent `inject` setting.
+
+#### Output File Extensions Modernized
+
+With CJS now a fringe/opt-in requirement, `"type": "module"` is strongly recommended, and file extensions have been standardized: `.esm.js` → `.js`, and (if `cjs: true` is set) `.cjs.js` → `.cjs`.
+
+To migrate, update the relevant fields in your `package.json` to point at the new extensions - Stencil raises a warning when key `package.json` fields point at paths that no longer exist. Note that because the browser-facing `loader-bundle` CDN script is often referenced by URLs outside of your control, the old `NAMESPACE.esm.js` / `index.esm.js` entry points are **not** removed - it's kept as a permanent forwarding module.
+
+### Configuration
+
+#### `buildDist` and `buildDocs` Removed
+
+These global config options were unclear in intent, quite blunt (e.g. `buildDocs` forced *all* docs outputs to build during dev), and inconsistent with how other flags controlled build output. They've been replaced with a per-output-target `skipInDev: boolean` option, giving granular control over what builds during `--dev`. By default, everything is `skipInDev: true` except the browser bundle (`loader-bundle`/`www`).
+
+To migrate, run `stencil migrate` - it detects `buildDist`/`buildDocs` and rewrites your config automatically.
+
+#### `--prod` Flag and `devMode` Config Removed
+
+The `--prod` CLI flag has been removed - it was redundant, since production builds are already the default without an explicit `--dev` flag. The `devMode` config option has also been removed; opting into a dev build should be explicit and visible on the command line, not hidden in `stencil.config.ts`.
+
+To migrate, remove `--prod` from CLI invocations (harmless no-op, but unnecessary). Use the `--dev` flag instead of `devMode` - `stencil migrate` will remove `devMode` from your config automatically. The `--esm` CLI flag has similarly been removed; configure `skipInDev` on your output targets instead.
+
+#### Ambient Asset Imports Require a `?stencil` Suffix
+
+Ambient asset module declarations (`*.css`, `*.svg`, `*.txt`, `*.frag`, `*.vert`) now require a `?stencil` suffix on the import specifier, e.g. `import styles from './my-styles.css?stencil'`. The previous bare `declare module "*.css"` was a global ambient type shipped by `@stencil/core`, which could silently clash with another package's own (differently-shaped) `*.css` module declaration in a monorepo. The `?stencil` marker disambiguates it, following the same convention already used for `*?worker` and `*?format=url|text`. This is a TypeScript-only change - runtime bundling of bare, non-suffixed asset imports is unaffected.
+
+To migrate, run `stencil migrate` to append `?stencil` to existing raw asset imports automatically.
+
+#### `docs-readme` No Longer Auto-Injected
+
+Previously, the `docs-readme` output target was implicitly added to every non-dev build (a behavior gap inherited from v4's `!config.devMode` check, and briefly made unconditional once `buildDist`/`buildDocs` were removed). It's now purely `outputTargets`-driven, consistent with every other docs target (`docs-json`, `docs-custom`, `docs-vscode`, `docs-custom-elements-manifest`, `docs-agent-skill`) - nothing generates unless `{ type: 'docs-readme' }` is explicitly declared in your config.
+
+To migrate, add `{ type: 'docs-readme' }` to `outputTargets` in `stencil.config.ts` if you were relying on it being generated implicitly. `stencil docs` / `--docs` remain a fast, docs-only rebuild and are unaffected.
+
+### Compiler API
+
+#### `@stencil/core/compiler` No Longer Wildcard-Exports `stencil-private`
+
+`@stencil/core/compiler` previously re-exported everything from `declarations/stencil-private.ts` via `export *`, which mixed genuinely compiler-facing types with runtime-internal ones (`HostElement`, `HostRef`, `RenderNode`, `PlatformRuntime`, `VNodeProdData`, SSR/worker internals) onto the public API surface. Only the subset actually consumed downstream is now re-exported by name: `ComponentCompilerMeta`, `ComponentCompilerTypeReferences`, `LazyBundlesRuntimeData`, `PackageJsonData`, `PrintLine`, `SsrResults`.
+
+To migrate, if you were relying on the public host-element type for `componentOnReady()` or similar, use `HTMLStencilElement` from `@stencil/core/runtime` instead - it's the intentionally-narrow public counterpart to the internal `HostElement`.
 
 ## Stencil v4.0.0
 

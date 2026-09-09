@@ -1,8 +1,0 @@
-{
-  "name": "@stencil/jest-spec-runner",
-  "private": true,
-  "scripts": {
-    "build": "node ../../bin/stencil build",
-    "test": "node ../../bin/stencil test --spec"
-  }
-}

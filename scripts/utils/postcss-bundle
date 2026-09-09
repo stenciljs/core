@@ -1,8 +1,0 @@
-#!/bin/bash
-
-cd ../build
-#rm -rf ./postcss
-#git clone https://github.com/postcss/postcss.git --depth 1
-cd ../..
-echo $PWD
-./node_modules/.bin/rollup -c ./scripts/utils/postcss-rollup.js

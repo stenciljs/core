@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stencil Unplugin Playground</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 720px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        color: #222;
+      }
+      h1 {
+        margin-bottom: 0.25rem;
+      }
+      p.hint {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+      }
+      hr {
+        border: none;
+        border-top: 1px solid #ddd;
+        margin: 2rem 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Stencil Unplugin Playground</h1>
+    <p class="hint">
+      Edit files in <code>playground/src/</code> and watch HMR update below without a full page
+      reload. Component state (the counter value) is preserved across template edits.
+    </p>
+
+    <h2>Counter</h2>
+    <my-counter></my-counter>
+
+    <h2>Scoped Counter</h2>
+    <my-scoped></my-scoped>
+
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>

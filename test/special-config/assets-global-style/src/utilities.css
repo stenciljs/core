@@ -1,0 +1,13 @@
+/* Utility styles for multi-global-style test */
+.u-hidden {
+  display: none !important;
+}
+
+.u-flex {
+  display: flex;
+}
+
+.u-center {
+  align-items: center;
+  justify-content: center;
+}

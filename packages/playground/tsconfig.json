@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "declaration": false,
+    "strictPropertyInitialization": false,
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ESNext", "DOM"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "@stencil/core",
+    "experimentalDecorators": true,
+    "resolveJsonModule": true,
+    "types": []
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}

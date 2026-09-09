@@ -1,0 +1,38 @@
+# my-button
+
+## Overview
+
+A clickable button component.
+
+## Properties
+
+| Property  | Attribute | Description                | Type                       | Default     |
+| --------- | --------- | -------------------------- | -------------------------- | ----------- |
+| `variant` | `variant` | The button's visual style. | `"primary" \| "secondary"` | `'primary'` |
+
+
+## Events
+
+| Event           | Description                         | Type                |
+| --------------- | ----------------------------------- | ------------------- |
+| `myButtonClick` | Emitted when the button is clicked. | `CustomEvent<void>` |
+
+
+## Slots
+
+| Slot | Description      |
+| ---- | ---------------- |
+|      | The default slot |
+
+
+## Usage
+
+### Example-1
+
+# Basic Usage
+
+```html
+<my-button variant="primary">Click me</my-button>
+```
+
+

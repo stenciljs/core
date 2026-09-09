@@ -1,0 +1,68 @@
+:host {
+  display: block;
+  min-height: 400px;
+  border: 1px solid #333;
+  border-radius: 6px;
+  container-type: inline-size;
+  min-width: 320px;
+}
+
+.layout {
+  display: grid;
+  /* Explicit `320px` floor, not bare `1fr` (which defaults to `minmax(auto, 1fr)`): the `auto`
+     part tracks each column's content min-width regardless of `min-width: 0` on the items, and
+     Monaco's DOM has a real min-content width that would otherwise dictate an uneven split.
+     Below 640px (2 * 320px) this is overridden entirely - see the container query. */
+  grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr);
+  grid-template-rows: 1fr auto auto;
+  min-height: inherit;
+  border-radius: inherit;
+}
+
+stencil-playground-editor,
+stencil-playground-preview {
+  min-width: 0;
+  min-height: 0;
+}
+
+.diagnostics,
+.preview-error {
+  grid-column: 1 / -1;
+  max-height: 8rem;
+  overflow: auto;
+  padding: 0.5rem 0.75rem;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+}
+
+.diagnostics {
+  background: #2a1215;
+  color: #f5a3a3;
+}
+
+.preview-error {
+  background: #2a2012;
+  color: #f5cfa3;
+}
+
+/* Below 640px, the columns can no longer both stay at their 320px floor - stack the preview
+   underneath the editor instead of letting them keep shrinking past it. */
+@container (max-width: 640px) {
+  :host {
+    height: auto;
+  }
+
+  .layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  stencil-playground-editor {
+    height: 300px;
+  }
+
+  stencil-playground-preview {
+    height: 200px;
+  }
+}

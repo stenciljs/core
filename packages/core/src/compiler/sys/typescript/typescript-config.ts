@@ -1,0 +1,212 @@
+import { isAbsolute } from 'path';
+import ts from 'typescript';
+import type * as d from '@stencil/core';
+
+import {
+  buildError,
+  buildWarn,
+  catchError,
+  getComponentsDtsSrcFilePath,
+  isString,
+  join,
+  loadTypeScriptDiagnostic,
+  normalizePath,
+  relative,
+} from '../../../utils';
+
+export const validateTsConfig = async (config: d.ValidatedConfig, sys: d.CompilerSystem) => {
+  const tsconfig = {
+    path: '',
+    compilerOptions: {} as ts.CompilerOptions,
+    watchOptions: {} as ts.WatchOptions,
+    files: [] as string[],
+    include: [] as string[],
+    exclude: [] as string[],
+    extends: '',
+    diagnostics: [] as d.Diagnostic[],
+  };
+
+  try {
+    const readTsConfig = await getTsConfigPath(config, sys);
+    if (!readTsConfig) {
+      const diagnostic = buildError(tsconfig.diagnostics);
+      diagnostic.header = `Missing tsconfig.json`;
+      diagnostic.messageText = `Unable to load TypeScript config file. Please create a "tsconfig.json" file within the "${config.rootDir}" directory.`;
+    } else {
+      tsconfig.path = readTsConfig.path;
+      const host: ts.ParseConfigFileHost = {
+        ...ts.sys,
+        readFile: (p) => {
+          if (p === tsconfig.path) {
+            return readTsConfig.content;
+          }
+          return sys.readFileSync(p);
+        },
+        readDirectory: (p) => sys.readDirSync(p),
+        fileExists: (p) => sys.accessSync(p),
+        onUnRecoverableConfigFileDiagnostic: (e: any) => console.error(e),
+      };
+
+      const results = ts.getParsedCommandLineOfConfigFile(tsconfig.path, {}, host);
+
+      if (results === undefined) {
+        throw 'Encountered an error reading tsconfig!';
+      }
+
+      if (results.errors && results.errors.length > 0) {
+        results.errors.forEach((configErr) => {
+          const tsDiagnostic = loadTypeScriptDiagnostic(configErr);
+          if (tsDiagnostic.code === '18003') {
+            // "No inputs were found in config file"
+            // fine to just "warn" rather than "error" even before starting
+            tsDiagnostic.level = 'warn';
+          }
+          tsDiagnostic.absFilePath = tsconfig.path;
+          tsconfig.diagnostics.push(tsDiagnostic);
+        });
+      } else {
+        if (results.raw) {
+          const srcDir = relative(config.rootDir, config.srcDir);
+          if (!hasSrcDirectoryInclude(results.raw.include, srcDir)) {
+            const warn = buildWarn(tsconfig.diagnostics);
+            warn.header = `tsconfig.json "include" required`;
+            warn.messageText = `In order for TypeScript to improve watch performance, it's recommended the "tsconfig.json" file should have the "include" property, with at least the app's "${srcDir}" directory listed. For example: "include": ["${srcDir}"]`;
+          }
+
+          if (hasStencilConfigInclude(results.raw.include)) {
+            const warn = buildWarn(tsconfig.diagnostics);
+            warn.header = `tsconfig.json should not reference stencil.config.ts`;
+            warn.messageText = `stencil.config.ts is not part of the output build, it should not be included.`;
+          }
+
+          if (Array.isArray(results.raw.files)) {
+            tsconfig.files = results.raw.files.slice();
+          }
+          if (Array.isArray(results.raw.include)) {
+            tsconfig.include = results.raw.include.slice();
+          }
+          if (Array.isArray(results.raw.exclude)) {
+            tsconfig.exclude = results.raw.exclude.slice();
+          }
+          if (isString(results.raw.extends)) {
+            tsconfig.extends = results.raw.extends;
+          }
+        }
+      }
+
+      // Always extract compilerOptions and watchOptions - even when TS reports
+      // non-fatal errors (e.g. TS18003 “No inputs found” on an empty src dir).
+      if (results.watchOptions) {
+        tsconfig.watchOptions = results.watchOptions;
+      }
+
+      if (results.options) {
+        tsconfig.compilerOptions = results.options;
+
+        const target = tsconfig.compilerOptions.target ?? ts.ScriptTarget.ES2017;
+        if (target < ts.ScriptTarget.ES2017) {
+          const warn = buildWarn(tsconfig.diagnostics);
+          warn.messageText = `Stencil requires the tsconfig.json “target” setting to be “es2017” or higher. ES5 build output is no longer supported.`;
+        }
+
+        if (tsconfig.compilerOptions.module !== ts.ModuleKind.ESNext && !config._isTesting) {
+          const warn = buildWarn(tsconfig.diagnostics);
+          warn.messageText = `To improve bundling, it is always recommended to set the tsconfig.json “module” setting to “esnext”. Note that the compiler will automatically handle bundling both modern and legacy builds.`;
+        }
+
+        tsconfig.compilerOptions.sourceMap = config.sourceMap;
+        tsconfig.compilerOptions.inlineSources = config.sourceMap;
+      }
+    }
+  } catch (e: any) {
+    catchError(tsconfig.diagnostics, e);
+  }
+
+  return tsconfig;
+};
+
+const getTsConfigPath = async (
+  config: d.ValidatedConfig,
+  sys: d.CompilerSystem,
+): Promise<{
+  path: string;
+  content: string;
+} | null> => {
+  const tsconfig = {
+    path: '',
+    content: '',
+  };
+
+  if (isString(config.tsconfig)) {
+    if (!isAbsolute(config.tsconfig)) {
+      tsconfig.path = join(config.rootDir, config.tsconfig);
+    } else {
+      tsconfig.path = config.tsconfig;
+    }
+  } else {
+    tsconfig.path = join(config.rootDir, 'tsconfig.json');
+  }
+
+  tsconfig.content = await sys.readFile(tsconfig.path);
+  if (!isString(tsconfig.content)) {
+    tsconfig.path = join(config.rootDir, 'tsconfig.json');
+    tsconfig.content = createDefaultTsConfig(config);
+    await sys.writeFile(tsconfig.path, tsconfig.content);
+  }
+
+  // When there's no stencil.config.ts, TypeScript's watch program will detect
+  // components.d.ts as a brand-new file mid-build and trigger a recompile loop.
+  // Seed a minimal stub so the file exists before the watch program starts.
+  if (!isString(config.configPath)) {
+    const componentsDtsPath = getComponentsDtsSrcFilePath(config);
+    if (!isString(await sys.readFile(componentsDtsPath))) {
+      await sys.writeFile(componentsDtsPath, '/* auto-generated by stencil */\nexport {};\n');
+    }
+  }
+
+  tsconfig.path = normalizePath(tsconfig.path);
+
+  return tsconfig;
+};
+
+const createDefaultTsConfig = (config: d.ValidatedConfig) =>
+  JSON.stringify(
+    {
+      compilerOptions: {
+        experimentalDecorators: true,
+        strict: true,
+        target: 'ES2022',
+        module: 'ESNext',
+        moduleResolution: 'bundler',
+        lib: ['ES2022', 'DOM'],
+        jsx: 'react-jsx',
+        jsxImportSource: '@stencil/core',
+        resolveJsonModule: true,
+        allowJs: true,
+        rootDir: './',
+        outDir: './dist',
+      },
+      include: [relative(config.rootDir, config.srcDir)],
+    },
+    null,
+    2,
+  );
+
+/**
+ * Determines if the included `src` argument belongs in `includeProp`.
+ *
+ * This function normalizes the paths found in both arguments, to catch cases where it's called with:
+ * ```ts
+ * hasSrcDirectoryInclude(['src'], './src'); // should return `true`
+ * ```
+ *
+ * @param includeProp the paths in `include` that should be tested
+ * @param src the path to find in `includeProp`
+ * @returns true if the provided `src` directory is found, `false` otherwise
+ */
+export const hasSrcDirectoryInclude = (includeProp: string[], src: string): boolean =>
+  Array.isArray(includeProp) &&
+  includeProp.some((included) => normalizePath(included, false) === normalizePath(src, false));
+
+const hasStencilConfigInclude = (includeProp: string[]) =>
+  Array.isArray(includeProp) && includeProp.includes('stencil.config.ts');

@@ -1,0 +1,9 @@
+dist/
+www/
+.stencil/
+node_modules/
+src/components.d.ts
+tsconfig.json
+__screenshots__
+.vitest-attachments
+test-results/
