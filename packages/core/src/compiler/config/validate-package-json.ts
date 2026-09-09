@@ -6,6 +6,7 @@ import {
   COLLECTION_MANIFEST_FILE_NAME,
   GENERATED_DTS,
   isGlob,
+  isOutputTargetAssets,
   isOutputTargetLoaderBundle,
   isOutputTargetStandalone,
   isOutputTargetCollection,
@@ -121,6 +122,40 @@ const getPackageJsonRecommendations = (
   return { moduleOptions, typesOptions, main, hasCjsOutput };
 };
 
+/**
+ * Collect the rootDir-relative directories of every configured output target that must
+ * ship in the published npm package for consumers (and their tooling) to be able to use
+ * it - as opposed to dev-only artifacts like `www`.
+ * @param config The validated Stencil configuration
+ * @param buildCtx The build context (used to check whether there are actually component
+ * assets to copy - the `assets` output target is otherwise a no-op and its directory is
+ * never written)
+ * @returns a de-duplicated list of rootDir-relative directory paths
+ */
+const getDistributableOutputDirs = (config: d.ValidatedConfig, buildCtx: d.BuildCtx): string[] => {
+  const loaderBundle = config.outputTargets.find(isOutputTargetLoaderBundle);
+  const standalone = config.outputTargets.find(isOutputTargetStandalone);
+  const types = config.outputTargets.find(isOutputTargetTypes);
+  const collections = config.outputTargets.filter(isOutputTargetCollection);
+
+  const hasAssets = buildCtx.components.some(
+    (cmp) => cmp.assetsDirs != null && cmp.assetsDirs.length > 0,
+  );
+  const assets = hasAssets ? config.outputTargets.find(isOutputTargetAssets) : undefined;
+
+  const dirs = [
+    loaderBundle?.dir,
+    standalone?.dir,
+    types?.dir,
+    assets?.dir,
+    ...collections.map((c) => c.dir),
+  ]
+    .filter((dir): dir is string => !!dir)
+    .map((dir) => normalizePath(relative(config.rootDir, dir)));
+
+  return Array.from(new Set(dirs));
+};
+
 // ============================================================================
 // Build-time validation (entry point)
 // ============================================================================
@@ -148,12 +183,13 @@ export const validateBuildPackageJson = async (
   // Validate core package.json fields based on configured output targets
   validatePackageJson(config, compilerCtx, buildCtx);
 
-  // Validate collection specific fields
+  // Validate that "files" covers every distributable output
+  await validateFilesField(config, compilerCtx, buildCtx);
+
+  // Validate the "collection" field pointer for each collection output target
   const stencilCollectionOutputTargets = config.outputTargets.filter(isOutputTargetCollection);
-  await Promise.all(
-    stencilCollectionOutputTargets.map((stencilCollectionOT) =>
-      validateCollectionFields(config, compilerCtx, buildCtx, stencilCollectionOT),
-    ),
+  stencilCollectionOutputTargets.forEach((stencilCollectionOT) =>
+    validateCollectionField(config, compilerCtx, buildCtx, stencilCollectionOT),
   );
 };
 
@@ -429,87 +465,75 @@ const validateTypeField = (
 };
 
 // ============================================================================
-// Stencil collection specific validation
+// "files" field validation
 // ============================================================================
 
 /**
- * Validate package.json contents specific to the `collection` output target,
- * checking that the `files` array and `collection` field are set correctly.
- * @param config the Stencil configuration associated with the project being compiled
- * @param compilerCtx the current compiler context
- * @param buildCtx the context associated with the current build
- * @param outputTarget the collection output target to validate against
+ * Check if a rootDir-relative directory is covered by a package.json `files` array,
+ * either directly or via a parent directory entry (e.g. "dist/" covers "dist/types/").
+ * @param files the package.json "files" array
+ * @param dir the rootDir-relative directory to check for
+ * @returns true if `dir` is covered by one of the `files` entries
  */
-const validateCollectionFields = async (
-  config: d.ValidatedConfig,
-  compilerCtx: d.CompilerCtx,
-  buildCtx: d.BuildCtx,
-  outputTarget: d.OutputTargetCollection,
-) => {
-  await Promise.all([
-    validatePackageFiles(config, compilerCtx, buildCtx, outputTarget),
-    validateCollectionField(config, compilerCtx, buildCtx, outputTarget),
-  ]);
+const isDirCoveredByFiles = (files: string[], dir: string): boolean => {
+  const normalizedDir = dir.replace(/\/$/, '').replace(/^\.\//, '');
+
+  return files.some((userPath) => {
+    const normalizedUserPath = normalizePath(userPath).replace(/\/$/, '').replace(/^\.\//, '');
+
+    if (normalizedUserPath === normalizedDir) {
+      return true;
+    }
+
+    const userPathWithSlash = normalizedUserPath + '/';
+    return normalizedDir.startsWith(userPathWithSlash);
+  });
 };
 
 /**
- * Validate that the `files` field in `package.json` contains directories and
- * files that are necessary for the `collection` output target.
+ * Validate that the `files` field in `package.json` covers every distributable output
+ * directory (loader-bundle, standalone, types, collection) - not just one of them -
+ * since `npm publish` needs all of them to produce a working package for consumers.
  * @param config the Stencil configuration associated with the project being compiled
  * @param compilerCtx the current compiler context
  * @param buildCtx the context associated with the current build
- * @param outputTarget the collection output target to validate against
  */
-const validatePackageFiles = async (
+const validateFilesField = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  outputTarget: d.OutputTargetCollection,
-) => {
-  const actualDistDir = normalizePath(relative(config.rootDir, outputTarget.dir));
+): Promise<void> => {
+  const distDirs = getDistributableOutputDirs(config, buildCtx);
+  if (distDirs.length === 0) {
+    return;
+  }
+
+  const formatDirs = (dirs: string[]): string => dirs.map((dir) => `"${dir}/"`).join(', ');
 
   if (!Array.isArray(buildCtx.packageJson.files)) {
     // Without a "files" array (and no .npmignore), `npm publish` falls back to
-    // .gitignore to decide what to include - silently dropping a gitignored dist
-    // directory from the published package.
+    // .gitignore to decide what to include - silently dropping gitignored dist
+    // directories from the published package.
     const npmignorePath = join(dirname(config.packageJsonFilePath), '.npmignore');
     const hasNpmignore = await compilerCtx.fs.access(npmignorePath);
     if (!hasNpmignore) {
-      const msg = `package.json is missing a "files" array. Without one, "npm publish" falls back to ".gitignore" to decide what to include, which will likely exclude the distribution directory "${actualDistDir}/". Add "files": ["${actualDistDir}/"] to package.json (or add a ".npmignore").`;
+      const msg = `package.json is missing a "files" array. Without one, "npm publish" falls back to ".gitignore" to decide what to include, which will likely exclude ${distDirs.length > 1 ? 'the distribution directories' : 'the distribution directory'} ${formatDirs(distDirs)}. Add a "files" array covering ${distDirs.length > 1 ? 'them' : 'it'} to package.json (or add a ".npmignore").`;
       packageJsonWarn(config, compilerCtx, buildCtx, msg, `"files"`);
     }
     return;
   }
 
-  // Check if the files array contains the distribution directory directly,
-  // or a parent directory that would include it (e.g., "dist/" covers "dist/collection/")
-  const containsDistDir = buildCtx.packageJson.files.some((userPath) => {
-    // Normalize both paths: remove trailing slashes and leading ./
-    const normalizedUserPath = normalizePath(userPath).replace(/\/$/, '').replace(/^\.\//, '');
-    const normalizedDistDir = actualDistDir.replace(/\/$/, '').replace(/^\.\//, '');
+  const files = buildCtx.packageJson.files;
+  const uncoveredDirs = distDirs.filter((dir) => !isDirCoveredByFiles(files, dir));
 
-    // Exact match
-    if (normalizedUserPath === normalizedDistDir) {
-      return true;
-    }
-
-    // Parent directory match (e.g., "dist" covers "dist/collection")
-    const userPathWithSlash = normalizedUserPath + '/';
-    if (normalizedDistDir.startsWith(userPathWithSlash)) {
-      return true;
-    }
-
-    return false;
-  });
-
-  if (!containsDistDir) {
-    const msg = `package.json "files" array must contain the distribution directory "${actualDistDir}/" when generating a distribution.`;
+  if (uncoveredDirs.length > 0) {
+    const msg = `package.json "files" array must contain the distribution ${uncoveredDirs.length > 1 ? 'directories' : 'directory'} ${formatDirs(uncoveredDirs)} when generating a distribution.`;
     packageJsonWarn(config, compilerCtx, buildCtx, msg, `"files"`);
     return;
   }
 
   await Promise.all(
-    buildCtx.packageJson.files.map(async (pkgFile) => {
+    files.map(async (pkgFile) => {
       if (!isGlob(pkgFile)) {
         const packageJsonDir = dirname(config.packageJsonFilePath);
         const absPath = join(packageJsonDir, pkgFile);
@@ -523,6 +547,10 @@ const validatePackageFiles = async (
     }),
   );
 };
+
+// ============================================================================
+// Stencil collection specific validation
+// ============================================================================
 
 /**
  * Check that the `collection` field is set correctly in `package.json` for the
