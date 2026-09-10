@@ -18,7 +18,7 @@ import { isDecoratorNamed } from './decorator-utils';
 export const methodDecoratorsToStatic = (
   config: d.ValidatedConfig,
   diagnostics: d.Diagnostic[],
-  cmpNode: ts.ClassDeclaration,
+  cmpNode: ts.ClassLikeDeclaration,
   decoratedProps: ts.ClassElement[],
   typeChecker: ts.TypeChecker,
   program: ts.Program,

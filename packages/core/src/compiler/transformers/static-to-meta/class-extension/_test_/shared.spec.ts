@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { reanchorInheritedTypeReferences } from '..';
-import { findReExport } from '../shared';
+import { findClassWalk, findReExport } from '../shared';
 
 describe('reanchorInheritedTypeReferences', () => {
   const CMP_PATH = '/src/components/data-entry/checkbox/checkbox.tsx';
@@ -228,6 +228,90 @@ describe('reanchorInheritedTypeReferences', () => {
     expect(() =>
       reanchorInheritedTypeReferences([method], BASE_CLASS_PATH, CMP_PATH),
     ).not.toThrow();
+  });
+});
+
+describe('findClassWalk', () => {
+  const parseVarStatement = (code: string) => {
+    const sf = ts.createSourceFile('mixin.ts', code, ts.ScriptTarget.ESNext, true);
+    return sf.statements.find(ts.isVariableStatement)!.declarationList.declarations[0];
+  };
+
+  it('finds a plain named class declaration', () => {
+    const sf = ts.createSourceFile(
+      'base.ts',
+      `export class BaseInput {}`,
+      ts.ScriptTarget.ESNext,
+      true,
+    );
+    const found = findClassWalk(sf, 'BaseInput');
+    expect(found && ts.isClassDeclaration(found) && found.name?.text).toBe('BaseInput');
+  });
+
+  it('finds a named class declaration nested in a block-bodied mixin factory', () => {
+    const decl = parseVarStatement(`
+      const FocusMixin = (Base) => {
+        class FocusMixinClass extends Base {
+          isFocused;
+        }
+        return FocusMixinClass;
+      };
+    `);
+    const found = findClassWalk(decl);
+    expect(found && ts.isClassDeclaration(found) && found.name?.text).toBe('FocusMixinClass');
+  });
+
+  it('finds an anonymous class expression returned from a concise arrow body', () => {
+    const decl = parseVarStatement(`
+      const FocusMixin = (Base) => class extends Base { isFocused; };
+    `);
+    const found = findClassWalk(decl);
+    expect(found && ts.isClassExpression(found)).toBe(true);
+    expect(found?.name).toBeUndefined();
+  });
+
+  it('finds an anonymous class expression returned from a block-bodied arrow', () => {
+    const decl = parseVarStatement(`
+      const FocusMixin = (Base) => {
+        return class extends Base { isFocused; };
+      };
+    `);
+    const found = findClassWalk(decl);
+    expect(found && ts.isClassExpression(found)).toBe(true);
+    expect(found?.name).toBeUndefined();
+  });
+
+  it('finds a named class expression returned from a concise arrow body', () => {
+    const decl = parseVarStatement(`
+      const FocusMixin = (Base) => class FocusMixinClass extends Base { isFocused; };
+    `);
+    const found = findClassWalk(decl);
+    expect(found && ts.isClassExpression(found) && found.name?.text).toBe('FocusMixinClass');
+  });
+
+  it('returns undefined when the factory returns an existing class by reference', () => {
+    const decl = parseVarStatement(`
+      const FocusMixin = (Base) => SomeExistingClass;
+    `);
+    expect(findClassWalk(decl)).toBeUndefined();
+  });
+
+  it('only descends into the matching variable when a name is given', () => {
+    const sf = ts.createSourceFile(
+      'mixins.ts',
+      `
+      const OtherMixin = (Base) => class extends Base { other; };
+      const FocusMixin = (Base) => class extends Base { isFocused; };
+      `,
+      ts.ScriptTarget.ESNext,
+      true,
+    );
+    const found = findClassWalk(sf, 'FocusMixin');
+    expect(
+      found &&
+        ts.isClassExpression(found) &&
+        found.members.some((m) => m.name && ts.isIdentifier(m.name) && m.name.text === 'isFocused'),
+    ).toBe(true);
   });
 });
 

@@ -30,7 +30,7 @@ import { getStaticValue } from './transform-utils';
  * @returns true if the class has modern property declarations, false otherwise
  */
 export const detectModernPropDeclarations = (
-  classNode: ts.ClassDeclaration,
+  classNode: ts.ClassLikeDeclaration,
   sourceFile?: ts.SourceFile,
 ) => {
   const parsedProps: { [key: string]: d.ComponentCompilerProperty } = getStaticValue(

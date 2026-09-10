@@ -1373,7 +1373,7 @@ export function foundSuper(constructorBodyStatements: ts.NodeArray<ts.Statement>
  * @returns a list of updated class elements
  */
 export const updateConstructor = (
-  classNode: ts.ClassDeclaration,
+  classNode: ts.ClassLikeDeclaration,
   classMembers: ts.ClassElement[],
   statements: ts.Statement[],
   parameters?: ts.ParameterDeclaration[],
@@ -1453,7 +1453,7 @@ export const updateConstructor = (
  * @param classDeclaration a class declaration AST node
  * @returns whether this class has parents or not
  */
-const needsSuper = (classDeclaration: ts.ClassDeclaration): boolean => {
+const needsSuper = (classDeclaration: ts.ClassLikeDeclaration): boolean => {
   const hasHeritageClauses =
     classDeclaration.heritageClauses && classDeclaration.heritageClauses.length > 0;
 

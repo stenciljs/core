@@ -554,10 +554,10 @@ describe('mergeExtendedClassMetaWithResolveImport', () => {
     expect(result.properties.map((p) => p.name).sort()).toEqual(['isFocused', 'isValid']);
   });
 
-  it('warns instead of silently dropping a mixin factory whose class is an unnamed arrow-body expression', () => {
-    // `(Base) => class extends Base {}` isn't recognized as a mixin factory (only the
-    // block-bodied `(Base) => { class Foo extends Base {} return Foo; }` form is) - this should
-    // warn rather than silently applying none of the mixin's members with no explanation.
+  it('merges a mixin factory whose class is an unnamed arrow-body expression, with real complexType info', () => {
+    // `(Base) => class extends Base {}` (concise arrow body, no block, no name) - the class isn't
+    // a block-scoped declaration, and has no name of its own to re-find it by after the
+    // decorator-to-static-getter conversion, so this exercises the mixin-factory-name fallback.
     const cmpFileName = '/src/components/checkbox.tsx';
     const cmpSource = ts.createSourceFile(
       cmpFileName,
@@ -594,11 +594,100 @@ describe('mergeExtendedClassMetaWithResolveImport', () => {
       buildCtx,
     );
 
+    expect(buildCtx.diagnostics).toHaveLength(0);
+    expect(result.doesExtend).toBe(true);
+    const isFocusedProp = result.properties.find((p) => p.name === 'isFocused');
+    // a real type (not the type-blind fallback's 'any') proves this went through the mini-program
+    // conversion rather than falling back to extractInheritedMetaFromClass
+    expect(isFocusedProp?.type).toBe('boolean');
+    expect(isFocusedProp?.complexType.resolved).toBe('boolean');
+  });
+
+  it('merges a mixin factory whose class is returned directly from a block-bodied arrow', () => {
+    // `(Base) => { return class extends Base {}; }` - block body, but the class is a `return`ed
+    // expression rather than its own named declaration.
+    const cmpFileName = '/src/components/checkbox.tsx';
+    const cmpSource = ts.createSourceFile(
+      cmpFileName,
+      `import { Mixin } from '@stencil/core';
+      import { FocusMixin } from './focus-mixin';
+      export class Checkbox extends Mixin(FocusMixin) {
+        static get is() { return 'my-checkbox'; }
+      }`,
+      ts.ScriptTarget.ESNext,
+      true,
+    );
+    const cmpClass = cmpSource.statements.find(ts.isClassDeclaration)!;
+    const staticMembers = cmpClass.members.filter(isStaticGetter);
+
+    const mixinCode = `
+      import { Prop } from '@stencil/core';
+      export const FocusMixin = (Base) => {
+        return class extends Base {
+          @Prop() isFocused: boolean;
+        };
+      };
+    `;
+
+    const buildCtx = mockBuildCtx();
+
+    const result = mergeExtendedClassMetaWithResolveImport(
+      cmpClass,
+      staticMembers,
+      cmpSource,
+      (specifier) =>
+        specifier === './focus-mixin'
+          ? { code: mixinCode, path: '/src/components/focus-mixin.ts' }
+          : null,
+      config,
+      buildCtx,
+    );
+
+    expect(buildCtx.diagnostics).toHaveLength(0);
+    expect(result.doesExtend).toBe(true);
+    const isFocusedProp = result.properties.find((p) => p.name === 'isFocused');
+    expect(isFocusedProp?.type).toBe('boolean');
+  });
+
+  it('still warns when a mixin factory returns something other than a class literal', () => {
+    const cmpFileName = '/src/components/checkbox.tsx';
+    const cmpSource = ts.createSourceFile(
+      cmpFileName,
+      `import { Mixin } from '@stencil/core';
+      import { FocusMixin } from './focus-mixin';
+      export class Checkbox extends Mixin(FocusMixin) {
+        static get is() { return 'my-checkbox'; }
+      }`,
+      ts.ScriptTarget.ESNext,
+      true,
+    );
+    const cmpClass = cmpSource.statements.find(ts.isClassDeclaration)!;
+    const staticMembers = cmpClass.members.filter(isStaticGetter);
+
+    const mixinCode = `
+      class SomeExistingClass {}
+      export const FocusMixin = (Base) => SomeExistingClass;
+    `;
+
+    const buildCtx = mockBuildCtx();
+
+    const result = mergeExtendedClassMetaWithResolveImport(
+      cmpClass,
+      staticMembers,
+      cmpSource,
+      (specifier) =>
+        specifier === './focus-mixin'
+          ? { code: mixinCode, path: '/src/components/focus-mixin.ts' }
+          : null,
+      config,
+      buildCtx,
+    );
+
     expect(result.doesExtend).toBe(false);
     expect(result.properties).toHaveLength(0);
     expect(buildCtx.diagnostics).toHaveLength(1);
     expect(buildCtx.diagnostics[0].messageText).toContain('Found "FocusMixin"');
-    expect(buildCtx.diagnostics[0].messageText).toContain("couldn't find a class declaration");
+    expect(buildCtx.diagnostics[0].messageText).toContain("couldn't find a class");
   });
 
   it('keeps resolving further ancestors when a Mixin(...) argument is a real class rather than a factory', () => {

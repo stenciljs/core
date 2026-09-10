@@ -31,6 +31,8 @@ import { watchDecoratorsToStatic } from './watch-decorator';
  * @param diagnostics for surfacing errors and warnings
  * @param typeChecker a TypeScript typechecker instance
  * @param program a {@link ts.Program} object
+ * @param includeClassExpressions also convert `ts.ClassExpression` nodes (e.g. a mixin factory's
+ * `(Base) => class extends Base {}`), not just named `ts.ClassDeclaration`s
  * @returns a TypeScript transformer factory which can be passed to
  * TypeScript to transform source code during the compilation process
  */
@@ -39,11 +41,12 @@ export const convertDecoratorsToStatic = (
   diagnostics: d.Diagnostic[],
   typeChecker: ts.TypeChecker,
   program: ts.Program,
+  includeClassExpressions = false,
 ): ts.TransformerFactory<ts.SourceFile> => {
   return (transformCtx) => {
     let sourceFile: ts.SourceFile;
     const visit = (node: ts.Node): ts.VisitResult<ts.Node> => {
-      if (ts.isClassDeclaration(node)) {
+      if (ts.isClassDeclaration(node) || (includeClassExpressions && ts.isClassExpression(node))) {
         return visitClassDeclaration(config, diagnostics, typeChecker, program, node, sourceFile);
       }
       return ts.visitEachChild(node, visit, transformCtx);
@@ -57,10 +60,10 @@ export const convertDecoratorsToStatic = (
 };
 
 /**
- * Visit {@link ts.ClassDeclaration} nodes as part of the tree-traversal
+ * Visit {@link ts.ClassDeclaration}/{@link ts.ClassExpression} nodes as part of the tree-traversal
  * required for {@link convertDecoratorsToStatic} to work.
  *
- * If a given class declaration node is not decorated with `@Component` this
+ * If a given class node is not decorated with `@Component` this
  * function will simply return it as-is. If it _is_ decorated, then it will
  *
  * 1. Convert the arguments to the `@Component` decorator to static values.
@@ -69,7 +72,7 @@ export const convertDecoratorsToStatic = (
  * to static values.
  * 3. Validate that the various options selected by the component author are
  * valid, both individually and in combination.
- * 4. Return an updated class declaration node which is ready to be used in
+ * 4. Return an updated class node which is ready to be used in
  * the rest of the Stencil compilation pipeline (e.g. in output target
  * generation).
  *
@@ -86,9 +89,9 @@ const visitClassDeclaration = (
   diagnostics: d.Diagnostic[],
   typeChecker: ts.TypeChecker,
   program: ts.Program,
-  classNode: ts.ClassDeclaration,
+  classNode: ts.ClassLikeDeclaration,
   sourceFile: ts.SourceFile,
-): ts.ClassDeclaration => {
+): ts.ClassLikeDeclaration => {
   const importAliasMap = new ImportAliasMap(sourceFile);
 
   const componentDecorator = retrieveTsDecorators(classNode)?.find(
@@ -112,7 +115,7 @@ const visitClassDeclaration = (
     importAliasMap,
   );
 
-  if (componentDecorator) {
+  if (componentDecorator && ts.isClassDeclaration(classNode)) {
     // parse component decorator
     componentDecoratorToStatic(
       config,
@@ -216,20 +219,31 @@ const visitClassDeclaration = (
     [],
   );
 
-  return ts.factory.updateClassDeclaration(
-    classNode,
-    [
-      ...(filterDecorators(
-        currentDecorators,
-        CLASS_DECORATORS_TO_REMOVE.map((decorator) => importAliasMap.get(decorator)),
-      ) ?? []),
-      ...(retrieveTsModifiers(classNode) ?? []),
-    ],
-    classNode.name,
-    classNode.typeParameters,
-    classNode.heritageClauses,
-    updatedClassFields,
-  );
+  const updatedModifiers = [
+    ...(filterDecorators(
+      currentDecorators,
+      CLASS_DECORATORS_TO_REMOVE.map((decorator) => importAliasMap.get(decorator)),
+    ) ?? []),
+    ...(retrieveTsModifiers(classNode) ?? []),
+  ];
+
+  return ts.isClassDeclaration(classNode)
+    ? ts.factory.updateClassDeclaration(
+        classNode,
+        updatedModifiers,
+        classNode.name,
+        classNode.typeParameters,
+        classNode.heritageClauses,
+        updatedClassFields,
+      )
+    : ts.factory.updateClassExpression(
+        classNode,
+        updatedModifiers,
+        classNode.name,
+        classNode.typeParameters,
+        classNode.heritageClauses,
+        updatedClassFields,
+      );
 };
 
 /**
