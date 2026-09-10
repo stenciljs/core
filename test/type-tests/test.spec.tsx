@@ -21,6 +21,10 @@ export function TypeTestComponent() {
         str1={'123'}
         str2={'123'}
         obj={'123'}
+        // https://github.com/stenciljs/core/issues/6854 - `aria` (and any other `aria`-prefixed
+        // prop name) must still accept an object value, not just string/boolean.
+        aria={{ 'aria-label': 'Close' }}
+        ariaCustomThing={{ foo: 'bar' }}
       ></attribute-complex>
       <my-component
         // @ts-expect-error
