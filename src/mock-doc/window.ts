@@ -878,12 +878,16 @@ function resetWindow(win: MockWindow) {
       } catch (e) {}
     }
 
-    // ensure we don't hold onto nodeFetch values
-    (win as any).fetch = null;
-    (win as any).Headers = null;
-    (win as any).Request = null;
-    (win as any).Response = null;
-    (win as any).FetchError = null;
+    // ensure we don't hold onto nodeFetch values; fail loudly instead of a
+    // bare null-deref if anything still touches the window after this point
+    const windowDestroyed = () => {
+      throw new Error('MockWindow was already destroyed');
+    };
+    (win as any).fetch = windowDestroyed;
+    (win as any).Headers = windowDestroyed;
+    (win as any).Request = windowDestroyed;
+    (win as any).Response = windowDestroyed;
+    (win as any).FetchError = windowDestroyed;
   }
 }
 
