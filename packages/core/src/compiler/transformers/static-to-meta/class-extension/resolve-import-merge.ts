@@ -68,7 +68,7 @@ function convertInMemorySourceDecorators(
     const typeChecker = program.getTypeChecker();
     const ownSourceFile = program.getSourceFile(sourceFile.fileName) ?? sourceFile;
     const result = ts.transform(ownSourceFile, [
-      convertDecoratorsToStatic(config, [], typeChecker, program),
+      convertDecoratorsToStatic(config, [], typeChecker, program, true),
     ]);
     const printer = ts.createPrinter({ removeComments: false });
     const printed = printer.printFile(result.transformed[0]);
@@ -97,7 +97,7 @@ function convertInMemorySourceDecorators(
  * @returns the extended identifier names, or an empty array if the class
  * doesn't extend anything recognizable
  */
-function getExtendsClassNames(node: ts.ClassDeclaration): string[] {
+function getExtendsClassNames(node: ts.ClassLikeDeclaration): string[] {
   const heritage = node.heritageClauses?.find((h) => h.token === ts.SyntaxKind.ExtendsKeyword);
   if (!heritage?.types.length) return [];
   const expr = heritage.types[0].expression;
@@ -174,9 +174,13 @@ function reclassifyGlobalTypeReferences<
 }
 
 type AncestorEntry = {
-  classNode: ts.ClassDeclaration;
+  classNode: ts.ClassLikeDeclaration;
   sourceFile: ts.SourceFile;
   path: string;
+  // the extends-clause identifier this ancestor was reached through - falls
+  // back to it as a name to re-find classNode after decorator conversion
+  // when classNode itself is anonymous (e.g. `(Base) => class extends Base {}`)
+  factoryName: string;
 };
 
 /**
@@ -250,7 +254,7 @@ function findDeclarationOrReExport(
  * omit to resolve silently (e.g. from tests that don't care about diagnostics)
  */
 function resolveAncestors(
-  classNode: ts.ClassDeclaration,
+  classNode: ts.ClassLikeDeclaration,
   sf: ts.SourceFile,
   path: string,
   resolveImport: ResolveImport,
@@ -262,7 +266,7 @@ function resolveAncestors(
   const parentNames = getExtendsClassNames(classNode);
 
   for (const parentName of parentNames) {
-    let foundClass: ts.ClassDeclaration | undefined;
+    let foundClass: ts.ClassLikeDeclaration | undefined;
     let foundSf = sf;
     let foundPath = path;
     let keepLooking = true;
@@ -329,7 +333,12 @@ function resolveAncestors(
 
     if (!foundClass || ancestors.some((a) => a.classNode === foundClass)) continue;
 
-    ancestors.push({ classNode: foundClass, sourceFile: foundSf, path: foundPath });
+    ancestors.push({
+      classNode: foundClass,
+      sourceFile: foundSf,
+      path: foundPath,
+      factoryName: parentName,
+    });
 
     if (keepLooking) {
       resolveAncestors(
@@ -373,8 +382,11 @@ function extractAncestorMeta(
   resolveImport: ResolveImport,
   config: d.ValidatedConfig,
 ): AncestorMeta {
-  const { classNode, sourceFile: parentSf, path: resolvedPath } = ancestor;
-  const className = classNode.name?.text;
+  const { classNode, sourceFile: parentSf, path: resolvedPath, factoryName } = ancestor;
+  // classNode may be anonymous (e.g. `(Base) => class extends Base {}`) - fall
+  // back to the mixin factory's own name, which findClassWalk can still use
+  // to re-find the (still possibly anonymous) class after conversion
+  const className = classNode.name?.text ?? factoryName;
 
   const parentStaticMembers = classNode.members.filter(isStaticGetter) as ts.ClassElement[];
   let resolvedClassNode = classNode;
@@ -390,10 +402,10 @@ function extractAncestorMeta(
     // decorator syntax: run it through a throwaway single-file program so
     // real complexType info is computed the same way as for any other
     // Stencil class, instead of falling back to extractInheritedMetaFromClass's
-    // type-blind walk. `className` is the resolved (possibly nested) class's
-    // own name, not necessarily the mixin-factory identifier it was found
-    // through - findClassWalk needs it to disambiguate from other classes in
-    // the same converted file.
+    // type-blind walk. `className` disambiguates the target class from others
+    // in the same converted file - the resolved class's own name when it has
+    // one, else the mixin factory's declared name (which findClassWalk can
+    // still resolve to the same, still-anonymous, class post-conversion).
     const converted = convertInMemorySourceDecorators(parentSf, config);
     const convertedClass = converted && findClassWalk(converted, className);
     if (convertedClass) {

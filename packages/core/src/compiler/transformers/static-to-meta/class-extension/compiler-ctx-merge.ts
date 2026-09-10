@@ -18,6 +18,7 @@ import { parseStaticStates } from '../states';
 import { parseStaticWatchers } from '../watchers';
 import {
   deDupeMembers,
+  factoryDeclaredName,
   findClassWalk,
   findReExport,
   matchesNamedDeclaration,
@@ -26,7 +27,7 @@ import {
 } from './shared';
 
 type DependentClass = {
-  classNode: ts.ClassDeclaration;
+  classNode: ts.ClassLikeDeclaration;
   sourceFile: ts.SourceFile;
   fileName: string;
 };
@@ -64,7 +65,7 @@ function convertDiskSourceFileDecorators(
   // program's own SourceFile, not the one passed in
   const ownSourceFile = program.getSourceFile(sourceFile.fileName) ?? sourceFile;
   const result = ts.transform(ownSourceFile, [
-    convertDecoratorsToStatic(config, [], typeChecker, program),
+    convertDecoratorsToStatic(config, [], typeChecker, program, true),
   ]);
   // re-parse: factory-created nodes have no parent pointers, which breaks
   // getSourceFile() when buildExtendsTree recurses into this file
@@ -94,7 +95,7 @@ function convertDiskSourceFileDecorators(
 function resolveAndProcessExtendedClass(
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-  classDeclaration: ts.ClassDeclaration,
+  classDeclaration: ts.ClassLikeDeclaration,
   currentSource: ts.SourceFile,
   moduleSpecifier: string,
   className: string,
@@ -103,7 +104,7 @@ function resolveAndProcessExtendedClass(
   ogModule: d.Module,
   targetScriptTarget: ts.ScriptTarget = ts.ScriptTarget.ESNext,
   barrelHopsRemaining = 1,
-): ts.ClassDeclaration | undefined {
+): ts.ClassLikeDeclaration | undefined {
   // starts optimistic: set false below if the candidate is a mixin factory
   // (class wrapped in a function), which we can't meaningfully recurse into
   let keepLooking = true;
@@ -171,7 +172,7 @@ function resolveAndProcessExtendedClass(
     return undefined;
   }
 
-  let foundClassDeclaration = matchedStatement
+  let foundClassDeclaration: ts.ClassLikeDeclaration | undefined = matchedStatement
     ? ts.isClassDeclaration(matchedStatement)
       ? matchedStatement
       : undefined
@@ -236,7 +237,7 @@ function convertDtsToJs(declarationSourceFile: string, compilerCtx: d.CompilerCt
  */
 function buildExtendsTree(
   compilerCtx: d.CompilerCtx,
-  classDeclaration: ts.ClassDeclaration,
+  classDeclaration: ts.ClassLikeDeclaration,
   dependentClasses: DependentClass[],
   typeChecker: ts.TypeChecker,
   buildCtx: d.BuildCtx,
@@ -256,7 +257,12 @@ function buildExtendsTree(
     (ogModule?.staticSourceFile as ts.SourceFile)?.languageVersion ?? ts.ScriptTarget.ESNext;
 
   let classIdentifiers: ts.Identifier[] = [];
-  let foundClassDeclaration: ts.ClassDeclaration | undefined;
+  let foundClassDeclaration: ts.ClassLikeDeclaration | undefined;
+  // the name to re-find foundClassDeclaration by once its source file has
+  // been run through the decorator-to-static-getter transform - falls back
+  // to the enclosing mixin factory's own declared name when the class itself
+  // is anonymous (e.g. `(Base) => class extends Base {}`)
+  let foundClassName: string | undefined;
   // set when the found class is wrapped in a mixin factory function - the
   // extender ctor comes from a dynamic function argument, so stop recursing
   let keepLooking = true;
@@ -293,11 +299,16 @@ function buildExtendsTree(
       }
 
       foundClassDeclaration = declarations?.find(ts.isClassDeclaration);
+      foundClassName = foundClassDeclaration?.name?.getText();
 
       if (!foundClassDeclaration) {
         // wrapped in a function - try to find the class inside
         const node = declarations?.[0];
         foundClassDeclaration = findClassWalk(node);
+        // the inner class may be anonymous - fall back to the factory's own
+        // declared name, which is alias-resolved (via getAliasedSymbol above)
+        // and survives the decorator transform regardless
+        foundClassName = foundClassDeclaration?.name?.getText() ?? factoryDeclaredName(node);
         if (!node) {
           throw 'revert to sad path';
         }
@@ -317,10 +328,7 @@ function buildExtendsTree(
 
         if (foundModule) {
           const moduleSourceFile = foundModule.staticSourceFile as ts.SourceFile;
-          const sourceClass = findClassWalk(
-            moduleSourceFile,
-            foundClassDeclaration.name?.getText(),
-          );
+          const sourceClass = findClassWalk(moduleSourceFile, foundClassName);
 
           if (sourceClass) {
             dependentClasses.push({
@@ -365,9 +373,13 @@ function buildExtendsTree(
       // try to see if we can find the class in the current source file first
       if (matchedStatement && ts.isClassDeclaration(matchedStatement)) {
         foundClassDeclaration = matchedStatement;
+        foundClassName = foundClassDeclaration.name?.getText();
       } else if (matchedStatement) {
         // wrapped in a function - try to find the class inside
         foundClassDeclaration = findClassWalk(matchedStatement);
+        // same-file lookup - no aliasing, so the extends-clause identifier
+        // itself is always the factory's declared name
+        foundClassName = foundClassDeclaration?.name?.getText() ?? extendee.getText();
         keepLooking = false;
         if (!foundClassDeclaration) {
           warnMixinFactoryClassNotFound(buildCtx, extendee.getText(), classDeclaration);
@@ -376,6 +388,7 @@ function buildExtendsTree(
         // class might be nested inside a function (e.g., in a test callback)
         // search the entire source file recursively for the class
         foundClassDeclaration = findClassWalk(currentSource, extendee.getText());
+        foundClassName = foundClassDeclaration?.name?.getText() ?? extendee.getText();
         keepLooking = false;
       }
 
@@ -388,10 +401,7 @@ function buildExtendsTree(
         const foundModule = compilerCtx.moduleMap.get(currentSource.fileName);
         if (foundModule?.staticSourceFile) {
           const transformedSource = foundModule.staticSourceFile as ts.SourceFile;
-          const transformedClass = findClassWalk(
-            transformedSource,
-            foundClassDeclaration.name?.getText(),
-          );
+          const transformedClass = findClassWalk(transformedSource, foundClassName);
 
           if (transformedClass) {
             dependentClasses.push({

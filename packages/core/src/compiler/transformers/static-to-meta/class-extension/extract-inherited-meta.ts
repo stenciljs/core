@@ -96,7 +96,7 @@ export function extractInheritedMeta(
  * @returns extracted metadata
  */
 export function extractInheritedMetaFromClass(
-  classDecl: ts.ClassDeclaration,
+  classDecl: ts.ClassLikeDeclaration,
 ): ExtractedInheritedMeta {
   const methodNames = classDecl.members
     .filter(ts.isMethodDeclaration)
