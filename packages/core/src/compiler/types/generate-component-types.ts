@@ -43,7 +43,7 @@ const FORM_ASSOCIATED_ATTRIBUTES: d.TypeInfo = [
  * @param cmp the metadata for the component that a type definition string is generated for
  * @param typeImportData locally/imported/globally used type names, which may be used to prevent naming collisions
  * @param areTypesInternal `true` if types being generated are for a project's internal purposes, `false` otherwise
- * @param signalBacking `true` if the component is using signal backing for its props; includes the signals map on the element interface
+ * @param signalBacking `true` if the component is using signal backing for its props; includes the signals map on the element interface and unions JSX prop types with `ReadonlySignal<T>`
  * @returns the generated types string alongside additional metadata
  */
 export const generateComponentTypes = (
@@ -81,8 +81,18 @@ export const generateComponentTypes = (
     ? FORM_ASSOCIATED_ATTRIBUTES.filter((attr) => !propNames.has(attr.name))
     : [];
 
+  // In signal-backed builds, the runtime accepts a `ReadonlySignal<T>` anywhere a JSX prop
+  // expects `T` (see `isSignalLike` in `set-accessor.ts`) - DOM updates then bypass the vdom
+  // diff entirely. Union it into the JSX prop types so that pattern type-checks.
+  const jsxPropAttributes = signalBacking
+    ? propAttributes.map((attr) => ({
+        ...attr,
+        type: `${attr.type} | ReadonlySignal<${attr.type}>`,
+      }))
+    : propAttributes;
+
   const jsxAttributes = attributesToMultiLineString(
-    [...propAttributes, ...eventAttributes, ...formAssociatedAttrs],
+    [...jsxPropAttributes, ...eventAttributes, ...formAssociatedAttrs],
     true,
     areTypesInternal,
   );

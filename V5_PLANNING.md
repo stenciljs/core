@@ -576,6 +576,9 @@ pnpm run dev       # Watch mode
 ## ⚡ Signals - "make default" consideration
 - [ ] Evaluate adoption/feedback
 - [ ] If stable and popular: flip `signalBacking` default to `true`, deprecate old Map path, remove in next major
+- [x] JSX prop types now accept `ReadonlySignal<T>` when `signalBacking` is on (stenciljs/core#6875) - `compiler/types/generate-component-types.ts`
+- [ ] Doc gap (stenciljs/core#6875): the JSX signal bypass only fires when the literal signal reference is the vdom child/attribute value (`h()`/`setAccessor()`'s `isSignalLike()` checks) - `.value` reads in `render()`, including implicit ones (`count % 2`, template literals), are untracked and will not re-render. Documented in `packages/core/src/signals/readme.md`; **stenciljs/site still needs the equivalent public docs update** - not done here, that repo isn't checked out locally.
+- [ ] Considered (not pursued): wrapping `instance.render()` in an `effect()` so any `.value` read during render is tracked, closing the gap above generally. Mechanically works (traced the exact call site in `update-component.ts`), but it's a third reactivity channel alongside the @Prop/@State→scheduleUpdate effects and the vdom bypass, reintroduces Solid-style fine-grained re-render that the bypass was built to avoid paying for, and has real edges (state written during render → signals-core cycle detection, double-scheduling with existing per-prop effects, the SSR async render path). Revisit only as a deliberate feature proposal, not as a fix for #6875.
 
 ---
 

@@ -405,4 +405,62 @@ describe('generateComponentTypes', () => {
       expect(result.element).toContain('"_internal"');
     });
   });
+
+  describe('JSX prop types with signalBacking', () => {
+    it('unions JSX prop types with ReadonlySignal<T> when signalBacking is true', () => {
+      const cmpMeta: ComponentCompilerMeta = {
+        ...stubComponentCompilerMeta(),
+        tagName: 'my-counter',
+        properties: [
+          {
+            ...stubComponentCompilerProperty(),
+            name: 'count',
+            type: 'number',
+            complexType: { original: 'number', resolved: 'number', references: {} },
+          },
+          {
+            ...stubComponentCompilerProperty(),
+            name: 'label',
+            type: 'string',
+            complexType: { original: 'string', resolved: 'string', references: {} },
+          },
+        ],
+      };
+
+      const result = generateComponentTypes(cmpMeta, {}, false, true);
+      expect(result.jsx).toContain('"count"?: number | ReadonlySignal<number>;');
+      expect(result.jsx).toContain('"label"?: string | ReadonlySignal<string>;');
+    });
+
+    it('leaves JSX prop types alone when signalBacking is false', () => {
+      const cmpMeta: ComponentCompilerMeta = {
+        ...stubComponentCompilerMeta(),
+        tagName: 'my-counter',
+        properties: [
+          {
+            ...stubComponentCompilerProperty(),
+            name: 'count',
+            type: 'number',
+            complexType: { original: 'number', resolved: 'number', references: {} },
+          },
+        ],
+      };
+
+      const result = generateComponentTypes(cmpMeta, {}, false, false);
+      expect(result.jsx).toContain('"count"?: number;');
+      expect(result.jsx).not.toContain('ReadonlySignal');
+    });
+
+    it('does not union event or form-associated attribute types', () => {
+      const cmpMeta: ComponentCompilerMeta = {
+        ...stubComponentCompilerMeta(),
+        tagName: 'my-input',
+        formAssociated: true,
+      };
+
+      const result = generateComponentTypes(cmpMeta, {}, false, true);
+      expect(result.jsx).toContain('"disabled"?: boolean;');
+      expect(result.jsx).not.toContain('"disabled"?: boolean | ReadonlySignal');
+    });
+  });
 });

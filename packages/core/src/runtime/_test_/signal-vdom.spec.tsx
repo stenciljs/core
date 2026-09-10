@@ -1,5 +1,5 @@
 import { signal } from '@preact/signals-core';
-import { Component, h, State } from '@stencil/core';
+import { Component, h, Prop, State } from '@stencil/core';
 import { expect, describe, it } from '@stencil/vitest';
 
 import { newSpecPage } from '../../testing';
@@ -47,6 +47,95 @@ describe('vdom signal bypass - text children', () => {
     expect(root.querySelector('span').textContent).toBe('42');
     // Component render() was NOT called again
     expect(renderCount).toBe(0);
+  });
+
+  it('wires up live tracking when a position switches from a plain value to a signal on a later render', async () => {
+    const count = signal(1);
+
+    @Component({ tag: 'cmp-a' })
+    class CmpA {
+      @Prop() useSignal = false;
+      render() {
+        return <span>{this.useSignal ? count : 'static'}</span>;
+      }
+    }
+
+    const { root, waitForChanges } = await newSpecPage({
+      ...VDOM,
+      components: [CmpA],
+      html: `<cmp-a></cmp-a>`,
+    });
+    expect(root.querySelector('span').textContent).toBe('static');
+
+    (root as any).useSignal = true;
+    await waitForChanges();
+    expect(root.querySelector('span').textContent).toBe('1');
+
+    // the text node already existed before the signal showed up - this is the
+    // case createElm's wiring alone can't handle, patch() must pick it up too
+    count.value = 42;
+    expect(root.querySelector('span').textContent).toBe('42');
+  });
+
+  it('re-subscribes when a signal-backed position switches to a different signal', async () => {
+    const first = signal('first');
+    const second = signal('second');
+
+    @Component({ tag: 'cmp-a' })
+    class CmpA {
+      @Prop() useSecond = false;
+      render() {
+        return <span>{this.useSecond ? second : first}</span>;
+      }
+    }
+
+    const { root, waitForChanges } = await newSpecPage({
+      ...VDOM,
+      components: [CmpA],
+      html: `<cmp-a></cmp-a>`,
+    });
+    expect(root.querySelector('span').textContent).toBe('first');
+
+    (root as any).useSecond = true;
+    await waitForChanges();
+    expect(root.querySelector('span').textContent).toBe('second');
+
+    // the old subscription (to `first`) must have been torn down - changing it
+    // should no longer affect this node
+    first.value = 'changed-first';
+    expect(root.querySelector('span').textContent).toBe('second');
+
+    // the new subscription (to `second`) must be live
+    second.value = 'changed-second';
+    expect(root.querySelector('span').textContent).toBe('changed-second');
+  });
+
+  it('tears down the subscription when a signal-backed position reverts to a plain value', async () => {
+    const count = signal(1);
+
+    @Component({ tag: 'cmp-a' })
+    class CmpA {
+      @Prop() useSignal = true;
+      render() {
+        return <span>{this.useSignal ? count : 'static'}</span>;
+      }
+    }
+
+    const { root, waitForChanges } = await newSpecPage({
+      ...VDOM,
+      components: [CmpA],
+      html: `<cmp-a></cmp-a>`,
+    });
+    expect(root.querySelector('span').textContent).toBe('1');
+
+    (root as any).useSignal = false;
+    await waitForChanges();
+    expect(root.querySelector('span').textContent).toBe('static');
+
+    // the old subscription must be disposed - changing the signal now should
+    // not reach back into this (now unrelated) text node
+    count.value = 99;
+    expect(root.querySelector('span').textContent).toBe('static');
   });
 
   it('handles multiple signal text children independently', async () => {

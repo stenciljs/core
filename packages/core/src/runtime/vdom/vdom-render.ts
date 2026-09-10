@@ -28,6 +28,7 @@ import {
 import { h, isHost, newVNode as createVNode } from './h';
 import { disposeAllSignalAttrs } from './set-accessor';
 import { updateElement } from './update-element';
+import type { SignalLike } from '../signals';
 
 let scopeId: string;
 let contentRef: d.RenderNode | undefined;
@@ -51,14 +52,36 @@ const signalNodeDisposers = new WeakMap<Node, () => void>();
 const disposeSignalVNode = (vnode: d.VNode) => {
   const elm = vnode.$elm$;
   if (elm) {
-    const dispose = signalNodeDisposers.get(elm);
-    if (dispose) {
-      dispose();
-      signalNodeDisposers.delete(elm);
-    }
+    disposeTextSignal(elm);
     disposeAllSignalAttrs(elm);
   }
   vnode.$children$?.forEach(disposeSignalVNode);
+};
+
+/**
+ * Tear down a text node's signal subscription, if it has one.
+ * @param textNode the text node to unsubscribe
+ */
+const disposeTextSignal = (textNode: Node) => {
+  const dispose = signalNodeDisposers.get(textNode);
+  if (dispose) {
+    dispose();
+    signalNodeDisposers.delete(textNode);
+  }
+};
+
+/**
+ * Subscribe a text node to a signal, keeping its `data` in sync on every change.
+ * @param textNode the text node to keep in sync
+ * @param textSig the signal to subscribe to
+ */
+const wireTextSignal = (textNode: Node, textSig: SignalLike) => {
+  signalNodeDisposers.set(
+    textNode,
+    effect(() => {
+      (textNode as unknown as Text).data = String(textSig.value);
+    }),
+  );
 };
 
 /**
@@ -109,14 +132,7 @@ const createElm = (oldParentVNode: d.VNode, newParentVNode: d.VNode, childIndex:
     // create text node
     elm = newVNode.$elm$ = win.document.createTextNode(newVNode.$text$) as any;
     if (BUILD.vdomSignals && newVNode.$signal$) {
-      const textSig = newVNode.$signal$;
-      const textNode = elm;
-      signalNodeDisposers.set(
-        textNode,
-        effect(() => {
-          (textNode as unknown as Text).data = String(textSig.value);
-        }),
-      );
+      wireTextSignal(elm, newVNode.$signal$);
     }
   } else if (BUILD.slotRelocation && newVNode.$flags$ & VNODE_FLAGS.isSlotReference) {
     // create a slot reference node
@@ -827,10 +843,29 @@ export const patch = (oldVNode: d.VNode, newVNode: d.VNode, isInitialRender = fa
   } else if (BUILD.vdomText && BUILD.slotRelocation && (defaultHolder = elm['s-cr'] as any)) {
     // this element has slotted content
     defaultHolder.parentNode.textContent = text;
-  } else if (BUILD.vdomText && oldVNode.$text$ !== text) {
-    // update the text content for the text only vnode
-    // and also only if the text is different than before
-    elm.data = text;
+  } else if (BUILD.vdomText) {
+    if (BUILD.vdomSignals && newVNode.$signal$) {
+      if (newVNode.$signal$ !== oldVNode.$signal$) {
+        // the signal reference is new (this position wasn't signal-backed before, or it
+        // held a different signal) - tear down any previous subscription and wire a fresh
+        // one. `createElm` only wires this up for brand-new text nodes, so a position that
+        // switches from a plain value (or a different signal) to this signal on a later
+        // render would otherwise silently stop updating.
+        disposeTextSignal(elm);
+        wireTextSignal(elm, newVNode.$signal$);
+      }
+      // same signal as last render - its own effect already keeps `elm.data` in sync
+    } else {
+      if (BUILD.vdomSignals && oldVNode.$signal$) {
+        // was signal-backed, no longer is - tear down the subscription
+        disposeTextSignal(elm);
+      }
+      if (oldVNode.$text$ !== text) {
+        // update the text content for the text only vnode
+        // and also only if the text is different than before
+        elm.data = text;
+      }
+    }
   }
 };
 
