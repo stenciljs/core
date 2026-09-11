@@ -236,6 +236,42 @@ describe('add-tag-transform', () => {
       expect(transpileResult.diagnostics).toHaveLength(0);
       expect(res).toContain("customElements.whenDefined(__stencil_transformTag('cmp-a'))");
     });
+
+    it('should not wrap an argument that is already a transformTag call (aliased runtime import)', async () => {
+      const cmp = `
+        @Component({ tag: 'cmp-a' })
+        export class CmpA {
+          someMethod() {
+            customElements.define(__stencil_transformTag('cmp-a'), CmpA);
+          }
+        }
+      `;
+
+      const transpileResult = transpileModule(cmp, buildCtx.config, compilerCtx, [], [transformer]);
+      const res = await formatCode(transpileResult.outputText);
+
+      expect(transpileResult.diagnostics).toHaveLength(0);
+      expect(res).toContain("customElements.define(__stencil_transformTag('cmp-a'), CmpA);");
+      expect(res).not.toContain('__stencil_transformTag(__stencil_transformTag(');
+    });
+
+    it('should not wrap an argument that is already a transformTag call (unaliased identifier)', async () => {
+      const cmp = `
+        @Component({ tag: 'cmp-a' })
+        export class CmpA {
+          someMethod() {
+            customElements.get(transformTag('cmp-a'));
+          }
+        }
+      `;
+
+      const transpileResult = transpileModule(cmp, buildCtx.config, compilerCtx, [], [transformer]);
+      const res = await formatCode(transpileResult.outputText);
+
+      expect(transpileResult.diagnostics).toHaveLength(0);
+      expect(res).toContain("customElements.get(transformTag('cmp-a'));");
+      expect(res).not.toContain('__stencil_transformTag(transformTag(');
+    });
   });
 
   // feels a bit OTT(?)
