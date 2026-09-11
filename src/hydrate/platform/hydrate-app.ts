@@ -29,7 +29,17 @@ export function hydrateApp(
   let tmrId: any;
   let ranCompleted = false;
 
-  function hydratedComplete() {
+  /**
+   * Maximum time the drain step will wait for pending component work to finish
+   * before tearing the window down. Mirrors the user-supplied `timeout`
+   * default of 15s in `renderToString`, but capped low enough that a stuck
+   * component cannot keep a render's graph alive for minutes — see
+   * https://github.com/stenciljs/core/issues/6864 (option 2: wait for
+   * waitingElements, with a hard ceiling).
+   */
+  const DRAIN_CEILING_MS = opts.timeout ?? 15000;
+
+  async function hydratedComplete() {
     globalThis.clearTimeout(tmrId);
     createdElements.clear();
     connectedElements.clear();
@@ -50,12 +60,22 @@ export function hydrateApp(
       }
     }
 
+    // Wait for any in-flight components (`componentOnReady` / pending fetch)
+    // to settle before the runner gets back to `render.ts:hydrateDocument`,
+    // which calls `finalizeHydrate` → `destroyWindow` → `MockWindow.close`.
+    // Without this, late component code resumes against a torn-down window
+    // (`globalThis.fetch === null`, document reset) — see #6864.
+    await drainWaitingElements(waitingElements, DRAIN_CEILING_MS);
+
     afterHydrate(win, opts, results, resolve);
   }
 
   function hydratedError(err: any) {
     renderCatchError(opts, results, err);
-    hydratedComplete();
+    // hydratedComplete is async now; fire-and-await so the runner waits
+    // for the drain before resolving. Catch any rejection so a thrown drain
+    // error doesn't propagate as an uncaught promise.
+    Promise.resolve(hydratedComplete()).catch((e) => renderCatchError(opts, results, e));
   }
 
   function timeoutExceeded() {
@@ -180,6 +200,33 @@ export function hydrateApp(
   } catch (e) {
     hydratedError(e);
   }
+}
+
+/**
+ * Waits for `waiting` to drain (size === 0) before resolving, polling every
+ * 5ms, bounded by `ceilingMs`. Caps a stuck component so a render can't keep
+ * a destroyed-window object graph alive indefinitely.
+ *
+ * Used inside `hydrateApp` to defer `afterHydrate` (and therefore
+ * `destroyWindow`) until any in-flight `componentOnReady` work has settled —
+ * see https://github.com/stenciljs/core/issues/6864.
+ *
+ * Exported for unit-test isolation only. Not part of the public API.
+ * @internal
+ */
+export function drainWaitingElements(waiting: Set<unknown>, ceilingMs: number): Promise<void> {
+  if (waiting.size === 0) return Promise.resolve();
+  return new Promise<void>((resolve) => {
+    const start = Date.now();
+    const tick = () => {
+      if (waiting.size === 0 || Date.now() - start >= ceilingMs) {
+        resolve();
+        return;
+      }
+      setTimeout(tick, 5);
+    };
+    tick();
+  });
 }
 
 async function hydrateComponent(
