@@ -1604,6 +1604,35 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/hydrate-timeout/own-controller-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "own-controller-cmp",
+          "name": "OwnControllerCmp",
+          "description": "Used by hydrate-timeout.e2e.ts to verify the AbortController shim: a\ncomponent that creates its own AbortController has that controller cascade-aborted\nautomatically when the render times out\n\nThe outcome is reported via `global` (not observable through\nrenderToString's result) so the test can assert on it."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "OwnControllerCmp",
+          "declaration": {
+            "name": "OwnControllerCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "own-controller-cmp",
+          "declaration": {
+            "name": "OwnControllerCmp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/path-alias-cmp/path-alias-cmp.tsx",
       "declarations": [
         {
@@ -2275,6 +2304,55 @@
           "name": "slot-parent-cmp",
           "declaration": {
             "name": "SlotParentCmp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/hydrate-timeout/slow-fetch-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "slow-fetch-cmp",
+          "name": "SlowFetchCmp",
+          "description": "Used by hydrate-timeout.e2e.ts to reproduce stenciljs/core#6864: a\ncomponent whose `componentWillLoad` is still awaiting `fetch()` when the\nrender's `opts.timeout` fires.",
+          "attributes": [
+            {
+              "name": "url",
+              "type": {
+                "text": "string"
+              },
+              "fieldName": "url"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "url",
+              "type": {
+                "text": "string"
+              },
+              "readonly": true,
+              "attribute": "url"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "SlowFetchCmp",
+          "declaration": {
+            "name": "SlowFetchCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "slow-fetch-cmp",
+          "declaration": {
+            "name": "SlowFetchCmp"
           }
         }
       ]
