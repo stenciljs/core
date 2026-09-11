@@ -161,6 +161,15 @@ export namespace Components {
     }
     interface NonShadowWrapper {
     }
+    /**
+     * Used by hydrate-timeout.e2e.ts to verify the AbortController shim: a
+     * component that creates its own AbortController has that controller cascade-aborted 
+     * automatically when the render times out
+     * The outcome is reported via `global` (not observable through
+     * renderToString's result) so the test can assert on it.
+     */
+    interface OwnControllerCmp {
+    }
     interface PathAliasCmp {
     }
     interface PrerenderCmp {
@@ -506,6 +515,19 @@ declare global {
         prototype: HTMLNonShadowWrapperElement;
         new (): HTMLNonShadowWrapperElement;
     };
+    /**
+     * Used by hydrate-timeout.e2e.ts to verify the AbortController shim: a
+     * component that creates its own AbortController has that controller cascade-aborted 
+     * automatically when the render times out
+     * The outcome is reported via `global` (not observable through
+     * renderToString's result) so the test can assert on it.
+     */
+    interface HTMLOwnControllerCmpElement extends Components.OwnControllerCmp, HTMLStencilElement {
+    }
+    var HTMLOwnControllerCmpElement: {
+        prototype: HTMLOwnControllerCmpElement;
+        new (): HTMLOwnControllerCmpElement;
+    };
     interface HTMLPathAliasCmpElement extends Components.PathAliasCmp, HTMLStencilElement {
     }
     var HTMLPathAliasCmpElement: {
@@ -669,6 +691,7 @@ declare global {
         "non-shadow-forwarded-slot": HTMLNonShadowForwardedSlotElement;
         "non-shadow-multi-slots": HTMLNonShadowMultiSlotsElement;
         "non-shadow-wrapper": HTMLNonShadowWrapperElement;
+        "own-controller-cmp": HTMLOwnControllerCmpElement;
         "path-alias-cmp": HTMLPathAliasCmpElement;
         "prerender-cmp": HTMLPrerenderCmpElement;
         "prop-cmp": HTMLPropCmpElement;
@@ -816,6 +839,15 @@ declare namespace LocalJSX {
     interface NonShadowMultiSlots {
     }
     interface NonShadowWrapper {
+    }
+    /**
+     * Used by hydrate-timeout.e2e.ts to verify the AbortController shim: a
+     * component that creates its own AbortController has that controller cascade-aborted 
+     * automatically when the render times out
+     * The outcome is reported via `global` (not observable through
+     * renderToString's result) so the test can assert on it.
+     */
+    interface OwnControllerCmp {
     }
     interface PathAliasCmp {
     }
@@ -986,6 +1018,7 @@ declare namespace LocalJSX {
         "non-shadow-forwarded-slot": NonShadowForwardedSlot;
         "non-shadow-multi-slots": NonShadowMultiSlots;
         "non-shadow-wrapper": NonShadowWrapper;
+        "own-controller-cmp": OwnControllerCmp;
         "path-alias-cmp": PathAliasCmp;
         "prerender-cmp": PrerenderCmp;
         "prop-cmp": Omit<PropCmp, keyof PropCmpAttributes> & { [K in keyof PropCmp & keyof PropCmpAttributes]?: PropCmp[K] } & { [K in keyof PropCmp & keyof PropCmpAttributes as `attr:${K}`]?: PropCmpAttributes[K] } & { [K in keyof PropCmp & keyof PropCmpAttributes as `prop:${K}`]?: PropCmp[K] };
@@ -1049,6 +1082,14 @@ declare module "@stencil/core" {
             "non-shadow-forwarded-slot": LocalJSX.IntrinsicElements["non-shadow-forwarded-slot"] & JSXBase.HTMLAttributes<HTMLNonShadowForwardedSlotElement>;
             "non-shadow-multi-slots": LocalJSX.IntrinsicElements["non-shadow-multi-slots"] & JSXBase.HTMLAttributes<HTMLNonShadowMultiSlotsElement>;
             "non-shadow-wrapper": LocalJSX.IntrinsicElements["non-shadow-wrapper"] & JSXBase.HTMLAttributes<HTMLNonShadowWrapperElement>;
+            /**
+             * Used by hydrate-timeout.e2e.ts to verify the AbortController shim: a
+             * component that creates its own AbortController has that controller cascade-aborted 
+             * automatically when the render times out
+             * The outcome is reported via `global` (not observable through
+             * renderToString's result) so the test can assert on it.
+             */
+            "own-controller-cmp": LocalJSX.IntrinsicElements["own-controller-cmp"] & JSXBase.HTMLAttributes<HTMLOwnControllerCmpElement>;
             "path-alias-cmp": LocalJSX.IntrinsicElements["path-alias-cmp"] & JSXBase.HTMLAttributes<HTMLPathAliasCmpElement>;
             "prerender-cmp": LocalJSX.IntrinsicElements["prerender-cmp"] & JSXBase.HTMLAttributes<HTMLPrerenderCmpElement>;
             "prop-cmp": LocalJSX.IntrinsicElements["prop-cmp"] & JSXBase.HTMLAttributes<HTMLPropCmpElement>;

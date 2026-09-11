@@ -53,4 +53,16 @@ describe('hydrate timeout aborts in-flight component work', () => {
     expect(fetchCalls.length).toBe(1);
     expect(fetchCalls[0].init?.signal?.aborted).toBe(true);
   });
+
+  it("cascades to a component's own AbortController for non-fetch cancellable work", async () => {
+    delete (global as any).__ownControllerOutcome;
+
+    const result = await renderToString(`<own-controller-cmp></own-controller-cmp>`, {
+      timeout: 50,
+      fullDocument: false,
+    });
+
+    expect(result.diagnostics.some((d) => d.messageText.includes('Hydrate exceeded timeout'))).toBe(true);
+    expect((global as any).__ownControllerOutcome).toEqual({ ok: false, name: 'AbortError' });
+  });
 });
