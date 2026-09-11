@@ -582,7 +582,7 @@ const updateChildren = (
 
         if (elmToMove.$tag$ !== newStartVnode.$tag$) {
           // the tag doesn't match so we'll need a new DOM element
-          node = createElm(oldCh && oldCh[newStartIdx], newVNode, idxInOld);
+          node = createElm(oldCh && oldCh[newStartIdx], newVNode, newStartIdx);
         } else {
           patch(elmToMove, newStartVnode, isInitialRender);
           // invalidate the matching old node so that we won't try to update it
