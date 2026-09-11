@@ -48,7 +48,7 @@ describe('hydrate timeout aborts in-flight component work', () => {
     // Generous upper bound: this checks we did NOT wait anywhere close to a
     // second full timeout window not a tight timing budget.
     expect(elapsed).toBeLessThan(1000);
-    expect(result.diagnostics.some((d) => d.messageText.includes('Hydrate exceeded timeout'))).toBe(true);
+    expect(result.diagnostics.some((d: any) => d.messageText.includes('Hydrate exceeded timeout'))).toBe(true);
 
     expect(fetchCalls.length).toBe(1);
     expect(fetchCalls[0].init?.signal?.aborted).toBe(true);
