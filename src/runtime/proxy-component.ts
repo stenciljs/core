@@ -223,7 +223,12 @@ export const proxyComponent = (
               // lazy element with a setter
               // we might need to wait for the lazy class instance to be ready
               // before we can set it's value via it's setter function
-              const setterSetVal = () => {
+              const parsedValue = parsePropertyValue(
+                newValue,
+                memberFlags,
+                BUILD.formAssociated && !!(cmpMeta.$flags$ & CMP_FLAGS.formAssociated),
+              );
+              const setterSetVal = (val: any) => {
                 const currentValue = ref.$lazyInstance$[memberName];
                 if (!ref.$instanceValues$.get(memberName) && currentValue) {
                   // on init `get()` make sure the hostRef matches class instance
@@ -236,20 +241,24 @@ export const proxyComponent = (
                 }
                 // this sets the value via the `set()` function which
                 // might not end up changing the underlying value
-                ref.$lazyInstance$[memberName] = parsePropertyValue(
-                  newValue,
-                  memberFlags,
-                  BUILD.formAssociated && !!(cmpMeta.$flags$ & CMP_FLAGS.formAssociated),
-                );
+                ref.$lazyInstance$[memberName] = val;
                 setValue(this, memberName, ref.$lazyInstance$[memberName], cmpMeta);
               };
 
               if (ref.$lazyInstance$) {
-                setterSetVal();
+                setterSetVal(parsedValue);
               } else {
-                // the class is yet to be loaded / defined so queue the call
+                // The class is yet to be loaded / defined, so queue the call for once
+                // it's ready. Stash the value on `$instanceValues$` and re-read it when
+                // the queued call runs, rather than closing over `newValue`, so a later
+                // write that reaches the instance directly first isn't clobbered by this
+                // now-stale one.
+                ref.$instanceValues$.set(memberName, parsedValue);
                 ref.$fetchedCbList$.push(() => {
-                  setterSetVal();
+                  const pendingValue = ref.$instanceValues$.get(memberName);
+                  if (ref.$lazyInstance$[memberName] !== pendingValue) {
+                    setterSetVal(pendingValue);
+                  }
                 });
               }
             }
