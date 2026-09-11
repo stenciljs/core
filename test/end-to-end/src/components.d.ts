@@ -163,7 +163,7 @@ export namespace Components {
     }
     /**
      * Used by hydrate-timeout.e2e.ts to verify the AbortController shim: a
-     * component that creates its own AbortController has that controller cascade-aborted 
+     * component that creates its own AbortController has that controller cascade-aborted
      * automatically when the render times out
      * The outcome is reported via `global` (not observable through
      * renderToString's result) so the test can assert on it.
@@ -517,7 +517,7 @@ declare global {
     };
     /**
      * Used by hydrate-timeout.e2e.ts to verify the AbortController shim: a
-     * component that creates its own AbortController has that controller cascade-aborted 
+     * component that creates its own AbortController has that controller cascade-aborted
      * automatically when the render times out
      * The outcome is reported via `global` (not observable through
      * renderToString's result) so the test can assert on it.
@@ -842,7 +842,7 @@ declare namespace LocalJSX {
     }
     /**
      * Used by hydrate-timeout.e2e.ts to verify the AbortController shim: a
-     * component that creates its own AbortController has that controller cascade-aborted 
+     * component that creates its own AbortController has that controller cascade-aborted
      * automatically when the render times out
      * The outcome is reported via `global` (not observable through
      * renderToString's result) so the test can assert on it.
@@ -1084,7 +1084,7 @@ declare module "@stencil/core" {
             "non-shadow-wrapper": LocalJSX.IntrinsicElements["non-shadow-wrapper"] & JSXBase.HTMLAttributes<HTMLNonShadowWrapperElement>;
             /**
              * Used by hydrate-timeout.e2e.ts to verify the AbortController shim: a
-             * component that creates its own AbortController has that controller cascade-aborted 
+             * component that creates its own AbortController has that controller cascade-aborted
              * automatically when the render times out
              * The outcome is reported via `global` (not observable through
              * renderToString's result) so the test can assert on it.
