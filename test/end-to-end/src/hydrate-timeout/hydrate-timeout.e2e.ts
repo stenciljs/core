@@ -62,7 +62,7 @@ describe('hydrate timeout aborts in-flight component work', () => {
       fullDocument: false,
     });
 
-    expect(result.diagnostics.some((d) => d.messageText.includes('Hydrate exceeded timeout'))).toBe(true);
+    expect(result.diagnostics.some((d: any) => d.messageText.includes('Hydrate exceeded timeout'))).toBe(true);
     expect((global as any).__ownControllerOutcome).toEqual({ ok: false, name: 'AbortError' });
   });
 });
