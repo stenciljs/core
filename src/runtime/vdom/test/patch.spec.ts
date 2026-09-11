@@ -363,6 +363,21 @@ describe('renderer', () => {
           expect(hostElm.children.length).toEqual(3);
           expect(hostElm.children[1].tagName).toEqual('I');
         });
+
+        it('creates a new element for a reused key that changes tag, without stealing a later sibling', () => {
+          const itemP = (n: number) => h('p', { key: n }, `text ${n}`);
+          const itemDiv = (n: number) => h('div', { key: n }, `box ${n}`);
+
+          const vnode1 = h('div', null, itemP(1), itemP(2), itemP(3), itemP(4), itemP(5));
+          const vnode2 = h('div', null, itemP(1), itemP(3), itemDiv(4), itemP(5));
+
+          patch(vnode0, vnode1);
+          expect(map(inner, hostElm.children)).toEqual(['text 1', 'text 2', 'text 3', 'text 4', 'text 5']);
+
+          patch(vnode1, vnode2);
+          expect(map(inner, hostElm.children)).toEqual(['text 1', 'text 3', 'box 4', 'text 5']);
+          expect(map((c: any) => c.tagName, hostElm.children)).toEqual(['P', 'P', 'DIV', 'P']);
+        });
       });
 
       describe('removal of elements', () => {
