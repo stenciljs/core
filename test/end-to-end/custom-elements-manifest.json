@@ -2281,6 +2281,55 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/hydrate-timeout/slow-fetch-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "slow-fetch-cmp",
+          "name": "SlowFetchCmp",
+          "description": "Used by hydrate-timeout.e2e.ts to reproduce stenciljs/core#6864: a\ncomponent whose `componentWillLoad` is still awaiting `fetch()` when the\nrender's `opts.timeout` fires.",
+          "attributes": [
+            {
+              "name": "url",
+              "type": {
+                "text": "string"
+              },
+              "fieldName": "url"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "url",
+              "type": {
+                "text": "string"
+              },
+              "readonly": true,
+              "attribute": "url"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "SlowFetchCmp",
+          "declaration": {
+            "name": "SlowFetchCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "slow-fetch-cmp",
+          "declaration": {
+            "name": "SlowFetchCmp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/declarative-shadow-dom/ssr-shadow-cmp.tsx",
       "declarations": [
         {
