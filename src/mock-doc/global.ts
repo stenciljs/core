@@ -1,3 +1,4 @@
+import { MockBlob } from './blob';
 import { MockCSSStyleSheet } from './css-style-sheet';
 import { MockDocumentFragment } from './document-fragment';
 import {
@@ -17,6 +18,7 @@ import {
   MockUListElement,
 } from './element';
 import { MockCustomEvent, MockEvent, MockFocusEvent, MockKeyboardEvent, MockMouseEvent } from './event';
+import { MockFile } from './file';
 import { MockHeaders } from './headers';
 import { MockDOMParser } from './parser';
 import { MockRequest, MockResponse } from './request-response';
@@ -158,11 +160,13 @@ const WINDOW_PROPS = [
 ];
 
 const GLOBAL_CONSTRUCTORS: [string, any][] = [
+  ['Blob', MockBlob],
   ['CSSStyleSheet', MockCSSStyleSheet],
   ['CustomEvent', MockCustomEvent],
   ['DocumentFragment', MockDocumentFragment],
   ['DOMParser', MockDOMParser],
   ['Event', MockEvent],
+  ['File', MockFile],
   ['FocusEvent', MockFocusEvent],
   ['Headers', MockHeaders],
   ['KeyboardEvent', MockKeyboardEvent],
