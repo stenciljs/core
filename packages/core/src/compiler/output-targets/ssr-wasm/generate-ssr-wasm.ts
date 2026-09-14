@@ -26,7 +26,7 @@ const execFileAsync = promisify(execFile);
 // the mock-doc window setup both capture defined values instead of undefined.
 // No-ops are correct: the only setTimeout use in the bundle is the render-abort guard,
 // which we do not want firing synchronously.
-const SSR_WASM_TIMER_POLYFILL = `
+const SSR_WASM_TIMER_POLYFILL = /* js */ `
 if (typeof globalThis !== "undefined") {
   if (typeof globalThis.setTimeout !== "function") globalThis.setTimeout = function() { return 0; };
   if (typeof globalThis.clearTimeout !== "function") globalThis.clearTimeout = function() {};
@@ -35,11 +35,48 @@ if (typeof globalThis !== "undefined") {
 }
 `;
 
+// Polyfill AbortController/AbortSignal, not available in QuickJS-ng.
+// Must run before the IIFE. Actual polyfill, no no-op.
+const SSR_WASM_ABORT_CONTROLLER_POLYFILL = /* js */ `
+if (typeof globalThis !== "undefined" && typeof globalThis.AbortController !== "function") {
+  function StencilPolyfillAbortSignal() {
+    this.aborted = false;
+    this.reason = undefined;
+    this._listeners = [];
+  }
+  StencilPolyfillAbortSignal.prototype.addEventListener = function(type, listener, options) {
+    if (type !== "abort" || typeof listener !== "function") return;
+    this._listeners.push({ listener: listener, once: !!(options && options.once) });
+  };
+  StencilPolyfillAbortSignal.prototype.removeEventListener = function(type, listener) {
+    if (type !== "abort") return;
+    this._listeners = this._listeners.filter(function(entry) { return entry.listener !== listener; });
+  };
+  StencilPolyfillAbortSignal.prototype.dispatchEvent = function(event) {
+    var signal = this;
+    signal._listeners.slice().forEach(function(entry) { entry.listener.call(signal, event); });
+    signal._listeners = signal._listeners.filter(function(entry) { return !entry.once; });
+    return true;
+  };
+  function StencilPolyfillAbortController() {
+    this.signal = new StencilPolyfillAbortSignal();
+  }
+  StencilPolyfillAbortController.prototype.abort = function(reason) {
+    if (this.signal.aborted) return;
+    this.signal.aborted = true;
+    this.signal.reason = reason;
+    this.signal.dispatchEvent({ type: "abort" });
+  };
+  globalThis.AbortController = StencilPolyfillAbortController;
+  globalThis.AbortSignal = StencilPolyfillAbortSignal;
+}
+`;
+
 // TypeScript interface file required by extism-js.
 // Must declare a 'main' module - extism-js uses this as the plugin entry point.
 // All functions are (): void - data flows via Host.inputString()/Host.outputString(),
 // not as WASM return values. Use I32/I64/F32/F64 only for direct primitive returns.
-const SSR_WASM_INTERFACE = `declare module "main" {
+const SSR_WASM_INTERFACE = /* ts */ `declare module "main" {
   export function renderToString(): void;
   export function setTagTransformer(): void;
   export function resetSsrDocData(): void;
@@ -51,7 +88,7 @@ const SSR_WASM_INTERFACE = `declare module "main" {
 // time, so QuickJS-ng sees the fully-initialized IIFE scope rather than an eager
 // snapshot taken during IIFE setup (which QuickJS-ng resolves incorrectly).
 // setTagTransformer accepts [{from: string, to: string}] and builds a tag transformer.
-const SSR_WASM_OUTRO = `
+const SSR_WASM_OUTRO = /* js */ `
 module.exports = {
   renderToString: async function() {
     try {
@@ -131,7 +168,8 @@ export const generateSsrWasmApp = async (
 
     const rolldownBuild = await rolldown(rolldownOptions);
     const rolldownOutput = await rolldownBuild.generate({
-      banner: generatePreamble(config) + SSR_WASM_TIMER_POLYFILL,
+      banner:
+        generatePreamble(config) + SSR_WASM_TIMER_POLYFILL + SSR_WASM_ABORT_CONTROLLER_POLYFILL,
       outro: SSR_WASM_OUTRO,
       format: 'iife',
       // IIFE supplies `exports` as its parameter, which the bundled CJS code needs.
