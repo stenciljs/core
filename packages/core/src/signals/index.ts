@@ -1,12 +1,12 @@
 import { BUILD } from 'virtual:app-data';
 import { consoleDevWarn, getHostRef } from 'virtual:platform';
-import type { ReadonlySignal } from '@preact/signals-core';
 
 import { MEMBER_FLAGS } from '../utils/constants';
+import type { ReadonlySignal } from '../runtime/signals-core';
 
-export { batch, computed, effect, signal, untracked } from '@preact/signals-core';
+export { batch, computed, effect, signal, untracked } from '../runtime/signals-core';
 export { STENCIL_SIGNALS_SYMBOL } from '../runtime/signals';
-export type { ReadonlySignal, Signal } from '@preact/signals-core';
+export type { ReadonlySignal, Signal } from '../runtime/signals-core';
 
 /**
  * Returns the `ReadonlySignal` backing a `@Prop` member on a Stencil element.
