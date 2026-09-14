@@ -404,7 +404,13 @@ describe('renderer', () => {
           const vnode2 = h('div', null, itemP(1), itemP(3), itemDiv(4), itemP(5));
 
           patch(vnode0, vnode1);
-          expect(map(inner, hostElm.children)).toEqual(['text 1', 'text 2', 'text 3', 'text 4', 'text 5']);
+          expect(map(inner, hostElm.children)).toEqual([
+            'text 1',
+            'text 2',
+            'text 3',
+            'text 4',
+            'text 5',
+          ]);
 
           patch(vnode1, vnode2);
           expect(map(inner, hostElm.children)).toEqual(['text 1', 'text 3', 'box 4', 'text 5']);

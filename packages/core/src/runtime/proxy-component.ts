@@ -449,12 +449,22 @@ export const proxyComponent = (
             (newValue as any) = !(newValue === null || newValue === 'false');
           }
 
+          // A lazy getter/setter Prop's element-side read (`this[propName]`) goes through to the
+          // instance once one exists, which can still be behind a write queued for replay at first
+          // render. `$instanceValues$` is kept in sync with the latest write eagerly regardless, so
+          // use that as the "current value" for these members instead, or this attribute write could
+          // wrongly be treated as a no-op and dropped.
+          const currentValue =
+            BUILD.lazyLoad && propMemberFlags & MEMBER_FLAGS.Setter
+              ? hostRef.$instanceValues$.get(propName)
+              : this[propName];
+
           // test whether this property either has no 'getter' or if it does, does it also have a 'setter'
           // before attempting to write back to component props
           const propDesc = Object.getOwnPropertyDescriptor(prototype, propName);
           if (
             !isSpuriousBooleanRemoval &&
-            newValue != this[propName] &&
+            newValue != currentValue &&
             (!propDesc.get || !!propDesc.set)
           ) {
             this[propName] = newValue;

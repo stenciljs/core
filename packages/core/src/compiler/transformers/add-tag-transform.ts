@@ -173,7 +173,8 @@ export const addTagTransform = (
               firstArg &&
               ts.isCallExpression(firstArg) &&
               ts.isIdentifier(firstArg.expression) &&
-              (firstArg.expression.text === TRANSFORM_TAG || firstArg.expression.text === 'transformTag');
+              (firstArg.expression.text === TRANSFORM_TAG ||
+                firstArg.expression.text === 'transformTag');
 
             if (firstArg && !alreadyTransformed) {
               // Wrap the argument in transformTag(...)

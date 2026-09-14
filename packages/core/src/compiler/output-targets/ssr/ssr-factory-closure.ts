@@ -9,7 +9,7 @@ export const MODE_RESOLUTION_CHAIN_DECLARATION = `modeResolutionChain = [];`;
  * `src/compiler/output-targets/ssr/write-hydrate-outputs.ts` file. This enables us to use
  * one module resolution chain across ssr and core runtime.
  */
-export const SSR_FACTORY_INTRO = /* js */`
+export const SSR_FACTORY_INTRO = /* js */ `
 //! let ${MODE_RESOLUTION_CHAIN_DECLARATION}
 
 // Capture native at module scope (before globalThis can be shadowed inside the factory).
@@ -185,7 +185,7 @@ export function ssrFactory($stencilWindow, $stencilHydrateOpts, $stencilHydrateR
     ${HYDRATE_APP_CLOSURE_START}
 `;
 
-export const SSR_FACTORY_OUTRO = /* js */`
+export const SSR_FACTORY_OUTRO = /* js */ `
     /*hydrateAppClosure end*/
     ssrApp(window, $stencilHydrateOpts, $stencilHydrateResults, $stencilAfterHydrate, $stencilHydrateResolve, $stencilAbortController);
   }

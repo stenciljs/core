@@ -40,16 +40,21 @@ test.describe('hydrate timeout aborts in-flight component work', () => {
 
   test('resolves at the timeout and cancels the pending fetch instead of waiting for it', async () => {
     const start = Date.now();
-    const result = await renderToString(`<slow-fetch-cmp url="https://example.test/slow"></slow-fetch-cmp>`, {
-      timeout: 50,
-      fullDocument: false,
-    });
+    const result = await renderToString(
+      `<slow-fetch-cmp url="https://example.test/slow"></slow-fetch-cmp>`,
+      {
+        timeout: 50,
+        fullDocument: false,
+      },
+    );
     const elapsed = Date.now() - start;
 
     // Generous upper bound: this checks we did NOT wait anywhere close to a
     // second full timeout window not a tight timing budget.
     expect(elapsed).toBeLessThan(1000);
-    expect(result.diagnostics.some((d: any) => d.messageText.includes('Hydrate exceeded timeout'))).toBe(true);
+    expect(
+      result.diagnostics.some((d: any) => d.messageText.includes('Hydrate exceeded timeout')),
+    ).toBe(true);
 
     expect(fetchCalls.length).toBe(1);
     expect(fetchCalls[0].init?.signal?.aborted).toBe(true);
@@ -63,7 +68,9 @@ test.describe('hydrate timeout aborts in-flight component work', () => {
       fullDocument: false,
     });
 
-    expect(result.diagnostics.some((d: any) => d.messageText.includes('Hydrate exceeded timeout'))).toBe(true);
+    expect(
+      result.diagnostics.some((d: any) => d.messageText.includes('Hydrate exceeded timeout')),
+    ).toBe(true);
     expect((global as any).__ownControllerOutcome).toEqual({ ok: false, name: 'AbortError' });
   });
 });

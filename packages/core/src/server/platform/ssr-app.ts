@@ -26,6 +26,7 @@ declare const $nativeClearTimeout: typeof clearTimeout;
  * @param results The results object to store the hydration results.
  * @param afterSsr The callback to be called after SSR is complete.
  * @param resolve The resolve function to be called when SSR is complete.
+ * @param abortController The AbortController to use for aborting in-flight fetch() calls and other cancellable work when SSR times out.
  */
 export function ssrApp(
   win: Window & typeof globalThis,
@@ -183,7 +184,15 @@ export function ssrApp(
 
           // add it to our Set so we know it's already being connected
           connectedElements.add(elm);
-          return hydrateComponent.call(elm, win, results, elm.nodeName, elm, waitingElements, abortedPromise);
+          return hydrateComponent.call(
+            elm,
+            win,
+            results,
+            elm.nodeName,
+            elm,
+            waitingElements,
+            abortedPromise,
+          );
         }
       }
 
@@ -264,7 +273,10 @@ async function hydrateComponent(
         // race `componentOnReady` against the render finishing: if the
         // render times out first, stop waiting rather than resuming this
         // continuation once the window has been destroyed (see #6864).
-        const wasAborted = await Promise.race([elm.componentOnReady().then(() => false), aborted.then(() => true)]);
+        const wasAborted = await Promise.race([
+          elm.componentOnReady().then(() => false),
+          aborted.then(() => true),
+        ]);
 
         if (!wasAborted) {
           results.hydratedCount++;

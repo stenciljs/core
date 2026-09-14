@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-describe('getter/setter @Prop write ordering before first render (#6870)', () => {
+describe('getter/setter @Prop write ordering before first render', () => {
   it('the last write before first render wins, same as a plain @Prop', async () => {
     // Render a first instance so its module is loaded and cached
     const warmup = document.createElement('prop-setter-lazy-race');
@@ -32,5 +32,32 @@ describe('getter/setter @Prop write ordering before first render (#6870)', () =>
 
     warmup.remove();
     el.remove();
+  });
+
+  it('the last attribute write before first render wins, even when it equals the prop default', async () => {
+    // Render a first instance so its module is loaded and cached
+    const warmup = document.createElement('prop-setter-lazy-race');
+    document.body.appendChild(warmup);
+    await warmup.componentOnReady();
+
+    const el = document.createElement('prop-setter-lazy-race') as any;
+
+    // Attribute write lands before the element is connected, so the lazy
+    // instance doesn't exist yet - it's queued to be replayed once ready
+    el.setAttribute('is-readonly', '');
+
+    document.body.appendChild(el);
+
+    // Module already cached, `connectedCallback` constructs the lazy
+    // instance synchronously - removing the attribute now resolves to
+    // `false`, which equals the untouched instance default. That used to
+    // make this write look like a no-op and get dropped, letting the
+    // earlier queued write win instead.
+    el.removeAttribute('is-readonly');
+
+    await el.componentOnReady();
+
+    expect(el.isReadonly).toBe(false);
+    expect(el.hasAttribute('is-readonly')).toBe(false);
   });
 });
