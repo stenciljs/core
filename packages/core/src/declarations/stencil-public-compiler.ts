@@ -2245,6 +2245,10 @@ export interface OutputTargetSsr extends OutputTargetBase {
   cjs?: boolean;
 }
 
+/**
+ * Compiles the SSR hydrate app to a WASM plugin (via `extism-js`/QuickJS-ng) that can run
+ * outside of Node
+ */
 export interface OutputTargetSsrWasm extends OutputTargetBase {
   type: 'ssr-wasm';
   /** Output directory. @default 'dist/ssr-wasm' */

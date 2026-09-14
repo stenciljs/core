@@ -97,6 +97,12 @@ module.exports = {
         return;
       }
       var inp = JSON.parse(Host.inputString());
+      // QuickJS-ng has no timers, so if hydration never settles on its own (a Promise
+      // nothing will ever resolve), the call doesn't hang - it just runs out of scheduled
+      // work and returns whatever was last written here. Write a diagnostic up front so
+      // that's a real error instead of silence, then overwrite it once renderToString()
+      // actually resolves.
+      Host.outputString(JSON.stringify({ __error: 'renderToString did not complete - a component may be waiting on work that never resolves' }));
       var result = await renderToString(inp.html, inp.options);
       Host.outputString(JSON.stringify(result));
     } catch(e) {

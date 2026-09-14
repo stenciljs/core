@@ -105,4 +105,19 @@ describe('ssr-wasm plugin execution', () => {
     expect(output.html).toContain('class="greeting"');
     await call('setTagTransformer', []);
   });
+
+  // SsrFactoryOptions.timeout relies on setTimeout, which QuickJS-ng does not provide - see
+  // generate-ssr-wasm.ts. That doesn't hang the call, though: QuickJS-ng runs to completion,
+  // so a component whose hydration never settles on its own just makes renderToString()
+  // resolve quickly with an error result (via the fallback Host.outputString() call in
+  // SSR_WASM_OUTRO) instead of silently returning no output at all.
+  it('a component that never settles resolves with an error result instead of hanging or returning nothing', async () => {
+    const start = Date.now();
+    const output = await call('renderToString', {
+      html: '<hangs-forever-cmp></hangs-forever-cmp>',
+    });
+    expect(Date.now() - start).toBeLessThan(2000);
+    expect(output).not.toBeNull();
+    expect(typeof output.__error).toBe('string');
+  });
 });

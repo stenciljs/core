@@ -6,6 +6,13 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/runtime";
 export namespace Components {
+    /**
+     * `componentWillLoad` awaits a Promise that never settles, to test how `renderToString()`
+     * behaves under the `ssr-wasm` target when a component's hydration never settles on its own -
+     * see ssr-wasm.e2e.ts.
+     */
+    interface HangsForeverCmp {
+    }
     interface MyGreeting {
         /**
           * @default 'World'
@@ -14,6 +21,17 @@ export namespace Components {
     }
 }
 declare global {
+    /**
+     * `componentWillLoad` awaits a Promise that never settles, to test how `renderToString()`
+     * behaves under the `ssr-wasm` target when a component's hydration never settles on its own -
+     * see ssr-wasm.e2e.ts.
+     */
+    interface HTMLHangsForeverCmpElement extends Components.HangsForeverCmp, HTMLStencilElement {
+    }
+    var HTMLHangsForeverCmpElement: {
+        prototype: HTMLHangsForeverCmpElement;
+        new (): HTMLHangsForeverCmpElement;
+    };
     interface HTMLMyGreetingElement extends Components.MyGreeting, HTMLStencilElement {
     }
     var HTMLMyGreetingElement: {
@@ -21,10 +39,18 @@ declare global {
         new (): HTMLMyGreetingElement;
     };
     interface HTMLElementTagNameMap {
+        "hangs-forever-cmp": HTMLHangsForeverCmpElement;
         "my-greeting": HTMLMyGreetingElement;
     }
 }
 declare namespace LocalJSX {
+    /**
+     * `componentWillLoad` awaits a Promise that never settles, to test how `renderToString()`
+     * behaves under the `ssr-wasm` target when a component's hydration never settles on its own -
+     * see ssr-wasm.e2e.ts.
+     */
+    interface HangsForeverCmp {
+    }
     interface MyGreeting {
         /**
           * @default 'World'
@@ -37,6 +63,7 @@ declare namespace LocalJSX {
     }
 
     interface IntrinsicElements {
+        "hangs-forever-cmp": HangsForeverCmp;
         "my-greeting": Omit<MyGreeting, keyof MyGreetingAttributes> & { [K in keyof MyGreeting & keyof MyGreetingAttributes]?: MyGreeting[K] } & { [K in keyof MyGreeting & keyof MyGreetingAttributes as `attr:${K}`]?: MyGreetingAttributes[K] } & { [K in keyof MyGreeting & keyof MyGreetingAttributes as `prop:${K}`]?: MyGreeting[K] };
     }
 }
@@ -44,6 +71,12 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
+            /**
+             * `componentWillLoad` awaits a Promise that never settles, to test how `renderToString()`
+             * behaves under the `ssr-wasm` target when a component's hydration never settles on its own -
+             * see ssr-wasm.e2e.ts.
+             */
+            "hangs-forever-cmp": LocalJSX.IntrinsicElements["hangs-forever-cmp"] & JSXBase.HTMLAttributes<HTMLHangsForeverCmpElement>;
             "my-greeting": LocalJSX.IntrinsicElements["my-greeting"] & JSXBase.HTMLAttributes<HTMLMyGreetingElement>;
         }
     }
