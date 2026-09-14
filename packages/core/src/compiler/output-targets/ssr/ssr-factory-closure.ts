@@ -9,13 +9,16 @@ export const MODE_RESOLUTION_CHAIN_DECLARATION = `modeResolutionChain = [];`;
  * `src/compiler/output-targets/ssr/write-hydrate-outputs.ts` file. This enables us to use
  * one module resolution chain across ssr and core runtime.
  */
-export const SSR_FACTORY_INTRO = `
+export const SSR_FACTORY_INTRO = /* js */`
 //! let ${MODE_RESOLUTION_CHAIN_DECLARATION}
 
-// Capture native setTimeout/clearTimeout at module scope (before globalThis can be shadowed inside the factory).
+// Capture native at module scope (before globalThis can be shadowed inside the factory).
+
 // Used for the hydrate timeout timer to avoid being affected by constrainTimeouts.
 var $nativeSetTimeout = (typeof globalThis !== 'undefined' ? globalThis : global).setTimeout;
 var $nativeClearTimeout = (typeof globalThis !== 'undefined' ? globalThis : global).clearTimeout;
+// Used to abort in-flight fetch() calls and to call any user defined AbortControllers when ssr times out.
+var $stencilNativeAbortController = AbortController;
 
 export function ssrFactory($stencilWindow, $stencilHydrateOpts, $stencilHydrateResults, $stencilAfterHydrate, $stencilHydrateResolve) {
   var globalThis = $stencilWindow;
@@ -108,8 +111,46 @@ export function ssrFactory($stencilWindow, $stencilHydrateOpts, $stencilHydrateR
 
   var fetch, FetchError, Headers, Request, Response;
 
+  // Aborted when the render times out or errors, so in-flight fetch() calls
+  // made by component code stop holding the render's window/results alive
+  // instead of running to completion against a torn-down window. See #6864.
+  var $stencilAbortController = new $stencilNativeAbortController();
+
+  // Any AbortController a component creates itself is transparently wired to
+  // cascade-abort when the render times out too, so component code using the
+  // standard AbortController convention for its own cancellable work (axios,
+  // aws-sdk v3, the mongodb driver, etc.) gets cancelled automatically. 
+  var AbortController = function () {
+    var controller = new $stencilNativeAbortController();
+    $stencilAbortController.signal.addEventListener(
+      'abort',
+      function () {
+        controller.abort();
+      },
+      { once: true },
+    );
+    return controller;
+  };
+
+  function $stencilFetchSignal(callerSignal) {
+    if (!callerSignal) {
+      return $stencilAbortController.signal;
+    }
+    if (callerSignal.aborted || $stencilAbortController.signal.aborted) {
+      return callerSignal.aborted ? callerSignal : $stencilAbortController.signal;
+    }
+    var merged = new $stencilNativeAbortController();
+    var onAbort = function () { merged.abort(); };
+    callerSignal.addEventListener('abort', onAbort, { once: true });
+    $stencilAbortController.signal.addEventListener('abort', onAbort, { once: true });
+    return merged.signal;
+  }
+
   if (typeof $stencilWindow.fetch === 'function') {
-    fetch = $stencilWindow.fetch;
+    var $stencilRawFetch = $stencilWindow.fetch;
+    fetch = $stencilWindow.fetch = function(input, init) {
+      return $stencilRawFetch(input, Object.assign({}, init, { signal: $stencilFetchSignal(init && init.signal) }));
+    };
   } else {
     fetch = $stencilWindow.fetch = function() { throw new Error('fetch() is not implemented'); };
   }
@@ -144,9 +185,9 @@ export function ssrFactory($stencilWindow, $stencilHydrateOpts, $stencilHydrateR
     ${HYDRATE_APP_CLOSURE_START}
 `;
 
-export const SSR_FACTORY_OUTRO = `
+export const SSR_FACTORY_OUTRO = /* js */`
     /*hydrateAppClosure end*/
-    ssrApp(window, $stencilHydrateOpts, $stencilHydrateResults, $stencilAfterHydrate, $stencilHydrateResolve);
+    ssrApp(window, $stencilHydrateOpts, $stencilHydrateResults, $stencilAfterHydrate, $stencilHydrateResolve, $stencilAbortController);
   }
 
   hydrateAppClosure($stencilWindow);

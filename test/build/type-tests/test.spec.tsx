@@ -92,6 +92,13 @@ export function TypeTestComponent() {
 
       {/* @ts-expect-error - arrProp should be string[], not number[] */}
       <typed-props strRequired='ok' arrProp={[1, 2, 3]}></typed-props>
+
+      {/* ===== WAI-ARIA Custom Prop Type Checks ===== */}
+
+      {/* Valid: https://github.com/stenciljs/core/issues/6854 - `aria` (and any other
+          `aria`-prefixed prop name) must still accept an object value, not just string/boolean */}
+      <typed-props strRequired='ok' aria={{ 'aria-label': 'Close' }}></typed-props>
+      <typed-props strRequired='ok' ariaCustomThing={{ foo: 'bar' }}></typed-props>
     </>
   );
 }

@@ -118,6 +118,15 @@ export namespace Components {
     }
     interface NonShadowWrapper {
     }
+    /**
+     * Used by hydrate-timeout.e2e.ts to verify the AbortController shim: a
+     * component that creates its own AbortController has that controller cascade-aborted
+     * automatically when the render times out
+     * The outcome is reported via `global` (not observable through
+     * renderToString's result) so the test can assert on it.
+     */
+    interface OwnControllerCmp {
+    }
     interface PartSsrShadowCmp {
         "selected": boolean;
     }
@@ -192,6 +201,14 @@ export namespace Components {
     interface ShadowSsrParentCmp {
     }
     interface ShadowWrapper {
+    }
+    /**
+     * Used by hydrate-timeout.e2e.ts to reproduce stenciljs/core#6864: a
+     * component whose `componentWillLoad` is still awaiting `fetch()` when the
+     * render's `opts.timeout` fires.
+     */
+    interface SlowFetchCmp {
+        "url": string;
     }
     interface SlowSsrProp {
         /**
@@ -371,6 +388,19 @@ declare global {
         prototype: HTMLNonShadowWrapperElement;
         new (): HTMLNonShadowWrapperElement;
     };
+    /**
+     * Used by hydrate-timeout.e2e.ts to verify the AbortController shim: a
+     * component that creates its own AbortController has that controller cascade-aborted
+     * automatically when the render times out
+     * The outcome is reported via `global` (not observable through
+     * renderToString's result) so the test can assert on it.
+     */
+    interface HTMLOwnControllerCmpElement extends Components.OwnControllerCmp, HTMLStencilElement {
+    }
+    var HTMLOwnControllerCmpElement: {
+        prototype: HTMLOwnControllerCmpElement;
+        new (): HTMLOwnControllerCmpElement;
+    };
     interface HTMLPartSsrShadowCmpElement extends Components.PartSsrShadowCmp, HTMLStencilElement {
     }
     var HTMLPartSsrShadowCmpElement: {
@@ -480,6 +510,17 @@ declare global {
         prototype: HTMLShadowWrapperElement;
         new (): HTMLShadowWrapperElement;
     };
+    /**
+     * Used by hydrate-timeout.e2e.ts to reproduce stenciljs/core#6864: a
+     * component whose `componentWillLoad` is still awaiting `fetch()` when the
+     * render's `opts.timeout` fires.
+     */
+    interface HTMLSlowFetchCmpElement extends Components.SlowFetchCmp, HTMLStencilElement {
+    }
+    var HTMLSlowFetchCmpElement: {
+        prototype: HTMLSlowFetchCmpElement;
+        new (): HTMLSlowFetchCmpElement;
+    };
     interface HTMLSlowSsrPropElement extends Components.SlowSsrProp, HTMLStencilElement {
     }
     var HTMLSlowSsrPropElement: {
@@ -531,6 +572,7 @@ declare global {
         "non-shadow-forwarded-slot": HTMLNonShadowForwardedSlotElement;
         "non-shadow-multi-slots": HTMLNonShadowMultiSlotsElement;
         "non-shadow-wrapper": HTMLNonShadowWrapperElement;
+        "own-controller-cmp": HTMLOwnControllerCmpElement;
         "part-ssr-shadow-cmp": HTMLPartSsrShadowCmpElement;
         "part-wrap-ssr-shadow-cmp": HTMLPartWrapSsrShadowCmpElement;
         "prerender-cmp": HTMLPrerenderCmpElement;
@@ -546,6 +588,7 @@ declare global {
         "shadow-ssr-child-cmp": HTMLShadowSsrChildCmpElement;
         "shadow-ssr-parent-cmp": HTMLShadowSsrParentCmpElement;
         "shadow-wrapper": HTMLShadowWrapperElement;
+        "slow-fetch-cmp": HTMLSlowFetchCmpElement;
         "slow-ssr-prop": HTMLSlowSsrPropElement;
         "ssr-order-cmp": HTMLSsrOrderCmpElement;
         "ssr-order-wrap-cmp": HTMLSsrOrderWrapCmpElement;
@@ -666,6 +709,15 @@ declare namespace LocalJSX {
     }
     interface NonShadowWrapper {
     }
+    /**
+     * Used by hydrate-timeout.e2e.ts to verify the AbortController shim: a
+     * component that creates its own AbortController has that controller cascade-aborted
+     * automatically when the render times out
+     * The outcome is reported via `global` (not observable through
+     * renderToString's result) so the test can assert on it.
+     */
+    interface OwnControllerCmp {
+    }
     interface PartSsrShadowCmp {
         "selected"?: boolean;
     }
@@ -738,6 +790,14 @@ declare namespace LocalJSX {
     interface ShadowSsrParentCmp {
     }
     interface ShadowWrapper {
+    }
+    /**
+     * Used by hydrate-timeout.e2e.ts to reproduce stenciljs/core#6864: a
+     * component whose `componentWillLoad` is still awaiting `fetch()` when the
+     * render's `opts.timeout` fires.
+     */
+    interface SlowFetchCmp {
+        "url"?: string;
     }
     interface SlowSsrProp {
         /**
@@ -815,6 +875,9 @@ declare namespace LocalJSX {
         "array": string;
         "getSet": string;
     }
+    interface SlowFetchCmpAttributes {
+        "url": string;
+    }
     interface SsrShadowCmpAttributes {
         "selected": boolean;
     }
@@ -843,6 +906,7 @@ declare namespace LocalJSX {
         "non-shadow-forwarded-slot": NonShadowForwardedSlot;
         "non-shadow-multi-slots": NonShadowMultiSlots;
         "non-shadow-wrapper": NonShadowWrapper;
+        "own-controller-cmp": OwnControllerCmp;
         "part-ssr-shadow-cmp": Omit<PartSsrShadowCmp, keyof PartSsrShadowCmpAttributes> & { [K in keyof PartSsrShadowCmp & keyof PartSsrShadowCmpAttributes]?: PartSsrShadowCmp[K] } & { [K in keyof PartSsrShadowCmp & keyof PartSsrShadowCmpAttributes as `attr:${K}`]?: PartSsrShadowCmpAttributes[K] } & { [K in keyof PartSsrShadowCmp & keyof PartSsrShadowCmpAttributes as `prop:${K}`]?: PartSsrShadowCmp[K] };
         "part-wrap-ssr-shadow-cmp": Omit<PartWrapSsrShadowCmp, keyof PartWrapSsrShadowCmpAttributes> & { [K in keyof PartWrapSsrShadowCmp & keyof PartWrapSsrShadowCmpAttributes]?: PartWrapSsrShadowCmp[K] } & { [K in keyof PartWrapSsrShadowCmp & keyof PartWrapSsrShadowCmpAttributes as `attr:${K}`]?: PartWrapSsrShadowCmpAttributes[K] } & { [K in keyof PartWrapSsrShadowCmp & keyof PartWrapSsrShadowCmpAttributes as `prop:${K}`]?: PartWrapSsrShadowCmp[K] };
         "prerender-cmp": PrerenderCmp;
@@ -858,6 +922,7 @@ declare namespace LocalJSX {
         "shadow-ssr-child-cmp": ShadowSsrChildCmp;
         "shadow-ssr-parent-cmp": ShadowSsrParentCmp;
         "shadow-wrapper": ShadowWrapper;
+        "slow-fetch-cmp": Omit<SlowFetchCmp, keyof SlowFetchCmpAttributes> & { [K in keyof SlowFetchCmp & keyof SlowFetchCmpAttributes]?: SlowFetchCmp[K] } & { [K in keyof SlowFetchCmp & keyof SlowFetchCmpAttributes as `attr:${K}`]?: SlowFetchCmpAttributes[K] } & { [K in keyof SlowFetchCmp & keyof SlowFetchCmpAttributes as `prop:${K}`]?: SlowFetchCmp[K] };
         "slow-ssr-prop": SlowSsrProp;
         "ssr-order-cmp": SsrOrderCmp;
         "ssr-order-wrap-cmp": SsrOrderWrapCmp;
@@ -895,6 +960,14 @@ declare module "@stencil/core" {
             "non-shadow-forwarded-slot": LocalJSX.IntrinsicElements["non-shadow-forwarded-slot"] & JSXBase.HTMLAttributes<HTMLNonShadowForwardedSlotElement>;
             "non-shadow-multi-slots": LocalJSX.IntrinsicElements["non-shadow-multi-slots"] & JSXBase.HTMLAttributes<HTMLNonShadowMultiSlotsElement>;
             "non-shadow-wrapper": LocalJSX.IntrinsicElements["non-shadow-wrapper"] & JSXBase.HTMLAttributes<HTMLNonShadowWrapperElement>;
+            /**
+             * Used by hydrate-timeout.e2e.ts to verify the AbortController shim: a
+             * component that creates its own AbortController has that controller cascade-aborted
+             * automatically when the render times out
+             * The outcome is reported via `global` (not observable through
+             * renderToString's result) so the test can assert on it.
+             */
+            "own-controller-cmp": LocalJSX.IntrinsicElements["own-controller-cmp"] & JSXBase.HTMLAttributes<HTMLOwnControllerCmpElement>;
             "part-ssr-shadow-cmp": LocalJSX.IntrinsicElements["part-ssr-shadow-cmp"] & JSXBase.HTMLAttributes<HTMLPartSsrShadowCmpElement>;
             "part-wrap-ssr-shadow-cmp": LocalJSX.IntrinsicElements["part-wrap-ssr-shadow-cmp"] & JSXBase.HTMLAttributes<HTMLPartWrapSsrShadowCmpElement>;
             "prerender-cmp": LocalJSX.IntrinsicElements["prerender-cmp"] & JSXBase.HTMLAttributes<HTMLPrerenderCmpElement>;
@@ -918,6 +991,12 @@ declare module "@stencil/core" {
             "shadow-ssr-child-cmp": LocalJSX.IntrinsicElements["shadow-ssr-child-cmp"] & JSXBase.HTMLAttributes<HTMLShadowSsrChildCmpElement>;
             "shadow-ssr-parent-cmp": LocalJSX.IntrinsicElements["shadow-ssr-parent-cmp"] & JSXBase.HTMLAttributes<HTMLShadowSsrParentCmpElement>;
             "shadow-wrapper": LocalJSX.IntrinsicElements["shadow-wrapper"] & JSXBase.HTMLAttributes<HTMLShadowWrapperElement>;
+            /**
+             * Used by hydrate-timeout.e2e.ts to reproduce stenciljs/core#6864: a
+             * component whose `componentWillLoad` is still awaiting `fetch()` when the
+             * render's `opts.timeout` fires.
+             */
+            "slow-fetch-cmp": LocalJSX.IntrinsicElements["slow-fetch-cmp"] & JSXBase.HTMLAttributes<HTMLSlowFetchCmpElement>;
             "slow-ssr-prop": LocalJSX.IntrinsicElements["slow-ssr-prop"] & JSXBase.HTMLAttributes<HTMLSlowSsrPropElement>;
             "ssr-order-cmp": LocalJSX.IntrinsicElements["ssr-order-cmp"] & JSXBase.HTMLAttributes<HTMLSsrOrderCmpElement>;
             "ssr-order-wrap-cmp": LocalJSX.IntrinsicElements["ssr-order-wrap-cmp"] & JSXBase.HTMLAttributes<HTMLSsrOrderWrapCmpElement>;

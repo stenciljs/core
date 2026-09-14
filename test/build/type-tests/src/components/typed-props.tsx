@@ -37,6 +37,11 @@ export class TypedProps {
   /** Union type prop */
   @Prop() unionProp?: 'small' | 'medium' | 'large';
 
+  /** Regression coverage for https://github.com/stenciljs/core/issues/6854 - a prop named
+   * `aria`, or any other name starting with `aria`, must still accept an object value from JSX */
+  @Prop() aria?: Record<string, string | boolean | undefined> | string;
+  @Prop() ariaCustomThing?: Record<string, string | boolean | undefined> | string;
+
   render() {
     return (
       <div>

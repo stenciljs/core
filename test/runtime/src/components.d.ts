@@ -47,6 +47,8 @@ export namespace Components {
         "toggleState": () => Promise<void>;
     }
     interface AttributeComplex {
+        "aria"?: Record<string, string | boolean | undefined> | string;
+        "ariaCustomThing"?: Record<string, string | boolean | undefined> | string;
         /**
           * @default true
          */
@@ -886,6 +888,16 @@ export namespace Components {
         "json": { foo: string };
         "nonReflect": string;
         "reset": () => Promise<void>;
+    }
+    interface PropSetterLazyRace {
+        /**
+          * @default false
+         */
+        "isReadonly": boolean;
+        /**
+          * @default false
+         */
+        "plainReadonly": boolean;
     }
     interface RadioGroupBlurTest {
     }
@@ -2512,6 +2524,12 @@ declare global {
         prototype: HTMLPropSerializerElement;
         new (): HTMLPropSerializerElement;
     };
+    interface HTMLPropSetterLazyRaceElement extends Components.PropSetterLazyRace, HTMLStencilElement {
+    }
+    var HTMLPropSetterLazyRaceElement: {
+        prototype: HTMLPropSetterLazyRaceElement;
+        new (): HTMLPropSetterLazyRaceElement;
+    };
     interface HTMLRadioGroupBlurTestElement extends Components.RadioGroupBlurTest, HTMLStencilElement {
     }
     var HTMLRadioGroupBlurTestElement: {
@@ -3281,6 +3299,7 @@ declare global {
         "prefix-prop-nested": HTMLPrefixPropNestedElement;
         "prefix-prop-root": HTMLPrefixPropRootElement;
         "prop-serializer": HTMLPropSerializerElement;
+        "prop-setter-lazy-race": HTMLPropSetterLazyRaceElement;
         "radio-group-blur-test": HTMLRadioGroupBlurTestElement;
         "ref-attr-order": HTMLRefAttrOrderElement;
         "reflect-nan-attribute": HTMLReflectNanAttributeElement;
@@ -3414,6 +3433,8 @@ declare namespace LocalJSX {
     interface AttributeBooleanRoot {
     }
     interface AttributeComplex {
+        "aria"?: Record<string, string | boolean | undefined> | string;
+        "ariaCustomThing"?: Record<string, string | boolean | undefined> | string;
         /**
           * @default true
          */
@@ -4182,6 +4203,16 @@ declare namespace LocalJSX {
         "json"?: { foo: string };
         "nonReflect"?: string;
     }
+    interface PropSetterLazyRace {
+        /**
+          * @default false
+         */
+        "isReadonly"?: boolean;
+        /**
+          * @default false
+         */
+        "plainReadonly"?: boolean;
+    }
     interface RadioGroupBlurTest {
     }
     interface RefAttrOrder {
@@ -4542,6 +4573,8 @@ declare namespace LocalJSX {
         "str1": string;
         "str2": SomeTypes.String;
         "obj": string;
+        "aria": Record<string, string | boolean | undefined> | string;
+        "ariaCustomThing": Record<string, string | boolean | undefined> | string;
     }
     interface AttributeDeserializerAttributes {
         "bool": boolean;
@@ -4714,6 +4747,10 @@ declare namespace LocalJSX {
         "array": string;
         "json": string;
         "getSet": string;
+    }
+    interface PropSetterLazyRaceAttributes {
+        "plainReadonly": boolean;
+        "isReadonly": boolean;
     }
     interface ReflectNanAttributeAttributes {
         "val": number;
@@ -4943,6 +4980,7 @@ declare namespace LocalJSX {
         "prefix-prop-nested": Omit<PrefixPropNested, keyof PrefixPropNestedAttributes> & { [K in keyof PrefixPropNested & keyof PrefixPropNestedAttributes]?: PrefixPropNested[K] } & { [K in keyof PrefixPropNested & keyof PrefixPropNestedAttributes as `attr:${K}`]?: PrefixPropNestedAttributes[K] } & { [K in keyof PrefixPropNested & keyof PrefixPropNestedAttributes as `prop:${K}`]?: PrefixPropNested[K] };
         "prefix-prop-root": PrefixPropRoot;
         "prop-serializer": Omit<PropSerializer, keyof PropSerializerAttributes> & { [K in keyof PropSerializer & keyof PropSerializerAttributes]?: PropSerializer[K] } & { [K in keyof PropSerializer & keyof PropSerializerAttributes as `attr:${K}`]?: PropSerializerAttributes[K] } & { [K in keyof PropSerializer & keyof PropSerializerAttributes as `prop:${K}`]?: PropSerializer[K] };
+        "prop-setter-lazy-race": Omit<PropSetterLazyRace, keyof PropSetterLazyRaceAttributes> & { [K in keyof PropSetterLazyRace & keyof PropSetterLazyRaceAttributes]?: PropSetterLazyRace[K] } & { [K in keyof PropSetterLazyRace & keyof PropSetterLazyRaceAttributes as `attr:${K}`]?: PropSetterLazyRaceAttributes[K] } & { [K in keyof PropSetterLazyRace & keyof PropSetterLazyRaceAttributes as `prop:${K}`]?: PropSetterLazyRace[K] };
         "radio-group-blur-test": RadioGroupBlurTest;
         "ref-attr-order": RefAttrOrder;
         "reflect-nan-attribute": Omit<ReflectNanAttribute, keyof ReflectNanAttributeAttributes> & { [K in keyof ReflectNanAttribute & keyof ReflectNanAttributeAttributes]?: ReflectNanAttribute[K] } & { [K in keyof ReflectNanAttribute & keyof ReflectNanAttributeAttributes as `attr:${K}`]?: ReflectNanAttributeAttributes[K] } & { [K in keyof ReflectNanAttribute & keyof ReflectNanAttributeAttributes as `prop:${K}`]?: ReflectNanAttribute[K] };
@@ -5303,6 +5341,7 @@ declare module "@stencil/core" {
             "prefix-prop-nested": LocalJSX.IntrinsicElements["prefix-prop-nested"] & JSXBase.HTMLAttributes<HTMLPrefixPropNestedElement>;
             "prefix-prop-root": LocalJSX.IntrinsicElements["prefix-prop-root"] & JSXBase.HTMLAttributes<HTMLPrefixPropRootElement>;
             "prop-serializer": LocalJSX.IntrinsicElements["prop-serializer"] & JSXBase.HTMLAttributes<HTMLPropSerializerElement>;
+            "prop-setter-lazy-race": LocalJSX.IntrinsicElements["prop-setter-lazy-race"] & JSXBase.HTMLAttributes<HTMLPropSetterLazyRaceElement>;
             "radio-group-blur-test": LocalJSX.IntrinsicElements["radio-group-blur-test"] & JSXBase.HTMLAttributes<HTMLRadioGroupBlurTestElement>;
             "ref-attr-order": LocalJSX.IntrinsicElements["ref-attr-order"] & JSXBase.HTMLAttributes<HTMLRefAttrOrderElement>;
             "reflect-nan-attribute": LocalJSX.IntrinsicElements["reflect-nan-attribute"] & JSXBase.HTMLAttributes<HTMLReflectNanAttributeElement>;
