@@ -1,9 +1,9 @@
-import { effect, signal } from '@preact/signals-core';
 import { BUILD } from 'virtual:app-data';
 import { consoleError } from 'virtual:platform';
 import type * as d from '@stencil/core';
 
 import { HOST_FLAGS, MEMBER_FLAGS, WATCH_FLAGS } from '../utils/constants';
+import { effect, signal } from './signals-core';
 import { scheduleUpdate } from './update-component';
 
 // Explicit `unique symbol` annotation is required so this can be used as a typed property key
@@ -161,4 +161,4 @@ export const initializeEffects = (elm: d.HostElement, hostRef: d.HostRef) => {
 };
 
 // re-export from here for easy swap-out
-export { effect } from '@preact/signals-core';
+export { effect } from './signals-core';
