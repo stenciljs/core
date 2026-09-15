@@ -7,8 +7,9 @@ import { type CssNode, CssNodeType, type CssParsePosition, type ParseCssResults 
 /**
  * Splits a selector list on top-level commas in a single pass: a comma only
  * splits when it's outside a quoted string and at paren depth 0, so commas in
- * `:is(:a,:has(:b))` or `[title="a,b"]` aren't treated as separators. Backslash
- * escapes (inside or outside a string) are skipped so they can't shift state.
+ * `:is(:a,:has(:b))` or `[title="a,b"]` aren't treated as separators.
+ * Backslash escapes (inside or outside a string) are skipped so they can't shift state,
+ * so e.g. `[title="a\,b"]` is treated as a single selector.
  */
 const splitSelectorList = (selectors: string): string[] => {
   const parts: string[] = [];
@@ -206,6 +207,7 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
     const m: any = match(/^([^{]+)/);
     if (!m) return null;
 
+    // Remove comments and trim
     const cleaned = trim(m[0]).replace(/\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*\/+/g, '');
 
     return splitSelectorList(cleaned);
