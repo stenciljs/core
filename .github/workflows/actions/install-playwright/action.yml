@@ -1,0 +1,37 @@
+name: 'Install Playwright Browsers'
+description: 'Installs Playwright browsers with caching'
+inputs:
+  working-directory:
+    description: 'Directory containing the Playwright installation to use'
+    required: false
+    default: 'test/ssr'
+runs:
+  using: composite
+  steps:
+    - name: Get Playwright version
+      id: playwright-version
+      working-directory: ${{ inputs.working-directory }}
+      run: echo "version=$(npx playwright --version)" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: Cache Playwright browsers
+      uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+      id: playwright-cache
+      with:
+        path: |
+          ~/.cache/ms-playwright
+          ~/Library/Caches/ms-playwright
+          ~/AppData/Local/ms-playwright
+        key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+
+    - name: Install Playwright Browsers
+      if: steps.playwright-cache.outputs.cache-hit != 'true'
+      working-directory: ${{ inputs.working-directory }}
+      run: npx playwright install --with-deps chromium
+      shell: bash
+
+    - name: Install Playwright system deps (cache hit)
+      if: steps.playwright-cache.outputs.cache-hit == 'true' && runner.os == 'Linux'
+      working-directory: ${{ inputs.working-directory }}
+      run: npx playwright install-deps chromium
+      shell: bash

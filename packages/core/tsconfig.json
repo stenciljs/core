@@ -1,0 +1,43 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "allowImportingTsExtensions": true,
+    "alwaysStrict": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationDir": "dist",
+    "rootDir": "./",
+    "outDir": "dist",
+    "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react",
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment",
+    "lib": ["dom", "es2022"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "noImplicitAny": false,
+    "noImplicitOverride": false,
+    "noImplicitReturns": false,
+    "strictNullChecks": false,
+    "strictPropertyInitialization": false,
+    "noImplicitThis": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "sourceMap": false,
+    "target": "es2022",
+    "types": ["node"],
+    "paths": {
+      "virtual:app-data": ["./src/app-data/index.ts"],
+      "virtual:app-data-external": ["./src/app-data/index.ts"],
+      "virtual:app-globals": ["./src/app-globals/index.ts"],
+      "virtual:platform": ["./src/client/index.ts"],
+      "@stencil/core/runtime/server/ssr-factory": ["./src/server/runner/ssr-factory.ts"],
+      "@stencil/core": ["./src/declarations/index.ts"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "tsdown.config.ts", "build/**/*.ts"],
+  "exclude": ["dist"]
+}

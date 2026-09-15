@@ -1,0 +1,30 @@
+// hey! comments in my tsconfig!!
+{
+  "compilerOptions": {
+    "strictNullChecks": false,
+    "strictPropertyInitialization": false,
+    "alwaysStrict": true,
+    "allowSyntheticDefaultImports": true,
+    "allowUnreachableCode": false,
+    "declaration": true,
+    "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "@stencil/core",
+    "lib": ["dom", "es2021", "ESNext.Disposable"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "pretty": true,
+    "target": "es2017",
+    "useUnknownInCatchVariables": true,
+    "rootDir": ".",
+    "paths": {
+      "@path-alias": ["./src/path-alias-cmp/path-alias-lib"]
+    }
+  },
+  "include": ["src"]
+}
