@@ -1,7 +1,8 @@
 import ts from 'typescript';
 import type * as d from '@stencil/core';
 
-import { augmentDiagnosticWithNode, buildWarn, normalizePath } from '../../../../utils';
+import { augmentDiagnosticWithNode, buildWarn, isDtsFile, normalizePath } from '../../../../utils';
+import { isLocalModule } from '../../../sys/resolve/resolve-utils';
 import {
   tsGetSourceFile,
   tsResolveModuleName,
@@ -19,10 +20,13 @@ import { parseStaticWatchers } from '../watchers';
 import {
   deDupeMembers,
   factoryDeclaredName,
+  findClassInJsModule,
   findClassWalk,
   findReExport,
+  findStatementByName,
   matchesNamedDeclaration,
   reanchorInheritedTypeReferences,
+  resolveModuleJsEntry,
   warnMixinFactoryClassNotFound,
 } from './shared';
 
@@ -90,6 +94,8 @@ function convertDiskSourceFileDecorators(
  * @param ogModule the original module file of the class declaration
  * @param targetScriptTarget the script target to convert decorators with, if needed
  * @param barrelHopsRemaining re-export hops still allowed before giving up
+ * @param originalModuleSpecifier the specifier this lookup started from, before any barrel hops
+ * @param originalContainingFile the file `originalModuleSpecifier` was imported from
  * @returns the found class declaration, or `undefined`
  */
 function resolveAndProcessExtendedClass(
@@ -104,6 +110,10 @@ function resolveAndProcessExtendedClass(
   ogModule: d.Module,
   targetScriptTarget: ts.ScriptTarget = ts.ScriptTarget.ESNext,
   barrelHopsRemaining = 1,
+  // defaults to this call's own values, i.e. "this is the original call" - a barrel hop below is
+  // always relative, so only the original call has the bare specifier the JS-fallback needs
+  originalModuleSpecifier: string = moduleSpecifier,
+  originalContainingFile: string = currentSource.fileName,
 ): ts.ClassLikeDeclaration | undefined {
   // starts optimistic: set false below if the candidate is a mixin factory
   // (class wrapped in a function), which we can't meaningfully recurse into
@@ -145,7 +155,7 @@ function resolveAndProcessExtendedClass(
   }
 
   // 2) get the exported declaration from the module
-  const matchedStatement = foundSource.statements.find(matchesNamedDeclaration(className));
+  const matchedStatement = findStatementByName(foundSource, className);
   if (!matchedStatement) {
     const reExport = barrelHopsRemaining > 0 ? findReExport(foundSource, className) : undefined;
     if (reExport) {
@@ -161,6 +171,8 @@ function resolveAndProcessExtendedClass(
         ogModule,
         targetScriptTarget,
         barrelHopsRemaining - 1,
+        originalModuleSpecifier,
+        originalContainingFile,
       );
     }
 
@@ -177,11 +189,36 @@ function resolveAndProcessExtendedClass(
       ? matchedStatement
       : undefined
     : undefined;
+  // the source file `foundClassDeclaration` actually belongs to - usually `foundSource`, but the
+  // JS-fallback below may hop into a different file
+  let foundClassSource = foundSource;
 
   if (!foundClassDeclaration && matchedStatement) {
     // wrapped in a function (mixin factory) - try to find the class inside
     foundClassDeclaration = findClassWalk(matchedStatement);
     keepLooking = false;
+
+    if (
+      !foundClassDeclaration &&
+      isDtsFile(foundSource.fileName) &&
+      !isLocalModule(originalModuleSpecifier)
+    ) {
+      // foundSource is the package's types entry - an ambient declaration has no body, so a
+      // mixin factory's class can never live there. Fall back to its actual JS entry.
+      const jsSource = resolveModuleJsEntry(
+        buildCtx.config,
+        compilerCtx,
+        originalModuleSpecifier,
+        originalContainingFile,
+      );
+      const foundInJs =
+        jsSource && findClassInJsModule(buildCtx.config, compilerCtx, jsSource, className);
+      if (foundInJs) {
+        foundClassDeclaration = foundInJs.classNode;
+        foundClassSource = foundInJs.sourceFile;
+      }
+    }
+
     if (!foundClassDeclaration) {
       warnMixinFactoryClassNotFound(buildCtx, className, classDeclaration);
     }
@@ -194,8 +231,8 @@ function resolveAndProcessExtendedClass(
     // 3) if we found the class declaration, push it and check if it itself extends from another class
     dependentClasses.push({
       classNode: foundClassDeclaration,
-      sourceFile: foundSource,
-      fileName: foundFile.resolvedModule.resolvedFileName,
+      sourceFile: foundClassSource,
+      fileName: foundClassSource.fileName,
     });
 
     if (keepLooking) {

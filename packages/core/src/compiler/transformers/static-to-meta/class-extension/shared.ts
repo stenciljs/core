@@ -9,7 +9,11 @@ import {
   normalizePath,
   relative,
 } from '../../../../utils';
-import { isNodeModulePath } from '../../../sys/resolve/resolve-utils';
+import { isLocalModule, isNodeModulePath } from '../../../sys/resolve/resolve-utils';
+import {
+  tsResolveModuleName,
+  tsResolveModuleNamePackageJsonPath,
+} from '../../../sys/typescript/typescript-resolve-module';
 
 // Helpers shared by both merge paths: compiler-ctx-merge.ts (the full
 // compiler build) and resolve-import-merge.ts (the stateless transpile()
@@ -154,14 +158,12 @@ export function matchesNamedDeclaration(name: string) {
 }
 
 /**
- * Finds a re-export of `className` in `sourceFile` - `export { X } from './y'` or
- * `export { X as Y } from './y'` - as used by barrel entry points (e.g. `@stencil/core`'s own
- * public `index.d.mts`, which re-exports its runtime API from `./declarations/stencil-public-runtime`
- * rather than declaring it directly).
+ * Finds a re-export of `className` in `sourceFile`: `export { X } from './y'`, or the
+ * bundler-split shape `import { X as name } from './y'; export { name };` (no `from` clause).
  * @param sourceFile the (barrel) source file to scan
  * @param className the exported name to look for
- * @returns the module specifier and the name to look for in that module (the local name, before
- * any `as` aliasing), or `undefined` if no matching re-export is found
+ * @returns the module specifier and name to look for there (before any `as` aliasing), or
+ * `undefined` if not found
  */
 export function findReExport(
   sourceFile: ts.SourceFile,
@@ -170,23 +172,253 @@ export function findReExport(
   for (const stmt of sourceFile.statements) {
     if (
       !ts.isExportDeclaration(stmt) ||
-      !stmt.moduleSpecifier ||
-      !ts.isStringLiteral(stmt.moduleSpecifier) ||
       !stmt.exportClause ||
       !ts.isNamedExports(stmt.exportClause)
     ) {
       continue;
     }
-    for (const element of stmt.exportClause.elements) {
-      if (element.name.text === className) {
-        return {
-          moduleSpecifier: stmt.moduleSpecifier.text,
-          localName: element.propertyName?.text ?? element.name.text,
-        };
+    const element = stmt.exportClause.elements.find((el) => el.name.text === className);
+    if (!element) {
+      continue;
+    }
+    if (stmt.moduleSpecifier && ts.isStringLiteral(stmt.moduleSpecifier)) {
+      return {
+        moduleSpecifier: stmt.moduleSpecifier.text,
+        localName: element.propertyName?.text ?? element.name.text,
+      };
+    }
+    // no `from` clause - re-exporting a name this file imported itself
+    const importedName = element.propertyName?.text ?? element.name.text;
+    const importOrigin = findImportOrigin(sourceFile, importedName);
+    if (importOrigin) {
+      return importOrigin;
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Finds `name`'s import in `sourceFile` and returns its module and origin name (before any `as`
+ * aliasing; `'default'` for a default import).
+ * @param sourceFile the source file to scan for a matching import
+ * @param name the local (post-aliasing) name an import bound
+ * @returns the import's module specifier and origin name, or `undefined` if `name` isn't imported
+ */
+export function findImportOrigin(
+  sourceFile: ts.SourceFile,
+  name: string,
+): { moduleSpecifier: string; localName: string } | undefined {
+  for (const stmt of sourceFile.statements) {
+    if (
+      !ts.isImportDeclaration(stmt) ||
+      !stmt.importClause ||
+      !ts.isStringLiteral(stmt.moduleSpecifier)
+    ) {
+      continue;
+    }
+    const moduleSpecifier = stmt.moduleSpecifier.text;
+    if (stmt.importClause.name?.text === name) {
+      return { moduleSpecifier, localName: 'default' };
+    }
+    const bindings = stmt.importClause.namedBindings;
+    if (!bindings || !ts.isNamedImports(bindings)) {
+      continue;
+    }
+    const element = bindings.elements.find((el) => el.name.text === name);
+    if (element) {
+      return { moduleSpecifier, localName: element.propertyName?.text ?? element.name.text };
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Finds `name` as a top-level declaration in `sf` (see `matchesNamedDeclaration`), following a
+ * same-file export alias if `name` is only ever the public side of a local rename
+ * (`export { RealName as name }`, no `from` clause).
+ * @param sf the source file to search
+ * @param name the declaration name to look for, which may only exist as an export alias
+ * @returns the matched statement, or `undefined`
+ */
+export function findStatementByName(
+  sf: ts.SourceFile,
+  name: string,
+): ts.ClassDeclaration | ts.FunctionDeclaration | ts.VariableStatement | undefined {
+  const direct = sf.statements.find(matchesNamedDeclaration(name));
+  if (direct) {
+    return direct;
+  }
+  for (const stmt of sf.statements) {
+    if (
+      !ts.isExportDeclaration(stmt) ||
+      stmt.moduleSpecifier ||
+      !stmt.exportClause ||
+      !ts.isNamedExports(stmt.exportClause)
+    ) {
+      continue;
+    }
+    const element = stmt.exportClause.elements.find((el) => el.name.text === name);
+    const aliasedName = element?.propertyName?.text;
+    if (aliasedName && aliasedName !== name) {
+      return sf.statements.find(matchesNamedDeclaration(aliasedName));
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Picks the runtime target out of a `package.json` `exports` condition entry - prefers `import`
+ * over `require`/`node`/`default`, recursing into nested condition objects.
+ * @param entry an `exports` map value: a path string, or nested conditions
+ * @returns the resolved relative path, or `undefined` if no usable condition was found
+ */
+function pickJsCondition(entry: unknown): string | undefined {
+  if (typeof entry === 'string') {
+    return entry;
+  }
+  if (typeof entry !== 'object' || entry === null) {
+    return undefined;
+  }
+  const conditions = entry as Record<string, unknown>;
+  for (const key of ['import', 'require', 'node', 'default']) {
+    if (key in conditions) {
+      const picked = pickJsCondition(conditions[key]);
+      if (picked) {
+        return picked;
       }
     }
   }
   return undefined;
+}
+
+/**
+ * Reads and parses `filePath` as JS, with parent nodes set - unlike `tsGetSourceFile`, which
+ * never triggers binding, so `.parent` stays unset and `node.getSourceFile()` returns `undefined`.
+ * @param config the current Stencil validated config
+ * @param filePath the absolute path of the JS file to read and parse
+ * @returns the parsed source file, or `undefined` if it couldn't be read
+ */
+function readJsSourceFile(config: d.ValidatedConfig, filePath: string): ts.SourceFile | undefined {
+  try {
+    const text = config.sys.readFileSync(filePath);
+    if (typeof text !== 'string') {
+      return undefined;
+    }
+    return ts.createSourceFile(filePath, text, ts.ScriptTarget.ESNext, true, ts.ScriptKind.JS);
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Resolves the runtime JS entry for a bare (non-relative) module specifier by reading its
+ * package's own `package.json` `exports` map, instead of `tsResolveModuleName` - which always
+ * resolves to the package's `types` entry, an ambient signature with no body a mixin factory's
+ * class can never be found inside.
+ * @param config the current Stencil validated config
+ * @param compilerCtx the current compiler context
+ * @param moduleSpecifier the bare package specifier to resolve
+ * @param containingFile the file the specifier was imported from
+ * @returns the resolved JS source file, or `undefined` if it couldn't be resolved this way
+ */
+export function resolveModuleJsEntry(
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  moduleSpecifier: string,
+  containingFile: string,
+): ts.SourceFile | undefined {
+  if (isLocalModule(moduleSpecifier)) {
+    // relative/absolute specifiers already resolve to real project source
+    return undefined;
+  }
+
+  const pkgJsonPath = tsResolveModuleNamePackageJsonPath(
+    config,
+    compilerCtx,
+    moduleSpecifier,
+    containingFile,
+  );
+  if (!pkgJsonPath) {
+    return undefined;
+  }
+
+  let pkgJson: { name?: string; exports?: unknown };
+  try {
+    pkgJson = JSON.parse(config.sys.readFileSync(pkgJsonPath));
+  } catch {
+    return undefined;
+  }
+
+  const pkgName = pkgJson.name;
+  if (!pkgName || !moduleSpecifier.startsWith(pkgName) || !pkgJson.exports) {
+    return undefined;
+  }
+
+  const subpath = moduleSpecifier === pkgName ? '.' : `.${moduleSpecifier.slice(pkgName.length)}`;
+  const exportsMap = pkgJson.exports as Record<string, unknown> | string;
+  const conditionEntry =
+    typeof exportsMap === 'string'
+      ? subpath === '.'
+        ? exportsMap
+        : undefined
+      : (exportsMap[subpath] ?? (subpath === '.' ? exportsMap : undefined));
+  const target = conditionEntry && pickJsCondition(conditionEntry);
+  if (!target) {
+    return undefined;
+  }
+
+  return readJsSourceFile(config, normalizePath(join(dirname(pkgJsonPath), target)));
+}
+
+/**
+ * Finds `className`'s class inside a resolved JS entry (see `resolveModuleJsEntry`), following
+ * re-export hops the same way `resolveAndProcessExtendedClass` walks a `.d.ts`/`.ts` source.
+ * @param config the current Stencil validated config
+ * @param compilerCtx the current compiler context
+ * @param source the JS source file to search
+ * @param className the class (or mixin factory) name to look for
+ * @param hopsRemaining re-export hops still allowed before giving up
+ * @returns the found class and the source file it's declared in, or `undefined`
+ */
+export function findClassInJsModule(
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  source: ts.SourceFile,
+  className: string,
+  hopsRemaining = 3,
+): { classNode: ts.ClassLikeDeclaration; sourceFile: ts.SourceFile } | undefined {
+  const matchedStatement = findStatementByName(source, className);
+  if (matchedStatement) {
+    const classNode = ts.isClassDeclaration(matchedStatement)
+      ? matchedStatement
+      : findClassWalk(matchedStatement);
+    return classNode && { classNode, sourceFile: source };
+  }
+  if (hopsRemaining <= 0) {
+    return undefined;
+  }
+  const reExport = findReExport(source, className);
+  if (!reExport) {
+    return undefined;
+  }
+  const resolvedModule = tsResolveModuleName(
+    config,
+    compilerCtx,
+    reExport.moduleSpecifier,
+    source.fileName,
+  );
+  const resolvedFileName = resolvedModule?.resolvedModule?.resolvedFileName;
+  const nextSource = resolvedFileName && readJsSourceFile(config, resolvedFileName);
+  if (!nextSource) {
+    return undefined;
+  }
+  return findClassInJsModule(
+    config,
+    compilerCtx,
+    nextSource,
+    reExport.localName,
+    hopsRemaining - 1,
+  );
 }
 
 export type DeDupeMember =
