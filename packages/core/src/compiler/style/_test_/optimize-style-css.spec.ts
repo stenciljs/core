@@ -185,6 +185,14 @@ describe('optimizeStyleCss', () => {
     expect(output).toBe(`h1+p,h2,h3{color:red}`);
   });
 
+  it('minifies selectors with nested parens', async () => {
+    const styleText = `x:is(:a,:has(:b),.c),y:is(:a,:has(:b),.c){color:red}.after{color:blue}`;
+    const output = await optimizeStyleCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
+
+    expect(diagnostics).toHaveLength(0);
+    expect(output).toBe(`x:is(:a,:has(:b),.c),y:is(:a,:has(:b),.c){color:red}.after{color:#00f}`);
+  });
+
   it('minify-params', async () => {
     // autoprefixCss disabled: the comma inside a single @media condition
     // is invalid CSS which Lightning CSS correctly rejects. This test

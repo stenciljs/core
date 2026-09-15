@@ -11,6 +11,51 @@ import {
 // because it would be bundled in the user's hydrate-script)
 
 /**
+ * Splits a selector list on top-level commas in a single pass: a comma only
+ * splits when it's outside a quoted string and at paren depth 0, so commas in
+ * `:is(:a,:has(:b))` or `[title="a,b"]` aren't treated as separators.
+ * Backslash escapes (inside or outside a string) are skipped so they can't shift state,
+ * so e.g. `[title="a\,b"]` is treated as a single selector.
+ * @param selectors The selector list to split
+ * @returns An array of selectors, with whitespace trimmed from each selector
+ */
+const splitSelectorList = (selectors: string): string[] => {
+  const parts: string[] = [];
+  let depth = 0;
+  let quote: string | null = null;
+  let start = 0;
+
+  for (let i = 0; i < selectors.length; i++) {
+    const ch = selectors[i];
+
+    if (quote) {
+      if (ch === '\\') {
+        i++;
+      } else if (ch === quote) {
+        quote = null;
+      }
+      continue;
+    }
+
+    if (ch === '"' || ch === "'") {
+      quote = ch;
+    } else if (ch === '\\') {
+      i++;
+    } else if (ch === '(') {
+      depth++;
+    } else if (ch === ')') {
+      depth = Math.max(0, depth - 1);
+    } else if (ch === ',' && depth === 0) {
+      parts.push(selectors.slice(start, i));
+      start = i + 1;
+    }
+  }
+  parts.push(selectors.slice(start));
+
+  return parts.map((s) => s.trim());
+};
+
+/**
  * Parses CSS string input into an AST representation.
  * Used for minification, finding & resolving URLs and during SSR / prerendering, removing unused selectors.
  *
@@ -166,15 +211,10 @@ export const parseCss = (css: string, filePath?: string): ParseCssResults => {
     const m: any = match(/^([^{]+)/);
     if (!m) return null;
 
-    return trim(m[0])
-      .replace(/\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*\/+/g, '')
-      .replace(/"(?:\\"|[^"])*"|'(?:\\'|[^'])*'/g, function (str) {
-        return str.replace(/,/g, '\u200C');
-      })
-      .split(/\s*(?![^(]*\)),\s*/)
-      .map(function (s) {
-        return s.replace(/\u200C/g, ',');
-      });
+    // Remove comments and trim
+    const cleaned = trim(m[0]).replace(/\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*\/+/g, '');
+
+    return splitSelectorList(cleaned);
   };
 
   const declaration = () => {
