@@ -293,6 +293,13 @@ describe('css parse/serialize', () => {
       `abbr[title] , abbr   [title="hello   world"] {   cursor: help;  border-bottom:  1px dotted  #777;}`,
       `abbr[title],abbr [title="hello   world"]{cursor:help;border-bottom:1px dotted  #777}`,
     ],
+    [
+      `comma-selector-nested-parens`,
+      `x:is(:a,:has(:b),.c),y:is(:a,:has(:b),.c){color:red}.after{color:blue}`,
+      `x:is(:a,:has(:b),.c),y:is(:a,:has(:b),.c){color:red}.after{color:blue}`,
+    ],
+    [`comma-attribute-with-paren`, `[title="a(b"],div{color:red}`, `[title="a(b"],div{color:red}`],
+    [`comma-selector-escaped`, `.foo\\,bar,div{color:red}`, `.foo\\,bar,div{color:red}`],
   ])('%s', (_testName, cssString, expectedOutput) => {
     const results = parseCss(cssString);
     const output = serializeCss(results.stylesheet, {});
