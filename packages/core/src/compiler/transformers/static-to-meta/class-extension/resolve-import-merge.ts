@@ -14,8 +14,9 @@ import { extractInheritedMetaFromClass } from './extract-inherited-meta';
 import {
   deDupeMembers,
   findClassWalk,
+  findImportOrigin,
   findReExport,
-  matchesNamedDeclaration,
+  findStatementByName,
   reanchorInheritedTypeReferences,
   warnMixinFactoryClassNotFound,
 } from './shared';
@@ -108,24 +109,6 @@ function getExtendsClassNames(node: ts.ClassLikeDeclaration): string[] {
   return [];
 }
 
-function findImportSpecifier(sf: ts.SourceFile, localName: string): string | null {
-  for (const stmt of sf.statements) {
-    if (!ts.isImportDeclaration(stmt) || !ts.isStringLiteral(stmt.moduleSpecifier)) continue;
-    const clause = stmt.importClause;
-    if (!clause) continue;
-    // default import: import Foo from '...'
-    if (clause.name?.text === localName) return stmt.moduleSpecifier.text;
-    // named imports: import { Foo } or import { Foo as Bar }
-    const bindings = clause.namedBindings;
-    if (bindings && ts.isNamedImports(bindings)) {
-      for (const el of bindings.elements) {
-        if (el.name.text === localName) return stmt.moduleSpecifier.text;
-      }
-    }
-  }
-  return null;
-}
-
 /**
  * A single-file mini-program (see `convertInMemorySourceDecorators`) can
  * never load an imported module's own `SourceFile`, so a type that's
@@ -160,7 +143,7 @@ function reclassifyGlobalTypeReferences<
       if (reference.location !== 'global') {
         return;
       }
-      const specifier = findImportSpecifier(declaringSf, typeName);
+      const specifier = findImportOrigin(declaringSf, typeName)?.moduleSpecifier;
       if (!specifier) {
         return;
       }
@@ -207,7 +190,7 @@ function findDeclarationOrReExport(
       path: string;
     }
   | undefined {
-  const direct = sf.statements.find(matchesNamedDeclaration(name));
+  const direct = findStatementByName(sf, name);
   if (direct) return { statement: direct, sourceFile: sf, path };
 
   const reExport = findReExport(sf, name);
@@ -225,7 +208,7 @@ function findDeclarationOrReExport(
     true,
     isTs ? ts.ScriptKind.TSX : ts.ScriptKind.JS,
   );
-  const statement = reExportSf.statements.find(matchesNamedDeclaration(reExport.localName));
+  const statement = findStatementByName(reExportSf, reExport.localName);
   if (!statement) return undefined;
 
   return { statement, sourceFile: reExportSf, path: resolvedPath };
@@ -271,7 +254,7 @@ function resolveAncestors(
     let foundPath = path;
     let keepLooking = true;
 
-    const sameFileStatement = sf.statements.find(matchesNamedDeclaration(parentName));
+    const sameFileStatement = findStatementByName(sf, parentName);
     if (sameFileStatement) {
       if (ts.isClassDeclaration(sameFileStatement)) {
         foundClass = sameFileStatement;
@@ -284,7 +267,7 @@ function resolveAncestors(
         }
       }
     } else {
-      const specifier = findImportSpecifier(sf, parentName);
+      const specifier = findImportOrigin(sf, parentName)?.moduleSpecifier;
       if (!specifier) continue;
 
       const resolved = resolveImport(specifier, path);

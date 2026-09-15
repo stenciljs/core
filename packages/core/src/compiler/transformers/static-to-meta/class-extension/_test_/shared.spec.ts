@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { reanchorInheritedTypeReferences } from '..';
-import { findClassWalk, findReExport } from '../shared';
+import { findClassWalk, findImportOrigin, findReExport, findStatementByName } from '../shared';
 
 describe('reanchorInheritedTypeReferences', () => {
   const CMP_PATH = '/src/components/data-entry/checkbox/checkbox.tsx';
@@ -383,5 +383,114 @@ describe('findReExport', () => {
     `);
 
     expect(findReExport(sf, 'BaseInput')).toBeUndefined();
+  });
+
+  it('follows a bare export of a name this file imported itself, resolving to its origin name', () => {
+    const sf = parse(`
+      import { s as BaseInput } from './chunk.js';
+      export { BaseInput };
+    `);
+
+    expect(findReExport(sf, 'BaseInput')).toEqual({
+      moduleSpecifier: './chunk.js',
+      localName: 's',
+    });
+  });
+
+  it('follows a bare export of an unaliased import', () => {
+    const sf = parse(`
+      import { BaseInput } from './chunk.js';
+      export { BaseInput };
+    `);
+
+    expect(findReExport(sf, 'BaseInput')).toEqual({
+      moduleSpecifier: './chunk.js',
+      localName: 'BaseInput',
+    });
+  });
+
+  it('ignores a bare export whose name is aliased to something not imported', () => {
+    const sf = parse(`
+      import { s as SomethingElse } from './chunk.js';
+      export { BaseInput };
+    `);
+
+    expect(findReExport(sf, 'BaseInput')).toBeUndefined();
+  });
+});
+
+describe('findStatementByName', () => {
+  const parse = (code: string) =>
+    ts.createSourceFile('chunk.ts', code, ts.ScriptTarget.ESNext, true);
+
+  it('finds a plain named class declaration directly', () => {
+    const sf = parse(`export class BaseInput {}`);
+
+    const found = findStatementByName(sf, 'BaseInput');
+    expect(found && ts.isClassDeclaration(found) && found.name?.text).toBe('BaseInput');
+  });
+
+  it('follows a same-file export alias to the real declaration', () => {
+    const sf = parse(`
+      const BaseInput = (Base) => class extends Base {};
+      export { BaseInput as s };
+    `);
+
+    const found = findStatementByName(sf, 's');
+    expect(found && ts.isVariableStatement(found)).toBe(true);
+    expect(
+      found &&
+        ts.isVariableStatement(found) &&
+        (found.declarationList.declarations[0].name as ts.Identifier).text,
+    ).toBe('BaseInput');
+  });
+
+  it('returns undefined when the name is neither declared nor aliased', () => {
+    const sf = parse(`export class BaseInput {}`);
+
+    expect(findStatementByName(sf, 'DoesNotExist')).toBeUndefined();
+  });
+
+  it('does not treat a re-export-from-another-module alias as a same-file rename', () => {
+    const sf = parse(`export { BaseInput as s } from './base-input';`);
+
+    expect(findStatementByName(sf, 's')).toBeUndefined();
+  });
+});
+
+describe('findImportOrigin', () => {
+  const parse = (code: string) => ts.createSourceFile('cmp.ts', code, ts.ScriptTarget.ESNext, true);
+
+  it('resolves an aliased named import to its origin name', () => {
+    const sf = parse(`import { s as BaseInput } from './chunk.js';`);
+
+    expect(findImportOrigin(sf, 'BaseInput')).toEqual({
+      moduleSpecifier: './chunk.js',
+      localName: 's',
+    });
+  });
+
+  it('resolves an unaliased named import to itself', () => {
+    const sf = parse(`import { BaseInput } from './chunk.js';`);
+
+    expect(findImportOrigin(sf, 'BaseInput')).toEqual({
+      moduleSpecifier: './chunk.js',
+      localName: 'BaseInput',
+    });
+  });
+
+  it('resolves a default import to the "default" origin name', () => {
+    const sf = parse(`import BaseInput from './chunk.js';`);
+
+    expect(findImportOrigin(sf, 'BaseInput')).toEqual({
+      moduleSpecifier: './chunk.js',
+      localName: 'default',
+    });
+  });
+
+  it('returns undefined when the name is not imported at all', () => {
+    const sf = parse(`import { BaseInput } from './chunk.js';`);
+
+    expect(findImportOrigin(sf, 'DoesNotExist')).toBeUndefined();
   });
 });
