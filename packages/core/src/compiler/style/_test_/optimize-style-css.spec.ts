@@ -187,7 +187,13 @@ describe('optimizeStyleCss', () => {
 
   it('minifies selectors with nested parens', async () => {
     const styleText = `x:is(:a,:has(:b),.c),y:is(:a,:has(:b),.c){color:red}.after{color:blue}`;
-    const output = await optimizeStyleCss(config, compilerCtx, diagnostics, styleText, MOCK_FILE_PATH);
+    const output = await optimizeStyleCss(
+      config,
+      compilerCtx,
+      diagnostics,
+      styleText,
+      MOCK_FILE_PATH,
+    );
 
     expect(diagnostics).toHaveLength(0);
     expect(output).toBe(`x:is(:a,:has(:b),.c),y:is(:a,:has(:b),.c){color:red}.after{color:#00f}`);
