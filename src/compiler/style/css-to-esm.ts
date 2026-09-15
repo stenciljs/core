@@ -68,7 +68,7 @@ export const transformCssToEsm = async (input: d.TransformCssToEsmInput): Promis
     autoprefixer: input.autoprefixer,
     input: results.styleText,
     filePath: input.file,
-    minify: true,
+    minify: input.minify !== false,
     sourceMap: input.sourceMap,
   });
 

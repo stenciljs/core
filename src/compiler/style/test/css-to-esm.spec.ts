@@ -62,6 +62,31 @@ describe('transformCssToEsm', () => {
     });
   });
 
+  describe('minify option', () => {
+    it('minifies by default when minify is unset', async () => {
+      const result = await transformCssToEsm(mockInput);
+
+      expect(result.styleText).toBe('.my-class{color:red}');
+    });
+
+    // https://github.com/stenciljs/core/issues/6894
+    it('respects minify: false instead of always minifying', async () => {
+      mockInput.minify = false;
+
+      const result = await transformCssToEsm(mockInput);
+
+      expect(result.styleText).toBe('.my-class { color: red; }');
+    });
+
+    it('minifies when minify: true', async () => {
+      mockInput.minify = true;
+
+      const result = await transformCssToEsm(mockInput);
+
+      expect(result.styleText).toBe('.my-class{color:red}');
+    });
+  });
+
   describe('scoped encapsulation', () => {
     it('should apply scoped styles when encapsulation is scoped', async () => {
       mockInput.encapsulation = 'scoped';
