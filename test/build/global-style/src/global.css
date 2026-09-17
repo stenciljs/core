@@ -1,0 +1,15 @@
+/* FOUC prevention - replaced at build time with component visibility rules */
+/* layer() modifier wraps the resolved import so it can be reordered/overridden via @layer */
+@import 'stencil-hydrate' layer(init);
+
+/* Base page styles */
+:root {
+  --color-primary: #0070f3;
+}
+
+/* Component global styles are injected here */
+@import 'stencil-globals' supports(display: grid);
+
+body {
+  margin: 0;
+}

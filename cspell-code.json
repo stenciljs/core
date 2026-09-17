@@ -8,11 +8,7 @@
     }
   ],
 
-  "ignoreRegExpList": [
-    "/`[a-zA-Z-_., /*']+`/g"
-  ],
-  "ignorePaths": ["**/node_modules/**", "**/third-party/**"],
-  "includeRegExpList": [
-    "CStyleComment"
-  ]
+  "ignoreRegExpList": ["/`[a-zA-Z-_., /*']+`/g"],
+  "ignorePaths": ["**/node_modules/**"],
+  "includeRegExpList": ["CStyleComment"]
 }

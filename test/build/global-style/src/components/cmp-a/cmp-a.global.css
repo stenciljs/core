@@ -1,0 +1,5 @@
+/* Pre-render / light DOM styles for cmp-a */
+cmp-a {
+  display: block;
+  color: var(--color-primary);
+}
