@@ -2478,10 +2478,8 @@ export interface OutputTargetStandalone extends OutputTargetBaseNext {
   empty?: boolean;
 
   /**
-   * Triggers the following behaviors when enabled:
-   * 1. All `@stencil/core/*` module references are treated as external during bundling.
-   * 2. File names are not hashed.
-   * 3. File minification will follow the behavior defined at the root of the Stencil config.
+   * When `true`, all `@stencil/core/*` module references are treated as external
+   * during bundling rather than being included in the generated output.
    *
    * @default false
    */
