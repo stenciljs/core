@@ -145,6 +145,12 @@ export const enum CMP_FLAGS {
    * e.g. `shadow: { slotAssignment: 'manual' }` is set on the `@Component()` decorator
    */
   shadowSlotAssignmentManual = 1 << 10,
+
+  /**
+   * Determines if `clonable` is enabled for a component that uses the shadow DOM.
+   * e.g. `shadow: { clonable: true }` is set on the `@Component()` decorator
+   */
+  shadowClonable = 1 << 11,
 }
 
 /**
