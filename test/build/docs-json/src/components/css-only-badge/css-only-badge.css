@@ -1,0 +1,18 @@
+/**
+ * @component
+ * A CSS-only badge - no JS class, no shadow DOM, never registered via
+ * `customElements.define()`. Verifies docs-json/CEM output for this kind of component.
+ * @attr {boolean} dismissible - Whether the badge can be dismissed.
+ */
+css-only-badge {
+  /** Inner spacing. */
+  --badge-padding: 4px;
+  padding: var(--badge-padding);
+}
+
+css-only-badge[variant='danger'] {
+  color: red;
+}
+css-only-badge[variant='warning'] {
+  color: orange;
+}

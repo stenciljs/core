@@ -4,7 +4,6 @@
  * DO NOT MODIFY IT MANUALLY
  */
 import "rolldown";
-import "@stencil/core";
 import "typescript";
 //#region src/declarations/stencil-private.d.ts
 /**
@@ -270,6 +269,13 @@ interface JsonDocsComponent {
    * A deprecation reason/description found following a `@deprecated` tag
    */
   deprecation?: string;
+  /**
+   * `true` if this is a "CSS-only component" - a pure-CSS custom-element-name selector with
+   * no backing JS class, discovered from a `.css` file's `@component`-marked JSDoc block. The
+   * tag is never registered via `customElements.define()`. Omitted (or `false`) for ordinary
+   * Stencil components.
+   */
+  cssOnly?: boolean;
 }
 interface JsonDocsDependencyGraph {
   [tagName: string]: string[];
@@ -429,6 +435,16 @@ interface JsonDocsStyle {
    * The annotation used in the JSDoc of the style (e.g. `@prop`)
    */
   annotation: string;
+  /**
+   * The CSS `syntax` descriptor for a custom property, if it was registered via a native
+   * `@property` at-rule (e.g. `"<length>"`).
+   */
+  syntax?: string;
+  /**
+   * The `initial-value` descriptor for a custom property, if it was registered via a native
+   * `@property` at-rule.
+   */
+  default?: string;
   /**
    * The mode associated with the style
    */
