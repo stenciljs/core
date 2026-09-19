@@ -19,6 +19,7 @@ graph TD;
     build --> test-runtime[Runtime Tests]
     build --> test-special-config[Special Config Tests]
     build --> test-ssr[SSR Tests]
+    build --> test-ssr-wasm[SSR WASM Tests]
     build --> test-starter[Component Starter]
 ```
 
@@ -50,7 +51,10 @@ Runs quality checks (Linux only):
 | `test-runtime.yml` | Linux/Windows × Node 22/24 | Runtime tests (`test/runtime`) |
 | `test-special-config.yml` | Linux/Windows × Node 22/24 | Special config tests (`test/special-config`) |
 | `test-ssr.yml` | Linux/Windows × Node 22/24 | SSR tests (`test/ssr`) |
+| `test-ssr-wasm.yml` | Linux × Node 22/24 | SSR WASM tests (`test/ssr-wasm`) |
 | `test-component-starter.yml` | Linux/Windows × Node 22/24 | Smoke test with component starter template |
+
+Each test workflow ends with a `Check Git Context` step (`actions/check-git-context`), which fails the job if the test run left the working tree dirty. This catches golden-file / fixture drift - e.g. a docs-output or CEM fixture that a code change should have regenerated, but didn't get committed.
 
 ## Release Workflows
 

@@ -39,3 +39,6 @@ jobs:
       - name: Special Config Tests
         run: pnpm --filter "@stencil-core-tests/special-config" test
         shell: bash
+
+      - name: Check Git Context
+        uses: ./.github/workflows/actions/check-git-context
