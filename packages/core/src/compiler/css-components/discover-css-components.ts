@@ -8,6 +8,7 @@ import { parseCssComponentFile } from './parse-css-component';
  * Discover "CSS-only components" - pure-CSS custom-element definitions marked with a
  * `@component` JSDoc tag - by scanning `.css` files under `srcDir`, and populate
  * `buildCtx.cssOnlyComponents`.
+
  * @param config the validated Stencil config
  * @param compilerCtx the compiler context, used for the cross-build discovery cache
  * @param buildCtx the current build context

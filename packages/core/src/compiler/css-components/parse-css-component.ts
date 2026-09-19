@@ -14,11 +14,11 @@ import type {
 
 /**
  * Parse a single `.css` file's text for CSS-only components and build full
- * `ComponentCompilerMeta` for each one found. 
+ * `ComponentCompilerMeta` for each one found.
  *
  * @param filePath absolute path to the `.css` file, used only for diagnostics
  * @param cssText the file's raw CSS text
- * @returns discovered component metas, plus diagnostics for malformed input
+ * @returns discovered component meta, plus diagnostics for malformed input
  */
 export const parseCssOnlyComponents = async (
   filePath: string,

@@ -11,9 +11,9 @@ css-only-badge {
   padding: var(--badge-padding);
 }
 
-css-only-badge[variant="danger"] {
+css-only-badge[variant='danger'] {
   color: red;
 }
-css-only-badge[variant="warning"] {
+css-only-badge[variant='warning'] {
   color: orange;
 }
