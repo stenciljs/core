@@ -166,6 +166,11 @@ export interface JsonDocsComponent {
    * A deprecation reason/description found following a `@deprecated` tag
    */
   deprecation?: string;
+  /**
+   * `true` if this is a "CSS-only component"
+   * discovered in .css file via `@component`-marked JSDoc block
+   */
+  cssOnly?: boolean;
 }
 
 export interface JsonDocsDependencyGraph {
@@ -335,6 +340,16 @@ export interface JsonDocsStyle {
    * The annotation used in the JSDoc of the style (e.g. `@prop`)
    */
   annotation: string;
+  /**
+   * The CSS `syntax` descriptor for a custom property, if it was registered via a native
+   * `@property` at-rule (e.g. `"<length>"`).
+   */
+  syntax?: string;
+  /**
+   * The `initial-value` descriptor for a custom property, if it was registered via a native
+   * `@property` at-rule.
+   */
+  default?: string;
   /**
    * The mode associated with the style
    */

@@ -1,12 +1,15 @@
 import type * as d from '@stencil/core';
 
-import { catchError, normalizePath } from '../../utils';
+import { catchError, isOutputTargetGlobalStyle, normalizePath } from '../../utils';
 import { runPluginTransforms } from '../plugin/plugin';
 import {
+  generateHydrateCss,
+  hasStencilCssComponentsImport,
   hasStencilGlobalsImport,
   hasStencilHydrateImport,
+  replaceStencilHydrateImport,
+  resolveStencilCssComponentsImport,
   resolveStencilGlobalsImport,
-  resolveStencilHydrateImport,
 } from './component-global-styles';
 import { getCssImports } from './css-imports';
 import { optimizeStyleCss } from './optimize-style-css';
@@ -106,7 +109,17 @@ export const buildGlobalStyleFromInput = async (
       }
 
       if (hasStencilHydrateImport(cssCode)) {
-        cssCode = resolveStencilHydrateImport(cssCode, config, buildCtx);
+        cssCode = replaceStencilHydrateImport(cssCode, generateHydrateCss(config, buildCtx));
+      }
+
+      if (hasStencilCssComponentsImport(cssCode)) {
+        cssCode = await resolveStencilCssComponentsImport(
+          cssCode,
+          config,
+          compilerCtx,
+          buildCtx,
+          normalizedPath,
+        );
       }
 
       const optimizedCss = await optimizeStyleCss(
@@ -129,17 +142,18 @@ export const buildGlobalStyleFromInput = async (
         compilerCtx.cssModuleImports.set(normalizedPath, cssModuleImports);
       }
 
-      // Track global style changes for HMR (only for the primary globalStyle)
-      if (
-        buildCtx.isRebuild &&
-        config.devServer?.reloadStrategy === 'hmr' &&
-        normalizedPath === normalizePath(config.globalStyle ?? '')
-      ) {
-        buildCtx.stylesUpdated.push({
-          styleTag: 'global',
-          styleMode: undefined,
-          styleText: optimizedCss,
-        });
+      // Track global style changes for live-reload: every `global-style` output target
+      // whose `input` matches this path gets a fileName-keyed patch, so the dev-server
+      // client can update the `<style>` it keeps next to that target's own `<link>`
+      // (see `hmrGlobalStyleLinks` in packages/dev-server) rather than only the legacy
+      // `config.globalStyle` entry point.
+      if (buildCtx.isRebuild && config.devServer?.reloadStrategy === 'hmr') {
+        config.outputTargets
+          .filter(isOutputTargetGlobalStyle)
+          .filter((target) => target.input && normalizePath(target.input) === normalizedPath)
+          .forEach((target) => {
+            upsertGlobalStyleLinkUpdate(buildCtx, target.fileName!, optimizedCss);
+          });
       }
 
       return optimizedCss;
@@ -151,6 +165,29 @@ export const buildGlobalStyleFromInput = async (
 
   compilerCtx.globalStyleCache.delete(normalizedPath);
   return null;
+};
+
+/**
+ * Add or update a fileName-keyed global style HMR entry. `buildGlobalStyleFromInput` can
+ * be called more than once per rebuild for the same input (e.g. once from the output
+ * target, once from bundling) before its cache is populated, so this de-dupes by
+ * `fileName` rather than letting the client apply the same patch several times.
+ *
+ * @param buildCtx the build context
+ * @param fileName the `global-style` output target's fileName
+ * @param styleText the newly built CSS for that target
+ */
+const upsertGlobalStyleLinkUpdate = (
+  buildCtx: d.BuildCtx,
+  fileName: string,
+  styleText: string,
+): void => {
+  const existing = buildCtx.globalStylesUpdated.find((u) => u.fileName === fileName);
+  if (existing) {
+    existing.styleText = styleText;
+  } else {
+    buildCtx.globalStylesUpdated.push({ fileName, styleText });
+  }
 };
 
 const canSkipGlobalStyleBuild = async (

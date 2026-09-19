@@ -242,6 +242,7 @@ export interface BuildCtx {
   esmComponentBundle: ReadonlyArray<BundleModule>;
   commonJsComponentBundle: ReadonlyArray<BundleModule>;
   components: ComponentCompilerMeta[];
+  cssOnlyComponents: ComponentCompilerMeta[];
   componentGraph: Map<string, string[]>;
   config: ValidatedConfig;
   createTimeSpan(msg: string, debug?: boolean): LoggerTimeSpan;
@@ -290,6 +291,7 @@ export interface BuildCtx {
    */
   stylesPromise: Promise<string>;
   stylesUpdated: BuildStyleUpdate[];
+  globalStylesUpdated: BuildGlobalStyleLinkUpdate[];
   timeSpan: LoggerTimeSpan;
   timestamp: string;
   transpileBuildCount: number;
@@ -302,6 +304,15 @@ export interface BuildStyleUpdate {
   styleTag: string;
   styleText: string;
   styleMode: string;
+}
+
+/**
+ * A live-reload update for a `global-style` output target's CSS, matched on
+ * the client by `fileName` against the `<link>`
+ */
+export interface BuildGlobalStyleLinkUpdate {
+  fileName: string;
+  styleText: string;
 }
 
 export type BuildTask = any;
@@ -509,6 +520,8 @@ export interface CompilerCtx {
   cssModuleImports: Map<string, string[]>;
   /** Cache of built global styles, keyed by input file path */
   globalStyleCache: Map<string, string>;
+  /** Cache of discovered CSS-only components from the last scan, keyed by absolute .css file path */
+  cssOnlyComponentsCache: Map<string, ComponentCompilerMeta[]>;
   collections: CollectionCompilerMeta[];
   compilerOptions: any;
   events: BuildEvents;
@@ -1015,6 +1028,14 @@ export interface CompilerStyleDoc {
    * The Stencil style-mode that is associated with this property.
    */
   mode: string;
+  /**
+   * The CSS `syntax` descriptor, if this property was registered via a native `@property` at-rule.
+   */
+  syntax?: string;
+  /**
+   * The `initial-value` descriptor, if this property was registered via a native `@property` at-rule.
+   */
+  default?: string;
 }
 
 interface CompilerAssetDir {

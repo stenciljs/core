@@ -7,11 +7,19 @@ import type {
   CompilerBuildResults,
   Diagnostic,
   HotModuleReplacement,
+  HmrGlobalStyleUpdate,
   HmrStyleUpdate,
   PrintLine,
 } from '@stencil/core/compiler';
 
-export type { CompilerBuildResults, Diagnostic, HotModuleReplacement, HmrStyleUpdate, PrintLine };
+export type {
+  CompilerBuildResults,
+  Diagnostic,
+  HotModuleReplacement,
+  HmrGlobalStyleUpdate,
+  HmrStyleUpdate,
+  PrintLine,
+};
 
 export interface DevClientWindow extends Window {
   's-dev-server'?: boolean;
@@ -61,6 +69,7 @@ export interface HmrResults {
   updatedComponents: string[];
   updatedExternalStyles: string[];
   updatedInlineStyles: string[];
+  updatedGlobalStyles: string[];
   updatedImages: string[];
   versionId: string;
 }

@@ -2,7 +2,13 @@ import { basename } from 'path';
 import picomatch from 'picomatch';
 import type * as d from '@stencil/core';
 
-import { isGlob, isOutputTargetWww, normalizePath, sortBy } from '../../utils';
+import {
+  isGlob,
+  isOutputTargetGlobalStyle,
+  isOutputTargetWww,
+  normalizePath,
+  sortBy,
+} from '../../utils';
 import { getScopeId } from '../style/scope-css';
 
 /**
@@ -74,10 +80,14 @@ export const generateHmr = (config: d.Config, compilerCtx: d.CompilerCtx, buildC
     hmr.inlineStylesUpdated = sortBy(allStyleUpdates, (s) => s.styleId);
   }
 
+  if (buildCtx.globalStylesUpdated.length > 0) {
+    hmr.globalStylesUpdated = buildCtx.globalStylesUpdated.slice();
+  }
+
   // Update tracking for next build
   updateComponentStyleTracking(buildCtx);
 
-  const externalStylesUpdated = getExternalStylesUpdated(buildCtx, outputTargetsWww);
+  const externalStylesUpdated = getExternalStylesUpdated(config, buildCtx);
   if (externalStylesUpdated) {
     hmr.externalStylesUpdated = externalStylesUpdated;
   }
@@ -206,17 +216,27 @@ const addTsFileImporters = (
   });
 };
 
-const getExternalStylesUpdated = (buildCtx: d.BuildCtx, outputTargetsWww: d.OutputTargetWww[]) => {
-  if (!buildCtx.isRebuild || outputTargetsWww.length === 0) {
+const getExternalStylesUpdated = (config: d.Config, buildCtx: d.BuildCtx) => {
+  if (!buildCtx.isRebuild) {
     return null;
   }
 
-  const cssFiles = buildCtx.filesWritten.filter((f) => f.endsWith('.css'));
+  // global-style outputs are handled by the dedicated `globalStylesUpdated` link-patch
+  // mechanism above, which avoids a network round-trip and preserves cascade order
+  // relative to other `<link>` tags - exclude them here to avoid double-patching.
+  const globalStyleFileNames = new Set(
+    config.outputTargets.filter(isOutputTargetGlobalStyle).map((o) => o.fileName),
+  );
+
+  const cssFiles = buildCtx.filesWritten
+    .filter((f) => f.endsWith('.css'))
+    .map((f) => basename(f))
+    .filter((fileName) => !globalStyleFileNames.has(fileName));
   if (cssFiles.length === 0) {
     return null;
   }
 
-  return cssFiles.map((cssFile) => basename(cssFile)).sort();
+  return cssFiles.sort();
 };
 
 const getImagesUpdated = (buildCtx: d.BuildCtx, outputTargetsWww: d.OutputTargetWww[]) => {

@@ -68,7 +68,7 @@ function parseCssComment(styleDocs: d.StyleDoc[], comment: string, mode: string 
     comment = comment.replace('  ', ' ');
   }
 
-  const docs = comment.split(CSS_PROP_ANNOTATION);
+  const docs = comment.split(CSS_PROP_ANNOTATION_RE);
 
   docs.forEach((d) => {
     const cssDocument = d.trim();
@@ -101,6 +101,7 @@ const CSS_DOC_START = /\/\*(\*|!)/;
  */
 const CSS_DOC_END = '*/';
 /**
- * The `@prop` annotation we support within CSS docstrings
+ * The `@prop` annotation we support within CSS docstrings. `@cssprop` is also recognized as
+ * a synonym (the more common name in other web-component-analyzer/docgen ecosystems).
  */
-const CSS_PROP_ANNOTATION = '@prop';
+const CSS_PROP_ANNOTATION_RE = /@(?:cssprop|prop)\b/;

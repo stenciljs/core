@@ -312,7 +312,11 @@ const getCssToEsmImports = (
     if (!isLocalCssImport(cssImportData.srcImportText)) {
       // do nothing for @import url(http://external.css)
       continue;
-    } else if (cssImportData.url === 'stencil-globals' || cssImportData.url === 'stencil-hydrate') {
+    } else if (
+      cssImportData.url === 'stencil-globals' ||
+      cssImportData.url === 'stencil-hydrate' ||
+      cssImportData.url === 'stencil-css-components'
+    ) {
       // virtual imports resolved by Stencil at build time (see css-imports.ts's getCssImports,
       // which skips them the same way) - not a real file, leave them in the CSS unchanged.
       continue;

@@ -1,6 +1,13 @@
 import type * as d from '@stencil/core';
 
-import { fromEntries, hasError, isString, normalizeDiagnostics } from '../../utils';
+import {
+  fromEntries,
+  hasError,
+  isOutputTargetGlobalStyle,
+  isString,
+  join,
+  normalizeDiagnostics,
+} from '../../utils';
 import { getBuildTimestamp } from './build-ctx';
 import { generateHmr } from './build-hmr';
 
@@ -29,6 +36,10 @@ export const generateBuildResults = (
     namespace: config.namespace,
     fsNamespace: config.fsNamespace,
     outputs: compilerCtx.fs.getBuildOutputs(),
+    globalStyleFiles: config.outputTargets
+      .filter(isOutputTargetGlobalStyle)
+      .filter((o) => o.input)
+      .map((o) => join(o.dir, o.fileName)),
     components: buildCtx.components.slice(),
     rootDir: config.rootDir,
     srcDir: config.srcDir,

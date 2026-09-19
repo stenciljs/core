@@ -8,7 +8,7 @@ type TranspileCompatKeys = 'lightDomPatches' | 'lifecycleDOMEvents' | 'initializ
  *
  * Auto-populated from the project's `stencil.config.ts`; values set here override the auto-detected ones.
  */
-export type StencilConfigSubset = Pick<StencilConfig, 'signalBacking'> & {
+export type StencilConfigSubset = Pick<StencilConfig, 'signalBacking' | 'hydratedFlag'> & {
   compat?: Pick<ConfigCompat, TranspileCompatKeys>;
 };
 

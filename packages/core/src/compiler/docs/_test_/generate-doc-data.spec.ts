@@ -480,4 +480,76 @@ auto-generated content
       expect(generatedDocData.usage).toEqual({});
     });
   });
+
+  describe('CSS-only components', () => {
+    it('includes CSS-only components in the merged, sorted components list with cssOnly: true', async () => {
+      const validatedConfig: d.ValidatedConfig = mockValidatedConfig();
+      const compilerCtx: d.CompilerCtx = mockCompilerCtx(validatedConfig);
+      const buildCtx: d.BuildCtx = mockBuildCtx(validatedConfig, compilerCtx);
+
+      const realCmpModule = mockModule({
+        cmps: [stubComponentCompilerMeta({ tagName: 'z-real-cmp' })],
+      });
+      buildCtx.moduleFiles = [realCmpModule];
+      buildCtx.components = [stubComponentCompilerMeta({ tagName: 'z-real-cmp' })];
+      buildCtx.cssOnlyComponents = [
+        stubComponentCompilerMeta({
+          tagName: 'a-css-badge',
+          componentClassName: '',
+          sourceFilePath: '/src/a-css-badge.css',
+          docs: { text: 'A badge.', tags: [] },
+          properties: [],
+          styleDocs: [
+            {
+              name: '--badge-color',
+              docs: 'Background color',
+              annotation: 'prop',
+              mode: DEFAULT_STYLE_MODE,
+            },
+          ],
+        }),
+      ];
+
+      const generatedDocData = await generateDocData(validatedConfig, compilerCtx, buildCtx);
+
+      expect(generatedDocData.components).toHaveLength(2);
+      // sorted by tag: 'a-css-badge' before 'z-real-cmp'
+      expect(generatedDocData.components[0].tag).toBe('a-css-badge');
+      expect(generatedDocData.components[0].cssOnly).toBe(true);
+      expect(generatedDocData.components[0].overview).toBe('A badge.');
+      expect(generatedDocData.components[0].styles).toEqual([
+        { name: '--badge-color', docs: 'Background color', annotation: 'prop', mode: undefined },
+      ]);
+
+      expect(generatedDocData.components[1].tag).toBe('z-real-cmp');
+      expect(generatedDocData.components[1].cssOnly).toBeUndefined();
+    });
+
+    it('reads a CSS-only component readme.md the same way a real component does', async () => {
+      const validatedConfig: d.ValidatedConfig = mockValidatedConfig();
+      const compilerCtx: d.CompilerCtx = mockCompilerCtx(validatedConfig);
+      await compilerCtx.fs.writeFile(
+        '/src/readme.md',
+        'Hand-written docs.\n\n' + AUTO_GENERATE_COMMENT,
+        {
+          immediateWrite: true,
+        },
+      );
+
+      const buildCtx: d.BuildCtx = mockBuildCtx(validatedConfig, compilerCtx);
+      buildCtx.moduleFiles = [];
+      buildCtx.components = [];
+      buildCtx.cssOnlyComponents = [
+        stubComponentCompilerMeta({
+          tagName: 'my-badge',
+          componentClassName: '',
+          sourceFilePath: '/src/my-badge.css',
+        }),
+      ];
+
+      const generatedDocData = await generateDocData(validatedConfig, compilerCtx, buildCtx);
+
+      expect(generatedDocData.components[0].readme).toBe('Hand-written docs.\n');
+    });
+  });
 });

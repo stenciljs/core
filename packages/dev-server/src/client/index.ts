@@ -176,6 +176,10 @@ const appHmr = (win: Window, hmr: HotModuleReplacement): void => {
     logBuild(`Updated styles: ${results.updatedInlineStyles.join(', ')}`);
   }
 
+  if (results.updatedGlobalStyles.length > 0) {
+    logBuild(`Updated global styles: ${results.updatedGlobalStyles.join(', ')}`);
+  }
+
   if (results.updatedExternalStyles.length > 0) {
     logBuild(`Updated stylesheets: ${results.updatedExternalStyles.join(', ')}`);
   }

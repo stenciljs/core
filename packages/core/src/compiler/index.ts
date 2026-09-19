@@ -13,12 +13,23 @@ export { getScopeId } from './style/scope-css';
 export { generateManifest } from './docs/cem/index';
 export type { CustomElementsManifest } from './docs/cem/index';
 export { cmpMetaToDocsComponent } from './docs/generate-doc-data';
+export { parseCssOnlyComponents } from './css-components/parse-css-component';
+export {
+  buildHydrateCss,
+  hasStencilCssComponentsImport,
+  hasStencilGlobalsImport,
+  hasStencilHydrateImport,
+  replaceStencilCssComponentsImport,
+  replaceStencilGlobalsImport,
+  replaceStencilHydrateImport,
+} from './style/component-global-styles';
 export { transpile, transpileSync } from './transpile';
 export { scopeCss } from '../utils/shadow-css';
 export { createWorkerContext } from './worker/worker-thread';
 export { createWorkerMessageHandler } from './worker/worker-thread';
 export { ts };
 export { validateConfig } from './config/validate-config';
+export { validateHydrated } from './config/validate-hydrated';
 export * from '../declarations/stencil-public-compiler';
 // Compiler-facing types that live in `stencil-private.ts` alongside runtime-internal
 // types (e.g. HostElement, HostRef). Only the subset actually consumed outside of
@@ -26,6 +37,7 @@ export * from '../declarations/stencil-public-compiler';
 export type {
   ComponentCompilerMeta,
   ComponentCompilerTypeReferences,
+  ComponentGlobalStyle,
   LazyBundlesRuntimeData,
   PackageJsonData,
   PrintLine,

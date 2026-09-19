@@ -3,6 +3,79 @@
   "modules": [
     {
       "kind": "javascript-module",
+      "path": "src/components/css-only-badge/css-only-badge.css",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "css-only-badge",
+          "name": "CssOnlyBadge",
+          "description": "A CSS-only badge - no JS class, no shadow DOM, never registered via `customElements.define()`. Verifies docs-json/CEM output for this kind of component.",
+          "attributes": [
+            {
+              "name": "dismissible",
+              "description": "Whether the badge can be dismissed.",
+              "type": {
+                "text": "boolean"
+              },
+              "fieldName": "dismissible"
+            },
+            {
+              "name": "variant",
+              "type": {
+                "text": "\"danger\" | \"warning\" | (string & {})"
+              },
+              "fieldName": "variant"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "dismissible",
+              "description": "Whether the badge can be dismissed.",
+              "type": {
+                "text": "boolean"
+              },
+              "readonly": true,
+              "attribute": "dismissible"
+            },
+            {
+              "kind": "field",
+              "name": "variant",
+              "type": {
+                "text": "\"danger\" | \"warning\" | (string & {})"
+              },
+              "readonly": true,
+              "attribute": "variant"
+            }
+          ],
+          "cssProperties": [
+            {
+              "name": "--badge-padding",
+              "description": "Inner spacing."
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "CssOnlyBadge",
+          "declaration": {
+            "name": "CssOnlyBadge"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "css-only-badge",
+          "declaration": {
+            "name": "CssOnlyBadge"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/my-component/my-component.tsx",
       "declarations": [
         {

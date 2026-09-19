@@ -60,6 +60,7 @@ export default _default;
       dependencies: cmp.dependencies,
       dependencyGraph: cmp.dependencyGraph,
       deprecation: cmp.deprecation,
+      cssOnly: cmp.cssOnly,
     })),
   };
   const jsonContent = JSON.stringify(json, null, 2);

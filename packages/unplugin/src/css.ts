@@ -140,17 +140,52 @@ async function runLightningCss(css: string, filePath: string, minify: boolean): 
 }
 
 /**
+ * Runs a `.css`/`.scss`/`.sass`/`.less` file through Stencil's preprocessor chain:
+ * 1. Preprocessor: Sass/SCSS (`sass`) or Less (`less`) if installed
+ * 2. PostCSS with `postcss.config.*` if `postcss` + `postcss-load-config` are installed
+ * 3. lightningcss if installed — syntax lowering, vendor prefixes, minification in prod
+ * Each step is skipped silently if the relevant peer dep is not installed.
+ *
+ * Shared by `loadStencilCss` (per-component `?tag=` styles) and `global-css.ts`
+ * (including the files that feed `@import "stencil-globals"`/`"stencil-css-components"`)
+ *
+ * @param filePath - absolute path to the source file, with its real extension
+ * @param isDev - `true` in dev mode (disables minification)
+ * @returns the processed CSS and any extra files it depends on (e.g. Sass `@use`/`@import`), or
+ * `null` if the file doesn't exist
+ */
+export async function processCssFile(
+  filePath: string,
+  isDev: boolean,
+): Promise<{ css: string; deps: string[] } | null> {
+  if (!existsSync(filePath)) return null;
+
+  const ext = extname(filePath).slice(1);
+  let css = readFileSync(filePath, 'utf-8');
+  let deps: string[] = [];
+
+  if (PKG.sass && (ext === 'scss' || ext === 'sass')) {
+    const r = await compileSass(css, filePath, ext === 'sass');
+    css = r.css;
+    deps = r.deps;
+  } else if (PKG.less && ext === 'less') {
+    const r = await compileLess(css, filePath);
+    css = r.css;
+    deps = r.deps;
+  }
+
+  if (PKG.postcss) css = await runPostCss(css, filePath);
+  if (PKG.lightningcss) css = await runLightningCss(css, filePath, !isDev);
+
+  return { css, deps };
+}
+
+/**
  * Loads a Stencil CSS virtual module.
  *
- * Processing order:
- * 1. Read raw file
- * 2. Preprocessor: Sass/SCSS (`sass`) or Less (`less`) if installed
- * 3. PostCSS with `postcss.config.*` if `postcss` + `postcss-load-config` are installed
- * 4. lightningcss if installed — syntax lowering, vendor prefixes, minification in prod
- * 5. Scoped selector rewrite for `encapsulation: 'scoped'`
- *
- * Each step is skipped silently if the relevant peer dep is not installed.
- * Returns `export default "css string"` so bundlers treat the import as a JS module.
+ * Runs the file through {@link processCssFile}, then applies the scoped-selector rewrite for
+ * `encapsulation: 'scoped'`. Returns `export default "css string"` so bundlers treat the import
+ * as a JS module.
  * @param id - virtual module id produced by `resolveStencilCss`
  * @param isDev - `true` in dev mode (disables minification)
  * @returns ESM string export of the processed CSS, or `null` if not a Stencil CSS virtual module
@@ -171,27 +206,13 @@ export async function loadStencilCss(
   const ext = decodeURIComponent(params.get('__ext') ?? 'css');
   const filePath = `${stem}.${ext}`;
 
-  if (!existsSync(filePath)) return { code: 'export default () => ""', deps: [] };
+  const result = await processCssFile(filePath, isDev);
+  if (!result) return { code: 'export default () => ""', deps: [] };
 
-  let css = readFileSync(filePath, 'utf-8');
-  let deps: string[] = [];
-
-  if (PKG.sass && (ext === 'scss' || ext === 'sass')) {
-    const r = await compileSass(css, filePath, ext === 'sass');
-    css = r.css;
-    deps = r.deps;
-  } else if (PKG.less && ext === 'less') {
-    const r = await compileLess(css, filePath);
-    css = r.css;
-    deps = r.deps;
-  }
-
-  if (PKG.postcss) css = await runPostCss(css, filePath);
-  if (PKG.lightningcss) css = await runLightningCss(css, filePath, !isDev);
-
+  let { css } = result;
   if (encapsulation === 'scoped' && tag) {
     css = scopeCss(css, getScopeId(tag), false);
   }
 
-  return { code: `export default () => ${JSON.stringify(css)};`, deps };
+  return { code: `export default () => ${JSON.stringify(css)};`, deps: result.deps };
 }

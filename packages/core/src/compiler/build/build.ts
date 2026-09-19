@@ -3,6 +3,7 @@ import ts from 'typescript';
 import type * as d from '@stencil/core';
 
 import { catchError, isString, join, readPackageJson } from '../../utils';
+import { discoverCssOnlyComponents } from '../css-components/discover-css-components';
 import { generateOutputTargets } from '../output-targets';
 import { emptyOutputTargets } from '../output-targets/empty-dir';
 import { generateGlobalStyles } from '../style/global-styles';
@@ -65,6 +66,16 @@ export const build = async (
     // so type validation and bundling are skipped.
     if (buildCtx.isRebuild && buildCtx.hasScriptChanges && compilerCtx.changedModules.size === 0) {
       buildCtx.hasScriptChanges = false;
+    }
+
+    // Discover pure-CSS "CSS-only" components (no backing JS class) - runs after runTsProgram
+    // so buildCtx.components is already populated for tag-collision checks.
+    const cssOnlyChanged = await discoverCssOnlyComponents(config, compilerCtx, buildCtx);
+    if (buildCtx.hasError) return buildAbort(buildCtx);
+    if (cssOnlyChanged) {
+      // Force components.d.ts/docs regeneration below, which otherwise only fires on
+      // hasScriptChanges - a CSS-only component's tag/docs can change with no .tsx involved.
+      buildCtx.hasScriptChanges = true;
     }
 
     // Skip type validation on rebuilds with no script changes - the type graph is unchanged.

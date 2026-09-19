@@ -1,6 +1,6 @@
 import { hmrComponents } from './component';
 import { hmrImages } from './image';
-import { hmrInlineStyles, hmrExternalStyles } from './style';
+import { hmrGlobalStyleLinks, hmrInlineStyles, hmrExternalStyles } from './style';
 import { setHmrAttr } from './utils';
 import type { HmrResults, HotModuleReplacement } from '../types';
 
@@ -14,6 +14,7 @@ export const hmrWindow = (data: HmrWindowData): HmrResults => {
     updatedComponents: [],
     updatedExternalStyles: [],
     updatedInlineStyles: [],
+    updatedGlobalStyles: [],
     updatedImages: [],
     versionId: '',
   };
@@ -46,6 +47,10 @@ export const hmrWindow = (data: HmrWindowData): HmrResults => {
         versionId,
         hmr.inlineStylesUpdated,
       );
+    }
+
+    if (hmr.globalStylesUpdated) {
+      results.updatedGlobalStyles = hmrGlobalStyleLinks(doc, versionId, hmr.globalStylesUpdated);
     }
 
     if (hmr.externalStylesUpdated) {

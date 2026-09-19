@@ -10,6 +10,12 @@ export namespace Components {
     }
     interface CmpB {
     }
+    /**
+     * A CSS-only badge, used to verify `@import "stencil-css-components"` end-to-end alongside the existing `@import "stencil-globals"`/`@import "stencil-hydrate"` coverage in this fixture.
+     */
+    interface CssBadge {
+        "variant"?: "danger" | (string & {});
+    }
 }
 declare global {
     interface HTMLCmpAElement extends Components.CmpA, HTMLStencilElement {
@@ -24,9 +30,19 @@ declare global {
         prototype: HTMLCmpBElement;
         new (): HTMLCmpBElement;
     };
+    /**
+     * A CSS-only badge, used to verify `@import "stencil-css-components"` end-to-end alongside the existing `@import "stencil-globals"`/`@import "stencil-hydrate"` coverage in this fixture.
+     */
+    interface HTMLCssBadgeElement extends Components.CssBadge, HTMLStencilElement {
+    }
+    var HTMLCssBadgeElement: {
+        prototype: HTMLCssBadgeElement;
+        new (): HTMLCssBadgeElement;
+    };
     interface HTMLElementTagNameMap {
         "cmp-a": HTMLCmpAElement;
         "cmp-b": HTMLCmpBElement;
+        "css-badge": HTMLCssBadgeElement;
     }
 }
 declare namespace LocalJSX {
@@ -34,9 +50,21 @@ declare namespace LocalJSX {
     }
     interface CmpB {
     }
+    /**
+     * A CSS-only badge, used to verify `@import "stencil-css-components"` end-to-end alongside the existing `@import "stencil-globals"`/`@import "stencil-hydrate"` coverage in this fixture.
+     */
+    interface CssBadge {
+        "variant"?: "danger" | (string & {});
+    }
+
+    interface CssBadgeAttributes {
+        "variant": string;
+    }
+
     interface IntrinsicElements {
         "cmp-a": CmpA;
         "cmp-b": CmpB;
+        "css-badge": Omit<CssBadge, keyof CssBadgeAttributes> & { [K in keyof CssBadge & keyof CssBadgeAttributes]?: CssBadge[K] } & { [K in keyof CssBadge & keyof CssBadgeAttributes as `attr:${K}`]?: CssBadgeAttributes[K] } & { [K in keyof CssBadge & keyof CssBadgeAttributes as `prop:${K}`]?: CssBadge[K] };
     }
 }
 export { LocalJSX as JSX };
@@ -45,6 +73,10 @@ declare module "@stencil/core" {
         interface IntrinsicElements {
             "cmp-a": LocalJSX.IntrinsicElements["cmp-a"] & JSXBase.HTMLAttributes<HTMLCmpAElement>;
             "cmp-b": LocalJSX.IntrinsicElements["cmp-b"] & JSXBase.HTMLAttributes<HTMLCmpBElement>;
+            /**
+             * A CSS-only badge, used to verify `@import "stencil-css-components"` end-to-end alongside the existing `@import "stencil-globals"`/`@import "stencil-hydrate"` coverage in this fixture.
+             */
+            "css-badge": LocalJSX.IntrinsicElements["css-badge"] & JSXBase.HTMLAttributes<HTMLCssBadgeElement>;
         }
     }
 }

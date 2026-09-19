@@ -50,7 +50,13 @@ export const generateDocData = async (
       version,
       typescriptVersion: versions.typescript,
     },
-    components: await getDocsComponents(config, compilerCtx, buildCtx),
+    components: sortBy(
+      [
+        ...(await getDocsComponents(config, compilerCtx, buildCtx)),
+        ...(await getCssOnlyDocsComponents(config, compilerCtx, buildCtx)),
+      ],
+      (cmp) => cmp.tag,
+    ),
     usage: await generateUsages(compilerCtx, normalizePath(join(config.srcDir, 'usage'))),
     typeLibrary,
   };
@@ -126,6 +132,61 @@ const getDocsComponents = async (
   );
 
   return sortBy(flatOne(results), (cmp) => cmp.tag);
+};
+
+/**
+ * @param config the configuration associated with the current Stencil task run
+ * @param compilerCtx the current compiler context
+ * @param buildCtx the build context for the current Stencil task run
+ * @returns the derived metadata, one entry per CSS-only component, each with `cssOnly: true`
+ */
+const getCssOnlyDocsComponents = async (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+): Promise<d.JsonDocsComponent[]> => {
+  const results = await Promise.all(
+    buildCtx.cssOnlyComponents.map(async (cmp) => {
+      const filePath = cmp.sourceFilePath;
+      const dirPath = normalizePath(dirname(filePath));
+      const readmePath = normalizePath(join(dirPath, 'readme.md'));
+      const usagesDir = normalizePath(join(dirPath, 'usage'));
+      const readme = await getUserReadmeContent(compilerCtx, readmePath);
+      const usage = await generateUsages(compilerCtx, usagesDir);
+
+      const docsComponent: d.JsonDocsComponent = {
+        dirPath,
+        filePath: normalizePath(relative(config.rootDir, filePath), false),
+        fileName: basename(filePath),
+        readmePath,
+        usagesDir,
+        tag: cmp.tagName,
+        readme,
+        overview: cmp.docs.text,
+        usage,
+        docs: generateDocs(readme, cmp.docs),
+        docsTags: cmp.docs.tags,
+        encapsulation: getDocsEncapsulation(cmp),
+        dependents: cmp.directDependents,
+        dependencies: cmp.directDependencies,
+        dependencyGraph: buildDocsDepGraph(cmp, buildCtx.components),
+        deprecation: getDocsDeprecationText(cmp.docs.tags),
+
+        props: getDocsProperties(cmp),
+        methods: getDocsMethods(cmp.methods),
+        events: getDocsEvents(cmp.events),
+        styles: getDocsStyles(cmp),
+        slots: getDocsSlots(cmp.htmlSlots, cmp.docs.tags),
+        parts: getDocsParts(cmp.htmlParts, cmp.docs.tags),
+        customStates: getDocsCustomStates(cmp),
+        listeners: getDocsListeners(cmp.listeners),
+        cssOnly: true,
+      };
+      return docsComponent;
+    }),
+  );
+
+  return sortBy(results, (cmp) => cmp.tag);
 };
 
 const buildDocsDepGraph = (
@@ -350,6 +411,8 @@ export const getDocsStyles = (cmpMeta: d.ComponentCompilerMeta): d.JsonDocsStyle
         compilerStyleDoc.mode && compilerStyleDoc.mode !== DEFAULT_STYLE_MODE
           ? compilerStyleDoc.mode
           : undefined,
+      ...(compilerStyleDoc.syntax && { syntax: compilerStyleDoc.syntax }),
+      ...(compilerStyleDoc.default && { default: compilerStyleDoc.default }),
     };
   });
 };

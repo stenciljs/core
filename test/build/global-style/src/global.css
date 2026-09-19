@@ -10,6 +10,10 @@
 /* Component global styles are injected here */
 @import 'stencil-globals' supports(display: grid);
 
+/* CSS-only component styles are injected here */
+@import 'stencil-css-components';
+
 body {
   margin: 0;
+  background: var(--color-primary);
 }

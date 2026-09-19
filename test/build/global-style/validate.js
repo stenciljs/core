@@ -62,6 +62,61 @@ assert(
   'stencil-globals output should be wrapped in "@supports (display: grid)" per the supports() modifier',
 );
 
+// css-badge.css (a CSS-only component, no .tsx/JS backing) is injected by
+// @import "stencil-css-components"
+assert(css.includes('css-badge'), 'Missing css-badge styles from a CSS-only component');
+assert(
+  !css.includes('stencil-css-components'),
+  'stencil-css-components virtual import should be resolved, not present in output',
+);
+
+// CSS-only components must NOT appear in the FOUC/hydrate CSS selector list - there's no
+// upgrade lifecycle for a tag that's never registered via customElements.define(), so
+// there's nothing to hide/reveal.
+const foucSelectorMatch = css.replace(/\s/g, '').match(/([a-z0-9,-]+)\{visibility:hidden\}/);
+assert(foucSelectorMatch, 'Could not find the FOUC visibility:hidden selector list');
+const foucTags = foucSelectorMatch[1].split(',');
+assert(
+  foucTags.includes('cmp-a') && foucTags.includes('cmp-b'),
+  'Missing component tags in FOUC selector list',
+);
+assert(
+  !foucTags.includes('css-badge'),
+  'css-badge (a CSS-only component) should not appear in the FOUC/hydrate visibility rule',
+);
+
+// A CSS-only component's tag must never be registered as a real custom element - check
+// every emitted JS bundle for a customElements.define() call naming it.
+const jsFiles = await collectFiles(
+  path.resolve(__dirname, 'dist'),
+  (f) => f.endsWith('.js') || f.endsWith('.mjs'),
+);
+for (const file of jsFiles) {
+  const contents = await fs.readFile(file, 'utf-8');
+  assert(
+    !contents.includes(`'css-badge'`) && !contents.includes(`"css-badge"`),
+    `css-badge (a CSS-only component) must never be referenced in emitted JS, found in ${file}`,
+  );
+}
+
+/**
+ * Recursively collect files under `dir` matching `filter`.
+ * @param {string} dir directory to search
+ * @param {(fileName: string) => boolean} filter predicate applied to each file name
+ * @returns {Promise<string[]>} absolute paths of matching files
+ */
+async function collectFiles(dir, filter) {
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  const files = await Promise.all(
+    entries.map(async (entry) => {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) return collectFiles(fullPath, filter);
+      return filter(entry.name) ? [fullPath] : [];
+    }),
+  );
+  return files.flat();
+}
+
 // stencil-hydrate.css must NOT be generated when @import "stencil-hydrate" is present
 // in a global-style input - the standalone output target should detect this and skip it.
 const hydrateCssPath = path.resolve(__dirname, 'dist', 'assets', 'stencil-hydrate.css');

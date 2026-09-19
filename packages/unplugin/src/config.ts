@@ -71,6 +71,10 @@ export async function loadStencilConfig(cwd: string): Promise<StencilConfigSubse
 function extractSubset(c: Record<string, unknown>): StencilConfigSubset {
   const result: StencilConfigSubset = {};
   if (c['signalBacking'] === true) result.signalBacking = true;
+  // `null` is a meaningful, explicit value here (disables the hydrated-flag CSS entirely) -
+  // only `undefined` (the key absent) should fall through to validateHydrated's own default.
+  if ('hydratedFlag' in c)
+    result.hydratedFlag = c['hydratedFlag'] as StencilConfigSubset['hydratedFlag'];
   const compat = c['compat'];
   if (compat && typeof compat === 'object') {
     const co = compat as Record<string, unknown>;

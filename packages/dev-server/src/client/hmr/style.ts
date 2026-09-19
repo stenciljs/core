@@ -1,6 +1,7 @@
-import { HmrStyleUpdate } from '../types';
+import { HmrGlobalStyleUpdate, HmrStyleUpdate } from '../types';
 import {
   getHmrHref,
+  getUrlFileName,
   hasShadowRoot,
   isElement,
   isLinkStylesheet,
@@ -58,6 +59,71 @@ const hmrStylesheetLink = (
     styleSheetElm.setAttribute('href', newHref);
     setHmrAttr(styleSheetElm, versionId);
   }
+};
+
+// =============================================================================
+// HMR Global Style Links
+// =============================================================================
+
+// Marks a `<style>` inserted as a live-reload override for a `global-style` output
+// target, keyed by that target's output fileName rather than a shared/component id.
+const GLOBAL_LINK_ATTR = 'data-hmr-global';
+
+/**
+ * Apply live CSS text updates for `global-style` output targets. Each update is matched
+ * to the `<link rel="stylesheet">` that loads it (by fileName) and delivered as a
+ * `<style>` inserted immediately after that `<link>`, so multiple global stylesheets
+ * keep their original cascade order. The matching `<link>` is disabled once a patch takes over.
+ *
+ * @param doc - the document to apply updates to
+ * @param versionId - the HMR version identifier
+ * @param updates - the global style updates, one per changed output target
+ * @returns the fileNames that were updated
+ */
+export const hmrGlobalStyleLinks = (
+  doc: Document,
+  versionId: string,
+  updates: HmrGlobalStyleUpdate[],
+): string[] => {
+  updates.forEach(({ fileName, styleText }) => {
+    const link = findMatchingStylesheetLink(doc, fileName);
+    if (link) {
+      link.disabled = true;
+    }
+
+    const existing = findGlobalStyleLinkPatch(doc, fileName);
+    if (existing) {
+      existing.innerHTML = styleText.replace(/\\n/g, '\n');
+      existing.setAttribute('data-hmr', versionId);
+      return;
+    }
+
+    const styleElm = doc.createElement('style');
+    styleElm.innerHTML = styleText.replace(/\\n/g, '\n');
+    styleElm.setAttribute(GLOBAL_LINK_ATTR, fileName);
+    styleElm.setAttribute('data-hmr', versionId);
+
+    if (link?.parentNode) {
+      link.parentNode.insertBefore(styleElm, link.nextSibling);
+    } else {
+      doc.head.appendChild(styleElm);
+    }
+  });
+
+  return updates.map((u) => u.fileName).sort();
+};
+
+const findGlobalStyleLinkPatch = (doc: Document, fileName: string): HTMLStyleElement | null => {
+  const candidates = Array.from(doc.head.querySelectorAll(`style[${GLOBAL_LINK_ATTR}]`));
+  return (
+    (candidates.find((s) => s.getAttribute(GLOBAL_LINK_ATTR) === fileName) as HTMLStyleElement) ??
+    null
+  );
+};
+
+const findMatchingStylesheetLink = (doc: Document, fileName: string): HTMLLinkElement | null => {
+  const links = Array.from(doc.querySelectorAll('link[rel="stylesheet"]')) as HTMLLinkElement[];
+  return links.find((link) => getUrlFileName(link.getAttribute('href') ?? '') === fileName) ?? null;
 };
 
 // =============================================================================

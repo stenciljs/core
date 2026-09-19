@@ -53,4 +53,38 @@ describe('@stencil/unplugin docs / CEM integration', () => {
     // defaults to double-quoted string literals.
     expect(findField('validator').type?.text).toBe(`("required" | "optional")`);
   });
+
+  describe('CSS-only components (no .tsx/JS backing)', () => {
+    const findDecl = (tagName: string) =>
+      cem.modules
+        .flatMap((mod) => mod.declarations ?? [])
+        .find((d) => 'tagName' in d && d.tagName === tagName);
+
+    it('discovers a CSS-only component via the buildStart scan, alongside real components', () => {
+      const decl = findDecl('my-css-badge');
+      expect(decl).toBeTruthy();
+      expect(decl?.customElement).toBe(true);
+      expect(decl?.description).toContain('A CSS-only badge');
+    });
+
+    it('includes an explicit @attr annotation with its declared type', () => {
+      const decl = findDecl('my-css-badge');
+      const attr = decl?.attributes?.find((a) => a.name === 'dismissible');
+      expect(attr?.type?.text).toBe('boolean');
+      expect(attr?.description).toBe('Whether the badge can be dismissed.');
+    });
+
+    it('auto-detects an attribute-selector literal as a variant type', () => {
+      const decl = findDecl('my-css-badge');
+      const attr = decl?.attributes?.find((a) => a.name === 'variant');
+      expect(attr?.type?.text).toBe(`"danger" | (string & {})`);
+    });
+
+    it('auto-detects a documented custom property', () => {
+      const decl = findDecl('my-css-badge');
+      expect(decl?.cssProperties).toEqual([
+        { name: '--badge-padding', description: 'Inner spacing.' },
+      ]);
+    });
+  });
 });

@@ -190,4 +190,36 @@ describe('style-docs', () => {
       ]);
     },
   );
+
+  it('recognizes @cssprop as a synonym for @prop', () => {
+    const styleText = `
+      /**
+       * @cssprop --max-width: Max width of the alert
+       */
+      body {
+        color: red;
+      }
+    `;
+    parseStyleDocs(styleDocs, styleText);
+    expect(styleDocs).toEqual([
+      { name: `--max-width`, docs: `Max width of the alert`, annotation: 'prop' },
+    ]);
+  });
+
+  it('recognizes a mix of @prop and @cssprop in the same comment', () => {
+    const styleText = `
+      /**
+       * @prop --a: docs for a
+       * @cssprop --b: docs for b
+       */
+      body {
+        color: red;
+      }
+    `;
+    parseStyleDocs(styleDocs, styleText);
+    expect(styleDocs).toEqual([
+      { name: `--a`, docs: `docs for a`, annotation: 'prop' },
+      { name: `--b`, docs: `docs for b`, annotation: 'prop' },
+    ]);
+  });
 });

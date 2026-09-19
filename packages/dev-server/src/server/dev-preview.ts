@@ -149,14 +149,11 @@ const getLoaderUrl = ({ outputs, fsNamespace, rootDir }: CompilerBuildResults): 
 };
 
 /**
- * Collect server-relative URLs for all global-style CSS outputs.
+ * Collect server-relative URLs for all global-style CSS outputs, in the same order their
+ * output targets are declared in config - cascade order is meaningful when more than one
+ * `global-style` output target is configured.
  * @param buildResults The compiler build results containing output file information.
  * @returns An array of server-relative URLs to global-style CSS files.
  */
-const getGlobalCssUrls = ({ outputs, rootDir }: CompilerBuildResults): string[] => {
-  const globalStyle = outputs.find((o) => o.type === 'global-style');
-  if (!globalStyle) return [];
-  return globalStyle.files
-    .filter((f) => f.endsWith('.css') && !f.endsWith('.css.map'))
-    .map((f) => toServePath(f, rootDir));
-};
+const getGlobalCssUrls = ({ globalStyleFiles, rootDir }: CompilerBuildResults): string[] =>
+  globalStyleFiles.map((f) => toServePath(f, rootDir));

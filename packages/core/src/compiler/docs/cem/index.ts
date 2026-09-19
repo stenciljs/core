@@ -230,6 +230,8 @@ const componentToDeclaration = (component: d.JsonDocsComponent): CustomElementDe
     .map((style) => ({
       name: style.name,
       ...(style.docs && { description: style.docs }),
+      ...(style.syntax && { syntax: style.syntax }),
+      ...(style.default && { default: style.default }),
     }));
 
   // Generate demos from usage examples
@@ -411,4 +413,6 @@ interface CustomState {
 interface CssCustomProperty {
   name: string;
   description?: string;
+  syntax?: string;
+  default?: string;
 }
