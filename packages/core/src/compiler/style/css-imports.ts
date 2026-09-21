@@ -2,7 +2,6 @@ import { basename, dirname, isAbsolute } from 'path';
 import type * as d from '@stencil/core';
 
 import { buildError, join, normalizePath } from '../../utils';
-import { parseStyleDocs } from '../docs/style-docs';
 import { resolveModuleIdAsync } from '../sys/resolve/resolve-module-async';
 import { getModuleId } from '../sys/resolve/resolve-utils';
 import { stripCssComments, wrapCssWithImportModifiers } from './style-utils';
@@ -17,7 +16,6 @@ import { stripCssComments, wrapCssWithImportModifiers } from './style-utils';
  * @param srcFilePath the source filepath
  * @param resolvedFilePath the resolved filepath
  * @param styleText style text we start with
- * @param styleDocs optional array of style document objects
  * @returns an object with concatenated styleText and imports
  */
 export const parseCssImports = async (
@@ -27,7 +25,6 @@ export const parseCssImports = async (
   srcFilePath: string,
   resolvedFilePath: string,
   styleText: string,
-  styleDocs?: d.StyleDoc[],
 ): Promise<ParseCSSReturn> => {
   const isCssEntry = resolvedFilePath.toLowerCase().endsWith('.css');
   const allCssImports: string[] = [];
@@ -65,10 +62,6 @@ export const parseCssImports = async (
       return css;
     }
     resolvedFilePaths.add(resolvedPath);
-
-    if (styleDocs != null) {
-      parseStyleDocs(styleDocs, css);
-    }
 
     const cssImports = await getCssImports(config, compilerCtx, buildCtx, resolvedPath, css);
     if (cssImports.length === 0) {

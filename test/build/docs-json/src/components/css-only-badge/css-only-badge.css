@@ -3,10 +3,14 @@
  * A CSS-only badge - no JS class, no shadow DOM, never registered via
  * `customElements.define()`. Verifies docs-json/CEM output for this kind of component.
  * @attr {boolean} dismissible - Whether the badge can be dismissed.
+ * @cssprop --badge-color: The badge's text color.
  */
 css-only-badge {
   /** Inner spacing. */
   --badge-padding: 4px;
+  /** This description loses to the explicit @cssprop above - merge precedence check. */
+  --badge-color: black;
+  color: var(--badge-color);
   padding: var(--badge-padding);
 }
 
@@ -15,4 +19,11 @@ css-only-badge[variant='danger'] {
 }
 css-only-badge[variant='warning'] {
   color: orange;
+}
+
+/** Corner radius. */
+@property --badge-radius {
+  syntax: '<length>';
+  initial-value: 4px;
+  inherits: false;
 }

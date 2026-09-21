@@ -303,6 +303,61 @@ describe('transformCssToEsm', () => {
 
       expect(result.styleDocs).toHaveLength(0);
     });
+
+    it('auto-detects a doc-commented custom property inside :host for shadow encapsulation', async () => {
+      mockInput.docs = true;
+      mockInput.encapsulation = 'shadow';
+      mockInput.input = `
+        :host {
+          /** Corner radius. */
+          --my-radius: 4px;
+        }
+      `;
+
+      const result = await transformCssToEsm(mockInput);
+
+      expect(result.styleDocs).toHaveLength(1);
+      expect(result.styleDocs[0].name).toBe('--my-radius');
+      expect(result.styleDocs[0].docs).toBe('Corner radius.');
+    });
+
+    it('auto-detects a doc-commented custom property inside the tag selector for none encapsulation', async () => {
+      mockInput.docs = true;
+      mockInput.encapsulation = 'none';
+      mockInput.input = `
+        my-component {
+          /** Corner radius. */
+          --my-radius: 4px;
+        }
+      `;
+
+      const result = await transformCssToEsm(mockInput);
+
+      expect(result.styleDocs).toHaveLength(1);
+      expect(result.styleDocs[0].name).toBe('--my-radius');
+      expect(result.styleDocs[0].docs).toBe('Corner radius.');
+    });
+
+    it('collects syntax/default from a native @property at-rule', async () => {
+      mockInput.docs = true;
+      mockInput.input = `
+        /** Corner radius. */
+        @property --my-radius {
+          syntax: "<length>";
+          initial-value: 4px;
+        }
+      `;
+
+      const result = await transformCssToEsm(mockInput);
+
+      expect(result.styleDocs).toHaveLength(1);
+      expect(result.styleDocs[0]).toMatchObject({
+        name: '--my-radius',
+        docs: 'Corner radius.',
+        syntax: '<length>',
+        default: '4px',
+      });
+    });
   });
 
   describe('error handling', () => {

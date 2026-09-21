@@ -4,6 +4,12 @@ import selectorParser from 'postcss-selector-parser';
 import type * as d from '@stencil/core';
 
 import { buildError, buildWarn, validateComponentTag } from '../../utils';
+import {
+  isJsDocComment,
+  normalizeJsDocLines,
+  normalizeJsDocText,
+  parsePropertyAtRuleDescriptors,
+} from '../docs/css-doc-comments';
 import { createCssOnlyComponentMeta } from './css-component-meta';
 import type {
   CssOnlyAttributeDoc,
@@ -158,18 +164,7 @@ export const parseCssComponentFile = async (
       continue;
     }
 
-    let syntax: string | undefined;
-    let initialValue: string | undefined;
-    node.each((child) => {
-      if (child.type !== 'decl') {
-        return;
-      }
-      if (child.prop === 'syntax') {
-        syntax = stripQuotes(child.value);
-      } else if (child.prop === 'initial-value') {
-        initialValue = child.value;
-      }
-    });
+    const { syntax, initialValue } = parsePropertyAtRuleDescriptors(node);
 
     const prev = nodes[i - 1];
     const docs =
@@ -292,33 +287,6 @@ const collectAutoDetectedCustomProperties = (rule: postcss.Rule, def: CssOnlyCom
     });
   }
 };
-
-const stripQuotes = (value: string): string => value.replace(/^['"]|['"]$/g, '');
-
-/**
- * A JSDoc-style comment is `/** ... *\/` or `/*! ... *\/` - postcss's `Comment.text` already
- * strips the `/*`/`*\/` delimiters, so this checks the leading `*` or `!` that remains.
- * @param commentText a postcss `Comment` node's `.text`
- * @returns `true` if the comment is JSDoc-style
- */
-const isJsDocComment = (commentText: string): boolean =>
-  commentText.startsWith('*') || commentText.startsWith('!');
-
-/**
- * Strip the leading `*`/`!` marker and per-line `*` prefixes, returning trimmed lines.
- * @param commentText a postcss `Comment` node's `.text`
- * @returns the comment's lines, delimiters and leading `*`s stripped
- */
-const normalizeJsDocLines = (commentText: string): string[] => {
-  const withoutMarker = commentText.replace(/^[*!]/, '');
-  return withoutMarker
-    .split(/\r?\n/)
-    .map((line) => line.trim().replace(/^\*/, '').trim())
-    .filter((line, i, arr) => !(line === '' && (i === 0 || i === arr.length - 1)));
-};
-
-const normalizeJsDocText = (commentText: string): string =>
-  normalizeJsDocLines(commentText).filter(Boolean).join(' ').trim();
 
 interface JsDocBlock {
   description: string;

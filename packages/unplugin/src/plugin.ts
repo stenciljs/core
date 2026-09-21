@@ -61,7 +61,13 @@ import type {
 import type { ModuleNode } from 'vite';
 
 import { loadStencilConfig, stencilConfigToOverrides } from './config.js';
-import { getRealCssPath, isStencilCss, loadStencilCss, resolveStencilCss } from './css.js';
+import {
+  collectStyleDocsForComponent,
+  getRealCssPath,
+  isStencilCss,
+  loadStencilCss,
+  resolveStencilCss,
+} from './css.js';
 import {
   hasVirtualGlobalImport,
   invalidateGlobalCssFile,
@@ -168,15 +174,44 @@ async function scanCssOnlyDocsFile(abs: string): Promise<void> {
 }
 
 /**
+ * Re-derives one component's docs from its `.tsx` / `.ts` source and merges the result into the
+ * docs registry.
+ * 
+ * @param tag the custom-element tag name to refresh
+ * @param filePath absolute path to the component's `.tsx`/`.ts` source
+ * @returns `true` if the registry entry's content actually changed
+ */
+async function refreshComponentDocs(tag: string, filePath: string): Promise<boolean> {
+  const prevSnapshot = JSON.stringify(docsRegistry.get(tag));
+  try {
+    const code = readFileSync(filePath, 'utf-8');
+    const result = await transpile(code, { file: filePath, componentExport: 'customelement' });
+    
+    for (const item of result.data ?? []) {
+      if (!item.tagName) continue;
+      await collectStyleDocsForComponent(item, filePath);
+      const component = cmpMetaToDocsComponent(item, filePath);
+      resolveImportedTypes(component, filePath);
+      docsRegistry.set(item.tagName, component);
+    }
+  } catch {
+    return false; // stale docs are acceptable on transpile error
+  }
+  return JSON.stringify(docsRegistry.get(tag)) !== prevSnapshot;
+}
+
+/**
  * Scan the project for component source files (`.tsx`/`.ts`) and CSS-only components
  * (`.css`), pre-populating the docs registry, `componentGlobalStyles`, and
  * `cssOnlyComponentFiles` - the project-wide data the virtual global-stylesheet imports need
  * (see `global-css.ts`), gathered eagerly so it doesn't depend on module-graph visitation order.
  * @param filter A function to filter which `.tsx`/`.ts` files should be included - not applied
  * to `.css` files, since the default `include` (`/\.tsx?$/`) would otherwise exclude all of them.
+ * @param collectStyleDocs Whether to also collect CSS custom-property docs for each component's
+ * stylesheet(s) - the extra parse cost only pays off when `options.docs` is set.
  * @returns A promise that resolves when the scan is complete.
  */
-async function scanDocs(filter: (id: string) => boolean): Promise<void> {
+async function scanDocs(filter: (id: string) => boolean, collectStyleDocs: boolean): Promise<void> {
   const cwd = process.cwd();
   const allFiles: string[] = [];
   collectFiles(cwd, (abs) => isTsSourceFile(abs) || isCssFile(abs), allFiles);
@@ -196,6 +231,7 @@ async function scanDocs(filter: (id: string) => boolean): Promise<void> {
       const result = await transpile(code, { file: abs, componentExport: 'customelement' });
       for (const item of (result.data ?? []) as ComponentCompilerMeta[]) {
         if (!item.tagName) continue;
+        if (collectStyleDocs) await collectStyleDocsForComponent(item, abs);
         const component = cmpMetaToDocsComponent(item, abs);
         resolveImportedTypes(component, abs);
         docsRegistry.set(item.tagName, component);
@@ -248,6 +284,10 @@ export const unpluginStencil = createUnplugin(
     // Vite HMR handler to send targeted `stencil:hmr` events.
     const fileToTagName = new Map<string, string>();
 
+    // Reverse of fileToTagName - lets a linked-stylesheet change (which only knows its own
+    // path, via cssFileToTagNames below) find the owning `.tsx` to re-derive docs from.
+    const tagToFile = new Map<string, string>();
+
     // Maps CSS file paths → tag names that use them. A shared CSS file can be
     // used by multiple components, so this is a Set per file path.
     const cssFileToTagNames = new Map<string, Set<string>>();
@@ -284,7 +324,7 @@ export const unpluginStencil = createUnplugin(
     // triggers ask for it.
     let projectScanPromise: Promise<void> | null = null;
     function ensureProjectScanned(): Promise<void> {
-      if (!projectScanPromise) projectScanPromise = scanDocs(filter);
+      if (!projectScanPromise) projectScanPromise = scanDocs(filter, options.docs === true);
       return projectScanPromise;
     }
 
@@ -387,7 +427,7 @@ export const unpluginStencil = createUnplugin(
         if (!configOverrides.vdomSignals && SIGNALS_IMPORT_RE.test(code)) {
           configOverrides = { ...configOverrides, vdomSignals: true };
         }
-        const result = transformStencil(
+        const result = await transformStencil(
           code,
           cleanId,
           options,
@@ -396,7 +436,10 @@ export const unpluginStencil = createUnplugin(
           registerBaseClass,
           configOverrides,
         );
-        if (result?.tagName) fileToTagName.set(cleanId, result.tagName);
+        if (result?.tagName) {
+          fileToTagName.set(cleanId, result.tagName);
+          tagToFile.set(result.tagName, cleanId);
+        }
         if (result?.docsComponent && options.docs) {
           resolveImportedTypes(result.docsComponent, cleanId);
           docsRegistry.set(result.docsComponent.tag, result.docsComponent);
@@ -466,28 +509,34 @@ export const unpluginStencil = createUnplugin(
             };
           };
         }) {
-          // CSS-only components have no tracked tag / virtual-module entries (they're never
-          // imported directly by anything) - handle their docs-registry refresh here.
-          // No stencil:hmr to send; no JS component instance, only the docs registry needs refreshing.
+          const notifyDocsChanged = () => {
+            const docsVirtualMod =
+              server.moduleGraph.getModuleById?.(VIRTUAL_DOCS_PREFIX) ??
+              server.moduleGraph.idToModuleMap?.get(VIRTUAL_DOCS_PREFIX);
+            if (docsVirtualMod)
+              server.moduleGraph.invalidateModule(docsVirtualMod, new Set(), Date.now(), true);
+            server.ws.send({ type: 'custom', event: 'stencil:docs-update' });
+          };
+
           if (options.docs && file.endsWith('.css')) {
             try {
               const code = readFileSync(file, 'utf-8');
               if (code.includes('@component')) {
+                // CSS-only components have no tracked tag / virtual-module entries (they're
+                // never imported directly by anything) - handle their docs-registry refresh here.
+                // No stencil:hmr to send; no JS component instance, only docs need refreshing.
                 const prevSnapshot = JSON.stringify(getRegistrySnapshot());
                 await scanCssOnlyDocsFile(file);
-                if (JSON.stringify(getRegistrySnapshot()) !== prevSnapshot) {
-                  const docsVirtualMod =
-                    server.moduleGraph.getModuleById?.(VIRTUAL_DOCS_PREFIX) ??
-                    server.moduleGraph.idToModuleMap?.get(VIRTUAL_DOCS_PREFIX);
-                  if (docsVirtualMod)
-                    server.moduleGraph.invalidateModule(
-                      docsVirtualMod,
-                      new Set(),
-                      Date.now(),
-                      true,
-                    );
-                  server.ws.send({ type: 'custom', event: 'stencil:docs-update' });
+                if (JSON.stringify(getRegistrySnapshot()) !== prevSnapshot) notifyDocsChanged();
+              } else {
+                // A regular component's *linked* stylesheet (styleUrl) - re-derive docs from
+                // each owning tag's `.tsx` source, the same as if that file had changed directly.
+                let anyChanged = false;
+                for (const tag of cssFileToTagNames.get(file) ?? []) {
+                  const ownerFile = tagToFile.get(tag);
+                  if (ownerFile && (await refreshComponentDocs(tag, ownerFile))) anyChanged = true;
                 }
+                if (anyChanged) notifyDocsChanged();
               }
             } catch {
               // stale docs are acceptable on parse error
@@ -536,30 +585,8 @@ export const unpluginStencil = createUnplugin(
           // actually changed (new/renamed prop, type update, JSDoc edit, etc.).
           // Pure implementation changes leave the CEM identical and fall through
           // to normal stencil:hmr so HMR is not disrupted.
-          if (options.docs && tsxTag) {
-            let cemChanged = false;
-            try {
-              const prevSnapshot = JSON.stringify(docsRegistry.get(tsxTag));
-              const code = readFileSync(file, 'utf-8');
-              const result = await transpile(code, { file, componentExport: 'customelement' });
-              for (const item of result.data ?? []) {
-                if (!item.tagName) continue;
-                const component = cmpMetaToDocsComponent(item, file);
-                resolveImportedTypes(component, file);
-                docsRegistry.set(item.tagName, component);
-              }
-              cemChanged = JSON.stringify(docsRegistry.get(tsxTag)) !== prevSnapshot;
-            } catch {
-              // stale docs are acceptable on transpile error
-            }
-            if (cemChanged) {
-              const docsVirtualMod =
-                server.moduleGraph.getModuleById?.(VIRTUAL_DOCS_PREFIX) ??
-                server.moduleGraph.idToModuleMap?.get(VIRTUAL_DOCS_PREFIX);
-              if (docsVirtualMod)
-                server.moduleGraph.invalidateModule(docsVirtualMod, new Set(), Date.now(), true);
-              server.ws.send({ type: 'custom', event: 'stencil:docs-update' });
-            }
+          if (options.docs && tsxTag && (await refreshComponentDocs(tsxTag, file))) {
+            notifyDocsChanged();
           }
           for (const tagName of tagNames) {
             server.ws.send({ type: 'custom', event: 'stencil:hmr', data: { tagName } });

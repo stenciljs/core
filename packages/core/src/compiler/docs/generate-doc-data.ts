@@ -388,10 +388,10 @@ const getDocsEvents = (events: d.ComponentCompilerEvent[]): d.JsonDocsEvent[] =>
 };
 
 /**
- * Transforms the {@link d.CompilerStyleDoc} metadata for a component into a {@link d.JsonDocsStyle}, providing sensible
+ * Transforms the {@link d.StyleDoc} metadata for a component into a {@link d.JsonDocsStyle}, providing sensible
  * defaults where needed.
  * @param cmpMeta the metadata for a single Stencil component, which contains the compiler style metadata
- * @returns a new series containing a {@link d.JsonDocsStyle} entry for each {@link d.CompilerStyleDoc} entry.
+ * @returns a new series containing a {@link d.JsonDocsStyle} entry for each {@link d.StyleDoc} entry.
  */
 export const getDocsStyles = (cmpMeta: d.ComponentCompilerMeta): d.JsonDocsStyle[] => {
   if (!cmpMeta.styleDocs) {

@@ -12,13 +12,16 @@ export const propsToMarkdown = (
     return content;
   }
 
+  // A CSS-only component has no backing JS class. It has no properties
+  const showPropertyColumn = !cmp?.cssOnly;
+
   content.push(`## Properties`);
   content.push(``);
 
   const table = new MarkdownTable();
 
   table.addHeader([
-    'Property',
+    ...(showPropertyColumn ? ['Property'] : []),
     'Attribute',
     'Description',
     'Type',
@@ -28,11 +31,11 @@ export const propsToMarkdown = (
 
   props.forEach((prop) => {
     table.addRow([
-      getPropertyField(prop),
+      ...(showPropertyColumn ? [getPropertyField(prop)] : []),
       getAttributeField(prop),
       getDocsField(prop),
       getTypeField(prop),
-      getDefaultValueField(prop),
+      getDefaultValueField(prop, cmp),
       ...customColumns.map((c) => c.content(prop, cmp!)),
     ]);
   });
@@ -64,6 +67,9 @@ const getTypeField = (prop: d.JsonDocsProp) => {
   return prop.type.includes('`') ? `\`\` ${prop.type} \`\`` : `\`${prop.type}\``;
 };
 
-const getDefaultValueField = (prop: d.JsonDocsProp) => {
-  return prop.default?.includes('`') ? `\`\` ${prop.default} \`\`` : `\`${prop.default}\``;
+const getDefaultValueField = (prop: d.JsonDocsProp, cmp?: d.JsonDocsComponent) => {
+  if (prop.default === undefined) {
+    return cmp?.cssOnly ? '--' : '`undefined`';
+  }
+  return prop.default.includes('`') ? `\`\` ${prop.default} \`\`` : `\`${prop.default}\``;
 };

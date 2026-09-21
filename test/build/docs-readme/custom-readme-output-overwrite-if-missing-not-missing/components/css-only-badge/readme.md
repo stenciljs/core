@@ -11,17 +11,19 @@ A CSS-only badge - no JS class, no shadow DOM, never registered via `customEleme
 
 ## Properties
 
-| Property      | Attribute     | Description                         | Type                                     | Default     |
-| ------------- | ------------- | ----------------------------------- | ---------------------------------------- | ----------- |
-| `dismissible` | `dismissible` | Whether the badge can be dismissed. | `boolean`                                | `undefined` |
-| `variant`     | `variant`     |                                     | `"danger" \| "warning" \| (string & {})` | `undefined` |
+| Attribute     | Description                         | Type                                     | Default |
+| ------------- | ----------------------------------- | ---------------------------------------- | ------- |
+| `dismissible` | Whether the badge can be dismissed. | `boolean`                                | --      |
+| `variant`     |                                     | `"danger" \| "warning" \| (string & {})` | --      |
 
 
 ## CSS Custom Properties
 
-| Name              | Description    |
-| ----------------- | -------------- |
-| `--badge-padding` | Inner spacing. |
+| Name              | Description             |
+| ----------------- | ----------------------- |
+| `--badge-color`   | The badge's text color. |
+| `--badge-padding` | Inner spacing.          |
+| `--badge-radius`  | Corner radius.          |
 
 
 ----------------------------------------------

@@ -252,8 +252,8 @@ auto-generated content
       expect(actual).toEqual([]);
     });
 
-    it("returns a 'sorted' array of one CompilerStyleDoc", () => {
-      const compilerStyleDoc: d.CompilerStyleDoc = {
+    it("returns a 'sorted' array of one StyleDoc", () => {
+      const compilerStyleDoc: d.StyleDoc = {
         annotation: 'prop',
         docs: 'these are the docs for this prop',
         name: 'my-style-one',
@@ -266,20 +266,20 @@ auto-generated content
       expect(actual).toEqual([compilerStyleDoc]);
     });
 
-    it('returns a sorted array from multiple CompilerStyleDoc', () => {
-      const compilerStyleDocOne: d.CompilerStyleDoc = {
+    it('returns a sorted array from multiple StyleDoc', () => {
+      const compilerStyleDocOne: d.StyleDoc = {
         annotation: 'prop',
         docs: 'these are the docs for my-style-a',
         name: 'my-style-a',
         mode: 'ios',
       };
-      const compilerStyleDocTwo: d.CompilerStyleDoc = {
+      const compilerStyleDocTwo: d.StyleDoc = {
         annotation: 'prop',
         docs: 'these are more docs for my-style-b',
         name: 'my-style-b',
         mode: 'ios',
       };
-      const compilerStyleDocThree: d.CompilerStyleDoc = {
+      const compilerStyleDocThree: d.StyleDoc = {
         annotation: 'prop',
         docs: 'these are more docs for my-style-c',
         name: 'my-style-c',
@@ -295,13 +295,13 @@ auto-generated content
     });
 
     it('returns a sorted array from based on mode for the same name', () => {
-      const mdCompilerStyle: d.CompilerStyleDoc = {
+      const mdCompilerStyle: d.StyleDoc = {
         annotation: 'prop',
         docs: 'these are the docs for my-style-a',
         name: 'my-style-a',
         mode: 'md',
       };
-      const iosCompilerStyle: d.CompilerStyleDoc = {
+      const iosCompilerStyle: d.StyleDoc = {
         annotation: 'prop',
         docs: 'these are the docs for my-style-a',
         name: 'my-style-a',
@@ -317,20 +317,20 @@ auto-generated content
     });
   });
 
-  it("returns CompilerStyleDoc with the same name in the order they're provided", () => {
-    const compilerStyleDocOne: d.CompilerStyleDoc = {
+  it("returns StyleDoc with the same name in the order they're provided", () => {
+    const compilerStyleDocOne: d.StyleDoc = {
       annotation: 'prop',
       docs: 'these are the docs for my-style-a (first lowercase)',
       name: 'my-style-a',
       mode: 'ios',
     };
-    const compilerStyleDocTwo: d.CompilerStyleDoc = {
+    const compilerStyleDocTwo: d.StyleDoc = {
       annotation: 'prop',
       docs: 'these are more docs for my-style-A (only capital)',
       name: 'my-style-A',
       mode: 'ios',
     };
-    const compilerStyleDocThree: d.CompilerStyleDoc = {
+    const compilerStyleDocThree: d.StyleDoc = {
       annotation: 'prop',
       docs: 'these are more docs for my-style-a (second lowercase)',
       name: 'my-style-a',
@@ -349,7 +349,7 @@ auto-generated content
     it.each(['', null, undefined])(
       "defaults the annotation to an empty string if '%s' is provided",
       (annotationValue) => {
-        const compilerStyleDoc: d.CompilerStyleDoc = {
+        const compilerStyleDoc: d.StyleDoc = {
           annotation: 'prop',
           docs: 'these are the docs for this prop',
           name: 'my-style-one',
@@ -375,7 +375,7 @@ auto-generated content
     it.each(['', null, undefined])(
       "defaults the docs to an empty string if '%s' is provided",
       (docsValue) => {
-        const compilerStyleDoc: d.CompilerStyleDoc = {
+        const compilerStyleDoc: d.StyleDoc = {
           annotation: 'prop',
           docs: 'these are the docs for this prop',
           name: 'my-style-one',
@@ -401,7 +401,7 @@ auto-generated content
     it.each(['', undefined, null, DEFAULT_STYLE_MODE])(
       "uses 'undefined' for the mode value when '%s' is provided",
       (modeValue) => {
-        const compilerStyleDoc: d.CompilerStyleDoc = {
+        const compilerStyleDoc: d.StyleDoc = {
           annotation: 'prop',
           docs: 'these are the docs for this prop',
           name: 'my-style-one',
@@ -425,7 +425,7 @@ auto-generated content
     );
 
     it('uses the mode value, when a valid string is provided', () => {
-      const compilerStyleDoc: d.CompilerStyleDoc = {
+      const compilerStyleDoc: d.StyleDoc = {
         annotation: 'prop',
         docs: 'these are the docs for this prop',
         name: 'my-style-one',

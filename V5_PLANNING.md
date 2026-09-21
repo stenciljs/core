@@ -370,6 +370,65 @@ hydrate-CSS exclusion proof + "never referenced in emitted JS" proof), and
   cleanly with the same postcss/postcss-selector-parser foundation already in place, so this
   looks like a moderate, not large, addition if pursued - not started.
 
+**Original "zero-JS custom element" framing reconsidered.** Typed, documented custom-element
+tags with zero JS is already achievable today via `@Component` + `@Prop({ reflect: true })` +
+`globalStyleUrl` - strictly more capable (progressive enhancement, one authoring syntax, full
+IDE support). Even the "zero JS ever" claim doesn't differentiate it: `globalStyleUrl` content
+is collected into the global stylesheet at build time independent of whether the component's
+JS is ever registered, so if a consumer never imports/registers those components, real runtime
+bytes are zero either way. (Measured for context: shared lazy-loader runtime is ~21.5KB raw /
+~8.3KB gzip; a trivial one-prop component's own entry chunk is ~179 bytes raw - too small for
+gzip to help, container overhead exceeds the saving. Neither number matters once the JS is
+simply never imported.) The one real difference left is zero-JS *by construction* (no `.tsx`,
+no entry chunk ever generated) vs. zero-JS *by discipline* (one careless barrel-import away
+from regressing) - a real but narrow guarantee, not a bundle-size win.
+
+**Re-targeted, not deleted - generalizing past custom elements.** Prompted by Lea Verou
+publicly asking why nothing generalizes Custom Elements Manifest to document
+non-custom-element "components" (`<button class="btn-primary">`, `<progress class="ring">`)
+the way CEM documents real custom elements - a genuine, unaddressed gap this feature's
+existing parsing/discovery machinery is positioned to fill, and a more differentiated pitch
+than the original (nothing else does this; the original reduces to "an alternate syntax for
+something `@Component` already does"). Reused as-is: `discover-css-components.ts`'s
+file-watching/incremental-cache mechanics, `parse-css-component.ts`'s JSDoc-over-CSS-rule
+convention and `@property`-at-rule handling, and the docs-absorption wiring in
+`generate-doc-data.ts` - none of this is custom-element-specific in practice.
+
+Confirmed NOT a small tweak, on inspection:
+- Two validation gates in `parse-css-component.ts` exist specifically to reject
+  non-custom-element selectors - `validateComponentTag` (requires a hyphenated name) and the
+  `nonTagParts.length > 0` rejection - both need relaxing on the *defining* rule to accept any
+  selector.
+- `docs/cem/index.ts` hardcodes `customElement: true` / a non-nullable `tagName: string` on
+  every emitted declaration - a `progress.ring` declaration can't honestly go through the
+  existing CEM path. Since CEM isn't a spec Stencil is bound to for its *other* docs outputs,
+  this is an opportunity to define a new manifest shape - possibly worth pursuing as an actual
+  community proposal given Lea Verou's standing here, rather than a bespoke Stencil-only
+  format - not yet designed.
+
+Confirmed mostly already there, on closer inspection:
+- Attribute/`data-`attribute-driven variants: the auto-detected-attribute pass
+  (`collectAutoDetectedAttributes`, pass 2 of `parseCssComponentFile`) already matches by
+  `selector.tag` with no `nonTagParts` gating, so `button[data-variant="primary"]`-style rules
+  already get absorbed once the defining-rule gate above is relaxed - and attributes are the
+  more standards-idiomatic hook for this than classes anyway.
+- A `.btn { &-primary { } }` / explicit `@variant` JSDoc marker for BEM-style nested-class
+  variants is new, scoped parsing work on top of the above, not a data-model rewrite.
+- JSX typing for native-element variants: no equivalent to a typed custom-element tag exists,
+  but `JSXBase`'s existing `class?: string | { [className: string]: boolean } | SignalRef<string>`
+  (`stencil-public-runtime.ts`) already supports an object-map form where each class is an
+  independent boolean key - a natural, already-idiomatic fit for typed variants (a plain
+  string-literal union can't usefully validate/autocomplete a space-separated multi-class
+  string once more than one variant class is active at once, which is the common case).
+  Codegen would extend the existing per-project JSX-augmentation pipeline
+  (`generate-app-types.ts`) to narrow known variant class names on
+  `JSXBase.IntrinsicElements['button']['class']`'s object-map key type, alongside the escape
+  hatch real usage needs. Not started.
+
+Not yet decided: require attributes only, `data-`attributes only (full standards compliance,
+since arbitrary custom attributes aren't spec-sanctioned outside `data-*`), or allow plain
+attributes with a lint/diagnostic nudge instead of a hard requirement.
+
 ---
 
 ### 🤖 `docs-agent-skill` Output Target (First pass shipped)

@@ -15,6 +15,7 @@ import type {
   JsonDocsComponent,
   JsonDocsEvent,
   JsonDocsProp,
+  StyleDoc,
 } from './stencil-public-docs';
 import type { ResolutionHandler } from './stencil-public-runtime';
 
@@ -3100,6 +3101,13 @@ export interface TranspileOptions {
    * that the specified flags take effect for this component at runtime.
    */
   buildOverrides?: BuildOverrides;
+
+  /**
+   * When `true`, a `.css`/`.scss` transpile also collects CSS custom-property docs
+   * onto {@link TranspileResults.styleDocs}. Off by default, since it costs an extra parse
+   * of the style text.
+   */
+  docs?: boolean;
 }
 
 /**
@@ -3146,6 +3154,7 @@ export interface TranspileResults {
   inputFilePath: string;
   map: any;
   outputFilePath: string;
+  styleDocs?: StyleDoc[];
 }
 
 export interface TransformOptions {

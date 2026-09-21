@@ -441,4 +441,12 @@ export interface StyleDoc {
    * The Stencil style-mode that is associated with this property.
    */
   mode: string | undefined;
+  /**
+   * The CSS `syntax` descriptor, if this property was registered via a native `@property` at-rule.
+   */
+  syntax?: string;
+  /**
+   * The `initial-value` descriptor, if this property was registered via a native `@property` at-rule.
+   */
+  default?: string;
 }

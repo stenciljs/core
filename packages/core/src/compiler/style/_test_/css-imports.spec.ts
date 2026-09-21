@@ -799,15 +799,7 @@ describe('css-imports', () => {
       const resolvedFilePath = normalizePath(path.join(root, 'boop', 'file-a.css'));
       const content = '@import "missing"';
 
-      await parseCssImports(
-        config,
-        compilerCtx,
-        buildCtx,
-        srcFilePath,
-        resolvedFilePath,
-        content,
-        [],
-      );
+      await parseCssImports(config, compilerCtx, buildCtx, srcFilePath, resolvedFilePath, content);
       expect(buildCtx.diagnostics).toEqual([
         {
           ...buildError(),
@@ -843,7 +835,6 @@ describe('css-imports', () => {
         mainFilePath,
         mainFilePath,
         files[mainFilePath],
-        [],
       );
       // CSS from child and grandchild are merged in
       expect(result.styleText).toBe('div { display: flex } :host { color: red; }');

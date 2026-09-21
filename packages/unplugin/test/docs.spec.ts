@@ -87,4 +87,18 @@ describe('@stencil/unplugin docs / CEM integration', () => {
       ]);
     });
   });
+
+  describe('regular components (styleUrl)', () => {
+    const findDecl = (tagName: string) =>
+      cem.modules
+        .flatMap((mod) => mod.declarations ?? [])
+        .find((d) => 'tagName' in d && d.tagName === tagName);
+
+    it('auto-detects a documented :host custom property from an external stylesheet', () => {
+      const decl = findDecl('my-styled');
+      expect(decl?.cssProperties).toEqual([
+        { name: '--my-styled-accent', description: 'Accent color for the styled box.' },
+      ]);
+    });
+  });
 });

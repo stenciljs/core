@@ -270,10 +270,8 @@ interface JsonDocsComponent {
    */
   deprecation?: string;
   /**
-   * `true` if this is a "CSS-only component" - a pure-CSS custom-element-name selector with
-   * no backing JS class, discovered from a `.css` file's `@component`-marked JSDoc block. The
-   * tag is never registered via `customElements.define()`. Omitted (or `false`) for ordinary
-   * Stencil components.
+   * `true` if this is a "CSS-only component"
+   * discovered in .css file via `@component`-marked JSDoc block
    */
   cssOnly?: boolean;
 }

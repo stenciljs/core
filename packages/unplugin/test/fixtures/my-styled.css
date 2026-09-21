@@ -1,5 +1,7 @@
 :host {
   display: block;
+  /** Accent color for the styled box. */
+  --my-styled-accent: coral;
 }
 
 .box {

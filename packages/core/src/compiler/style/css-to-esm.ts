@@ -122,7 +122,7 @@ const transformCssToEsmModule = (input: d.TransformCssToEsmInput): d.TransformCs
   };
 
   if (input.docs) {
-    parseStyleDocs(results.styleDocs, input.input, input.mode);
+    parseStyleDocs(results.styleDocs, input.input, input.mode, input.tag, input.encapsulation);
   }
 
   try {

@@ -30,7 +30,7 @@ export const parseAttachInternals = (staticMembers: ts.ClassElement[]): string |
  */
 export const parseAttachInternalsCustomStates = (
   staticMembers: ts.ClassElement[],
-): d.ComponentCompilerCustomState[] => {
+): d.JsonDocsCustomState[] => {
   const parsedCustomStates = getStaticValue(staticMembers, 'attachInternalsCustomStates');
   if (Array.isArray(parsedCustomStates)) {
     return parsedCustomStates.map(

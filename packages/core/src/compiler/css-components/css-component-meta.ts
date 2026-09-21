@@ -136,9 +136,7 @@ const attributeToProperty = (
 const primitiveType = (type: string): d.ComponentCompilerPropertyType =>
   type === 'boolean' || type === 'string' || type === 'number' ? type : 'any';
 
-const propertyToStyleDoc = (
-  prop: CssOnlyComponentDef['properties'][number],
-): d.CompilerStyleDoc => ({
+const propertyToStyleDoc = (prop: CssOnlyComponentDef['properties'][number]): d.StyleDoc => ({
   name: prop.name,
   docs: prop.docs,
   annotation: 'prop',

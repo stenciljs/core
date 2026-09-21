@@ -51,8 +51,18 @@
           ],
           "cssProperties": [
             {
+              "name": "--badge-color",
+              "description": "The badge's text color."
+            },
+            {
               "name": "--badge-padding",
               "description": "Inner spacing."
+            },
+            {
+              "name": "--badge-radius",
+              "description": "Corner radius.",
+              "syntax": "<length>",
+              "default": "4px"
             }
           ]
         }

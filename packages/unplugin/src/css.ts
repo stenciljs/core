@@ -14,8 +14,9 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, extname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { getScopeId, scopeCss } from '@stencil/core/compiler';
+import { getScopeId, scopeCss, transpileSync } from '@stencil/core/compiler';
 import { isPackageExists } from 'local-pkg';
+import type { ComponentCompilerMeta } from '@stencil/core/compiler';
 
 // Matches Stencil's emitted style imports: `./foo.css?tag=my-cmp&…`
 const STENCIL_CSS_RE = /\.(?:css|scss|sass|less|styl)\?[^/]*\btag=/;
@@ -215,4 +216,64 @@ export async function loadStencilCss(
   }
 
   return { code: `export default () => ${JSON.stringify(css)};`, deps: result.deps };
+}
+
+/**
+ * Compiles a Sass/Less stylesheet to plain CSS for doc extraction. Unlike {@link processCssFile},
+ * this skips PostCSS and lightningcss - to leave JSDoc-style comments alone.
+ * 
+ * @param filePath - absolute path to the source stylesheet
+ * @returns plain CSS text, or `null` if the file doesn't exist
+ */
+async function compileCssForDocs(filePath: string): Promise<string | null> {
+  if (!existsSync(filePath)) return null;
+
+  const ext = extname(filePath).slice(1);
+  const css = readFileSync(filePath, 'utf-8');
+
+  if (PKG.sass && (ext === 'scss' || ext === 'sass')) {
+    return (await compileSass(css, filePath, ext === 'sass')).css;
+  }
+  if (PKG.less && ext === 'less') {
+    return (await compileLess(css, filePath)).css;
+  }
+  return css;
+}
+
+/**
+ * Populates `cmp.styleDocs` from `cmp.styles` - the CSS custom-property docs a bundler plugin
+ * needs to assemble a custom-elements-manifest entry for a component's stylesheet(s).
+ * 
+ * @param cmp - component metadata from `transpile`/`transpileSync`, mutated in place
+ * @param componentPath - absolute path to the component's `.tsx`/`.ts` file, used to build a
+ * synthetic `file` for `transpileSync`
+ */
+export async function collectStyleDocsForComponent(
+  cmp: ComponentCompilerMeta,
+  componentPath: string,
+): Promise<void> {
+  const cssBase = componentPath.replace(/\.\w+$/, '.css');
+
+  for (const style of cmp.styles ?? []) {
+    const cssTexts: string[] = [];
+    if (style.styleStr) cssTexts.push(style.styleStr);
+    for (const external of style.externalStyles ?? []) {
+      if (!external.absolutePath) continue;
+      const css = await compileCssForDocs(external.absolutePath);
+      if (css) cssTexts.push(css);
+    }
+
+    for (const css of cssTexts) {
+      const params = new URLSearchParams({
+        tag: cmp.tagName,
+        mode: style.modeName,
+        encapsulation: cmp.encapsulation ?? 'none',
+      });
+      const result = transpileSync(css, { file: `${cssBase}?${params}`, docs: true });
+      if (result.styleDocs?.length) {
+        cmp.styleDocs ??= [];
+        cmp.styleDocs.push(...result.styleDocs);
+      }
+    }
+  }
 }

@@ -4,7 +4,6 @@
       "filePath": "src/components/css-only-badge/css-only-badge.css",
       "encapsulation": "none",
       "tag": "css-only-badge",
-      "readme": "# css-only-badge\n\nHand-written docs, proving a CSS-only component's `readme.md` is read the same way a real\ncomponent's is.\n",
       "docs": "A CSS-only badge - no JS class, no shadow DOM, never registered via `customElements.define()`. Verifies docs-json/CEM output for this kind of component.",
       "docsTags": [],
       "usage": {},
@@ -69,9 +68,21 @@
       "listeners": [],
       "styles": [
         {
+          "name": "--badge-color",
+          "annotation": "prop",
+          "docs": "The badge's text color."
+        },
+        {
           "name": "--badge-padding",
           "annotation": "prop",
           "docs": "Inner spacing."
+        },
+        {
+          "name": "--badge-radius",
+          "annotation": "prop",
+          "docs": "Corner radius.",
+          "syntax": "<length>",
+          "default": "4px"
         }
       ],
       "slots": [],
@@ -86,7 +97,6 @@
       "filePath": "src/components/my-component/my-component.tsx",
       "encapsulation": "shadow",
       "tag": "my-component",
-      "readme": "# my-component\n\n\n",
       "docs": "",
       "docsTags": [],
       "usage": {},
