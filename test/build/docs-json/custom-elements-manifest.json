@@ -11,6 +11,20 @@
           "tagName": "css-only-badge",
           "name": "CssOnlyBadge",
           "description": "A CSS-only badge - no JS class, no shadow DOM, never registered via `customElements.define()`. Verifies docs-json/CEM output for this kind of component.",
+          "tags": [
+            {
+              "name": "slot",
+              "text": " - The badge's label."
+            },
+            {
+              "name": "slot",
+              "text": "icon-start - Content shown before the label - gazumps the inline comment below."
+            },
+            {
+              "name": "slot",
+              "text": "icon-end - Content shown after the label."
+            }
+          ],
           "attributes": [
             {
               "name": "dismissible",
@@ -47,6 +61,20 @@
               },
               "readonly": true,
               "attribute": "variant"
+            }
+          ],
+          "slots": [
+            {
+              "name": "",
+              "description": "The badge's label."
+            },
+            {
+              "name": "icon-end",
+              "description": "Content shown after the label."
+            },
+            {
+              "name": "icon-start",
+              "description": "Content shown before the label - gazumps the inline comment below."
             }
           ],
           "cssProperties": [

@@ -233,8 +233,9 @@ resolves correctly, not via hand-rolled regex. New module:
 `packages/core/src/compiler/css-components/`.
 
 **Docs model** (`@component`-marked JSDoc block, `packages/core/src/compiler/css-components/parse-css-component.ts`):
-- `@prop`/`@cssprop --name: desc` (explicit) - `@cssprop` is now also recognized as a synonym
-  for `@prop` on *real* components' style docs too (`style-docs.ts`), not just CSS-only ones.
+- `@prop`/`@cssprop`/`@cssproperty --name: desc` (explicit) - `@cssprop`/`@cssproperty` are now
+  also recognized as synonyms for `@prop` on *real* components' style docs too (`style-docs.ts`),
+  not just CSS-only ones.
 - Auto-detected `--custom-property: value;` declarations, but only when preceded by their own
   doc comment (undocumented properties stay undocumented, not silently exposed).
 - Native `@property --name { syntax; initial-value; inherits; }` at-rules (global per file,
@@ -244,6 +245,32 @@ resolves correctly, not via hand-rolled regex. New module:
 - Auto-detected attribute-selector literal unions (`[variant="danger"]` →
   `"danger" | (string & {})`, the `KnownClass` escape-hatch pattern from the button-typing spike
   below) for attributes with no explicit `@attr`.
+- `@slot name - description` (explicit, `name` may be the literal keyword `default` for the
+  unnamed slot) plus auto-detected `[slot="x"]` selectors that are a *direct* child rule of the
+  component's own defining rule (found once, in pass 1 - not a separate file-wide re-scan by
+  tag) - deliberately not recursive, so a nested custom element's own slot styling (`my-card {
+  my-icon-widget { [slot="icon"] {...} } }`) doesn't leak onto the outer component; only
+  `my-card`'s own one level of nesting is its own slot. Unlike custom properties, an
+  undocumented slot is still collected (a `[slot="x"]` selector unambiguously names a real slot,
+  no ambiguity to guard against). Wired through `ComponentCompilerMeta.htmlSlots` (names) + a
+  synthetic `@slot` docs-tag (docs), so `generate-doc-data.ts`'s existing `getDocsSlots` needed
+  zero changes. Reads from a nesting-*un*resolved parse of the file specifically for the pass-1
+  rule - postcss-nesting hoists a nested `[slot="x"] { ... }` rule out to a flat
+  `tag [slot="x"]` rule but doesn't reliably carry its leading doc comment along (confirmed
+  inconsistent, not just theoretical - reparsing without the plugin keeps comment adjacency
+  exactly as authored); it's also what lets pass 1 find a defining rule that has *only* nested
+  content and no declarations of its own, which postcss-nesting would otherwise delete outright
+  before pass 1 ever saw it.
+- `:where(tag, .fallback)`/`:is(tag, .fallback)` can also be the `@component` *defining* rule
+  itself - `/** @component */ :is(my-badge, .my-badge) { ... }` resolves the tag from inside the
+  pseudo, same as a bare `my-badge { ... }` would. The pseudo must be the *leading* compound's
+  own subject (same restriction a plain tag already had) and must resolve to exactly one
+  candidate tag - `:is(my-badge, my-other-badge)` (two real tags) warns as ambiguous rather than
+  guessing. This only resolves the tag name - explicit annotations still needed for
+  attributes/custom properties/slots declared directly on that rule (deliberately not extended
+  to attribute/custom-property auto-detection, and no support for `:where`/`:is`/`@scope` as an
+  *auxiliary* match against an already-established tag elsewhere in the file - tried both,
+  concluded not worth the added surface for a pattern that wasn't wanted).
 - Explicit annotations always win over auto-detected ones for the same name.
 
 **Integration points**: `generate-app-types.ts` (JSX types - one array-concat), `generate-doc-data.ts`

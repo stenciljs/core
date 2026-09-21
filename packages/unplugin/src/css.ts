@@ -221,7 +221,7 @@ export async function loadStencilCss(
 /**
  * Compiles a Sass/Less stylesheet to plain CSS for doc extraction. Unlike {@link processCssFile},
  * this skips PostCSS and lightningcss - to leave JSDoc-style comments alone.
- * 
+ *
  * @param filePath - absolute path to the source stylesheet
  * @returns plain CSS text, or `null` if the file doesn't exist
  */
@@ -243,7 +243,7 @@ async function compileCssForDocs(filePath: string): Promise<string | null> {
 /**
  * Populates `cmp.styleDocs` from `cmp.styles` - the CSS custom-property docs a bundler plugin
  * needs to assemble a custom-elements-manifest entry for a component's stylesheet(s).
- * 
+ *
  * @param cmp - component metadata from `transpile`/`transpileSync`, mutated in place
  * @param componentPath - absolute path to the component's `.tsx`/`.ts` file, used to build a
  * synthetic `file` for `transpileSync`

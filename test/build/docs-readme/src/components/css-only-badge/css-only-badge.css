@@ -4,15 +4,27 @@
  * `customElements.define()`. Verifies the generated docs-readme output for this kind of
  * component: description, Properties table, and CSS Custom Properties table.
  * @attr {boolean} dismissible - Whether the badge can be dismissed.
- * @cssprop --badge-color: The badge's text color.
+ * @cssproperty --badge-color: The badge's text color.
+ * @slot - The badge's label.
+ * @slot icon-start - Content shown before the label - gazumps the inline comment below.
  */
 css-only-badge {
   /** Inner spacing. */
   --badge-padding: 4px;
-  /** This description loses to the explicit @cssprop above - merge precedence check. */
+  /** This description loses to the explicit @cssproperty above - merge precedence check. */
   --badge-color: black;
   color: var(--badge-color);
   padding: var(--badge-padding);
+
+  /** This description loses to the explicit @slot above - merge precedence check. */
+  [slot='icon-start'] {
+    order: 1;
+  }
+
+  /** Content shown after the label. */
+  [slot='icon-end'] {
+    order: 3;
+  }
 }
 
 css-only-badge[variant='danger'] {

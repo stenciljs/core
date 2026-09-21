@@ -322,6 +322,285 @@ describe('parseCssComponentFile', () => {
     expect(defs[0].attributes).toEqual([]);
   });
 
+  it('parses @cssproperty as a synonym for @prop/@cssprop', async () => {
+    const { defs } = await parseCssComponentFile(
+      '/src/my-badge.css',
+      `
+      /**
+       * @component
+       * @cssproperty --badge-color: The badge's text color.
+       */
+      my-badge {
+        color: red;
+      }
+      `,
+    );
+    expect(defs[0].properties).toEqual([
+      { name: '--badge-color', docs: "The badge's text color.", source: 'explicit' },
+    ]);
+  });
+
+  describe('slots', () => {
+    it('still finds the @component definition when the defining rule has only nested content and no declarations of its own', async () => {
+      const { defs, diagnostics } = await parseCssComponentFile(
+        '/src/my-badge.css',
+        `
+        /** @component */
+        my-badge {
+          [slot="icon-end"] {
+            order: 3;
+          }
+        }
+        `,
+      );
+      expect(diagnostics).toEqual([]);
+      expect(defs).toHaveLength(1);
+      expect(defs[0].tagName).toBe('my-badge');
+      expect(defs[0].slots).toEqual([{ name: 'icon-end', docs: '', source: 'auto' }]);
+    });
+
+    it('parses explicit @slot annotations, including the "default" keyword for the unnamed slot', async () => {
+      const { defs, diagnostics } = await parseCssComponentFile(
+        '/src/my-badge.css',
+        `
+        /**
+         * @component
+         * @slot icon-start - The leading icon.
+         * @slot default - The default slot.
+         */
+        my-badge {
+          color: red;
+        }
+        `,
+      );
+      expect(diagnostics).toEqual([]);
+      expect(defs[0].slots).toEqual([
+        { name: 'icon-start', docs: 'The leading icon.', source: 'explicit' },
+        { name: '', docs: 'The default slot.', source: 'explicit' },
+      ]);
+    });
+
+    it('parses a bare "@slot - description" (no name) for the default slot, same as a real component\'s @slot tag', async () => {
+      const { defs, diagnostics } = await parseCssComponentFile(
+        '/src/my-badge.css',
+        `
+        /**
+         * @component
+         * @slot - The badge's label.
+         */
+        my-badge {
+          color: red;
+        }
+        `,
+      );
+      expect(diagnostics).toEqual([]);
+      expect(defs[0].slots).toEqual([{ name: '', docs: "The badge's label.", source: 'explicit' }]);
+    });
+
+    it('auto-detects a [slot="x"] selector nested within the component rule, with its leading comment as docs', async () => {
+      const { defs } = await parseCssComponentFile(
+        '/src/my-badge.css',
+        `
+        /** @component */
+        my-badge {
+          display: flex;
+
+          /** Rendered after the label. */
+          [slot="icon-end"] {
+            order: 3;
+          }
+
+          [slot="something-else"] {
+          }
+        }
+        `,
+      );
+      expect(defs[0].slots).toEqual(
+        expect.arrayContaining([
+          { name: 'icon-end', docs: 'Rendered after the label.', source: 'auto' },
+          { name: 'something-else', docs: '', source: 'auto' },
+        ]),
+      );
+    });
+
+    it('does NOT auto-detect a [slot="x"] selector belonging to a nested custom element, only the component\'s own direct nesting', async () => {
+      const { defs } = await parseCssComponentFile(
+        '/src/my-card.css',
+        `
+        /** @component */
+        my-card {
+          display: block;
+
+          my-icon-widget {
+            [slot="icon"] {
+              order: 1;
+            }
+          }
+
+          [slot="header"] {
+          }
+        }
+        `,
+      );
+      expect(defs[0].slots).toEqual([{ name: 'header', docs: '', source: 'auto' }]);
+    });
+
+    it('lets an explicit @slot win over an auto-detected [slot="x"] selector for the same name', async () => {
+      const { defs } = await parseCssComponentFile(
+        '/src/my-badge.css',
+        `
+        /**
+         * @component
+         * @slot icon-start - Explicit wins.
+         */
+        my-badge {
+          display: flex;
+
+          /** Should be ignored - the explicit @slot above wins. */
+          [slot="icon-start"] {
+            order: 1;
+          }
+        }
+        `,
+      );
+      expect(defs[0].slots).toEqual([
+        { name: 'icon-start', docs: 'Explicit wins.', source: 'explicit' },
+      ]);
+    });
+  });
+
+  describe(':where()/:is() as the defining rule itself', () => {
+    it('accepts a bare :is(tag, .fallback-class) as the defining rule, resolving the tag from inside it', async () => {
+      const { defs, diagnostics } = await parseCssComponentFile(
+        '/src/my-badge.css',
+        `
+        /** @component */
+        :is(my-badge, .my-badge) {
+          [slot="icon-start"] {
+            order: 1;
+          }
+        }
+        `,
+      );
+      expect(diagnostics).toEqual([]);
+      expect(defs).toHaveLength(1);
+      expect(defs[0].tagName).toBe('my-badge');
+      expect(defs[0].slots).toEqual([{ name: 'icon-start', docs: '', source: 'auto' }]);
+    });
+
+    it('accepts a bare :where(tag, .fallback-class) as the defining rule the same way', async () => {
+      const { defs, diagnostics } = await parseCssComponentFile(
+        '/src/my-badge.css',
+        `
+        /** @component */
+        :where(my-badge, .my-badge) {
+          color: red;
+        }
+        `,
+      );
+      expect(diagnostics).toEqual([]);
+      expect(defs[0].tagName).toBe('my-badge');
+    });
+
+    it('warns, but does not throw, when :is(...) wraps more than one candidate tag - ambiguous', async () => {
+      const { defs, diagnostics } = await parseCssComponentFile(
+        '/src/my-badge.css',
+        `
+        /** @component */
+        :is(my-badge, my-other-badge) {
+          color: red;
+        }
+        `,
+      );
+      expect(defs).toEqual([]);
+      expect(diagnostics).toHaveLength(1);
+      expect(diagnostics[0].level).toBe('warn');
+    });
+
+    it('does NOT auto-detect an attribute directly on a :is(tag)[attr] defining rule - only the tag itself is resolved from :is()/:where(), use an explicit @attr instead', async () => {
+      const { defs, diagnostics } = await parseCssComponentFile(
+        '/src/my-badge.css',
+        `
+        /** @component */
+        :is(my-badge, .my-badge)[dismissible] {
+          color: red;
+        }
+        `,
+      );
+      expect(diagnostics).toEqual([]);
+      expect(defs[0].tagName).toBe('my-badge');
+      expect(defs[0].attributes).toEqual([]);
+    });
+  });
+
+  describe('@scope (tag) as the defining rule itself', () => {
+    it('establishes the def from the scope root and auto-detects its own direct custom properties and nested slots', async () => {
+      const { defs, diagnostics } = await parseCssComponentFile(
+        '/src/my-card.css',
+        `
+        /** @component */
+        @scope (my-card) to ([slot]) {
+          /** Card padding. */
+          --card-padding: 8px;
+
+          [slot="header"] {
+          }
+        }
+        `,
+      );
+      expect(diagnostics).toEqual([]);
+      expect(defs).toHaveLength(1);
+      expect(defs[0].tagName).toBe('my-card');
+      expect(defs[0].properties).toEqual([
+        { name: '--card-padding', docs: 'Card padding.', source: 'auto' },
+      ]);
+      expect(defs[0].slots).toEqual([{ name: 'header', docs: '', source: 'auto' }]);
+    });
+
+    it('works without a "to (...)" limit clause too', async () => {
+      const { defs, diagnostics } = await parseCssComponentFile(
+        '/src/my-card.css',
+        `
+        /** @component */
+        @scope (my-card) {
+          color: red;
+        }
+        `,
+      );
+      expect(diagnostics).toEqual([]);
+      expect(defs[0].tagName).toBe('my-card');
+    });
+
+    it('resolves the tag from a :where()/:is()-wrapped scope root the same way a rule selector does', async () => {
+      const { defs, diagnostics } = await parseCssComponentFile(
+        '/src/my-card.css',
+        `
+        /** @component */
+        @scope (:is(my-card, .my-card)) to ([slot]) {
+          color: red;
+        }
+        `,
+      );
+      expect(diagnostics).toEqual([]);
+      expect(defs[0].tagName).toBe('my-card');
+    });
+
+    it('warns, but does not throw, when the scope root has no tag or an ambiguous one', async () => {
+      const { defs, diagnostics } = await parseCssComponentFile(
+        '/src/my-card.css',
+        `
+        /** @component */
+        @scope (.not-a-tag) to ([slot]) {
+          color: red;
+        }
+        `,
+      );
+      expect(defs).toEqual([]);
+      expect(diagnostics).toHaveLength(1);
+      expect(diagnostics[0].level).toBe('warn');
+    });
+  });
+
   it('supports multiple @component-marked tags in one file', async () => {
     const { defs, diagnostics } = await parseCssComponentFile(
       '/src/card.css',

@@ -231,6 +231,22 @@ auto-generated content
 
       expect(actual).toEqual([{ name: 'header', docs: 'the header slot' }]);
     });
+
+    it('merges a documented default slot, a documented+scraped named slot, and a documented-only slot', () => {
+      const tags: d.JsonDocsTag[] = [
+        { name: 'slot', text: '- The default slot' },
+        { name: 'slot', text: 'named - A named slot' },
+        { name: 'slot', text: 'named2 - Another named slot' },
+      ];
+
+      const actual = getDocsSlots(['', 'named'], tags);
+
+      expect(actual).toEqual([
+        { name: '', docs: 'The default slot' },
+        { name: 'named', docs: 'A named slot' },
+        { name: 'named2', docs: 'Another named slot' },
+      ]);
+    });
   });
 
   describe('getDocsStyles', () => {

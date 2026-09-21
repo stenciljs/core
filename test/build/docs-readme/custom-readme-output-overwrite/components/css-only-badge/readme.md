@@ -17,6 +17,15 @@ A CSS-only badge - no JS class, no shadow DOM, never registered via `customEleme
 | `variant`     |                                     | `"danger" \| "warning" \| (string & {})` | --      |
 
 
+## Slots
+
+| Slot           | Description                                                        |
+| -------------- | ------------------------------------------------------------------ |
+|                | The badge's label.                                                 |
+| `"icon-end"`   | Content shown after the label.                                     |
+| `"icon-start"` | Content shown before the label - gazumps the inline comment below. |
+
+
 ## CSS Custom Properties
 
 | Name              | Description             |

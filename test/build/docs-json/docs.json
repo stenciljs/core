@@ -1,11 +1,30 @@
 {
+  "timestamp": "2026-09-21T23:00:18",
+  "compiler": {
+    "name": "@stencil/core",
+    "version": "5.0.0-beta.12-dev.1790031195.5ba420b",
+    "typescriptVersion": "6.0.3"
+  },
   "components": [
     {
       "filePath": "src/components/css-only-badge/css-only-badge.css",
       "encapsulation": "none",
       "tag": "css-only-badge",
       "docs": "A CSS-only badge - no JS class, no shadow DOM, never registered via `customElements.define()`. Verifies docs-json/CEM output for this kind of component.",
-      "docsTags": [],
+      "docsTags": [
+        {
+          "name": "slot",
+          "text": " - The badge's label."
+        },
+        {
+          "name": "slot",
+          "text": "icon-start - Content shown before the label - gazumps the inline comment below."
+        },
+        {
+          "name": "slot",
+          "text": "icon-end - Content shown after the label."
+        }
+      ],
       "usage": {},
       "props": [
         {
@@ -85,7 +104,20 @@
           "default": "4px"
         }
       ],
-      "slots": [],
+      "slots": [
+        {
+          "name": "",
+          "docs": "The badge's label."
+        },
+        {
+          "name": "icon-end",
+          "docs": "Content shown after the label."
+        },
+        {
+          "name": "icon-start",
+          "docs": "Content shown before the label - gazumps the inline comment below."
+        }
+      ],
       "parts": [],
       "states": [],
       "dependents": [],

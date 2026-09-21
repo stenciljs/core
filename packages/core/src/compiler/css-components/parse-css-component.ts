@@ -16,6 +16,7 @@ import type {
   CssOnlyComponentDef,
   CssOnlyJsDocTag,
   CssOnlyPropertyDoc,
+  CssOnlySlotDoc,
 } from './types';
 
 /**
@@ -55,7 +56,9 @@ export const parseCssComponentFile = async (
   }
 
   let root: postcss.Root;
+  let rawRoot: postcss.Root;
   try {
+    rawRoot = postcss().process(cssText, { from: filePath }).root;
     const result = await postcss([nesting()]).process(cssText, { from: filePath });
     root = result.root;
   } catch (e: any) {
@@ -66,11 +69,11 @@ export const parseCssComponentFile = async (
   }
 
   const defs = new Map<string, CssOnlyComponentDef>();
-  const nodes = root.nodes;
+  const rawNodes = rawRoot.nodes;
 
   // Pass 1: find @component-marked top-level rules and establish one CssOnlyComponentDef per tag.
-  for (let i = 0; i < nodes.length; i++) {
-    const node = nodes[i];
+  for (let i = 0; i < rawNodes.length; i++) {
+    const node = rawNodes[i];
     if (node.type !== 'comment' || !isJsDocComment(node.text)) {
       continue;
     }
@@ -80,26 +83,46 @@ export const parseCssComponentFile = async (
       continue;
     }
 
-    const next = nodes[i + 1];
-    if (!next || next.type !== 'rule') {
-      // @component comment not immediately followed by a rule - ambiguous, not a clear
-      // mistake, so no diagnostic.
+    const next = rawNodes[i + 1];
+    if (!next || (next.type !== 'rule' && next.type !== 'atrule')) {
+      // @component comment not immediately followed by a rule or at-rule - ambiguous, not a
+      // clear mistake, so no diagnostic.
+      continue;
+    }
+    if (next.type === 'atrule' && next.name !== 'scope') {
       continue;
     }
 
-    const selectors = parseSelectorList(next.selector);
+    // A defining rule's tag comes from a plain selector (`my-badge`), a leading `:where()`/
+    // `:is()` wrapping it (`:where(my-badge, .my-badge)` or `@scope (my-badge)
+    // to (...) { ... }`
+    const selectorText =
+      next.type === 'rule' ? next.selector : (extractScopeRoot(next.params) ?? '');
+    const defRuleDisplay = next.type === 'rule' ? next.selector : `@scope ${next.params}`;
+
+    const selectors = parseSelectorList(selectorText);
     if (selectors.length !== 1) {
       const warn = buildWarn(diagnostics);
-      warn.messageText = `Found "@component" JSDoc above a rule with a multi-selector list ("${next.selector}") - a CSS-only component's defining rule must be a single tag selector.`;
+      warn.messageText = `Found "@component" JSDoc above a rule with a multi-selector list ("${defRuleDisplay}") - a CSS-only component's defining rule must be a single tag selector.`;
       warn.absFilePath = filePath;
       continue;
     }
 
-    const baseTag = selectors[0].tag;
-    const tagError = baseTag ? validateComponentTag(baseTag) : 'no tag name found in selector';
+    let baseTag = selectors[0].tag;
+    let tagError: string | undefined;
+    if (!baseTag) {
+      if (selectors[0].pseudoTags.length > 1) {
+        tagError = `ambiguous - found multiple candidate tags (${selectors[0].pseudoTags.join(', ')}) inside ":where()"/":is()"`;
+      } else if (selectors[0].pseudoTags.length === 1) {
+        baseTag = selectors[0].pseudoTags[0];
+      } else {
+        tagError = 'no tag name found in selector';
+      }
+    }
+    tagError = tagError ?? validateComponentTag(baseTag!);
     if (!baseTag || tagError || selectors[0].nonTagParts.length > 0) {
       const warn = buildWarn(diagnostics);
-      warn.messageText = `Found "@component" JSDoc above a rule ("${next.selector}") that is not a valid custom-element tag selector${tagError ? `: ${tagError}` : ''}.`;
+      warn.messageText = `Found "@component" JSDoc above a rule ("${defRuleDisplay}") that is not a valid custom-element tag selector${tagError ? `: ${tagError}` : ''}.`;
       warn.absFilePath = filePath;
       continue;
     }
@@ -111,20 +134,29 @@ export const parseCssComponentFile = async (
       continue;
     }
 
-    const { docsText, docsTags, properties, attributes } = buildDefFromJsDocBlock(block);
-    defs.set(baseTag, {
+    const { docsText, docsTags, properties, attributes, slots } = buildDefFromJsDocBlock(block);
+    const def: CssOnlyComponentDef = {
       tagName: baseTag,
       sourceFilePath: filePath,
       docsText,
       docsTags,
       properties,
       attributes,
-    });
+      slots,
+    };
+    defs.set(baseTag, def);
+
+    collectAutoDetectedCustomProperties(next, def);
+    collectAutoDetectedSlots(next, def);
   }
 
   if (defs.size === 0) {
     return { defs: [], diagnostics };
   }
+
+  // Nesting-resolved - used by passes 2/3, which need `&`-nested attribute/custom-property
+  // rules already flattened to top-level.
+  const nodes = root.nodes;
 
   // Pass 2: for every top-level rule (including ones hoisted flat by postcss-nesting) whose
   // base tag matches an established def, collect auto-detected attribute variants and
@@ -146,9 +178,11 @@ export const parseCssComponentFile = async (
     if (node.type !== 'rule') {
       continue;
     }
-    const matchingTag = parseSelectorList(node.selector).find((s) => defs.has(s.tag ?? ''))?.tag;
-    const def = matchingTag ? defs.get(matchingTag) : undefined;
-    if (def) {
+    for (const selector of parseSelectorList(node.selector)) {
+      const def = defs.get(selector.tag ?? '');
+      if (!def) {
+        continue;
+      }
       collectAutoDetectedCustomProperties(node, def);
     }
   }
@@ -190,11 +224,81 @@ export const parseCssComponentFile = async (
   return { defs: Array.from(defs.values()), diagnostics };
 };
 
+/**
+ * Auto-detect `[slot="x"]` selectors that are a *direct* child rule of `container` - deliberately
+ * not recursive, so a nested custom element's own slot styling doesn't leak onto the outer
+ * component.
+ * @param container the component's own defining rule/at-rule (from pass 1) - direct child rules only
+ * @param def the CSS-only component definition the found slots belong to
+ */
+const collectAutoDetectedSlots = (container: postcss.Container, def: CssOnlyComponentDef): void => {
+  for (const nested of container.nodes) {
+    if (nested.type !== 'rule') {
+      continue;
+    }
+    const names = new Set<string>();
+    try {
+      selectorParser()
+        .astSync(nested.selector)
+        .walkAttributes((attr) => {
+          if (attr.attribute === 'slot' && attr.value) {
+            names.add(attr.value);
+          }
+        });
+    } catch {
+      continue; // malformed selector - skip
+    }
+    for (const name of names) {
+      if (def.slots.some((s) => s.name === name)) {
+        continue; // explicit @slot, or an earlier auto-detected occurrence, already wins
+      }
+      const prev = nested.prev();
+      const docs =
+        prev && prev.type === 'comment' && isJsDocComment(prev.text)
+          ? normalizeJsDocText(prev.text)
+          : '';
+      def.slots.push({ name, docs, source: 'auto' });
+    }
+  }
+};
+
+/**
+ * Extract an `@scope` at-rule's scope-root prelude - the first, possibly-nested parenthesized
+ * group in its `params` (`@scope (:is(my-card, .my-card)) to ([slot])` → `:is(my-card,
+ * .my-card)`). A naive "up to the first `)`" regex breaks here since the scope root itself may
+ * contain parens (a `:where()`/`:is()`), so this tracks paren depth instead.
+ * @param params an `AtRule`'s `params` (the text after `@scope`)
+ * @returns the scope root's own selector text, or `null` if `params` has no balanced leading
+ * parenthesized group
+ */
+const extractScopeRoot = (params: string): string | null => {
+  const start = params.indexOf('(');
+  if (start === -1) {
+    return null;
+  }
+  let depth = 0;
+  for (let i = start; i < params.length; i++) {
+    if (params[i] === '(') {
+      depth++;
+    } else if (params[i] === ')') {
+      depth--;
+      if (depth === 0) {
+        return params.slice(start + 1, i);
+      }
+    }
+  }
+  return null; // unbalanced parens
+};
+
 interface ParsedSelector {
   tag: string | null;
   attributes: { name: string; value?: string }[];
   /** Any selector parts beyond the leading tag (classes, pseudo, ids, combinators). */
   nonTagParts: string[];
+  /**
+   * Deduped tag(s) found inside a *leading* `:where()`/`:is()` (`:where(my-badge, .my-badge)`
+   */
+  pseudoTags: string[];
 }
 
 /**
@@ -210,7 +314,7 @@ const parseSelectorList = (selectorText: string): ParsedSelector[] => {
   const results: ParsedSelector[] = [];
   const ast = selectorParser().astSync(selectorText);
   ast.each((selector) => {
-    const parsed: ParsedSelector = { tag: null, attributes: [], nonTagParts: [] };
+    const parsed: ParsedSelector = { tag: null, attributes: [], nonTagParts: [], pseudoTags: [] };
     let inLeadingCompound = true;
     selector.each((n) => {
       if (n.type === 'combinator') {
@@ -224,6 +328,20 @@ const parseSelectorList = (selectorText: string): ParsedSelector[] => {
       }
       if (n.type === 'attribute' && inLeadingCompound) {
         parsed.attributes.push({ name: n.attribute, value: n.value ?? undefined });
+        return;
+      }
+      if (
+        n.type === 'pseudo' &&
+        inLeadingCompound &&
+        parsed.tag === null &&
+        parsed.pseudoTags.length === 0 &&
+        (n.value === ':where' || n.value === ':is')
+      ) {
+        const tags = new Set<string>();
+        n.walkTags((tagNode) => {
+          tags.add(tagNode.value);
+        });
+        parsed.pseudoTags = [...tags];
         return;
       }
       parsed.nonTagParts.push(n.type);
@@ -266,8 +384,11 @@ const mergeLiteralUnion = (existingType: string, value: string): string => {
 const literalUnionType = (values: string[]): string =>
   `${values.map((v) => JSON.stringify(v)).join(' | ')} | (string & {})`;
 
-const collectAutoDetectedCustomProperties = (rule: postcss.Rule, def: CssOnlyComponentDef) => {
-  const children = rule.nodes;
+const collectAutoDetectedCustomProperties = (
+  container: postcss.Container,
+  def: CssOnlyComponentDef,
+) => {
+  const children = container.nodes;
   for (let i = 0; i < children.length; i++) {
     const child = children[i];
     if (child.type !== 'decl' || !child.prop.startsWith('--')) {
@@ -326,15 +447,16 @@ const parseJsDocBlock = (commentText: string): JsDocBlock => {
 };
 
 const ATTR_TAG_RE = /^\{([^}]*)\}\s*([\w-]+)(?:\s*-\s*(.*))?$/;
-const PROP_TAG_NAMES = new Set(['prop', 'cssprop']);
-const RESERVED_TAG_NAMES = new Set(['component', 'prop', 'cssprop', 'attr']);
+const PROP_TAG_NAMES = new Set(['prop', 'cssprop', 'cssproperty']);
+const RESERVED_TAG_NAMES = new Set(['component', 'prop', 'cssprop', 'cssproperty', 'attr', 'slot']);
 
 const buildDefFromJsDocBlock = (
   block: JsDocBlock,
-): Pick<CssOnlyComponentDef, 'docsText' | 'docsTags' | 'properties' | 'attributes'> => {
+): Pick<CssOnlyComponentDef, 'docsText' | 'docsTags' | 'properties' | 'attributes' | 'slots'> => {
   const docsTags: CssOnlyJsDocTag[] = [];
   const properties: CssOnlyPropertyDoc[] = [];
   const attributes: CssOnlyAttributeDoc[] = [];
+  const slots: CssOnlySlotDoc[] = [];
   const descriptionParts = [block.description];
 
   for (const tag of block.tags) {
@@ -364,6 +486,21 @@ const buildDefFromJsDocBlock = (
       }
       continue;
     }
+    if (tag.name === 'slot') {
+      // Same `name - docs` convention/split as `getNameText` (generate-doc-data.ts) uses for a
+      // real component's `@slot` tag - including a blank name (`@slot - description`) for the
+      // default slot, not just the `default` keyword below.
+      if (tag.text) {
+        const [namePart, ...rest] = (' ' + tag.text).split(' - ');
+        const name = namePart.trim();
+        slots.push({
+          name: name === 'default' ? '' : name,
+          docs: rest.join(' - ').trim(),
+          source: 'explicit',
+        });
+      }
+      continue;
+    }
     if (!RESERVED_TAG_NAMES.has(tag.name)) {
       docsTags.push({ name: tag.name, text: tag.text });
     }
@@ -374,5 +511,6 @@ const buildDefFromJsDocBlock = (
     docsTags,
     properties,
     attributes,
+    slots,
   };
 };

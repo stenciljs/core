@@ -14,7 +14,7 @@ import {
  * Docstrings found in the supplied style text will be added to the `styleDocs` param, via three
  * mechanisms, in order of precedence (an earlier mechanism always wins over a later one for the
  * same custom property name):
- * 1. An explicit `@prop`/`@cssprop` annotation in a block comment, anywhere in the file.
+ * 1. An explicit `@prop`/`@cssprop`/`@cssproperty` annotation in a block comment, anywhere in the file.
  * 2. A doc-commented `--foo: value;` declaration inside the component's "root" rule - `:host`
  *    for `shadow`/`scoped` encapsulation, or the component's own tag selector for `none`.
  * 3. A native `@property --foo { ... }` at-rule, with the `syntax`/`initial-value` descriptors
@@ -206,7 +206,8 @@ const CSS_DOC_START = /\/\*(\*|!)/;
  */
 const CSS_DOC_END = '*/';
 /**
- * The `@prop` annotation we support within CSS docstrings. `@cssprop` is also recognized as
- * a synonym (the more common name in other web-component-analyzer/docgen ecosystems).
+ * The `@prop` annotation we support within CSS docstrings. `@cssprop`/`@cssproperty` are also
+ * recognized as synonyms (the more common names in other web-component-analyzer/docgen
+ * ecosystems).
  */
-const CSS_PROP_ANNOTATION_RE = /@(?:cssprop|prop)\b/;
+const CSS_PROP_ANNOTATION_RE = /@(?:cssproperty|cssprop|prop)\b/;

@@ -176,7 +176,7 @@ async function scanCssOnlyDocsFile(abs: string): Promise<void> {
 /**
  * Re-derives one component's docs from its `.tsx` / `.ts` source and merges the result into the
  * docs registry.
- * 
+ *
  * @param tag the custom-element tag name to refresh
  * @param filePath absolute path to the component's `.tsx`/`.ts` source
  * @returns `true` if the registry entry's content actually changed
@@ -186,7 +186,7 @@ async function refreshComponentDocs(tag: string, filePath: string): Promise<bool
   try {
     const code = readFileSync(filePath, 'utf-8');
     const result = await transpile(code, { file: filePath, componentExport: 'customelement' });
-    
+
     for (const item of result.data ?? []) {
       if (!item.tagName) continue;
       await collectStyleDocsForComponent(item, filePath);

@@ -1,7 +1,7 @@
 import type * as d from '@stencil/core';
 
 import { DEFAULT_STYLE_MODE } from '../../utils';
-import type { CssOnlyComponentDef } from './types';
+import type { CssOnlyComponentDef, CssOnlySlotDoc } from './types';
 
 /**
  * Build a full, safe-defaults `ComponentCompilerMeta` from a parsed CSS-only component
@@ -21,7 +21,10 @@ export const createCssOnlyComponentMeta = (def: CssOnlyComponentDef): d.Componen
   deserializers: [],
   directDependencies: [],
   directDependents: [],
-  docs: { text: def.docsText, tags: def.docsTags },
+  docs: {
+    text: def.docsText,
+    tags: [...def.docsTags, ...def.slots.filter((s) => s.docs).map(slotToDocsTag)],
+  },
   doesExtend: false,
   elementRef: '',
   encapsulation: 'none',
@@ -83,7 +86,7 @@ export const createCssOnlyComponentMeta = (def: CssOnlyComponentDef): d.Componen
   hasWatchCallback: false,
   htmlAttrNames: [],
   htmlParts: [],
-  htmlSlots: [],
+  htmlSlots: def.slots.map((s) => s.name),
   htmlTagNames: [],
   internal: false,
   isCollectionDependency: false,
@@ -135,6 +138,11 @@ const attributeToProperty = (
 
 const primitiveType = (type: string): d.ComponentCompilerPropertyType =>
   type === 'boolean' || type === 'string' || type === 'number' ? type : 'any';
+
+const slotToDocsTag = (slot: CssOnlySlotDoc): d.JsonDocsTag => ({
+  name: 'slot',
+  text: `${slot.name} - ${slot.docs}`,
+});
 
 const propertyToStyleDoc = (prop: CssOnlyComponentDef['properties'][number]): d.StyleDoc => ({
   name: prop.name,

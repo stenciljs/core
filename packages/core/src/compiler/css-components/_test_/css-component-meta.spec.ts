@@ -14,6 +14,10 @@ describe('createCssOnlyComponentMeta', () => {
       { name: 'variant', type: '"danger" | (string & {})', docs: '', source: 'auto' },
       { name: 'dismissible', type: 'boolean', docs: 'Dismissible', source: 'explicit' },
     ],
+    slots: [
+      { name: 'icon-start', docs: 'The leading icon.', source: 'explicit' },
+      { name: 'icon-end', docs: '', source: 'auto' },
+    ],
   };
 
   it('has no backing JS class and every feature flag off', () => {
@@ -54,6 +58,12 @@ describe('createCssOnlyComponentMeta', () => {
     expect(meta.styleDocs).toEqual([
       { name: '--badge-color', docs: 'Background color', annotation: 'prop', mode: '$' },
     ]);
+  });
+
+  it('maps slot names to htmlSlots and docless-vs-documented slots to docs.tags', () => {
+    const meta = createCssOnlyComponentMeta(def);
+    expect(meta.htmlSlots).toEqual(['icon-start', 'icon-end']);
+    expect(meta.docs.tags).toEqual([{ name: 'slot', text: 'icon-start - The leading icon.' }]);
   });
 
   it('carries syntax/default through from a @property-sourced definition', () => {

@@ -11,10 +11,12 @@ export interface CssOnlyComponentDef {
   docsText: string;
   /** Any `@tag text` lines in the block that aren't `@component`/`@prop`/`@cssprop`/`@attr`. */
   docsTags: CssOnlyJsDocTag[];
-  /** Custom properties, from explicit `@prop`/`@cssprop`, auto-detected `--x` declarations, and `@property` at-rules. */
+  /** Custom properties, from explicit `@prop`/`@cssprop`/`@cssproperty`, auto-detected `--x` declarations, and `@property` at-rules. */
   properties: CssOnlyPropertyDoc[];
   /** Attributes, from explicit `@attr` annotations and auto-detected attribute-selector literals. */
   attributes: CssOnlyAttributeDoc[];
+  /** Slots, from explicit `@slot` annotations and auto-detected `[slot="x"]` selectors nested within the component's rule. */
+  slots: CssOnlySlotDoc[];
 }
 
 export interface CssOnlyJsDocTag {
@@ -37,6 +39,13 @@ export interface CssOnlyAttributeDoc {
   name: string;
   /** A TS type string - a primitive (`boolean`/`string`/`number`) or a literal union. */
   type: string;
+  docs: string;
+  source: 'explicit' | 'auto';
+}
+
+export interface CssOnlySlotDoc {
+  /** The slot name, or `''` for the default slot (`@slot default` in an explicit annotation). */
+  name: string;
   docs: string;
   source: 'explicit' | 'auto';
 }
