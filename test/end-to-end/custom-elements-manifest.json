@@ -38,7 +38,6 @@
                   }
                 ]
               },
-              "readonly": true,
               "attribute": "car"
             }
           ]
@@ -99,7 +98,6 @@
                   }
                 ]
               },
-              "readonly": true,
               "attribute": "cars"
             },
             {
@@ -254,7 +252,6 @@
                   }
                 ]
               },
-              "readonly": true,
               "attribute": "car"
             }
           ]
@@ -315,7 +312,6 @@
                   }
                 ]
               },
-              "readonly": true,
               "attribute": "cars"
             },
             {
@@ -488,7 +484,6 @@
                 "text": "number"
               },
               "default": "0",
-              "readonly": true,
               "attribute": "initial-counter"
             }
           ]
@@ -1100,7 +1095,6 @@
                 "text": "number"
               },
               "default": "0",
-              "readonly": true,
               "attribute": "some-prop"
             },
             {
@@ -1240,7 +1234,6 @@
               "type": {
                 "text": "string"
               },
-              "readonly": true,
               "attribute": "foo-prop"
             },
             {
@@ -1250,7 +1243,6 @@
               "type": {
                 "text": "any"
               },
-              "readonly": true,
               "attribute": "mode"
             }
           ]
@@ -1328,7 +1320,6 @@
               "type": {
                 "text": "string"
               },
-              "readonly": true,
               "attribute": "foo-prop"
             },
             {
@@ -1338,7 +1329,6 @@
               "type": {
                 "text": "any"
               },
-              "readonly": true,
               "attribute": "mode"
             }
           ]
@@ -1743,7 +1733,6 @@
                 "text": "string"
               },
               "default": "'life preservers'",
-              "readonly": true,
               "attribute": "clothes"
             },
             {
@@ -1752,7 +1741,6 @@
               "type": {
                 "text": "string"
               },
-              "readonly": true,
               "attribute": "first"
             },
             {
@@ -1770,7 +1758,6 @@
               "type": {
                 "text": "string"
               },
-              "readonly": true,
               "attribute": "last-name"
             },
             {
@@ -1780,7 +1767,6 @@
               "type": {
                 "text": "any"
               },
-              "readonly": true,
               "attribute": "mode"
             }
           ]
@@ -1919,7 +1905,6 @@
                 "text": "string"
               },
               "default": "'basicProp'",
-              "readonly": true,
               "attribute": "basic-prop",
               "reflects": true
             },
@@ -1929,7 +1914,6 @@
               "type": {
                 "text": "number"
               },
-              "readonly": true,
               "attribute": "decorated-getter-setter-prop",
               "reflects": true
             },
@@ -1940,7 +1924,6 @@
                 "text": "number"
               },
               "default": "-10",
-              "readonly": true,
               "attribute": "decorated-prop",
               "reflects": true
             }
@@ -2001,7 +1984,6 @@
                   }
                 ]
               },
-              "readonly": true,
               "attribute": "car"
             }
           ]
@@ -2062,7 +2044,6 @@
                   }
                 ]
               },
-              "readonly": true,
               "attribute": "cars"
             },
             {
@@ -2279,7 +2260,6 @@
               "type": {
                 "text": "string"
               },
-              "readonly": true,
               "attribute": "label"
             }
           ],
@@ -2334,7 +2314,6 @@
               "type": {
                 "text": "string"
               },
-              "readonly": true,
               "attribute": "url"
             }
           ]
@@ -2382,7 +2361,6 @@
               "type": {
                 "text": "boolean"
               },
-              "readonly": true,
               "attribute": "selected"
             }
           ],
@@ -2470,7 +2448,6 @@
               "type": {
                 "text": "boolean"
               },
-              "readonly": true,
               "attribute": "selected"
             }
           ],
