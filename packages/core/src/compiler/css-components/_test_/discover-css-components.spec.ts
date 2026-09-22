@@ -133,4 +133,66 @@ describe('discoverCssOnlyComponents', () => {
     expect(buildCtx.cssOnlyComponents).toEqual([]);
     expect(buildCtx.diagnostics.some((d: d.Diagnostic) => d.level === 'error')).toBe(true);
   });
+
+  describe('preprocessing', () => {
+    // a fake sass-like plugin, standing in for `@stencil/sass`: compiles `$color` variables and
+    // reports the file it inlined as a dependency, same shape a real preprocessor plugin returns
+    const fakeSassPlugin = (): d.Plugin => ({
+      name: 'fake-sass',
+      pluginType: 'css',
+      transform(sourceText, id) {
+        if (!id.endsWith('.scss')) return null;
+        return {
+          code: sourceText.replace('$badge-color', 'red'),
+          id,
+          dependencies: ['/src/_variables.scss'],
+        };
+      },
+    });
+
+    it('runs a non-.css file through configured plugins before parsing', async () => {
+      const { config, compilerCtx, buildCtx } = setup();
+      config.plugins = [fakeSassPlugin()];
+      config.sys.glob = vi.fn().mockResolvedValue(['my-badge.scss']);
+      vi.spyOn(compilerCtx.fs, 'readFile').mockResolvedValue(`
+        /** @component */
+        my-badge { color: $badge-color; }
+      `);
+
+      const changed = await discoverCssOnlyComponents(config, compilerCtx, buildCtx);
+
+      expect(changed).toBe(true);
+      expect(buildCtx.cssOnlyComponents).toHaveLength(1);
+      expect(buildCtx.cssOnlyComponents[0].tagName).toBe('my-badge');
+    });
+
+    it('watches dependencies reported by the preprocessing plugin', async () => {
+      const { config, compilerCtx, buildCtx } = setup();
+      config.plugins = [fakeSassPlugin()];
+      config.sys.glob = vi.fn().mockResolvedValue(['my-badge.scss']);
+      vi.spyOn(compilerCtx.fs, 'readFile').mockResolvedValue(`
+        /** @component */
+        my-badge { color: $badge-color; }
+      `);
+      const addWatchFileSpy = vi.spyOn(compilerCtx, 'addWatchFile');
+
+      await discoverCssOnlyComponents(config, compilerCtx, buildCtx);
+
+      expect(addWatchFileSpy).toHaveBeenCalledWith('/src/_variables.scss');
+    });
+
+    it('reports a parse diagnostic for an unrecognized extension with no matching plugin', async () => {
+      const { config, compilerCtx, buildCtx } = setup();
+      config.sys.glob = vi.fn().mockResolvedValue(['my-badge.scss']);
+      vi.spyOn(compilerCtx.fs, 'readFile').mockResolvedValue(`
+        /** @component */
+        my-badge { color: $badge-color }}}
+      `);
+
+      await discoverCssOnlyComponents(config, compilerCtx, buildCtx);
+
+      expect(buildCtx.cssOnlyComponents).toEqual([]);
+      expect(buildCtx.diagnostics.some((d: d.Diagnostic) => d.level === 'error')).toBe(true);
+    });
+  });
 });

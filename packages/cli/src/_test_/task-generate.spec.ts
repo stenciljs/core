@@ -2,6 +2,7 @@ import * as utils from '@stencil/core/compiler/utils';
 import { mockCompilerSystem, mockValidatedConfig } from '@stencil/core/testing';
 import {
   getComponentBoilerplate,
+  getCssOnlyComponentBoilerplate,
   getPreviewHtmlBoilerplate,
   getStyleBoilerplate,
   getUsageExampleBoilerplate,
@@ -70,9 +71,10 @@ function withTagName(flags: ConfigFlags, name: string) {
   flags.unknownArgs = [name];
 }
 
-// Default prompt answers: CSS stylesheet, no plugin file templates
+// Default prompt answers: standard component, CSS stylesheet, no plugin file templates
 function defaultPrompts() {
-  mockSelect.mockResolvedValue('css');
+  mockSelect.mockResolvedValueOnce('component'); // component type
+  mockSelect.mockResolvedValue('css'); // stylesheet format / demo fallback
   mockMultiselect.mockResolvedValue([]);
 }
 
@@ -301,7 +303,7 @@ describe('generate task', () => {
 
     await taskGenerate(config, flags);
 
-    const selectCall = mockSelect.mock.calls[0][0] as { options: { value: string }[] };
+    const selectCall = mockSelect.mock.calls[1][0] as { options: { value: string }[] };
     const values = selectCall.options.map((o) => o.value);
     expect(values).toContain('scss');
     expect(values).toContain('sass');
@@ -375,5 +377,124 @@ describe('generate task', () => {
       }),
     );
     expect(specTemplate).toHaveBeenCalled();
+  });
+
+  describe('CSS-only components', () => {
+    function pickCssOnly() {
+      mockSelect.mockReset();
+      mockSelect.mockResolvedValueOnce('css-only').mockResolvedValue('css');
+    }
+
+    it('generates a single css file', async () => {
+      const { config, flags } = setup();
+      withTagName(flags, 'my-component');
+      pickCssOnly();
+      const writeFileSpy = vi.spyOn(config.sys, 'writeFile');
+
+      await taskGenerate(config, flags);
+
+      expect(writeFileSpy).toHaveBeenCalledWith(
+        `${SRC}/components/my-component/my-component.css`,
+        getCssOnlyComponentBoilerplate('my-component'),
+      );
+      expect(writeFileSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('still offers plugin file templates alongside the stylesheet format prompt', async () => {
+      const e2eTemplate = vi.fn().mockReturnValue('// e2e content');
+      mockDiscoverPlugins.mockResolvedValue([
+        {
+          packageName: '@stencil/vitest',
+          plugin: {
+            generate: {
+              fileTemplates: [
+                { label: 'Vitest e2e (.e2e.ts)', extension: 'e2e.ts', template: e2eTemplate },
+              ],
+            },
+          },
+        },
+      ]);
+      mockMultiselect.mockResolvedValue(['e2e.ts']);
+
+      const { config, flags } = setup();
+      withTagName(flags, 'my-component');
+      pickCssOnly();
+      const writeFileSpy = vi.spyOn(config.sys, 'writeFile');
+
+      await taskGenerate(config, flags);
+
+      expect(mockSelect).toHaveBeenCalledTimes(3); // component type + stylesheet format + demo
+      expect(mockMultiselect).toHaveBeenCalled();
+      expect(writeFileSpy).toHaveBeenCalledWith(
+        `${SRC}/components/my-component/my-component.e2e.ts`,
+        '// e2e content',
+      );
+    });
+
+    it('offers plugin style extensions but not "None", and writes the picked extension', async () => {
+      mockDiscoverPlugins.mockResolvedValue([
+        {
+          packageName: '@stencil/sass',
+          plugin: { generate: { styleExtensions: ['scss', 'sass'] } },
+        },
+      ]);
+
+      const { config, flags } = setup();
+      withTagName(flags, 'my-component');
+      mockSelect.mockReset();
+      mockSelect.mockResolvedValueOnce('css-only').mockResolvedValue('scss');
+      const writeFileSpy = vi.spyOn(config.sys, 'writeFile');
+
+      await taskGenerate(config, flags);
+
+      const selectCall = mockSelect.mock.calls[1][0] as { options: { value: string }[] };
+      const values = selectCall.options.map((o) => o.value);
+      expect(values).toContain('scss');
+      expect(values).toContain('sass');
+      expect(values).not.toContain('');
+
+      expect(writeFileSpy).toHaveBeenCalledWith(
+        `${SRC}/components/my-component/my-component.scss`,
+        getCssOnlyComponentBoilerplate('my-component', 'scss'),
+      );
+    });
+
+    it('writes the sass-indented-syntax boilerplate when sass is picked', async () => {
+      mockDiscoverPlugins.mockResolvedValue([
+        {
+          packageName: '@stencil/sass',
+          plugin: { generate: { styleExtensions: ['scss', 'sass'] } },
+        },
+      ]);
+
+      const { config, flags } = setup();
+      withTagName(flags, 'my-component');
+      mockSelect.mockReset();
+      mockSelect.mockResolvedValueOnce('css-only').mockResolvedValue('sass');
+      const writeFileSpy = vi.spyOn(config.sys, 'writeFile');
+
+      await taskGenerate(config, flags);
+
+      const written = getCssOnlyComponentBoilerplate('my-component', 'sass');
+      expect(written).not.toContain('{');
+      expect(writeFileSpy).toHaveBeenCalledWith(
+        `${SRC}/components/my-component/my-component.sass`,
+        written,
+      );
+    });
+
+    it('warns when enableCssOnlyComponents is disabled in the config', async () => {
+      const { config, flags } = setup();
+      config.enableCssOnlyComponents = false;
+      withTagName(flags, 'my-component');
+      pickCssOnly();
+
+      await taskGenerate(config, flags);
+
+      expect(vi.mocked(clack.note)).toHaveBeenCalledWith(
+        expect.stringContaining('enableCssOnlyComponents'),
+        'Warning',
+      );
+    });
   });
 });

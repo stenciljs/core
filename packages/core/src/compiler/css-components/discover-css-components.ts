@@ -1,13 +1,17 @@
 import type * as d from '@stencil/core';
 
-import { buildError, join, normalizePath } from '../../utils';
+import { buildError, join, normalizePath, STYLE_EXT } from '../../utils';
+import { runPluginTransforms } from '../plugin/plugin';
 import { createCssOnlyComponentMeta } from './css-component-meta';
 import { parseCssComponentFile } from './parse-css-component';
 
 /**
  * Discover "CSS-only components" - pure-CSS custom-element definitions marked with a
- * `@component` JSDoc tag - by scanning `.css` files under `srcDir`, and populate
- * `buildCtx.cssOnlyComponents`.
+ * `@component` JSDoc tag - by scanning style files (`.css`, plus any `STYLE_EXT` preprocessor
+ * extension - `.scss`, `.sass`, `.less`, `.styl`, `.stylus`, `.pcss`) under `srcDir`, and
+ * populate `buildCtx.cssOnlyComponents`. Non-`.css` files are run through the configured
+ * `plugins` (e.g. `@stencil/sass`) first, the same pipeline a real component's `styleUrl` goes
+ * through, before being parsed for `@component` definitions.
 
  * @param config the validated Stencil config
  * @param compilerCtx the compiler context, used for the cross-build discovery cache
@@ -47,7 +51,10 @@ export const discoverCssOnlyComponents = async (
     await scanFiles(config, compilerCtx, buildCtx, cache, changed);
   } else {
     cache.clear();
-    const relPaths = await config.sys.glob('**/*.css', { cwd: config.srcDir, nodir: true });
+    const relPaths = await config.sys.glob(`**/*.{${STYLE_EXT.join(',')}}`, {
+      cwd: config.srcDir,
+      nodir: true,
+    });
     const absPaths = relPaths.map((relPath) => normalizePath(join(config.srcDir, relPath)));
     await scanFiles(config, compilerCtx, buildCtx, cache, absPaths);
   }
@@ -61,7 +68,8 @@ const makeIsRelevantCssFile = (config: d.ValidatedConfig) => {
   const srcDir = normalizePath(config.srcDir);
   return (filePath: string): boolean => {
     const normalized = normalizePath(filePath);
-    return normalized.toLowerCase().endsWith('.css') && normalized.startsWith(srcDir);
+    const ext = normalized.toLowerCase().split('.').pop();
+    return !!ext && STYLE_EXT.includes(ext) && normalized.startsWith(srcDir);
   };
 };
 
@@ -76,10 +84,8 @@ const scanFiles = async (
     filePaths.map(async (filePath) => {
       compilerCtx.addWatchFile(filePath);
 
-      let cssText: string;
-      try {
-        cssText = await compilerCtx.fs.readFile(filePath);
-      } catch {
+      const cssText = await loadCssOnlyComponentSource(config, compilerCtx, buildCtx, filePath);
+      if (cssText === null) {
         cache.delete(filePath);
         return;
       }
@@ -94,6 +100,45 @@ const scanFiles = async (
       cache.set(filePath, defs.map(createCssOnlyComponentMeta));
     }),
   );
+};
+
+/**
+ * Load a CSS-only component source file's text. A plain `.css` file is read as-is; any other
+ * `STYLE_EXT` extension is run through the configured `plugins` first (e.g. `@stencil/sass`
+ * compiling `.scss` to CSS) - the same pipeline `collectCssOnlyComponentStyles` uses to emit
+ * this file's CSS, so discovery parses exactly what gets shipped.
+ *
+ * @param config the validated Stencil config
+ * @param compilerCtx the compiler context, used to read the file and register watch files
+ * @param buildCtx the current build context, used for plugin transform diagnostics
+ * @param filePath absolute path to the source file to load
+ * @returns the (possibly preprocessed) CSS text, or `null` if the file couldn't be loaded
+ */
+const loadCssOnlyComponentSource = async (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+  filePath: string,
+): Promise<string | null> => {
+  if (filePath.toLowerCase().endsWith('.css')) {
+    try {
+      return await compilerCtx.fs.readFile(filePath);
+    } catch {
+      return null;
+    }
+  }
+
+  const transformResults = await runPluginTransforms(config, compilerCtx, buildCtx, filePath);
+  if (!transformResults) {
+    return null;
+  }
+  if (typeof transformResults === 'string') {
+    return transformResults;
+  }
+  for (const dep of transformResults.dependencies ?? []) {
+    compilerCtx.addWatchFile(dep);
+  }
+  return transformResults.code ?? null;
 };
 
 const flattenCache = (cache: Map<string, d.ComponentCompilerMeta[]>): d.ComponentCompilerMeta[] =>
