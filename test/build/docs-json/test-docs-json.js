@@ -12,7 +12,7 @@ delete docsJsonContents['timestamp'];
 delete docsJsonContents['compiler'];
 
 // then rewrite the file, indenting the JSON for easy reading.
-fs.writeFileSync(docsJsonOutputFilePath, JSON.stringify(docsJsonContents, null, 2));
+fs.writeFileSync(docsJsonOutputFilePath, JSON.stringify(docsJsonContents, null, 2) + '\n');
 
 // Regression test: Ensure docs.d.ts is self-contained and doesn't import from hashed chunks
 // This was a bug introduced when switching from rollup to rolldown where the declaration
