@@ -63,7 +63,8 @@ export default _default;
       cssOnly: cmp.cssOnly,
     })),
   };
-  const jsonContent = JSON.stringify(json, null, 2);
+  // trailing newline; POSIX convention
+  const jsonContent = JSON.stringify(json, null, 2) + '\n';
   await Promise.all(
     jsonOutputTargets.map((jsonOutput) => {
       return writeDocsOutput(compilerCtx, jsonOutput, jsonContent, typesContent);

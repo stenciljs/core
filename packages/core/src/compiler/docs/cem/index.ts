@@ -22,7 +22,8 @@ export const generateCustomElementsManifestDocs = async (
   }
 
   const manifest = generateManifest(docsData);
-  const jsonContent = JSON.stringify(manifest, null, 2);
+  // trailing newline; POSIX convention
+  const jsonContent = JSON.stringify(manifest, null, 2) + '\n';
 
   await Promise.all(
     cemOutputTargets.map((outputTarget) =>

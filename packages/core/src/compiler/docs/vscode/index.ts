@@ -55,7 +55,8 @@ export const generateVscodeDocs = async (
       };
 
       // fields in the custom data may have a value of `undefined`. calling `stringify` will remove such fields.
-      const jsonContent = JSON.stringify(json, null, 2);
+      // trailing newline; POSIX convention
+      const jsonContent = JSON.stringify(json, null, 2) + '\n';
       await compilerCtx.fs.writeFile(outputTarget.file, jsonContent);
     }),
   );

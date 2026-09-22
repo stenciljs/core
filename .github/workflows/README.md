@@ -54,7 +54,7 @@ Runs quality checks (Linux only):
 | `test-ssr-wasm.yml` | Linux × Node 22/24 | SSR WASM tests (`test/ssr-wasm`) |
 | `test-component-starter.yml` | Linux/Windows × Node 22/24 | Smoke test with component starter template |
 
-Each test workflow ends with a `Check Git Context` step (`actions/check-git-context`), which fails the job if the test run left the working tree dirty. This catches golden-file / fixture drift - e.g. a docs-output or CEM fixture that a code change should have regenerated, but didn't get committed.
+Most test workflows end with a `Check Git Context` step (`actions/check-git-context`), which fails the job if the test run left the working tree dirty. This catches golden-file / fixture drift - e.g. a docs-output or CEM fixture that a code change should have regenerated, but didn't get committed. `test-ssr-wasm.yml` skips this step: it has no committed golden files to protect, and the extism-js toolchain downloads its own binaryen build into the working directory as a normal side effect of compiling to WASM, which would make the check fail on every run for no reason.
 
 ## Release Workflows
 
