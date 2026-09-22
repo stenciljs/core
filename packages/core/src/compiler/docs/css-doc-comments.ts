@@ -33,7 +33,7 @@ export const normalizeJsDocText = (commentText: string): string =>
  * @param value a CSS descriptor value, possibly quoted (e.g. a `syntax` descriptor's `"<length>"`)
  * @returns the value with any surrounding quotes removed
  */
-export const stripQuotes = (value: string): string => value.replace(/^['"]|['"]$/g, '');
+const stripQuotes = (value: string): string => value.replace(/^['"]|['"]$/g, '');
 
 export interface PropertyAtRuleDescriptors {
   /** From a native `@property` at-rule's `syntax` descriptor. */
