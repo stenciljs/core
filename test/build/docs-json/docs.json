@@ -1,10 +1,4 @@
 {
-  "timestamp": "2026-09-21T23:00:18",
-  "compiler": {
-    "name": "@stencil/core",
-    "version": "5.0.0-beta.12-dev.1790031195.5ba420b",
-    "typescriptVersion": "6.0.3"
-  },
   "components": [
     {
       "filePath": "src/components/css-only-badge/css-only-badge.css",

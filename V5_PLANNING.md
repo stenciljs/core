@@ -390,12 +390,13 @@ hydrate-CSS exclusion proof + "never referenced in emitted JS" proof), and
   equivalent; no compile-time alternative designed yet.
 - A diagnostic for `@component` found nested inside `@media`/`@supports`/`@container` (v1 only
   scans top-level rules) - should warn, currently silently ignored.
-- **Under consideration, not yet decided**: native CSS `@scope (tag-name) { ... }` as an
-  alternative defining construct, e.g. for the `all: unset` / `*:where(...)` light-DOM reset
-  pattern that lets a CSS-only component avoid inheriting page styles without a shadow root.
-  A feasibility spike confirmed `@scope (...)`'s prelude and `:scope`-prefixed selectors parse
-  cleanly with the same postcss/postcss-selector-parser foundation already in place, so this
-  looks like a moderate, not large, addition if pursued - not started.
+- ~~native CSS `@scope (tag-name) { ... }` as an alternative defining construct~~ - **done.**
+  `@scope (my-card) to (...) { ... }` can now be the `@component` defining rule itself, same
+  resolution rules as a bare tag or `:is()`/`:where()` rule (scope root must resolve to exactly
+  one tag; `:is()`/`:where()`-wrapped scope roots also supported). Custom properties and direct
+  nested slots inside the scope body are auto-detected the same way. Enables the `to (...)` limit
+  clause as a light-DOM containment pattern (e.g. `@scope (my-card) to ([slot])` keeps the
+  component's own rules from bleeding into slotted content) without needing a shadow root.
 
 **Original "zero-JS custom element" framing reconsidered.** Typed, documented custom-element
 tags with zero JS is already achievable today via `@Component` + `@Prop({ reflect: true })` +
