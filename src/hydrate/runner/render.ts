@@ -1,7 +1,6 @@
 import { Readable } from 'node:stream';
 
 import { hydrateFactory } from '@hydrate-factory';
-import { modeResolutionChain, setMode } from '@platform';
 import { HYDRATED_STYLE_ID } from '@runtime';
 import { MockWindow, serializeNodeToHtml } from '@stencil/core/mock-doc';
 import { hasError } from '@utils';
@@ -142,14 +141,6 @@ async function render(win: MockWindow, opts: HydrateFactoryOptions, results: Hyd
   try {
     await Promise.resolve(beforeHydrateFn(win.document));
     return new Promise<HydrateResults>((resolve) => {
-      if (Array.isArray(opts.modes)) {
-        /**
-         * Reset the mode resolution chain as we expect every `renderToString` call to render
-         * the components in new environment/document.
-         */
-        modeResolutionChain.length = 0;
-        opts.modes.forEach((mode) => setMode(mode));
-      }
       return hydrateFactory(win, opts, results, afterHydrate, resolve);
     });
   } catch (e) {

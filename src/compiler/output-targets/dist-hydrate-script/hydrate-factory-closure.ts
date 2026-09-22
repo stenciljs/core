@@ -1,16 +1,16 @@
 export const HYDRATE_APP_CLOSURE_START = `/*hydrateAppClosure start*/`;
 
-export const MODE_RESOLUTION_CHAIN_DECLARATION = `modeResolutionChain = [];`;
+export const MODE_RESOLVER_DECLARATION = `modeResolver = [];`;
 
 /**
  * This is the entry point for the hydrate factory.
  *
- * __Note:__ the `modeResolutionChain` will be uncommented in the
+ * __Note:__ the `modeResolver` will be uncommented in the
  * `src/compiler/output-targets/dist-hydrate-script/write-hydrate-outputs.ts` file. This enables us to use
- * one module resolution chain across hydrate and core runtime.
+ * one mode resolver across hydrate and core runtime.
  */
 export const HYDRATE_FACTORY_INTRO = `
-// const ${MODE_RESOLUTION_CHAIN_DECLARATION}
+// const ${MODE_RESOLVER_DECLARATION}
 
 // captured here, at true module scope, before hydrateFactory shadows the
 // AbortController identifier for component code below.

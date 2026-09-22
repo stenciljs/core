@@ -1,12 +1,7 @@
 import { BUILD, Env } from '@app-data';
 import type * as d from '@stencil/core/internal';
 import { E2EProcessEnv } from '@stencil/core/internal';
-import {
-  modeResolutionChain,
-  resetPlatform,
-  setErrorHandler,
-  stopAutoApplyChanges,
-} from '@stencil/core/internal/testing';
+import { modeResolver, resetPlatform, setErrorHandler, stopAutoApplyChanges } from '@stencil/core/internal/testing';
 import { MockDocument, MockNode, MockWindow, setupGlobal, teardownGlobal } from '@stencil/core/mock-doc';
 
 import { setupMockFetch } from '../../mock-fetch';
@@ -30,7 +25,7 @@ export function jestSetupTestFramework() {
     resetPlatform();
     setErrorHandler(undefined);
     resetBuildConditionals(BUILD);
-    modeResolutionChain.length = 0;
+    modeResolver.length = 0;
   });
 
   afterEach(async () => {

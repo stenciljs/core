@@ -190,7 +190,7 @@ export const Build: d.UserBuildConditionals = {
 };
 
 export const styles: d.StyleMap = new Map();
-export const modeResolutionChain: d.ResolutionHandler[] = [];
+export const modeResolver: d.ResolutionHandler[] = [];
 
 /**
  * Checks to see any components are rendered with `scoped`
