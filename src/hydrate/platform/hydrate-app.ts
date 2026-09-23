@@ -1,6 +1,14 @@
 import { globalScripts } from '@app-globals';
-import { addHostEventListeners, getHostRef, loadModule, plt, registerHost, setScopedSSR } from '@platform';
-import { connectedCallback, insertVdomAnnotations } from '@runtime';
+import {
+  addHostEventListeners,
+  getHostRef,
+  loadModule,
+  modeResolver,
+  plt,
+  registerHost,
+  setScopedSSR,
+} from '@platform';
+import { connectedCallback, insertVdomAnnotations, setMode } from '@runtime';
 import { CMP_FLAGS } from '@utils';
 
 import type * as d from '../../declarations';
@@ -29,6 +37,9 @@ export function hydrateApp(
 
   let tmrId: any;
   let ranCompleted = false;
+  // In case a per-call `opts.modes` is provided, cache any global mode
+  // resolver so we can restore it after the render is complete
+  let modeResolverSnapshot: d.ResolutionHandler[] | undefined;
   // Resolves once the render is finalizing (error or timeout), so components
   // still mid-`await` can stop waiting instead of resuming against a window
   // that's about to be torn down, and so their own in-flight `fetch()` calls
@@ -46,6 +57,12 @@ export function hydrateApp(
     globalThis.clearTimeout(tmrId);
     createdElements.clear();
     connectedElements.clear();
+
+    if (modeResolverSnapshot) {
+      modeResolver.length = 0;
+      modeResolver.push(...modeResolverSnapshot);
+      modeResolverSnapshot = undefined;
+    }
 
     if (!ranCompleted) {
       ranCompleted = true;
@@ -190,6 +207,13 @@ export function hydrateApp(
     plt.$resourcesUrl$ = new URL(opts.resourcesUrl || './', win.document.baseURI).href;
 
     globalScripts();
+
+    // Apply `opts.modes` after the global script runs
+    // so an explicit per-call override always wins
+    if (Array.isArray(opts.modes)) {
+      modeResolverSnapshot = modeResolver.slice();
+      opts.modes.forEach((mode) => setMode(mode));
+    }
 
     patchChild(win.document.body);
 
