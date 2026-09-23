@@ -1,3 +1,15 @@
+## 🐽 [4.45.1](https://github.com/stenciljs/core/compare/v4.45.0...v4.45.1) (2026-09-23)
+
+
+### Bug Fixes
+
+* **compiler:** correct CSS minifier selector-list splitting ([#6895](https://github.com/stenciljs/core/issues/6895)) ([332a8fa](https://github.com/stenciljs/core/commit/332a8fad6358db92b21c8b69a669fd5e4b70d0a4))
+* **docs:** derive CEM readonly from getter/setter instead of mutable ([#6900](https://github.com/stenciljs/core/issues/6900)) ([1c81131](https://github.com/stenciljs/core/commit/1c81131f659dd0beaf9bdadd59d5f2a5f895dd38))
+* **runtime:** pre-hydrate getter / setter attribute ([#6890](https://github.com/stenciljs/core/issues/6890)) ([171d0ce](https://github.com/stenciljs/core/commit/171d0ce3f0b854cc848a324972c4371b6309743c))
+* **ssr:** clear modeResolutionChain on `setMode`. Fixes memory leak ([#6903](https://github.com/stenciljs/core/issues/6903)) ([ca9273d](https://github.com/stenciljs/core/commit/ca9273dfddd60b398725de65559f6a2f355ffe72))
+
+
+
 # 🎱 [4.45.0](https://github.com/stenciljs/core/compare/v4.44.2...v4.45.0) (2026-09-12)
 
 
