@@ -3,6 +3,7 @@ export { MockComment } from './comment-node';
 export { NODE_TYPES } from './constants';
 export { createDocument, createFragment, MockDocument, resetDocument } from './document';
 export { MockCustomEvent, MockKeyboardEvent, MockMouseEvent } from './event';
+export { MockFile } from './file';
 export { patchWindow, setupGlobal, teardownGlobal } from './global';
 export { MockHeaders } from './headers';
 export { MockElement, MockHTMLElement, MockNode, MockTextNode } from './node';
