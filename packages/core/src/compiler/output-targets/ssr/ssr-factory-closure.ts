@@ -1,16 +1,16 @@
 export const HYDRATE_APP_CLOSURE_START = `/*hydrateAppClosure start*/`;
 
-export const MODE_RESOLUTION_CHAIN_DECLARATION = `modeResolutionChain = [];`;
+export const MODE_RESOLVER_DECLARATION = `modeResolver = [];`;
 
 /**
  * This is the entry point for the ssr factory.
  *
- * __Note:__ the `modeResolutionChain` will be uncommented in the
- * `src/compiler/output-targets/ssr/write-hydrate-outputs.ts` file. This enables us to use
- * one module resolution chain across ssr and core runtime.
+ * __Note:__ the `modeResolver` will be uncommented in the
+ * `src/compiler/output-targets/dist-hydrate-script/write-hydrate-outputs.ts` file. This enables us to use
+ * one mode resolver across hydrate and core runtime.
  */
 export const SSR_FACTORY_INTRO = /* js */ `
-//! let ${MODE_RESOLUTION_CHAIN_DECLARATION}
+//! let ${MODE_RESOLVER_DECLARATION}
 
 // Capture native at module scope (before globalThis can be shadowed inside the factory).
 

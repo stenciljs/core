@@ -20,7 +20,7 @@ import { bundleSsrFactory } from './bundle-ssr-factory';
 import {
   SSR_FACTORY_INTRO,
   SSR_FACTORY_OUTRO,
-  MODE_RESOLUTION_CHAIN_DECLARATION,
+  MODE_RESOLVER_DECLARATION,
 } from './ssr-factory-closure';
 import { updateSsrComponents } from './update-to-ssr-components';
 import { writeSsrOutputs } from './write-ssr-outputs';
@@ -102,11 +102,11 @@ export const generateSsrApp = async (
           },
           transform(code, _id) {
             /**
-             * Remove the modeResolutionChain variable from the generated code.
+             * Remove the modeResolver variable from the generated code.
              * This variable is redefined in `SSR_FACTORY_INTRO` to ensure we can
              * use it within the ssr and global runtime.
              */
-            const searchPattern = `const ${MODE_RESOLUTION_CHAIN_DECLARATION}`;
+            const searchPattern = `const ${MODE_RESOLVER_DECLARATION}`;
             // Only process if the code contains the pattern (avoid unnecessary work)
             if (!code.includes(searchPattern)) {
               return null;

@@ -16,7 +16,7 @@ import {
 import { STENCIL_APP_DATA_ID, STENCIL_SSR_FACTORY_ID } from '../../bundle/entry-alias-ids';
 import { optimizeModule } from '../../optimize/optimize-module';
 import { generateSsrFactory } from '../ssr/generate-ssr-app';
-import { MODE_RESOLUTION_CHAIN_DECLARATION } from '../ssr/ssr-factory-closure';
+import { MODE_RESOLVER_DECLARATION } from '../ssr/ssr-factory-closure';
 import { postProcessSsrCode } from '../ssr/write-ssr-outputs';
 
 const execFileAsync = promisify(execFile);
@@ -159,7 +159,7 @@ export const generateSsrWasmApp = async (
             },
           },
           transform(code, _id) {
-            const searchPattern = `const ${MODE_RESOLUTION_CHAIN_DECLARATION}`;
+            const searchPattern = `const ${MODE_RESOLVER_DECLARATION}`;
             if (!code.includes(searchPattern)) return null;
             return code.replaceAll(searchPattern, '');
           },

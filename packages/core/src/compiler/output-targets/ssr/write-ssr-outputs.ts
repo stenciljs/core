@@ -4,7 +4,7 @@ import type { RolldownOutput } from 'rolldown';
 import { hasError, join } from '../../../utils';
 import { optimizeModule } from '../../optimize/optimize-module';
 import { relocateSsrContextConst } from './relocate-ssr-context';
-import { MODE_RESOLUTION_CHAIN_DECLARATION } from './ssr-factory-closure';
+import { MODE_RESOLVER_DECLARATION } from './ssr-factory-closure';
 
 /**
  * Applies post-processing transforms shared by both the `ssr` and `ssr-wasm` output targets.
@@ -22,10 +22,7 @@ export const postProcessSsrCode = (
 ): string => {
   code = relocateSsrContextConst(config, compilerCtx, code);
 
-  code = code.replace(
-    `//! let ${MODE_RESOLUTION_CHAIN_DECLARATION}`,
-    `let ${MODE_RESOLUTION_CHAIN_DECLARATION}`,
-  );
+  code = code.replace(`//! let ${MODE_RESOLVER_DECLARATION}`, `let ${MODE_RESOLVER_DECLARATION}`);
 
   const tagTransformFunctionPattern = /function (setTagTransformer|transformTag)\(/;
   if (tagTransformFunctionPattern.test(code)) {

@@ -210,7 +210,61 @@ describe('custom-elements-manifest', () => {
     expect(field).toBeDefined();
     expect(field.name).toBe('count');
     expect(field.type).toEqual({ text: 'number' });
+    expect(field.readonly).toBeUndefined();
+  });
+
+  it('marks props with a getter and no setter as readonly', async () => {
+    const docsData: d.JsonDocs = {
+      timestamp: 'test',
+      compiler: { name: '@stencil/core', version: '1.0.0', typescriptVersion: '4.0.0' },
+      components: [
+        createMockComponent({
+          tag: 'my-component',
+          filePath: 'src/my-component.tsx',
+          props: [createMockProp({ name: 'readOnlyProp', getter: true, setter: false })],
+        }),
+      ],
+      typeLibrary: {},
+    };
+    const outputTargets: d.OutputTargetDocsCustomElementsManifest[] = [
+      { type: 'docs-custom-elements-manifest', file: '/output/custom-elements.json' },
+    ];
+
+    await generateCustomElementsManifestDocs(compilerCtx, docsData, outputTargets);
+
+    const writtenContent = JSON.parse(writeFileSpy.mock.calls[0][1]);
+    const field = writtenContent.modules[0].declarations[0].members.find(
+      (m: any) => m.kind === 'field',
+    );
+    expect(field.name).toBe('readOnlyProp');
     expect(field.readonly).toBe(true);
+  });
+
+  it('does not mark props with both a getter and a setter as readonly', async () => {
+    const docsData: d.JsonDocs = {
+      timestamp: 'test',
+      compiler: { name: '@stencil/core', version: '1.0.0', typescriptVersion: '4.0.0' },
+      components: [
+        createMockComponent({
+          tag: 'my-component',
+          filePath: 'src/my-component.tsx',
+          props: [createMockProp({ name: 'validatedProp', getter: true, setter: true })],
+        }),
+      ],
+      typeLibrary: {},
+    };
+    const outputTargets: d.OutputTargetDocsCustomElementsManifest[] = [
+      { type: 'docs-custom-elements-manifest', file: '/output/custom-elements.json' },
+    ];
+
+    await generateCustomElementsManifestDocs(compilerCtx, docsData, outputTargets);
+
+    const writtenContent = JSON.parse(writeFileSpy.mock.calls[0][1]);
+    const field = writtenContent.modules[0].declarations[0].members.find(
+      (m: any) => m.kind === 'field',
+    );
+    expect(field.name).toBe('validatedProp');
+    expect(field.readonly).toBeUndefined();
   });
 
   it('includes methods', async () => {
@@ -615,6 +669,28 @@ function createMockComponent(overrides: Partial<d.JsonDocsComponent> = {}): d.Js
     parts: [],
     customStates: [],
     listeners: [],
+    ...overrides,
+  };
+}
+
+/**
+ * Helper to create a mock JsonDocsProp with sensible defaults
+ * @param overrides the fields to override on the generated prop
+ * @returns a mock JsonDocsProp
+ */
+function createMockProp(overrides: Partial<d.JsonDocsProp> = {}): d.JsonDocsProp {
+  return {
+    name: 'myProp',
+    type: 'string',
+    mutable: false,
+    reflectToAttr: false,
+    docs: '',
+    docsTags: [],
+    values: [],
+    optional: false,
+    required: false,
+    getter: false,
+    setter: false,
     ...overrides,
   };
 }
