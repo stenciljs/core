@@ -430,9 +430,12 @@ export const proxyComponent = (
           const isSpuriousBooleanRemoval = isBooleanTarget && newValue === null && this[propName] === undefined;
 
           // special handling of boolean attributes. Null (removal) means false.
-          // everything else means true (including an empty string
+          // everything else means true (including an empty string).
+          // Non form-associated components also treat the string "false" as false; form-associated
+          // components follow the HTML spec, where any present attribute is true (see `parsePropertyValue()`)
           if (isBooleanTarget) {
-            (newValue as any) = newValue === null || newValue === 'false' ? false : true;
+            const isFormAssociated = BUILD.formAssociated && !!(cmpMeta.$flags$ & CMP_FLAGS.formAssociated);
+            (newValue as any) = newValue === null || (newValue === 'false' && !isFormAssociated) ? false : true;
           }
 
           // A lazy getter/setter Prop's element-side read (`this[propName]`) goes through to the
