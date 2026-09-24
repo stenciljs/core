@@ -21,26 +21,20 @@ jobs:
       id-token: write
     steps:
       - name: Checkout Code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Get Core Dependencies
         uses: ./.github/workflows/actions/get-core-dependencies
 
-      - name: Download Build Archive
-        uses: ./.github/workflows/actions/download-archive
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: stencil-core
-          path: .
-          filename: stencil-core-build.zip
-
-      - name: Install test/end-to-end Dependencies
-        run: npm ci
-        working-directory: test/end-to-end
-        shell: bash
+          name: stencil-build
+          path: packages/
 
       - name: Clear Compile Cache
         run: rm -rf .stencil
-        working-directory: test/end-to-end
+        working-directory: test/integration/e2e
         shell: bash
 
       - name: Write CodSpeed Benchmark Config
@@ -48,21 +42,21 @@ jobs:
           cat > codspeed.yml <<'EOF'
           benchmarks:
             - name: Compile Time (cold)
-              exec: node ${{ github.workspace }}/bin/stencil build --config ${{ github.workspace }}/test/end-to-end/stencil.build.config.ts
+              exec: node ${{ github.workspace }}/packages/core/bin/stencil.mjs build --config ${{ github.workspace }}/test/integration/e2e/stencil.build.config.ts
               options:
                 warmup-time: 0s
                 min-rounds: 1
                 max-rounds: 1
                 max-time: 180s
           EOF
-        working-directory: test/end-to-end
+        working-directory: test/integration/e2e
         shell: bash
 
       - name: Run Cold Build Benchmark
         uses: CodSpeedHQ/action@4296e51e7041e24dadb86d1d6e8b9320d223dbe8 # v5.0.3
         with:
           mode: walltime
-          config: ${{ github.workspace }}/test/end-to-end/codspeed.yml
+          config: ${{ github.workspace }}/test/integration/e2e/codspeed.yml
 
   perf_build_warm:
     name: Compile Time (warm)
@@ -73,28 +67,22 @@ jobs:
       id-token: write
     steps:
       - name: Checkout Code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Get Core Dependencies
         uses: ./.github/workflows/actions/get-core-dependencies
 
-      - name: Download Build Archive
-        uses: ./.github/workflows/actions/download-archive
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: stencil-core
-          path: .
-          filename: stencil-core-build.zip
-
-      - name: Install test/end-to-end Dependencies
-        run: npm ci
-        working-directory: test/end-to-end
-        shell: bash
+          name: stencil-build
+          path: packages/
 
       - name: Warm Compile Cache
         run: |
           rm -rf .stencil
-          node ../../bin/stencil build --config ./stencil.build.config.ts
-        working-directory: test/end-to-end
+          node ${{ github.workspace }}/packages/core/bin/stencil.mjs build --config ./stencil.build.config.ts
+        working-directory: test/integration/e2e
         shell: bash
 
       - name: Write CodSpeed Benchmark Config
@@ -102,18 +90,18 @@ jobs:
           cat > codspeed.yml <<'EOF'
           benchmarks:
             - name: Compile Time (warm)
-              exec: node ${{ github.workspace }}/bin/stencil build --config ${{ github.workspace }}/test/end-to-end/stencil.build.config.ts
+              exec: node ${{ github.workspace }}/packages/core/bin/stencil.mjs build --config ${{ github.workspace }}/test/integration/e2e/stencil.build.config.ts
               options:
                 warmup-time: 0s
                 min-rounds: 2
                 max-rounds: 2
                 max-time: 180s
           EOF
-        working-directory: test/end-to-end
+        working-directory: test/integration/e2e
         shell: bash
 
       - name: Run Warm Build Benchmark
         uses: CodSpeedHQ/action@4296e51e7041e24dadb86d1d6e8b9320d223dbe8 # v5.0.3
         with:
           mode: walltime
-          config: ${{ github.workspace }}/test/end-to-end/codspeed.yml
+          config: ${{ github.workspace }}/test/integration/e2e/codspeed.yml

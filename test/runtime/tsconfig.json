@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.stencil.json",
+  "compilerOptions": {
+    "outDir": "./dist"
+  },
+  "exclude": ["node_modules"]
+}

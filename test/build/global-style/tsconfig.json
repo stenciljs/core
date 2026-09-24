@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "strictPropertyInitialization": false,
+    "allowSyntheticDefaultImports": true,
+    "allowUnreachableCode": false,
+    "declaration": false,
+    "experimentalDecorators": true,
+    "lib": ["dom", "es2017"],
+    "moduleResolution": "bundler",
+    "module": "esnext",
+    "rootDir": "./",
+    "target": "es2017",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "@stencil/core"
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}
