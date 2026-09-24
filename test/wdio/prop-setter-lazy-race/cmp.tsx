@@ -15,6 +15,21 @@ export class PropSetterLazyRace {
     this._isReadonly = !!newValue;
   }
 
+  private _count = 0;
+  @Prop()
+  get count() {
+    return this._count;
+  }
+  set count(newValue: number) {
+    this._count = newValue;
+  }
+
+  @Prop({ mutable: true }) connectedSnapshot = '';
+
+  connectedCallback() {
+    this.connectedSnapshot = `${this.isReadonly}-${this.count}`;
+  }
+
   render() {
     return `${this.isReadonly}-${this.plainReadonly}`;
   }
