@@ -147,7 +147,7 @@ function parseFormAssociatedFromDecorator(decorator: ts.Decorator | undefined): 
 function parseCustomStatesFromDecorator(
   decorator: ts.Decorator | undefined,
   typeChecker: ts.TypeChecker,
-): d.ComponentCompilerCustomState[] {
+): d.JsonDocsCustomState[] {
   if (!decorator || !ts.isCallExpression(decorator.expression)) {
     return [];
   }
@@ -167,7 +167,7 @@ function parseCustomStatesFromDecorator(
     return [];
   }
 
-  const customStates: d.ComponentCompilerCustomState[] = [];
+  const customStates: d.JsonDocsCustomState[] = [];
 
   // Iterate through each property in the states object
   for (const prop of statesProp.initializer.properties) {

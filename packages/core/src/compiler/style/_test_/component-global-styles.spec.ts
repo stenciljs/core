@@ -5,11 +5,14 @@ import { mockValidatedConfig } from '../../../testing';
 import { mockBuildCtx, mockCompilerCtx } from '../../../testing/compiler';
 import {
   collectAndBuildComponentGlobalStyles,
+  collectCssOnlyComponentStyles,
   generateHydrateCss,
+  hasStencilCssComponentsImport,
   hasStencilGlobalsImport,
   hasStencilHydrateImport,
+  replaceStencilHydrateImport,
+  resolveStencilCssComponentsImport,
   resolveStencilGlobalsImport,
-  resolveStencilHydrateImport,
 } from '../component-global-styles';
 
 describe('component-global-styles', () => {
@@ -208,11 +211,100 @@ describe('component-global-styles', () => {
     });
   });
 
+  describe('hasStencilCssComponentsImport', () => {
+    it('detects double-quote import', () => {
+      expect(hasStencilCssComponentsImport(`@import "stencil-css-components";`)).toBe(true);
+    });
+
+    it('detects single-quote import', () => {
+      expect(hasStencilCssComponentsImport(`@import 'stencil-css-components';`)).toBe(true);
+    });
+
+    it('returns false when not present', () => {
+      expect(hasStencilCssComponentsImport(`:root { color: red; }`)).toBe(false);
+    });
+  });
+
+  describe('collectCssOnlyComponentStyles', () => {
+    it('returns empty string when there are no CSS-only components', async () => {
+      buildCtx.cssOnlyComponents = [];
+      const result = await collectCssOnlyComponentStyles(config, compilerCtx, buildCtx);
+      expect(result).toBe('');
+    });
+
+    it('reads each distinct source file once, deduping when multiple components share a file', async () => {
+      buildCtx.cssOnlyComponents = [
+        mockCmp({ tagName: 'my-badge', sourceFilePath: '/src/badges.css' }),
+        mockCmp({ tagName: 'my-badge-group', sourceFilePath: '/src/badges.css' }),
+      ];
+      const readFile = vi
+        .spyOn(compilerCtx.fs, 'readFile')
+        .mockResolvedValue('my-badge { color: red; }');
+      const result = await collectCssOnlyComponentStyles(config, compilerCtx, buildCtx);
+      expect(result).toContain('my-badge');
+      expect(result).toContain('color');
+      expect(readFile).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('resolveStencilCssComponentsImport', () => {
+    it('replaces the import with the collected CSS-only component styles', async () => {
+      buildCtx.cssOnlyComponents = [
+        mockCmp({ tagName: 'my-badge', sourceFilePath: '/src/my-badge.css' }),
+      ];
+      vi.spyOn(compilerCtx.fs, 'readFile').mockResolvedValue('my-badge { color: red; }');
+
+      const result = await resolveStencilCssComponentsImport(
+        `@import "stencil-css-components";`,
+        config,
+        compilerCtx,
+        buildCtx,
+        '/src/global.css',
+      );
+      expect(result).not.toContain('@import "stencil-css-components"');
+      expect(result).toContain('my-badge');
+      expect(result).toContain('color: red');
+    });
+
+    it('registers CSS-only component source files in cssModuleImports', async () => {
+      buildCtx.cssOnlyComponents = [
+        mockCmp({ tagName: 'my-badge', sourceFilePath: '/src/my-badge.css' }),
+      ];
+      vi.spyOn(compilerCtx.fs, 'readFile').mockResolvedValue('my-badge {}');
+
+      await resolveStencilCssComponentsImport(
+        `@import "stencil-css-components";`,
+        config,
+        compilerCtx,
+        buildCtx,
+        '/src/global.css',
+      );
+
+      const imports = compilerCtx.cssModuleImports.get('/src/global.css');
+      expect(imports).toContain('/src/my-badge.css');
+    });
+  });
+
   describe('generateHydrateCss', () => {
     it('returns empty string when hydratedFlag is null', () => {
       config.hydratedFlag = null;
       buildCtx.components = [mockCmp({ tagName: 'my-cmp' })];
       expect(generateHydrateCss(config, buildCtx)).toBe('');
+    });
+
+    it('excludes CSS-only components from the hydrate/FOUC selector list', () => {
+      config.hydratedFlag = {
+        selector: 'class',
+        name: 'hydrated',
+        property: 'visibility',
+        initialValue: 'hidden',
+        hydratedValue: 'inherit',
+      };
+      buildCtx.components = [mockCmp({ tagName: 'my-cmp' })];
+      buildCtx.cssOnlyComponents = [mockCmp({ tagName: 'my-badge' })];
+      const result = generateHydrateCss(config, buildCtx);
+      expect(result).toContain('my-cmp');
+      expect(result).not.toContain('my-badge');
     });
 
     it('returns empty string when there are no components', () => {
@@ -264,7 +356,7 @@ describe('component-global-styles', () => {
     });
   });
 
-  describe('resolveStencilHydrateImport', () => {
+  describe('replaceStencilHydrateImport', () => {
     it('replaces @import "stencil-hydrate" with FOUC css', () => {
       config.hydratedFlag = {
         selector: 'class',
@@ -275,7 +367,7 @@ describe('component-global-styles', () => {
       };
       buildCtx.components = [mockCmp({ tagName: 'my-cmp' })];
       const css = `:root {}\n@import "stencil-hydrate";\nbody {}`;
-      const result = resolveStencilHydrateImport(css, config, buildCtx);
+      const result = replaceStencilHydrateImport(css, generateHydrateCss(config, buildCtx));
       expect(result).not.toContain('@import "stencil-hydrate"');
       expect(result).toContain('my-cmp{visibility:hidden}.hydrated{visibility:inherit}');
       expect(result).toContain(':root {}');
@@ -292,7 +384,7 @@ describe('component-global-styles', () => {
       };
       buildCtx.components = [mockCmp({ tagName: 'my-cmp' })];
       const css = `@import "stencil-hydrate";\nbody {}\n@import "stencil-hydrate";`;
-      const result = resolveStencilHydrateImport(css, config, buildCtx);
+      const result = replaceStencilHydrateImport(css, generateHydrateCss(config, buildCtx));
       expect((result.match(/@import "stencil-hydrate"/g) ?? []).length).toBe(0);
     });
 
@@ -300,7 +392,7 @@ describe('component-global-styles', () => {
       config.hydratedFlag = null;
       buildCtx.components = [mockCmp({ tagName: 'my-cmp' })];
       const css = `body {}\n@import "stencil-hydrate";`;
-      const result = resolveStencilHydrateImport(css, config, buildCtx);
+      const result = replaceStencilHydrateImport(css, generateHydrateCss(config, buildCtx));
       expect(result).not.toContain('@import "stencil-hydrate"');
       expect(result).toContain('body {}');
     });
@@ -315,7 +407,7 @@ describe('component-global-styles', () => {
       };
       buildCtx.components = [mockCmp({ tagName: 'my-cmp' })];
       const css = `@import "stencil-hydrate" layer(init);`;
-      const result = resolveStencilHydrateImport(css, config, buildCtx);
+      const result = replaceStencilHydrateImport(css, generateHydrateCss(config, buildCtx));
       expect(result).not.toContain('@import');
       expect(result).toBe(
         '@layer init {\nmy-cmp{visibility:hidden}.hydrated{visibility:inherit}\n}',

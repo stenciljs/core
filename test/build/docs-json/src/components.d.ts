@@ -14,6 +14,16 @@ export namespace Components {
          */
         "onDidDismiss": <T>(arg: T) => Promise<ImportedInterface<T>>;
     }
+    /**
+     * A CSS-only badge - no JS class, no shadow DOM, never registered via `customElements.define()`. Verifies docs-json/CEM output for this kind of component.
+     */
+    interface CssOnlyBadge {
+        /**
+          * Whether the badge can be dismissed.
+         */
+        "dismissible"?: boolean;
+        "variant"?: "danger" | "warning" | (string & {});
+    }
 }
 declare global {
     interface HTMLMyComponentElement extends Components.MyComponent, HTMLStencilElement {
@@ -22,15 +32,42 @@ declare global {
         prototype: HTMLMyComponentElement;
         new (): HTMLMyComponentElement;
     };
+    /**
+     * A CSS-only badge - no JS class, no shadow DOM, never registered via `customElements.define()`. Verifies docs-json/CEM output for this kind of component.
+     */
+    interface HTMLCssOnlyBadgeElement extends Components.CssOnlyBadge, HTMLStencilElement {
+    }
+    var HTMLCssOnlyBadgeElement: {
+        prototype: HTMLCssOnlyBadgeElement;
+        new (): HTMLCssOnlyBadgeElement;
+    };
     interface HTMLElementTagNameMap {
         "my-component": HTMLMyComponentElement;
+        "css-only-badge": HTMLCssOnlyBadgeElement;
     }
 }
 declare namespace LocalJSX {
     interface MyComponent {
     }
+    /**
+     * A CSS-only badge - no JS class, no shadow DOM, never registered via `customElements.define()`. Verifies docs-json/CEM output for this kind of component.
+     */
+    interface CssOnlyBadge {
+        /**
+          * Whether the badge can be dismissed.
+         */
+        "dismissible"?: boolean;
+        "variant"?: "danger" | "warning" | (string & {});
+    }
+
+    interface CssOnlyBadgeAttributes {
+        "dismissible": boolean;
+        "variant": string;
+    }
+
     interface IntrinsicElements {
         "my-component": MyComponent;
+        "css-only-badge": Omit<CssOnlyBadge, keyof CssOnlyBadgeAttributes> & { [K in keyof CssOnlyBadge & keyof CssOnlyBadgeAttributes]?: CssOnlyBadge[K] } & { [K in keyof CssOnlyBadge & keyof CssOnlyBadgeAttributes as `attr:${K}`]?: CssOnlyBadgeAttributes[K] } & { [K in keyof CssOnlyBadge & keyof CssOnlyBadgeAttributes as `prop:${K}`]?: CssOnlyBadge[K] };
     }
 }
 export { LocalJSX as JSX };
@@ -38,6 +75,10 @@ declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
             "my-component": LocalJSX.IntrinsicElements["my-component"] & JSXBase.HTMLAttributes<HTMLMyComponentElement>;
+            /**
+             * A CSS-only badge - no JS class, no shadow DOM, never registered via `customElements.define()`. Verifies docs-json/CEM output for this kind of component.
+             */
+            "css-only-badge": LocalJSX.IntrinsicElements["css-only-badge"] & JSXBase.HTMLAttributes<HTMLCssOnlyBadgeElement>;
         }
     }
 }

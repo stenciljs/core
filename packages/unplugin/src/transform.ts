@@ -23,6 +23,7 @@ import { cmpMetaToDocsComponent, transpileSync } from '@stencil/core/compiler';
 import type { BuildOverrides, JsonDocsComponent } from '@stencil/core/compiler';
 import type { SupportedFramework } from 'unplugin';
 
+import { collectStyleDocsForComponent } from './css.js';
 import type { StencilPluginOptions } from './options.js';
 
 const SOURCE_EXTS = ['.tsx', '.ts', '.js'];
@@ -127,7 +128,7 @@ export function resolveSpecifier(specifier: string, importer: string): string | 
  * @param configOverrides - pass stencil config option overrides to the transpiler
  * @returns transformed output, or `null` if the file is not a Stencil file
  */
-export function transformStencil(
+export async function transformStencil(
   code: string,
   id: string,
   options: StencilPluginOptions,
@@ -135,12 +136,12 @@ export function transformStencil(
   framework: SupportedFramework | '' = '',
   onBaseClass?: (absPath: string, rawCode: string) => void,
   configOverrides?: BuildOverrides,
-): {
+): Promise<{
   code: string;
   map: string | null;
   tagName: string;
   docsComponent: JsonDocsComponent | null;
-} | null {
+} | null> {
   if (!id.endsWith('.tsx') && !id.endsWith('.ts')) return null;
   if (id.endsWith('.d.ts')) return null;
 
@@ -205,6 +206,7 @@ export function transformStencil(
       : result.code + namedExport;
   }
 
+  if (options.docs) await collectStyleDocsForComponent(result.data[0], id);
   const docsComponent = cmpMetaToDocsComponent(result.data[0], id);
 
   return { code: out, map: result.map ?? null, tagName, docsComponent };

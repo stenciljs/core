@@ -90,7 +90,10 @@ const generateComponentTypesFile = (
   let typeImportData: d.TypesImportData = {};
   const c: string[] = [];
   const allTypes = new Map<string, number>();
-  const components = buildCtx.components.filter((m) => !m.isCollectionDependency);
+  const components = [
+    ...buildCtx.components.filter((m) => !m.isCollectionDependency),
+    ...buildCtx.cssOnlyComponents,
+  ];
   const componentEventDetailTypes: d.TypesModule[] = [];
 
   const modules: d.TypesModule[] = components.map((cmp) => {

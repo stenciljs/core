@@ -2,14 +2,7 @@ import { basename } from 'path';
 import { PluginCtx, PluginTransformResults } from '@stencil/core';
 import type * as d from '@stencil/core';
 
-import {
-  buildError,
-  catchError,
-  isFunction,
-  isOutputTargetDocs,
-  isString,
-  relative,
-} from '../../utils';
+import { buildError, catchError, isFunction, isString, relative } from '../../utils';
 import { isStencilPlugin } from '../config/validate-plugins';
 import { parseCssImports } from '../style/css-imports';
 
@@ -84,7 +77,6 @@ export const runPluginTransforms = async (
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   id: string,
-  cmp?: d.ComponentCompilerMeta,
 ): Promise<PluginTransformResults | null> => {
   const pluginCtx: PluginCtx = {
     config: config,
@@ -110,37 +102,21 @@ export const runPluginTransforms = async (
   } satisfies PluginTransformResults;
 
   const isRawCssFile = transformResults.id.toLowerCase().endsWith('.css');
-  const shouldParseCssDocs = cmp != null && config.outputTargets.some(isOutputTargetDocs);
 
   if (isRawCssFile) {
     // concat all css @imports into one file
     // when the entry file is a .css file (not .scss)
     // do this BEFORE transformations on css files
-    if (shouldParseCssDocs && cmp != null) {
-      cmp.styleDocs = cmp.styleDocs || [];
-      const cssParseResults = await parseCssImports(
-        config,
-        compilerCtx,
-        buildCtx,
-        id,
-        id,
-        transformResults.code,
-        cmp.styleDocs,
-      );
-      transformResults.code = cssParseResults.styleText;
-      transformResults.dependencies = cssParseResults.imports;
-    } else {
-      const cssParseResults = await parseCssImports(
-        config,
-        compilerCtx,
-        buildCtx,
-        id,
-        id,
-        transformResults.code,
-      );
-      transformResults.code = cssParseResults.styleText;
-      transformResults.dependencies = cssParseResults.imports;
-    }
+    const cssParseResults = await parseCssImports(
+      config,
+      compilerCtx,
+      buildCtx,
+      id,
+      id,
+      transformResults.code,
+    );
+    transformResults.code = cssParseResults.styleText;
+    transformResults.dependencies = cssParseResults.imports;
   }
 
   for (const plugin of (pluginCtx.config?.plugins ?? []).filter(isStencilPlugin)) {
@@ -193,35 +169,18 @@ export const runPluginTransforms = async (
     // but only updated it to use url() instead. Let's go ahead and concat the url() css
     // files into one file like we did for raw .css files.
     // do this AFTER transformations on non-css files
-    if (shouldParseCssDocs && cmp != null) {
-      cmp.styleDocs = cmp.styleDocs || [];
-      const cssParseResults = await parseCssImports(
-        config,
-        compilerCtx,
-        buildCtx,
-        id,
-        transformResults.id,
-        transformResults.code,
-        cmp.styleDocs,
-      );
-      transformResults.code = cssParseResults.styleText;
-      transformResults.dependencies.push(
-        ...getDependencySubset(cssParseResults.imports, transformResults.dependencies),
-      );
-    } else {
-      const cssParseResults = await parseCssImports(
-        config,
-        compilerCtx,
-        buildCtx,
-        id,
-        transformResults.id,
-        transformResults.code,
-      );
-      transformResults.code = cssParseResults.styleText;
-      transformResults.dependencies.push(
-        ...getDependencySubset(cssParseResults.imports, transformResults.dependencies),
-      );
-    }
+    const cssParseResults = await parseCssImports(
+      config,
+      compilerCtx,
+      buildCtx,
+      id,
+      transformResults.id,
+      transformResults.code,
+    );
+    transformResults.code = cssParseResults.styleText;
+    transformResults.dependencies.push(
+      ...getDependencySubset(cssParseResults.imports, transformResults.dependencies),
+    );
   }
 
   return transformResults;

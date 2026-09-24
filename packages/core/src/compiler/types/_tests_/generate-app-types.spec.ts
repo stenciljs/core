@@ -688,4 +688,39 @@ describe('generateAppTypes', () => {
       expect(mockWriteFile.mock.calls[0][1]).toMatchSnapshot();
     });
   });
+
+  describe('CSS-only components', () => {
+    it('includes a CSS-only component alongside a real component in the generated JSX types', async () => {
+      buildCtx.components = [
+        stubComponentCompilerMeta({ tagName: 'my-real-cmp', componentClassName: 'MyRealCmp' }),
+      ];
+      buildCtx.cssOnlyComponents = [
+        stubComponentCompilerMeta({
+          tagName: 'my-badge',
+          componentClassName: '',
+          sourceFilePath: '/src/my-badge.css',
+          properties: [
+            stubComponentCompilerProperty({
+              name: 'variant',
+              attribute: 'variant',
+              type: 'any',
+              complexType: {
+                original: '"danger" | (string & {})',
+                resolved: '"danger" | (string & {})',
+                references: {},
+              },
+            }),
+          ],
+        }),
+      ];
+
+      await generateAppTypes(config, compilerCtx, buildCtx, 'src');
+
+      const output = mockWriteFile.mock.calls[0][1] as string;
+      expect(output).toContain('my-real-cmp');
+      expect(output).toContain('my-badge');
+      expect(output).toContain('variant');
+      expect(output).toContain('"danger" | (string & {})');
+    });
+  });
 });

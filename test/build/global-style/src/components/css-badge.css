@@ -1,0 +1,14 @@
+/**
+ * @component
+ * A CSS-only badge, used to verify `@import "stencil-css-components"` end-to-end
+ * alongside the existing `@import "stencil-globals"`/`@import "stencil-hydrate"` coverage
+ * in this fixture.
+ */
+css-badge {
+  display: inline-block;
+  padding: 2px 6px;
+}
+
+css-badge[variant='danger'] {
+  background: red;
+}

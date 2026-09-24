@@ -4,7 +4,6 @@
  * DO NOT MODIFY IT MANUALLY
  */
 import "rolldown";
-import "@stencil/core";
 import "typescript";
 //#region src/declarations/stencil-private.d.ts
 /**
@@ -270,6 +269,11 @@ interface JsonDocsComponent {
    * A deprecation reason/description found following a `@deprecated` tag
    */
   deprecation?: string;
+  /**
+   * `true` if this is a "CSS-only component"
+   * discovered in .css file via `@component`-marked JSDoc block
+   */
+  cssOnly?: boolean;
 }
 interface JsonDocsDependencyGraph {
   [tagName: string]: string[];
@@ -430,6 +434,16 @@ interface JsonDocsStyle {
    */
   annotation: string;
   /**
+   * The CSS `syntax` descriptor for a custom property, if it was registered via a native
+   * `@property` at-rule (e.g. `"<length>"`).
+   */
+  syntax?: string;
+  /**
+   * The `initial-value` descriptor for a custom property, if it was registered via a native
+   * `@property` at-rule.
+   */
+  default?: string;
+  /**
    * The mode associated with the style
    */
   mode: string | undefined;
@@ -515,6 +529,14 @@ interface StyleDoc {
    * The Stencil style-mode that is associated with this property.
    */
   mode: string | undefined;
+  /**
+   * The CSS `syntax` descriptor, if this property was registered via a native `@property` at-rule.
+   */
+  syntax?: string;
+  /**
+   * The `initial-value` descriptor, if this property was registered via a native `@property` at-rule.
+   */
+  default?: string;
 }
 //#endregion
 export { JsonDocMethodParameter, JsonDocs, JsonDocsComponent, JsonDocsCustomState, JsonDocsDependencyGraph, JsonDocsEvent, JsonDocsListener, JsonDocsMethod, JsonDocsMethodReturn, JsonDocsPart, JsonDocsProp, JsonDocsSlot, JsonDocsStyle, JsonDocsTag, JsonDocsTypeLibrary, JsonDocsUsage, JsonDocsValue, StyleDoc };

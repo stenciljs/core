@@ -4,6 +4,7 @@ import * as p from '@clack/prompts';
 import { normalizePath, validateComponentTag } from '@stencil/core/compiler/utils';
 import {
   getComponentBoilerplate,
+  getCssOnlyComponentBoilerplate,
   getPreviewHtmlBoilerplate,
   getStyleBoilerplate,
   getUsageExampleBoilerplate,
@@ -71,20 +72,54 @@ export const taskGenerate = async (config: ValidatedConfig, flags: ConfigFlags):
     return config.sys.exit(1);
   }
 
+  // component type: a real `@Component` class, or a pure-CSS tag definition with no JS
+  const componentType = await p.select<string>({
+    message: 'Component type:',
+    options: [
+      { value: 'component', label: 'Component', hint: '@Component decorator, TSX' },
+      {
+        value: 'css-only',
+        label: 'CSS-only component',
+        hint: 'pure CSS, no JS class or runtime',
+      },
+    ],
+  });
+  cancelIfAborted(componentType);
+  const isCssOnly = componentType === 'css-only';
+
+  if (isCssOnly && config.enableCssOnlyComponents === false) {
+    p.note(
+      '`enableCssOnlyComponents` is disabled in your stencil.config - this component will not be discovered until it is re-enabled.',
+      'Warning',
+    );
+  }
+
   // style format: CSS always available; plugins can contribute additional extensions
   const pluginStyleExts = [...new Set(generateContribs.flatMap((c) => c.styleExtensions ?? []))];
-  const styleOptions = [
+  const styleExtOptions = [
     { value: 'css', label: 'CSS (.css)' },
     ...pluginStyleExts.map((ext) => ({ value: ext, label: `${ext.toUpperCase()} (.${ext})` })),
-    { value: '', label: 'None' },
   ];
 
-  const stylePick = await p.select<string>({
-    message: 'Stylesheet format:',
-    options: styleOptions,
-  });
-  cancelIfAborted(stylePick);
-  const styleExtension = stylePick || undefined; // empty string → no stylesheet
+  let styleExtension: string | undefined;
+  let cssOnlyExtension = 'css';
+  if (isCssOnly) {
+    // a CSS-only component's tag definition IS its stylesheet, so unlike a real component
+    // there's no "None" option here
+    const stylePick = await p.select<string>({
+      message: 'Stylesheet format:',
+      options: styleExtOptions,
+    });
+    cancelIfAborted(stylePick);
+    cssOnlyExtension = stylePick;
+  } else {
+    const stylePick = await p.select<string>({
+      message: 'Stylesheet format:',
+      options: [...styleExtOptions, { value: '', label: 'None' }],
+    });
+    cancelIfAborted(stylePick);
+    styleExtension = stylePick || undefined; // empty string → no stylesheet
+  }
 
   // demo: either a usage/example.md (picked up by docs + dev server preview) or a
   // component-scoped index.html (opts out of the dev server's auto-generated preview)
@@ -139,16 +174,23 @@ export const taskGenerate = async (config: ValidatedConfig, flags: ConfigFlags):
 
   const filesToWrite: FileToWrite[] = [];
 
-  filesToWrite.push({
-    absPath: normalizePath(join(outDir, `${componentName}.tsx`)),
-    content: getComponentBoilerplate(componentName, styleExtension),
-  });
-
-  if (styleExtension) {
+  if (isCssOnly) {
     filesToWrite.push({
-      absPath: normalizePath(join(outDir, `${componentName}.${styleExtension}`)),
-      content: getStyleBoilerplate(styleExtension),
+      absPath: normalizePath(join(outDir, `${componentName}.${cssOnlyExtension}`)),
+      content: getCssOnlyComponentBoilerplate(componentName, cssOnlyExtension),
     });
+  } else {
+    filesToWrite.push({
+      absPath: normalizePath(join(outDir, `${componentName}.tsx`)),
+      content: getComponentBoilerplate(componentName, styleExtension),
+    });
+
+    if (styleExtension) {
+      filesToWrite.push({
+        absPath: normalizePath(join(outDir, `${componentName}.${styleExtension}`)),
+        content: getStyleBoilerplate(styleExtension),
+      });
+    }
   }
 
   for (const ext of pickedExtensions) {

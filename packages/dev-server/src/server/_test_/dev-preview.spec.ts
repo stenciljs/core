@@ -4,7 +4,10 @@ import { describe, expect, it } from 'vitest';
 import { generateDevPreview } from '../dev-preview';
 import type { CompilerBuildResults } from '../types';
 
-const mockBuildResults = (components: CompilerBuildResults['components']): CompilerBuildResults =>
+const mockBuildResults = (
+  components: CompilerBuildResults['components'],
+  overrides: Partial<CompilerBuildResults> = {},
+): CompilerBuildResults =>
   ({
     buildId: 0,
     components,
@@ -22,9 +25,11 @@ const mockBuildResults = (components: CompilerBuildResults['components']): Compi
     namespace: 'TestApp',
     fsNamespace: 'testapp',
     outputs: [],
+    globalStyleFiles: [],
     rootDir: '/',
     srcDir: '/src',
     timestamp: '',
+    ...overrides,
   }) as unknown as CompilerBuildResults;
 
 describe('generateDevPreview', () => {
@@ -57,5 +62,20 @@ describe('generateDevPreview', () => {
 
     expect(html).toContain('usage/*.md');
     expect(html).toContain('<my-cmp></my-cmp>');
+  });
+
+  it('links global stylesheets in declaration order, not alphabetically', () => {
+    const component = mockComponentMeta({ tagName: 'my-cmp' });
+    const buildResults = mockBuildResults([component], {
+      globalStyleFiles: ['/dist/assets/z.css', '/dist/assets/a.css'],
+    });
+
+    const html = generateDevPreview(buildResults);
+    const zIndex = html.indexOf('z.css');
+    const aIndex = html.indexOf('a.css');
+
+    expect(zIndex).toBeGreaterThan(-1);
+    expect(aIndex).toBeGreaterThan(-1);
+    expect(zIndex).toBeLessThan(aIndex);
   });
 });

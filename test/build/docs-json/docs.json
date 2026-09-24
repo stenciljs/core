@@ -1,10 +1,128 @@
 {
   "components": [
     {
+      "filePath": "src/components/css-only-badge/css-only-badge.css",
+      "encapsulation": "none",
+      "tag": "css-only-badge",
+      "docs": "A CSS-only badge - no JS class, no shadow DOM, never registered via `customElements.define()`. Verifies docs-json/CEM output for this kind of component.",
+      "docsTags": [
+        {
+          "name": "slot",
+          "text": " - The badge's label."
+        },
+        {
+          "name": "slot",
+          "text": "icon-start - Content shown before the label - gazumps the inline comment below."
+        },
+        {
+          "name": "slot",
+          "text": "icon-end - Content shown after the label."
+        }
+      ],
+      "usage": {},
+      "props": [
+        {
+          "name": "dismissible",
+          "type": "boolean",
+          "complexType": {
+            "original": "boolean",
+            "resolved": "boolean",
+            "references": {}
+          },
+          "mutable": false,
+          "attr": "dismissible",
+          "reflectToAttr": false,
+          "docs": "Whether the badge can be dismissed.",
+          "docsTags": [],
+          "values": [
+            {
+              "type": "boolean"
+            }
+          ],
+          "optional": true,
+          "required": false,
+          "getter": false,
+          "setter": false
+        },
+        {
+          "name": "variant",
+          "type": "\"danger\" | \"warning\" | (string & {})",
+          "complexType": {
+            "original": "\"danger\" | \"warning\" | (string & {})",
+            "resolved": "\"danger\" | \"warning\" | (string & {})",
+            "references": {}
+          },
+          "mutable": false,
+          "attr": "variant",
+          "reflectToAttr": false,
+          "docs": "",
+          "docsTags": [],
+          "values": [
+            {
+              "value": "danger",
+              "type": "string"
+            },
+            {
+              "value": "warning",
+              "type": "string"
+            },
+            {
+              "type": "(string & {})"
+            }
+          ],
+          "optional": true,
+          "required": false,
+          "getter": false,
+          "setter": false
+        }
+      ],
+      "methods": [],
+      "events": [],
+      "listeners": [],
+      "styles": [
+        {
+          "name": "--badge-color",
+          "annotation": "prop",
+          "docs": "The badge's text color."
+        },
+        {
+          "name": "--badge-padding",
+          "annotation": "prop",
+          "docs": "Inner spacing."
+        },
+        {
+          "name": "--badge-radius",
+          "annotation": "prop",
+          "docs": "Corner radius.",
+          "syntax": "<length>",
+          "default": "4px"
+        }
+      ],
+      "slots": [
+        {
+          "name": "",
+          "docs": "The badge's label."
+        },
+        {
+          "name": "icon-end",
+          "docs": "Content shown after the label."
+        },
+        {
+          "name": "icon-start",
+          "docs": "Content shown before the label - gazumps the inline comment below."
+        }
+      ],
+      "parts": [],
+      "states": [],
+      "dependents": [],
+      "dependencies": [],
+      "dependencyGraph": {},
+      "cssOnly": true
+    },
+    {
       "filePath": "src/components/my-component/my-component.tsx",
       "encapsulation": "shadow",
       "tag": "my-component",
-      "readme": "# my-component\n\n\n",
       "docs": "",
       "docsTags": [],
       "usage": {},

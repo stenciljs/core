@@ -345,7 +345,7 @@ const parseVirtualProps = (docs: d.CompilerJsDoc) => {
     .filter((prop) => !!prop);
 };
 
-const parseVirtualProp = (tag: d.CompilerJsDocTagInfo): d.ComponentCompilerVirtualProperty => {
+const parseVirtualProp = (tag: d.JsonDocsTag): d.ComponentCompilerVirtualProperty => {
   const results = /^\s*(?:\{([^}]+)\}\s+)?(\w+)\s+-\s+(.*)$/.exec(tag.text);
   if (!results) {
     return undefined;

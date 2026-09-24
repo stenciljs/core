@@ -57,6 +57,7 @@ export class CompilerContext implements d.CompilerCtx {
    */
   prevStylesMap = new Map<string, string>();
   globalStyleCache = new Map<string, string>();
+  cssOnlyComponentsCache = new Map<string, d.ComponentCompilerMeta[]>();
   styleModeNames = new Set<string>();
   worker: d.CompilerWorkerContext = null;
 
@@ -64,6 +65,7 @@ export class CompilerContext implements d.CompilerCtx {
     this.cache.clear();
     this.cssModuleImports.clear();
     this.globalStyleCache.clear();
+    this.cssOnlyComponentsCache.clear();
     this.collections.length = 0;
     this.compilerOptions = null;
     this.hasSuccessfulBuild = false;

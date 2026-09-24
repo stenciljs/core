@@ -190,6 +190,7 @@ export const getTranspileCssConfig = (
     autoprefixer: false,
     module: compileOpts.module,
     styleImportData: compileOpts.styleImportData,
+    docs: compileOpts.docs === true,
   };
   return transformInput;
 };

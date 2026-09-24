@@ -18,10 +18,14 @@ import type {
   OutputTarget,
   OutputTargetWww,
   PrerenderConfig,
-  StyleDoc,
   ValidatedConfig,
 } from './stencil-public-compiler';
-import type { JsonDocMethodParameter } from './stencil-public-docs';
+import type {
+  JsonDocMethodParameter,
+  JsonDocsCustomState,
+  JsonDocsTag,
+  StyleDoc,
+} from './stencil-public-docs';
 import type {
   ComponentInterface,
   ComponentShouldUpdateChanges,
@@ -242,6 +246,7 @@ export interface BuildCtx {
   esmComponentBundle: ReadonlyArray<BundleModule>;
   commonJsComponentBundle: ReadonlyArray<BundleModule>;
   components: ComponentCompilerMeta[];
+  cssOnlyComponents: ComponentCompilerMeta[];
   componentGraph: Map<string, string[]>;
   config: ValidatedConfig;
   createTimeSpan(msg: string, debug?: boolean): LoggerTimeSpan;
@@ -290,6 +295,7 @@ export interface BuildCtx {
    */
   stylesPromise: Promise<string>;
   stylesUpdated: BuildStyleUpdate[];
+  globalStylesUpdated: BuildGlobalStyleLinkUpdate[];
   timeSpan: LoggerTimeSpan;
   timestamp: string;
   transpileBuildCount: number;
@@ -302,6 +308,15 @@ export interface BuildStyleUpdate {
   styleTag: string;
   styleText: string;
   styleMode: string;
+}
+
+/**
+ * A live-reload update for a `global-style` output target's CSS, matched on
+ * the client by `fileName` against the `<link>`
+ */
+export interface BuildGlobalStyleLinkUpdate {
+  fileName: string;
+  styleText: string;
 }
 
 export type BuildTask = any;
@@ -509,6 +524,8 @@ export interface CompilerCtx {
   cssModuleImports: Map<string, string[]>;
   /** Cache of built global styles, keyed by input file path */
   globalStyleCache: Map<string, string>;
+  /** Cache of discovered CSS-only components from the last scan, keyed by absolute .css file path */
+  cssOnlyComponentsCache: Map<string, ComponentCompilerMeta[]>;
   collections: CollectionCompilerMeta[];
   compilerOptions: any;
   events: BuildEvents;
@@ -656,7 +673,7 @@ export interface ComponentCompilerMeta extends ComponentCompilerFeatures {
    * Custom states to initialize on the ElementInternals.states CustomStateSet.
    * These are defined via @AttachInternals({ states: {...} }).
    */
-  attachInternalsCustomStates: ComponentCompilerCustomState[];
+  attachInternalsCustomStates: JsonDocsCustomState[];
   componentClassName: string;
   /**
    * A list of web component tag names that are either:
@@ -726,7 +743,7 @@ export interface ComponentCompilerMeta extends ComponentCompilerFeatures {
   sourceFilePath: string;
   sourceMapPath: string;
   states: ComponentCompilerState[];
-  styleDocs: CompilerStyleDoc[];
+  styleDocs: StyleDoc[];
   styles: StyleCompiler[];
   globalStyles: ComponentGlobalStyle[];
   tagName: string;
@@ -949,21 +966,6 @@ export interface ComponentCompilerState {
  * Custom states are exposed via the ElementInternals.states CustomStateSet
  * and can be targeted with the CSS :state() pseudo-class.
  */
-export interface ComponentCompilerCustomState {
-  /**
-   * The name of the custom state (without dashes)
-   */
-  name: string;
-  /**
-   * The initial value of the state
-   */
-  initialValue: boolean;
-  /**
-   * Optional JSDoc description for the state
-   */
-  docs: string;
-}
-
 /**
  * Representation of JSDoc that is pulled off a node in the AST
  */
@@ -975,46 +977,7 @@ export interface CompilerJsDoc {
   /**
    * Tags included in the JSDoc
    */
-  tags: CompilerJsDocTagInfo[];
-}
-
-/**
- * Representation of a tag that exists in a JSDoc
- */
-export interface CompilerJsDocTagInfo {
-  /**
-   * The name of the tag - e.g. `@deprecated`
-   */
-  name: string;
-  /**
-   * Additional text that is associated with the tag - e.g. `@deprecated use v2 of this API`
-   */
-  text?: string;
-}
-
-/**
- * The (internal) representation of a CSS block comment in a CSS, Sass, etc. file. This data structure is used during
- * the initial compilation phases of Stencil, as a piece of {@link ComponentCompilerMeta}.
- */
-export interface CompilerStyleDoc {
-  /**
-   * The name of the CSS property
-   */
-  name: string;
-  /**
-   * The user-defined description of the CSS property
-   */
-  docs: string;
-  /**
-   * The JSDoc-style annotation (e.g. `@prop`) that was used in the block comment to detect the comment.
-   * Used to inform Stencil where the start of a new property's description starts (and where the previous description
-   * ends).
-   */
-  annotation: 'prop';
-  /**
-   * The Stencil style-mode that is associated with this property.
-   */
-  mode: string;
+  tags: JsonDocsTag[];
 }
 
 interface CompilerAssetDir {

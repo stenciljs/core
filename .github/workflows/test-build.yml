@@ -36,3 +36,6 @@ jobs:
       - name: Build Tests
         run: pnpm --filter "@stencil-core-tests/build" test
         shell: bash
+
+      - name: Check Git Context
+        uses: ./.github/workflows/actions/check-git-context

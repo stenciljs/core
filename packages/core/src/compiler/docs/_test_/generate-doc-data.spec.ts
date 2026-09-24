@@ -231,6 +231,22 @@ auto-generated content
 
       expect(actual).toEqual([{ name: 'header', docs: 'the header slot' }]);
     });
+
+    it('merges a documented default slot, a documented+scraped named slot, and a documented-only slot', () => {
+      const tags: d.JsonDocsTag[] = [
+        { name: 'slot', text: '- The default slot' },
+        { name: 'slot', text: 'named - A named slot' },
+        { name: 'slot', text: 'named2 - Another named slot' },
+      ];
+
+      const actual = getDocsSlots(['', 'named'], tags);
+
+      expect(actual).toEqual([
+        { name: '', docs: 'The default slot' },
+        { name: 'named', docs: 'A named slot' },
+        { name: 'named2', docs: 'Another named slot' },
+      ]);
+    });
   });
 
   describe('getDocsStyles', () => {
@@ -252,8 +268,8 @@ auto-generated content
       expect(actual).toEqual([]);
     });
 
-    it("returns a 'sorted' array of one CompilerStyleDoc", () => {
-      const compilerStyleDoc: d.CompilerStyleDoc = {
+    it("returns a 'sorted' array of one StyleDoc", () => {
+      const compilerStyleDoc: d.StyleDoc = {
         annotation: 'prop',
         docs: 'these are the docs for this prop',
         name: 'my-style-one',
@@ -266,20 +282,20 @@ auto-generated content
       expect(actual).toEqual([compilerStyleDoc]);
     });
 
-    it('returns a sorted array from multiple CompilerStyleDoc', () => {
-      const compilerStyleDocOne: d.CompilerStyleDoc = {
+    it('returns a sorted array from multiple StyleDoc', () => {
+      const compilerStyleDocOne: d.StyleDoc = {
         annotation: 'prop',
         docs: 'these are the docs for my-style-a',
         name: 'my-style-a',
         mode: 'ios',
       };
-      const compilerStyleDocTwo: d.CompilerStyleDoc = {
+      const compilerStyleDocTwo: d.StyleDoc = {
         annotation: 'prop',
         docs: 'these are more docs for my-style-b',
         name: 'my-style-b',
         mode: 'ios',
       };
-      const compilerStyleDocThree: d.CompilerStyleDoc = {
+      const compilerStyleDocThree: d.StyleDoc = {
         annotation: 'prop',
         docs: 'these are more docs for my-style-c',
         name: 'my-style-c',
@@ -295,13 +311,13 @@ auto-generated content
     });
 
     it('returns a sorted array from based on mode for the same name', () => {
-      const mdCompilerStyle: d.CompilerStyleDoc = {
+      const mdCompilerStyle: d.StyleDoc = {
         annotation: 'prop',
         docs: 'these are the docs for my-style-a',
         name: 'my-style-a',
         mode: 'md',
       };
-      const iosCompilerStyle: d.CompilerStyleDoc = {
+      const iosCompilerStyle: d.StyleDoc = {
         annotation: 'prop',
         docs: 'these are the docs for my-style-a',
         name: 'my-style-a',
@@ -317,20 +333,20 @@ auto-generated content
     });
   });
 
-  it("returns CompilerStyleDoc with the same name in the order they're provided", () => {
-    const compilerStyleDocOne: d.CompilerStyleDoc = {
+  it("returns StyleDoc with the same name in the order they're provided", () => {
+    const compilerStyleDocOne: d.StyleDoc = {
       annotation: 'prop',
       docs: 'these are the docs for my-style-a (first lowercase)',
       name: 'my-style-a',
       mode: 'ios',
     };
-    const compilerStyleDocTwo: d.CompilerStyleDoc = {
+    const compilerStyleDocTwo: d.StyleDoc = {
       annotation: 'prop',
       docs: 'these are more docs for my-style-A (only capital)',
       name: 'my-style-A',
       mode: 'ios',
     };
-    const compilerStyleDocThree: d.CompilerStyleDoc = {
+    const compilerStyleDocThree: d.StyleDoc = {
       annotation: 'prop',
       docs: 'these are more docs for my-style-a (second lowercase)',
       name: 'my-style-a',
@@ -349,7 +365,7 @@ auto-generated content
     it.each(['', null, undefined])(
       "defaults the annotation to an empty string if '%s' is provided",
       (annotationValue) => {
-        const compilerStyleDoc: d.CompilerStyleDoc = {
+        const compilerStyleDoc: d.StyleDoc = {
           annotation: 'prop',
           docs: 'these are the docs for this prop',
           name: 'my-style-one',
@@ -375,7 +391,7 @@ auto-generated content
     it.each(['', null, undefined])(
       "defaults the docs to an empty string if '%s' is provided",
       (docsValue) => {
-        const compilerStyleDoc: d.CompilerStyleDoc = {
+        const compilerStyleDoc: d.StyleDoc = {
           annotation: 'prop',
           docs: 'these are the docs for this prop',
           name: 'my-style-one',
@@ -401,7 +417,7 @@ auto-generated content
     it.each(['', undefined, null, DEFAULT_STYLE_MODE])(
       "uses 'undefined' for the mode value when '%s' is provided",
       (modeValue) => {
-        const compilerStyleDoc: d.CompilerStyleDoc = {
+        const compilerStyleDoc: d.StyleDoc = {
           annotation: 'prop',
           docs: 'these are the docs for this prop',
           name: 'my-style-one',
@@ -425,7 +441,7 @@ auto-generated content
     );
 
     it('uses the mode value, when a valid string is provided', () => {
-      const compilerStyleDoc: d.CompilerStyleDoc = {
+      const compilerStyleDoc: d.StyleDoc = {
         annotation: 'prop',
         docs: 'these are the docs for this prop',
         name: 'my-style-one',
@@ -478,6 +494,78 @@ auto-generated content
       const generatedDocData = await generateDocData(validatedConfig, compilerCtx, buildCtx);
 
       expect(generatedDocData.usage).toEqual({});
+    });
+  });
+
+  describe('CSS-only components', () => {
+    it('includes CSS-only components in the merged, sorted components list with cssOnly: true', async () => {
+      const validatedConfig: d.ValidatedConfig = mockValidatedConfig();
+      const compilerCtx: d.CompilerCtx = mockCompilerCtx(validatedConfig);
+      const buildCtx: d.BuildCtx = mockBuildCtx(validatedConfig, compilerCtx);
+
+      const realCmpModule = mockModule({
+        cmps: [stubComponentCompilerMeta({ tagName: 'z-real-cmp' })],
+      });
+      buildCtx.moduleFiles = [realCmpModule];
+      buildCtx.components = [stubComponentCompilerMeta({ tagName: 'z-real-cmp' })];
+      buildCtx.cssOnlyComponents = [
+        stubComponentCompilerMeta({
+          tagName: 'a-css-badge',
+          componentClassName: '',
+          sourceFilePath: '/src/a-css-badge.css',
+          docs: { text: 'A badge.', tags: [] },
+          properties: [],
+          styleDocs: [
+            {
+              name: '--badge-color',
+              docs: 'Background color',
+              annotation: 'prop',
+              mode: DEFAULT_STYLE_MODE,
+            },
+          ],
+        }),
+      ];
+
+      const generatedDocData = await generateDocData(validatedConfig, compilerCtx, buildCtx);
+
+      expect(generatedDocData.components).toHaveLength(2);
+      // sorted by tag: 'a-css-badge' before 'z-real-cmp'
+      expect(generatedDocData.components[0].tag).toBe('a-css-badge');
+      expect(generatedDocData.components[0].cssOnly).toBe(true);
+      expect(generatedDocData.components[0].overview).toBe('A badge.');
+      expect(generatedDocData.components[0].styles).toEqual([
+        { name: '--badge-color', docs: 'Background color', annotation: 'prop', mode: undefined },
+      ]);
+
+      expect(generatedDocData.components[1].tag).toBe('z-real-cmp');
+      expect(generatedDocData.components[1].cssOnly).toBeUndefined();
+    });
+
+    it('reads a CSS-only component readme.md the same way a real component does', async () => {
+      const validatedConfig: d.ValidatedConfig = mockValidatedConfig();
+      const compilerCtx: d.CompilerCtx = mockCompilerCtx(validatedConfig);
+      await compilerCtx.fs.writeFile(
+        '/src/readme.md',
+        'Hand-written docs.\n\n' + AUTO_GENERATE_COMMENT,
+        {
+          immediateWrite: true,
+        },
+      );
+
+      const buildCtx: d.BuildCtx = mockBuildCtx(validatedConfig, compilerCtx);
+      buildCtx.moduleFiles = [];
+      buildCtx.components = [];
+      buildCtx.cssOnlyComponents = [
+        stubComponentCompilerMeta({
+          tagName: 'my-badge',
+          componentClassName: '',
+          sourceFilePath: '/src/my-badge.css',
+        }),
+      ];
+
+      const generatedDocData = await generateDocData(validatedConfig, compilerCtx, buildCtx);
+
+      expect(generatedDocData.components[0].readme).toBe('Hand-written docs.\n');
     });
   });
 });

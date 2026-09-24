@@ -205,6 +205,260 @@ This is filesystem-driven with no config gating - any non-www project benefits a
 
 ---
 
+### 🎨 CSS-Only Components (Core implementation shipped, follow-ups pending)
+
+Pure-CSS custom-element definitions — a `.css` file under `srcDir` with a rule whose selector
+is a valid custom-element tag name, marked with an explicit `@component` JSDoc tag. No `.tsx`,
+no compiled JS, no shadow root, no `customElements.define()` - just a documented,
+type-checked tag with CSS custom properties and attribute-based variants. Fits components that
+are pure styling contracts (a common design-system pattern) without requiring a real Stencil
+component when there's no JS behavior to justify one.
+
+**Discovery**: zero-config, content-marker based - scans all `.css` under `srcDir`; a rule only
+counts as a definition if immediately preceded by a JSDoc comment containing an explicit
+`@component` tag (not just any comment over a hyphenated selector, to avoid false positives
+with existing conventions like `my-component.light-dom.css`).
+
+**Architecture**: synthetic metadata lives in a new, parallel `buildCtx.cssOnlyComponents`
+array, deliberately never merged into `buildCtx.components` - that array is read by many
+JS-codegen consumers (proxy generation, `define-custom-element`, output targets) that assume a
+real backing class. Keeping CSS-only components out of it entirely (rather than adding guards
+to every consumer) is what makes them automatically excluded from `stencil-hydrate`'s FOUC CSS
+and safe from every JS-emitting code path, and is what makes them a genuinely zero-JS,
+never-registered tag at runtime.
+
+**Parsing**: `postcss` + `postcss-selector-parser` + `postcss-nesting` (all three now
+dependencies of `@stencil/core`) - native CSS nesting (`my-badge { &[variant="danger"] {} }`)
+resolves correctly, not via hand-rolled regex. New module:
+`packages/core/src/compiler/css-components/`.
+
+**Docs model** (`@component`-marked JSDoc block, `packages/core/src/compiler/css-components/parse-css-component.ts`):
+- `@prop`/`@cssprop`/`@cssproperty --name: desc` (explicit) - `@cssprop`/`@cssproperty` are now
+  also recognized as synonyms for `@prop` on *real* components' style docs too (`style-docs.ts`),
+  not just CSS-only ones.
+- Auto-detected `--custom-property: value;` declarations, but only when preceded by their own
+  doc comment (undocumented properties stay undocumented, not silently exposed).
+- Native `@property --name { syntax; initial-value; inherits; }` at-rules (global per file,
+  applied to every component in it, lowest precedence).
+- `@attr {type} name - description` (explicit) - needed because presence-only attributes
+  (`[dismissible]`) have no literal value to infer a type from.
+- Auto-detected attribute-selector literal unions (`[variant="danger"]` →
+  `"danger" | (string & {})`, the `KnownClass` escape-hatch pattern from the button-typing spike
+  below) for attributes with no explicit `@attr`.
+- `@slot name - description` (explicit, `name` may be the literal keyword `default` for the
+  unnamed slot) plus auto-detected `[slot="x"]` selectors that are a *direct* child rule of the
+  component's own defining rule (found once, in pass 1 - not a separate file-wide re-scan by
+  tag) - deliberately not recursive, so a nested custom element's own slot styling (`my-card {
+  my-icon-widget { [slot="icon"] {...} } }`) doesn't leak onto the outer component; only
+  `my-card`'s own one level of nesting is its own slot. Unlike custom properties, an
+  undocumented slot is still collected (a `[slot="x"]` selector unambiguously names a real slot,
+  no ambiguity to guard against). Wired through `ComponentCompilerMeta.htmlSlots` (names) + a
+  synthetic `@slot` docs-tag (docs), so `generate-doc-data.ts`'s existing `getDocsSlots` needed
+  zero changes. Reads from a nesting-*un*resolved parse of the file specifically for the pass-1
+  rule - postcss-nesting hoists a nested `[slot="x"] { ... }` rule out to a flat
+  `tag [slot="x"]` rule but doesn't reliably carry its leading doc comment along (confirmed
+  inconsistent, not just theoretical - reparsing without the plugin keeps comment adjacency
+  exactly as authored); it's also what lets pass 1 find a defining rule that has *only* nested
+  content and no declarations of its own, which postcss-nesting would otherwise delete outright
+  before pass 1 ever saw it.
+- `:where(tag, .fallback)`/`:is(tag, .fallback)` can also be the `@component` *defining* rule
+  itself - `/** @component */ :is(my-badge, .my-badge) { ... }` resolves the tag from inside the
+  pseudo, same as a bare `my-badge { ... }` would. The pseudo must be the *leading* compound's
+  own subject (same restriction a plain tag already had) and must resolve to exactly one
+  candidate tag - `:is(my-badge, my-other-badge)` (two real tags) warns as ambiguous rather than
+  guessing. This only resolves the tag name - explicit annotations still needed for
+  attributes/custom properties/slots declared directly on that rule (deliberately not extended
+  to attribute/custom-property auto-detection, and no support for `:where`/`:is`/`@scope` as an
+  *auxiliary* match against an already-established tag elsewhere in the file - tried both,
+  concluded not worth the added surface for a pattern that wasn't wanted).
+- Explicit annotations always win over auto-detected ones for the same name.
+
+**Integration points**: `generate-app-types.ts` (JSX types - one array-concat), `generate-doc-data.ts`
+(new `getCssOnlyDocsComponents`, full readme.md/usage parity with real components - not the
+filesystem-free `cmpMetaToDocsComponent` path, which stays reserved for the no-fs
+`transpileSync` case), `component-global-styles.ts`/`global-styles.ts` (new
+`@import "stencil-css-components"` virtual import, same mechanism as `stencil-globals`/
+`stencil-hydrate`), `docs/json/index.ts` and `docs/cem/index.ts` (new `cssOnly` flag,
+`JsonDocsStyle.syntax`/`.default` for `@property` passthrough). `docs.json`'s writer explicitly
+whitelists fields per-component rather than passing objects through - a real bug (the new
+`cssOnly` field was silently dropped) only caught by an end-to-end fixture build, not unit
+tests; fixed in `compiler/docs/json/index.ts`. New `Config.enableCssOnlyComponents` opt-out
+(default `true`).
+
+**e2e coverage**: extended (not duplicated into a new fixture) `test/build/type-tests` (JSX
+type-checking via `@ts-expect-error`), `test/build/global-style` (`@import` mechanism +
+hydrate-CSS exclusion proof + "never referenced in emitted JS" proof), and
+`test/build/docs-json` (docs.json/CEM golden-file output, including the readme.md lookup).
+
+**Explicitly deferred, not forgotten:**
+- ~~`@stencil/unplugin` integration~~ - **done, scoped to docs/CEM only.** New
+  `parseCssOnlyComponents` export from `@stencil/core/compiler`'s Node build (`css-components/parse-css-component.ts`,
+  mirrors `transpileSync`/`cmpMetaToDocsComponent`'s single-file shape) - confirmed zero new
+  dependency footprint for `@stencil/unplugin` itself (postcss et al. resolve through
+  `@stencil/core`'s own dependency tree, same as the compiler's other exports already do).
+  `plugin.ts`'s `scanDocs()` now walks `.css` files too (not gated by `include`, which by
+  default would exclude all of them) and registers discovered CSS-only components into the same
+  `docsRegistry` that backs `getStencilCEM()`, so Storybook's `setCustomElementsManifest()` sees
+  them like any real component; `handleHotUpdate` refreshes the registry live on `.css` edits
+  during a dev session, mirroring the existing `.tsx` live-docs-update path. Deliberately does
+  **not** touch `css.ts` / add any `@import "stencil-css-components"` handling - unplugin has no
+  precedent for that even for `stencil-globals`/`stencil-hydrate` (no `global-style` output
+  target concept exists there at all); an end user just imports their CSS-only component's file
+  through their bundler's native CSS handling like any other stylesheet. **Global-style handling
+  in unplugin more broadly is a separate, larger piece being picked up elsewhere** - noted here
+  so it isn't rediscovered as a surprise gap.
+- ~~`packages/dev-server` reload handling~~ - **not needed, confirmed by testing against a real
+  watcher.** A CSS-only component has no JS to register or bundle, so unlike a real component's
+  `.tsx` file, adding/removing/renaming one is *only* a CSS content change - it already rides
+  the ordinary `stylesUpdated`/`inlineStylesUpdated` HMR path with no dev-server changes at all.
+  (An earlier pass here added a `tagSetChanged` signal that force-triggered a full reload on tag
+  add/remove/rename, reasoning by false analogy to real components; reverted once actual testing
+  showed it was solving a problem that doesn't exist and made the dev experience worse - a
+  jarring reload where a smooth CSS swap already worked.)
+- ~~**Found in the process, real but out of scope for CSS-only components**: `buildGlobalStyleFromInput`'s
+  live-HMR push only fires for the legacy `config.globalStyle` string, not a `global-style` output
+  target's explicit `input`~~ - **fixed.** Turned out to be three layered bugs, not one, found by
+  driving a real dev-server + headless browser rather than trusting the payload the server sends:
+  1. The live-HMR push (`global-styles.ts`, `buildGlobalStyleFromInput`) only fired for the legacy
+     `config.globalStyle` path, exactly as first suspected.
+  2. Separately, `getExternalStylesUpdated`'s `<link>`-href-swap fallback (`build-hmr.ts`)
+     unconditionally no-op'd whenever there was no `www` output target - which is exactly the
+     shape `server/dev-preview.ts`'s auto-generated preview page uses, so that fallback couldn't
+     have covered it either.
+  3. Even where the push *did* fire (the legacy path, pre-fix), the visible page never updated.
+     Root cause: `hotModuleReplacement` deliberately forces `BUILD.constructableCSS = false`
+     (`app-data.ts`) so `inject: 'client'`/`'all'` global CSS lands as a real
+     `<style sty-id="sc-global">` tag inside every shadow root instead of an adoptedStyleSheet
+     (`shadow-root.ts`), so it stays HMR-patchable. But the dev-server's HMR traversal
+     (`hmr/style.ts`) recurses into shadow roots too, so it matched those per-shadow-root copies
+     first and never fell through to create/patch anything in `document.head` - the copies got
+     patched correctly, but a `body { ... }` rule duplicated inside a shadow root is inert, so the
+     real page never visibly changed. Confirmed with a MutationObserver + monkey-patched
+     `appendChild`/`createElement` in a real headless-Chromium session, not just by reading code.
+
+  Fix: a new, dedicated `globalStylesUpdated`/`HmrGlobalStyleUpdate` HMR channel, keyed by each
+  `global-style` output target's `fileName` (not the shared `sc-global` id), matched client-side
+  against the `<link>` that loads it and delivered as a `<style data-hmr-global="...">` inserted
+  immediately after that `<link>` - preserving cascade order when multiple `global-style` targets
+  exist, and working with zero network round-trip regardless of `www`/`inject` config. The
+  shadow-root `sc-global` copies are left as-is (legitimate, now correctly fed from the full
+  multi-target merge in `app-data-plugin.ts` instead of a single target's CSS). Verified end to
+  end against both `test/build/global-style` (new `input` pattern) and the legacy
+  `config.globalStyle` pattern with a real browser. Files: `stencil-private.ts`,
+  `stencil-public-compiler.ts`, `build-ctx.ts`, `build-hmr.ts`, `global-styles.ts`,
+  `app-data-plugin.ts` (core); `hmr/style.ts`, `hmr/window.ts`, `hmr/utils.ts`, `client/index.ts`,
+  `client/types.ts` (dev-server). Tests: `build/_test_/build-hmr.spec.ts`,
+  `style/_test_/global-styles.spec.ts`, `client/_test_/hmr.spec.ts`.
+
+  Two follow-on bugs found while testing multiple `global-style` outputs against
+  `server/dev-preview.ts` (the auto-generated component preview used when a directory has no
+  `*.html`), both fixed alongside the above:
+  - The preview's `<link>` order for multiple global stylesheets came from
+    `CompilerBuildResults.outputs`, which the in-memory FS groups by type and sorts
+    alphabetically - so a second `global-style` target (e.g. `global-2.css`) could render
+    *before* the first one regardless of declaration order, silently flipping cascade
+    precedence. Fixed by adding `CompilerBuildResults.globalStyleFiles`, an explicitly ordered
+    list built from `config.outputTargets` in `build-results.ts`, and pointing
+    `dev-preview.ts`'s `getGlobalCssUrls` at it instead.
+  - The live-patch `<style>` from the first fix above was inserted next to its `<link>` but
+    left that `<link>` enabled, so document order alone had to make the fresh override win the
+    cascade - which silently failed the moment the original stylesheet had an `!important`
+    rule (real repro: a second edit to a `background: ... !important` global stylesheet kept
+    showing the *first* edit's color, not the second, because the still-enabled link's
+    `!important` rule from its stale in-memory CSSOM beat the fresh non-`!important`... and
+    even a fresh `!important` override isn't guaranteed to out-rank an arbitrary stale rule by
+    position alone). Fixed by disabling the matching `<link>` (`link.disabled = true`) once its
+    override `<style>` is in place, in `hmr/style.ts`'s `hmrGlobalStyleLinks`. Verified live
+    with a two-target `!important` repro in a real browser.
+- ~~`packages/playground`~~ - **not needed, confirmed empirically.** `@stencil/core`'s own
+  ambient JSX types (`stencil-public-runtime.ts`) already declare
+  `interface IntrinsicElements extends LocalJSX.IntrinsicElements, JSXBase.IntrinsicElements {
+  [tagName: string]: any; }` - a catch-all that already accepts *any* undeclared hyphenated tag
+  with *any* props, with no type error, whether or not it's a known Stencil component. Verified
+  directly (not just read): added an undeclared `<totally-unknown-tag some-attr="x">` to
+  `test/build/type-tests/test.spec.tsx` and ran `tsc --noEmit` against the real generated
+  types - exit 0, no error - before removing the scratch check again. A CSS-only component's tag
+  was therefore never going to red-squiggle in the playground either, with or without any
+  wiring. An earlier pass here built a full regex-based tag scanner
+  (`findCssOnlyComponentTags`/`buildIntrinsicElementsDts` wiring) anyway, reasoning from the
+  premise that unknown tags error without checking it first - same mistake as the dev-server
+  `tagSetChanged` detour. Reverted in full (`utils.ts`, `stencil-playground.tsx`) once the
+  premise itself turned out to be false, not just the fix. If accurate typed autocomplete for
+  CSS-only components in the playground is wanted later, that's a real, separate, deliberately-
+  chosen feature to design - not something needed to avoid an error.
+- Compile-time tag-prefix/rename - `setTagTransformer()` is a runtime hook with no static-CSS
+  equivalent; no compile-time alternative designed yet.
+- A diagnostic for `@component` found nested inside `@media`/`@supports`/`@container` (v1 only
+  scans top-level rules) - should warn, currently silently ignored.
+- ~~native CSS `@scope (tag-name) { ... }` as an alternative defining construct~~ - **done.**
+  `@scope (my-card) to (...) { ... }` can now be the `@component` defining rule itself, same
+  resolution rules as a bare tag or `:is()`/`:where()` rule (scope root must resolve to exactly
+  one tag; `:is()`/`:where()`-wrapped scope roots also supported). Custom properties and direct
+  nested slots inside the scope body are auto-detected the same way. Enables the `to (...)` limit
+  clause as a light-DOM containment pattern (e.g. `@scope (my-card) to ([slot])` keeps the
+  component's own rules from bleeding into slotted content) without needing a shadow root.
+
+**Original "zero-JS custom element" framing reconsidered.** Typed, documented custom-element
+tags with zero JS is already achievable today via `@Component` + `@Prop({ reflect: true })` +
+`globalStyleUrl` - strictly more capable (progressive enhancement, one authoring syntax, full
+IDE support). Even the "zero JS ever" claim doesn't differentiate it: `globalStyleUrl` content
+is collected into the global stylesheet at build time independent of whether the component's
+JS is ever registered, so if a consumer never imports/registers those components, real runtime
+bytes are zero either way. (Measured for context: shared lazy-loader runtime is ~21.5KB raw /
+~8.3KB gzip; a trivial one-prop component's own entry chunk is ~179 bytes raw - too small for
+gzip to help, container overhead exceeds the saving. Neither number matters once the JS is
+simply never imported.) The one real difference left is zero-JS *by construction* (no `.tsx`,
+no entry chunk ever generated) vs. zero-JS *by discipline* (one careless barrel-import away
+from regressing) - a real but narrow guarantee, not a bundle-size win.
+
+**Re-targeted, not deleted - generalizing past custom elements.** Prompted by Lea Verou
+publicly asking why nothing generalizes Custom Elements Manifest to document
+non-custom-element "components" (`<button class="btn-primary">`, `<progress class="ring">`)
+the way CEM documents real custom elements - a genuine, unaddressed gap this feature's
+existing parsing/discovery machinery is positioned to fill, and a more differentiated pitch
+than the original (nothing else does this; the original reduces to "an alternate syntax for
+something `@Component` already does"). Reused as-is: `discover-css-components.ts`'s
+file-watching/incremental-cache mechanics, `parse-css-component.ts`'s JSDoc-over-CSS-rule
+convention and `@property`-at-rule handling, and the docs-absorption wiring in
+`generate-doc-data.ts` - none of this is custom-element-specific in practice.
+
+Confirmed NOT a small tweak, on inspection:
+- Two validation gates in `parse-css-component.ts` exist specifically to reject
+  non-custom-element selectors - `validateComponentTag` (requires a hyphenated name) and the
+  `nonTagParts.length > 0` rejection - both need relaxing on the *defining* rule to accept any
+  selector.
+- `docs/cem/index.ts` hardcodes `customElement: true` / a non-nullable `tagName: string` on
+  every emitted declaration - a `progress.ring` declaration can't honestly go through the
+  existing CEM path. Since CEM isn't a spec Stencil is bound to for its *other* docs outputs,
+  this is an opportunity to define a new manifest shape - possibly worth pursuing as an actual
+  community proposal given Lea Verou's standing here, rather than a bespoke Stencil-only
+  format - not yet designed.
+
+Confirmed mostly already there, on closer inspection:
+- Attribute/`data-`attribute-driven variants: the auto-detected-attribute pass
+  (`collectAutoDetectedAttributes`, pass 2 of `parseCssComponentFile`) already matches by
+  `selector.tag` with no `nonTagParts` gating, so `button[data-variant="primary"]`-style rules
+  already get absorbed once the defining-rule gate above is relaxed - and attributes are the
+  more standards-idiomatic hook for this than classes anyway.
+- A `.btn { &-primary { } }` / explicit `@variant` JSDoc marker for BEM-style nested-class
+  variants is new, scoped parsing work on top of the above, not a data-model rewrite.
+- JSX typing for native-element variants: no equivalent to a typed custom-element tag exists,
+  but `JSXBase`'s existing `class?: string | { [className: string]: boolean } | SignalRef<string>`
+  (`stencil-public-runtime.ts`) already supports an object-map form where each class is an
+  independent boolean key - a natural, already-idiomatic fit for typed variants (a plain
+  string-literal union can't usefully validate/autocomplete a space-separated multi-class
+  string once more than one variant class is active at once, which is the common case).
+  Codegen would extend the existing per-project JSX-augmentation pipeline
+  (`generate-app-types.ts`) to narrow known variant class names on
+  `JSXBase.IntrinsicElements['button']['class']`'s object-map key type, alongside the escape
+  hatch real usage needs. Not started.
+
+Not yet decided: require attributes only, `data-`attributes only (full standards compliance,
+since arbitrary custom attributes aren't spec-sanctioned outside `data-*`), or allow plain
+attributes with a lint/diagnostic nudge instead of a hard requirement.
+
+---
+
 ### 🤖 `docs-agent-skill` Output Target (First pass shipped)
 
 A docs output target that emits an [Agent Skill](https://agentskills.io) (`SKILL.md` + frontmatter) describing a component library, so AI coding agents can consume it directly instead of just reading generated readmes. Agent Skills are a **vendor-neutral spec**, not a Claude-only thing - [vercel-labs/skills](https://github.com/vercel-labs/skills) lists 70+ supported agents (Claude Code, Cursor, Codex, Gemini CLI, GitHub Copilot, Windsurf, etc.), each reading from their own `<agent>/skills/` directory.

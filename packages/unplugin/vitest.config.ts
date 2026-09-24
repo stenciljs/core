@@ -9,6 +9,7 @@ export default defineConfig({
       'src/**/*.spec.ts',
       'test/build.spec.ts',
       'test/docs.spec.ts',
+      'test/docs-hmr.spec.ts',
       'test/spec-page.spec.ts',
     ],
   },
