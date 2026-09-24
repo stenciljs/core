@@ -205,4 +205,32 @@ describe('attribute deserialization', () => {
     expect(rootInstance.method2).toHaveBeenCalledTimes(4);
     expect(root.jsonProp).toEqual(regularString);
   });
+
+  it('can opt back in to treating a "false" attribute as false on a boolean prop', async () => {
+    @Component({ tag: 'cmp-a' })
+    class CmpA {
+      @Prop() disabled = true;
+
+      @AttrDeserialize('disabled')
+      parseDisabled(attr: string | null) {
+        return attr !== null && attr !== 'false';
+      }
+    }
+
+    const { root } = await newSpecPage({
+      components: [CmpA],
+      html: `<cmp-a disabled="false"></cmp-a>`,
+    });
+    expect(root.disabled).toBe(false);
+
+    root.setAttribute('disabled', '');
+    expect(root.disabled).toBe(true);
+
+    root.setAttribute('disabled', 'false');
+    expect(root.disabled).toBe(false);
+
+    root.setAttribute('disabled', 'true');
+    root.removeAttribute('disabled');
+    expect(root.disabled).toBe(false);
+  });
 });
