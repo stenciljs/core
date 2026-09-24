@@ -203,13 +203,7 @@ export const proxyComponent = (
               }
               // this sets the value via the `set()` function which
               // *might* not end up changing the underlying value
-              origSetter.apply(this, [
-                parsePropertyValue(
-                  newValue,
-                  memberFlags,
-                  BUILD.formAssociated && !!(cmpMeta.$flags$ & CMP_FLAGS.formAssociated),
-                ),
-              ]);
+              origSetter.apply(this, [parsePropertyValue(newValue, memberFlags)]);
               // if it's a State property, we need to get the value from the instance
               newValue =
                 memberFlags & MEMBER_FLAGS.State
@@ -239,11 +233,7 @@ export const proxyComponent = (
               // lazy element with a setter
               // we might need to wait for the lazy class instance to be ready
               // before we can set it's value via it's setter function
-              const parsedValue = parsePropertyValue(
-                newValue,
-                memberFlags,
-                BUILD.formAssociated && !!(cmpMeta.$flags$ & CMP_FLAGS.formAssociated),
-              );
+              const parsedValue = parsePropertyValue(newValue, memberFlags);
               if (ref.$lazyInstance$) {
                 const currentValue = ref.$lazyInstance$[memberName];
                 if (!ref.$instanceValues$.get(memberName) && currentValue) {
@@ -438,14 +428,15 @@ export const proxyComponent = (
           const isSpuriousBooleanRemoval =
             isBooleanTarget && newValue === null && this[propName] === undefined;
 
-          // special handling of boolean attributes. Null (removal) means false.
-          // everything else means true (including an empty string).
-          // Non form-associated components also treat the string "false" as false; form-associated
-          // components follow the HTML spec, where any present attribute is true (see `parsePropertyValue()`)
+          // boolean attributes: null (removal) means false
           if (isBooleanTarget) {
-            const isFormAssociated =
-              BUILD.formAssociated && !!(cmpMeta.$flags$ & CMP_FLAGS.formAssociated);
-            (newValue as any) = !(newValue === null || (newValue === 'false' && !isFormAssociated));
+            if (BUILD.isDev && newValue === 'false') {
+              // warning for < v5 legacy behavior ("false" === false)
+              consoleDevWarn(
+                `<${cmpMeta.$tagName$} ${attrName}="false">: boolean attributes are true when present, regardless of value. Remove the attribute or set the "${propName}" property to false instead.`,
+              );
+            }
+            (newValue as any) = newValue !== null;
           }
 
           // test whether this property either has no 'getter' or if it does, does it also have a 'setter'

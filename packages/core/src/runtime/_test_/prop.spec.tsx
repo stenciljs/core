@@ -76,13 +76,14 @@ describe('prop', () => {
 
     expect(root).toEqualHtml(`
       <cmp-a bool-false="true" bool-true="false" str="attr" num="99" accessor="accessed!" clamped="11">
-        true-false-attr-99-accessed!-10
+        true-true-attr-99-accessed!-10
       </cmp-a>
     `);
 
-    expect(root.textContent).toBe('true-false-attr-99-accessed!-10');
+    expect(root.textContent).toBe('true-true-attr-99-accessed!-10');
     expect(root.boolFalse).toBe(true);
-    expect(root.boolTrue).toBe(false);
+    // a present boolean attribute is true, even when its value is "false"
+    expect(root.boolTrue).toBe(true);
     expect(root.str).toBe('attr');
     expect(root.num).toBe(99);
     expect(root.clamped).toBe(10);

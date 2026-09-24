@@ -2,7 +2,7 @@ import { BUILD } from 'virtual:app-data';
 import { consoleDevWarn, consoleError, getHostRef } from 'virtual:platform';
 import type * as d from '@stencil/core';
 
-import { CMP_FLAGS, HOST_FLAGS, WATCH_FLAGS } from '../utils/constants';
+import { HOST_FLAGS, WATCH_FLAGS } from '../utils/constants';
 import { parsePropertyValue } from './parse-property-value';
 import { scheduleUpdate } from './update-component';
 
@@ -49,11 +49,7 @@ export const setValue = (
   if (BUILD.signalBacking) {
     const sig = hostRef?.$signalValues$?.get(propName);
     if (sig !== undefined) {
-      const parsed = parsePropertyValue(
-        newVal,
-        cmpMeta.$members$[propName][0],
-        BUILD.formAssociated && !!(cmpMeta.$flags$ & CMP_FLAGS.formAssociated),
-      );
+      const parsed = parsePropertyValue(newVal, cmpMeta.$members$[propName][0]);
       if (
         BUILD.serializer &&
         BUILD.reflect &&
@@ -104,11 +100,7 @@ export const setValue = (
   const oldVal = hostRef.$instanceValues$.get(propName);
   const flags = hostRef.$flags$;
   const instance = BUILD.lazyLoad ? hostRef.$lazyInstance$ : (elm as any);
-  newVal = parsePropertyValue(
-    newVal,
-    cmpMeta.$members$[propName][0],
-    BUILD.formAssociated && !!(cmpMeta.$flags$ & CMP_FLAGS.formAssociated),
-  );
+  newVal = parsePropertyValue(newVal, cmpMeta.$members$[propName][0]);
 
   // explicitly check for NaN on both sides, as `NaN === NaN` is always false
   const areBothNaN = Number.isNaN(oldVal) && Number.isNaN(newVal);

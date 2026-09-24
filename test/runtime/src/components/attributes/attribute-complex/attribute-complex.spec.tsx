@@ -25,7 +25,8 @@ describe('attribute-complex', () => {
     expect(instance.nu1).toBe(-2.3);
     expect(instance.nu2).toBe(123);
 
-    expect(instance.bool0).toBe(false);
+    // any present boolean attribute is true, including "false"
+    expect(instance.bool0).toBe(true);
     expect(instance.bool1).toBe(true);
     expect(instance.bool2).toBe(true);
 
@@ -56,7 +57,8 @@ describe('attribute-complex', () => {
     expect(instance.nu1).toBe(-111.1);
 
     expect(instance.bool0).toBe(true);
-    expect(instance.bool1).toBe(false);
+    // non-empty strings are truthy, matching native boolean IDL properties
+    expect(instance.bool1).toBe(true);
     expect(instance.bool2).toBe(false);
 
     expect(instance.str0).toBe('hello'); // default value
