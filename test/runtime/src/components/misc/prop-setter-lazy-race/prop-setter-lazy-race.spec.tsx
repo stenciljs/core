@@ -62,8 +62,6 @@ describe('getter/setter @Prop write ordering before first render', () => {
   });
 
   it('the last attribute write wins when it lands before the lazy instance exists', async () => {
-    await customElements.whenDefined('prop-setter-lazy-race-cold');
-
     // not connected yet
     const detached = document.createElement('prop-setter-lazy-race-cold') as any;
     detached.setAttribute('is-disabled', '');
@@ -80,6 +78,8 @@ describe('getter/setter @Prop write ordering before first render', () => {
     loading.note = 'pending';
     expect(loading.note).toBe('pending');
 
+    // standalone's autoloader only defines a tag once it's seen in the DOM
+    await customElements.whenDefined('prop-setter-lazy-race-cold');
     await Promise.all([detached.componentOnReady(), loading.componentOnReady()]);
 
     expect(detached.isDisabled).toBe(false);
