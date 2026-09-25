@@ -56,6 +56,9 @@ export const componentDecoratorToStatic = (
       if (componentOptions.shadow.slotAssignment === 'manual') {
         newMembers.push(createStaticGetter('slotAssignment', convertValueToLiteral('manual')));
       }
+      if (componentOptions.shadow.clonable === true) {
+        newMembers.push(createStaticGetter('clonable', convertValueToLiteral(true)));
+      }
     }
   } else if (componentOptions.scoped) {
     newMembers.push(createStaticGetter('encapsulation', convertValueToLiteral('scoped')));

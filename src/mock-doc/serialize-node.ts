@@ -148,6 +148,12 @@ function* streamToHtml(
           yield delegatesFocusAttr;
           output.currentLineWidth += delegatesFocusAttr.length;
         }
+
+        if ((node as any).clonable) {
+          const clonableAttr = ' shadowrootclonable';
+          yield clonableAttr;
+          output.currentLineWidth += clonableAttr.length;
+        }
       }
 
       const attrsLength = (node as HTMLElement).attributes.length;
@@ -164,12 +170,14 @@ function* streamToHtml(
           continue;
         }
 
-        // Skip shadowrootmode and shadowrootdelegatesfocus attributes when they've already been
-        // added from the shadow root's properties (to avoid duplication)
+        // Skip shadowrootmode, shadowrootdelegatesfocus, and shadowrootclonable attributes when
+        // they've already been added from the shadow root's properties (to avoid duplication)
         if (
           tag === 'template' &&
           isShadowRoot &&
-          (attrName === 'shadowrootmode' || attrName === 'shadowrootdelegatesfocus')
+          (attrName === 'shadowrootmode' ||
+            attrName === 'shadowrootdelegatesfocus' ||
+            attrName === 'shadowrootclonable')
         ) {
           continue;
         }
@@ -221,8 +229,9 @@ function* streamToHtml(
         }
 
         if (attrValue === '') {
-          // shadowrootdelegatesfocus should always be rendered as a boolean attribute (no value)
-          if (attrName === 'shadowrootdelegatesfocus') {
+          // shadowrootdelegatesfocus and shadowrootclonable should always be rendered as boolean
+          // attributes (no value)
+          if (attrName === 'shadowrootdelegatesfocus' || attrName === 'shadowrootclonable') {
             continue;
           }
           if (opts.removeBooleanAttributeQuotes && BOOLEAN_ATTR.has(attrName)) {
@@ -659,6 +668,7 @@ function getChildNodes(node: Node | MockNode) {
   'scoped',
   'seamless',
   'selected',
+  'shadowrootclonable',
   'shadowrootdelegatesfocus',
   'sortable',
   'truespeed',
