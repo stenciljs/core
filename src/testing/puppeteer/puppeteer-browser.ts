@@ -68,11 +68,12 @@ export async function startPuppeteerBrowser(config: ValidatedConfig) {
       ...connectOpts,
     };
     try {
-      // puppeteer >= 23
+      // puppeteer >= 23; `executablePath()` returns a `string` on puppeteer <= 24 and a
+      // `Promise<string>` on puppeteer >= 25, `await` handles both.
       launchOpts.executablePath =
         process.env.PUPPETEER_EXECUTABLE_PATH ||
         process.env.CHROME_PATH ||
-        (puppeteer.executablePath as typeof executablePath)(launchOpts);
+        (await (puppeteer.executablePath as typeof executablePath)(launchOpts));
     } catch (_) {
       // puppeteer <= 22
       launchOpts.executablePath = puppeteer.executablePath(launchOpts.channel);

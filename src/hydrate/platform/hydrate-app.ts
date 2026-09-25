@@ -1,6 +1,14 @@
 import { globalScripts } from '@app-globals';
-import { addHostEventListeners, getHostRef, loadModule, plt, registerHost, setScopedSSR } from '@platform';
-import { connectedCallback, insertVdomAnnotations } from '@runtime';
+import {
+  addHostEventListeners,
+  getHostRef,
+  loadModule,
+  modeResolver,
+  plt,
+  registerHost,
+  setScopedSSR,
+} from '@platform';
+import { connectedCallback, insertVdomAnnotations, setMode } from '@runtime';
 import { CMP_FLAGS } from '@utils';
 
 import type * as d from '../../declarations';
@@ -17,6 +25,7 @@ export function hydrateApp(
     resolve: (results: d.HydrateResults) => void,
   ) => void,
   resolve: (results: d.HydrateResults) => void,
+  abortController: AbortController,
 ) {
   const connectedElements = new Set<any>();
   const createdElements = new Set<HTMLElement>();
@@ -28,11 +37,32 @@ export function hydrateApp(
 
   let tmrId: any;
   let ranCompleted = false;
+  // In case a per-call `opts.modes` is provided, cache any global mode
+  // resolver so we can restore it after the render is complete
+  let modeResolverSnapshot: d.ResolutionHandler[] | undefined;
+  // Resolves once the render is finalizing (error or timeout), so components
+  // still mid-`await` can stop waiting instead of resuming against a window
+  // that's about to be torn down, and so their own in-flight `fetch()` calls
+  // (wrapped in the hydrate factory closure) get aborted rather than running
+  // to completion against it. See #6864.
+  const abortedPromise = new Promise<void>((res) => {
+    if (abortController.signal.aborted) {
+      res();
+    } else {
+      abortController.signal.addEventListener('abort', () => res(), { once: true });
+    }
+  });
 
   function hydratedComplete() {
     globalThis.clearTimeout(tmrId);
     createdElements.clear();
     connectedElements.clear();
+
+    if (modeResolverSnapshot) {
+      modeResolver.length = 0;
+      modeResolver.push(...modeResolverSnapshot);
+      modeResolverSnapshot = undefined;
+    }
 
     if (!ranCompleted) {
       ranCompleted = true;
@@ -55,6 +85,10 @@ export function hydrateApp(
 
   function hydratedError(err: any) {
     renderCatchError(opts, results, err);
+    // let any component still awaiting `componentOnReady()` bail out, and
+    // abort any of their in-flight `fetch()` calls, instead of resuming
+    // after `hydratedComplete` tears the window down.
+    abortController.abort();
     hydratedComplete();
   }
 
@@ -140,7 +174,7 @@ export function hydrateApp(
 
           // add it to our Set so we know it's already being connected
           connectedElements.add(elm);
-          return hydrateComponent.call(elm, win, results, elm.nodeName, elm, waitingElements);
+          return hydrateComponent.call(elm, win, results, elm.nodeName, elm, waitingElements, abortedPromise);
         }
       }
 
@@ -174,6 +208,13 @@ export function hydrateApp(
 
     globalScripts();
 
+    // Apply `opts.modes` after the global script runs
+    // so an explicit per-call override always wins
+    if (Array.isArray(opts.modes)) {
+      modeResolverSnapshot = modeResolver.slice();
+      opts.modes.forEach((mode) => setMode(mode));
+    }
+
     patchChild(win.document.body);
 
     waitLoop().then(hydratedComplete).catch(hydratedError);
@@ -189,6 +230,7 @@ async function hydrateComponent(
   tagName: string,
   elm: d.HostElement,
   waitingElements: Set<HTMLElement>,
+  aborted: Promise<void>,
 ) {
   tagName = tagName.toLowerCase();
   const Cstr = loadModule(
@@ -212,19 +254,25 @@ async function hydrateComponent(
 
       try {
         connectedCallback(elm);
-        await elm.componentOnReady();
 
-        results.hydratedCount++;
+        // race `componentOnReady` against the render finishing: if the
+        // render times out first, stop waiting rather than resuming this
+        // continuation once the window has been destroyed (see #6864).
+        const wasAborted = await Promise.race([elm.componentOnReady().then(() => false), aborted.then(() => true)]);
 
-        const ref = getHostRef(elm);
-        const modeName = !ref?.$modeName$ ? '$' : ref?.$modeName$;
-        if (!results.components.some((c) => c.tag === tagName && c.mode === modeName)) {
-          results.components.push({
-            tag: tagName,
-            mode: modeName,
-            count: 0,
-            depth: -1,
-          });
+        if (!wasAborted) {
+          results.hydratedCount++;
+
+          const ref = getHostRef(elm);
+          const modeName = !ref?.$modeName$ ? '$' : ref?.$modeName$;
+          if (!results.components.some((c) => c.tag === tagName && c.mode === modeName)) {
+            results.components.push({
+              tag: tagName,
+              mode: modeName,
+              count: 0,
+              depth: -1,
+            });
+          }
         }
       } catch (e) {
         win.console.error(e);

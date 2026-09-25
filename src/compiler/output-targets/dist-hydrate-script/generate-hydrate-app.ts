@@ -11,11 +11,7 @@ import {
   STENCIL_MOCK_DOC_ID,
 } from '../../bundle/entry-alias-ids';
 import { bundleHydrateFactory } from './bundle-hydrate-factory';
-import {
-  HYDRATE_FACTORY_INTRO,
-  HYDRATE_FACTORY_OUTRO,
-  MODE_RESOLUTION_CHAIN_DECLARATION,
-} from './hydrate-factory-closure';
+import { HYDRATE_FACTORY_INTRO, HYDRATE_FACTORY_OUTRO, MODE_RESOLVER_DECLARATION } from './hydrate-factory-closure';
 import { updateToHydrateComponents } from './update-to-hydrate-components';
 import { writeHydrateOutputs } from './write-hydrate-outputs';
 
@@ -86,11 +82,11 @@ export const generateHydrateApp = async (
           },
           transform(code) {
             /**
-             * Remove the modeResolutionChain variable from the generated code.
+             * Remove the modeResolution variable from the generated code.
              * This variable is redefined in `HYDRATE_FACTORY_INTRO` to ensure we can
              * use it within the hydrate and global runtime.
              */
-            return code.replace(`var ${MODE_RESOLUTION_CHAIN_DECLARATION}`, '');
+            return code.replace(`var ${MODE_RESOLVER_DECLARATION}`, '');
           },
         },
       ],

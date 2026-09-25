@@ -1,3 +1,30 @@
+## 🐽 [4.45.1](https://github.com/stenciljs/core/compare/v4.45.0...v4.45.1) (2026-09-23)
+
+
+### Bug Fixes
+
+* **compiler:** correct CSS minifier selector-list splitting ([#6895](https://github.com/stenciljs/core/issues/6895)) ([332a8fa](https://github.com/stenciljs/core/commit/332a8fad6358db92b21c8b69a669fd5e4b70d0a4))
+* **docs:** derive CEM readonly from getter/setter instead of mutable ([#6900](https://github.com/stenciljs/core/issues/6900)) ([1c81131](https://github.com/stenciljs/core/commit/1c81131f659dd0beaf9bdadd59d5f2a5f895dd38))
+* **runtime:** pre-hydrate getter / setter attribute ([#6890](https://github.com/stenciljs/core/issues/6890)) ([171d0ce](https://github.com/stenciljs/core/commit/171d0ce3f0b854cc848a324972c4371b6309743c))
+* **ssr:** clear modeResolutionChain on `setMode`. Fixes memory leak ([#6903](https://github.com/stenciljs/core/issues/6903)) ([ca9273d](https://github.com/stenciljs/core/commit/ca9273dfddd60b398725de65559f6a2f355ffe72))
+
+
+
+# 🎱 [4.45.0](https://github.com/stenciljs/core/compare/v4.44.2...v4.45.0) (2026-09-12)
+
+
+### Bug Fixes
+
+* **compiler:** stop double `transformTag` wrap ([#6884](https://github.com/stenciljs/core/issues/6884)) ([6480675](https://github.com/stenciljs/core/commit/648067564221aa86778c8a8991dd28bba474949c))
+* **runtime:** create new element for new child when keyed tag changes ([#6885](https://github.com/stenciljs/core/issues/6885)) ([3743c44](https://github.com/stenciljs/core/commit/3743c445f4451ae252fc152bf9192f9652c41963))
+* **runtime:** lazy getter / setter queue last set value ([#6883](https://github.com/stenciljs/core/issues/6883)) ([36404ac](https://github.com/stenciljs/core/commit/36404acd3331271e4a531bc6d77eceeb510fcbdc))
+* **compiler:** scope-css process layer selectors ([#6858](https://github.com/stenciljs/core/issues/6858)) ([635f1d4](https://github.com/stenciljs/core/commit/635f1d4b6ccf871ebc545b58c0a619f629475710)), closes [#6857](https://github.com/stenciljs/core/issues/6857)
+* **ssr:** abort stuck component and in-flight fetch() on hydrate timeout ([#6881](https://github.com/stenciljs/core/issues/6881)) ([cf5982e](https://github.com/stenciljs/core/commit/cf5982e202a89a3b6aa848f71fc3e72dcc519842))
+* **testing:** await puppeteer executablePath() for puppeteer >= 25 ([#6882](https://github.com/stenciljs/core/issues/6882)) ([#6886](https://github.com/stenciljs/core/issues/6886)) ([67fa599](https://github.com/stenciljs/core/commit/67fa5990b2c7f92215d23ed58c19f0b0988af500))
+* **types:** loosen greedy `aria${string}` type ([#6880](https://github.com/stenciljs/core/issues/6880)) ([3d0371e](https://github.com/stenciljs/core/commit/3d0371e7fd14f0b00dd49331fedd5def924d24e9))
+
+
+
 ## 🌜 [4.44.2](https://github.com/stenciljs/core/compare/v4.44.1...v4.44.2) (2026-08-26)
 
 

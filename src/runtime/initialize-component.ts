@@ -7,7 +7,7 @@ import { expandPartSelectors, scopeCss } from '../utils/shadow-css';
 import { computeMode } from './mode';
 import { normalizeWatchers } from './normalize-watchers';
 import { createTime, uniqueTime } from './profile';
-import { proxyComponent } from './proxy-component';
+import { proxyComponent, replayPendingSetterValues } from './proxy-component';
 import { MAX_LAZY_LOAD_RETRIES, PROXY_FLAGS } from './runtime-constants';
 import { getScopeId, registerStyle } from './styles';
 import { safeCall, scheduleUpdate } from './update-component';
@@ -95,6 +95,7 @@ export const initializeComponent = async (
 
         if (BUILD.member) {
           hostRef.$flags$ &= ~HOST_FLAGS.isConstructingInstance;
+          replayPendingSetterValues(hostRef, cmpMeta);
         }
         if (BUILD.propChangeCallback) {
           hostRef.$flags$ |= HOST_FLAGS.isWatchReady;

@@ -119,7 +119,14 @@ export const addTagTransform = (
                 expression.expression.text === 'document'))
           ) {
             const [firstArg, ...restArgs] = node.arguments;
-            if (firstArg) {
+            // test for whether the first argument is already transformed
+            const alreadyTransformed =
+              firstArg &&
+              ts.isCallExpression(firstArg) &&
+              ts.isIdentifier(firstArg.expression) &&
+              (firstArg.expression.text === TRANSFORM_TAG || firstArg.expression.text === 'transformTag');
+
+            if (firstArg && !alreadyTransformed) {
               // Wrap the argument in transformTag(...)
               const newFirstArg = ts.factory.createCallExpression(
                 ts.factory.createIdentifier(TRANSFORM_TAG),

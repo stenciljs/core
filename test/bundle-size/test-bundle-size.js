@@ -7,7 +7,7 @@ const fs = require('fs');
 const path = require('path');
 
 const distDir = path.join(__dirname, 'dist', 'bundlesize');
-const maxBundleSize = 12 * 1024; // 12KB in bytes
+const maxBundleSize = 12 * 1024 + 64; // 12KB, plus a little headroom for legitimate runtime fixes (see stenciljs/core#6870)
 
 console.log('\nChecking bundle size...');
 

@@ -20,6 +20,27 @@ const reflectedAttrValue = (propValue: any): string | null =>
   propValue == null || propValue === false ? null : propValue === true ? '' : String(propValue);
 
 /**
+ * Hand values written to a lazy component's element before its instance existed to the
+ * instance's own `@Prop` setters. Must run as soon as the instance is constructed, so that
+ * whenever `$lazyInstance$` is set, reads through it agree with the element's last write.
+ *
+ * @param hostRef the runtime bookkeeping object of a freshly constructed lazy instance
+ * @param cmpMeta runtime metadata for the component (with any run-time only setters flagged)
+ */
+export const replayPendingSetterValues = (hostRef: d.HostRef, cmpMeta: d.ComponentRuntimeMeta) => {
+  const instance = hostRef.$lazyInstance$;
+  if (!instance) return;
+  for (const [memberName, [memberFlags]] of Object.entries(cmpMeta.$members$ ?? {})) {
+    if (memberFlags & MEMBER_FLAGS.Setter && hostRef.$instanceValues$.has(memberName)) {
+      const pendingValue = hostRef.$instanceValues$.get(memberName);
+      if (instance[memberName] !== pendingValue) {
+        instance[memberName] = pendingValue;
+      }
+    }
+  }
+};
+
+/**
  * Attach a series of runtime constructs to a compiled Stencil component
  * constructor, including getters and setters for the `@Prop` and `@State`
  * decorators, callbacks for when attributes change, and so on.
@@ -114,9 +135,9 @@ export const proxyComponent = (
                   return getValue(this, memberName);
                 }
                 const ref = getHostRef(this);
-                const instance = ref ? ref.$lazyInstance$ : prototype;
-                if (!instance) return;
-                return instance[memberName];
+                if (!ref) return prototype[memberName];
+                // no instance yet: return the pending value, same as a plain Prop
+                return ref.$lazyInstance$ ? ref.$lazyInstance$[memberName] : getValue(this, memberName);
               }
               if (!BUILD.lazyLoad) {
                 return origGetter ? origGetter.apply(this) : getValue(this, memberName);
@@ -202,28 +223,18 @@ export const proxyComponent = (
                 (cmpMeta.$members$[memberName][0] & MEMBER_FLAGS.Setter) === 0
               ) {
                 setValue(this, memberName, newValue, cmpMeta);
-                // if this is a value set on an Element *before* the instance has initialized (e.g. via an html attr)...
-                if (flags & PROXY_FLAGS.isElementConstructor && !ref.$lazyInstance$) {
-                  // wait for lazy instance...
-                  ref.$fetchedCbList$.push(() => {
-                    // check if this instance member has a setter doesn't match what's already on the element
-                    if (
-                      cmpMeta.$members$[memberName][0] & MEMBER_FLAGS.Setter &&
-                      ref.$lazyInstance$[memberName] !== ref.$instanceValues$.get(memberName)
-                    ) {
-                      // this catches cases where there's a run-time only setter (e.g. via a decorator)
-                      // *and* no initial value, so the initial setter never gets called
-                      ref.$lazyInstance$[memberName] = newValue;
-                    }
-                  });
-                }
                 return;
               }
 
               // lazy element with a setter
               // we might need to wait for the lazy class instance to be ready
               // before we can set it's value via it's setter function
-              const setterSetVal = () => {
+              const parsedValue = parsePropertyValue(
+                newValue,
+                memberFlags,
+                BUILD.formAssociated && !!(cmpMeta.$flags$ & CMP_FLAGS.formAssociated),
+              );
+              if (ref.$lazyInstance$) {
                 const currentValue = ref.$lazyInstance$[memberName];
                 if (!ref.$instanceValues$.get(memberName) && currentValue) {
                   // on init `get()` make sure the hostRef matches class instance
@@ -236,21 +247,12 @@ export const proxyComponent = (
                 }
                 // this sets the value via the `set()` function which
                 // might not end up changing the underlying value
-                ref.$lazyInstance$[memberName] = parsePropertyValue(
-                  newValue,
-                  memberFlags,
-                  BUILD.formAssociated && !!(cmpMeta.$flags$ & CMP_FLAGS.formAssociated),
-                );
+                ref.$lazyInstance$[memberName] = parsedValue;
                 setValue(this, memberName, ref.$lazyInstance$[memberName], cmpMeta);
-              };
-
-              if (ref.$lazyInstance$) {
-                setterSetVal();
               } else {
-                // the class is yet to be loaded / defined so queue the call
-                ref.$fetchedCbList$.push(() => {
-                  setterSetVal();
-                });
+                // the class is yet to be loaded / constructed: hold the value until
+                // `replayPendingSetterValues()` hands it to the instance's setter
+                ref.$instanceValues$.set(memberName, parsedValue);
               }
             }
           },
@@ -421,9 +423,12 @@ export const proxyComponent = (
           const isSpuriousBooleanRemoval = isBooleanTarget && newValue === null && this[propName] === undefined;
 
           // special handling of boolean attributes. Null (removal) means false.
-          // everything else means true (including an empty string
+          // everything else means true (including an empty string).
+          // Non form-associated components also treat the string "false" as false; form-associated
+          // components follow the HTML spec, where any present attribute is true (see `parsePropertyValue()`)
           if (isBooleanTarget) {
-            (newValue as any) = newValue === null || newValue === 'false' ? false : true;
+            const isFormAssociated = BUILD.formAssociated && !!(cmpMeta.$flags$ & CMP_FLAGS.formAssociated);
+            (newValue as any) = newValue === null || (newValue === 'false' && !isFormAssociated) ? false : true;
           }
 
           // test whether this property either has no 'getter' or if it does, does it also have a 'setter'

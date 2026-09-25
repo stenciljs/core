@@ -1922,7 +1922,15 @@ export namespace JSXBase {
     readonly oldState: string;
   }
 
-  export interface DOMAttributes<T> extends JSXAttributes<T> {
+  // The finite set of real camelCase WAI-ARIA IDL property names (`ariaLabel`, `ariaChecked`,
+  // etc.), derived from lib.dom.d.ts's `ARIAMixin`
+  type AriaIDLPropertyName = {
+    [K in keyof ARIAMixin]: ARIAMixin[K] extends string | null ? K : never;
+  }[keyof ARIAMixin];
+
+  type JSXAriaProperties = { [K in AriaIDLPropertyName]?: string | boolean | undefined };
+
+  export interface DOMAttributes<T> extends JSXAttributes<T>, JSXAriaProperties {
     slot?: string;
     part?: string;
     exportparts?: string;
@@ -2081,8 +2089,11 @@ export namespace JSXBase {
     onTransitionStartCapture?: (event: TransitionEvent) => void;
 
     // WAI-ARIA Attributes
+    // kebab-case `aria-*` attributes are a genuinely open-ended namespace (new ones can be added
+    // by the ARIA spec at any time), so this stays a catch-all pattern. The camelCase IDL
+    // properties (`ariaLabel`, etc.) are handled above via `JSXAriaProperties`, since that's a
+    // fixed, known set - see the comment there.
     [key: `aria-${string}`]: string | boolean | undefined;
-    [key: `aria${string}`]: string | boolean | undefined;
   }
 }
 

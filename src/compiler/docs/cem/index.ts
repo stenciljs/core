@@ -146,7 +146,7 @@ const componentToDeclaration = (component: d.JsonDocsComponent): CustomElementDe
         ...(prop.type && { type: createType(prop.type, prop.complexType?.references) }),
         ...(prop.default !== undefined && { default: prop.default }),
         ...(prop.deprecation !== undefined && { deprecated: prop.deprecation || true }),
-        ...(!prop.mutable && { readonly: true }),
+        ...(prop.getter && !prop.setter && { readonly: true }),
         ...(prop.attr && { attribute: prop.attr }),
         ...(prop.reflectToAttr && { reflects: true }),
       }),

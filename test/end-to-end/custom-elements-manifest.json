@@ -38,7 +38,6 @@
                   }
                 ]
               },
-              "readonly": true,
               "attribute": "car"
             }
           ]
@@ -99,7 +98,6 @@
                   }
                 ]
               },
-              "readonly": true,
               "attribute": "cars"
             },
             {
@@ -254,7 +252,6 @@
                   }
                 ]
               },
-              "readonly": true,
               "attribute": "car"
             }
           ]
@@ -315,7 +312,6 @@
                   }
                 ]
               },
-              "readonly": true,
               "attribute": "cars"
             },
             {
@@ -488,7 +484,6 @@
                 "text": "number"
               },
               "default": "0",
-              "readonly": true,
               "attribute": "initial-counter"
             }
           ]
@@ -1100,7 +1095,6 @@
                 "text": "number"
               },
               "default": "0",
-              "readonly": true,
               "attribute": "some-prop"
             },
             {
@@ -1240,7 +1234,6 @@
               "type": {
                 "text": "string"
               },
-              "readonly": true,
               "attribute": "foo-prop"
             },
             {
@@ -1250,7 +1243,6 @@
               "type": {
                 "text": "any"
               },
-              "readonly": true,
               "attribute": "mode"
             }
           ]
@@ -1328,7 +1320,6 @@
               "type": {
                 "text": "string"
               },
-              "readonly": true,
               "attribute": "foo-prop"
             },
             {
@@ -1338,7 +1329,6 @@
               "type": {
                 "text": "any"
               },
-              "readonly": true,
               "attribute": "mode"
             }
           ]
@@ -1604,6 +1594,35 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/hydrate-timeout/own-controller-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "own-controller-cmp",
+          "name": "OwnControllerCmp",
+          "description": "Used by hydrate-timeout.e2e.ts to verify the AbortController shim: a\ncomponent that creates its own AbortController has that controller cascade-aborted\nautomatically when the render times out\n\nThe outcome is reported via `global` (not observable through\nrenderToString's result) so the test can assert on it."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "OwnControllerCmp",
+          "declaration": {
+            "name": "OwnControllerCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "own-controller-cmp",
+          "declaration": {
+            "name": "OwnControllerCmp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/path-alias-cmp/path-alias-cmp.tsx",
       "declarations": [
         {
@@ -1714,7 +1733,6 @@
                 "text": "string"
               },
               "default": "'life preservers'",
-              "readonly": true,
               "attribute": "clothes"
             },
             {
@@ -1723,7 +1741,6 @@
               "type": {
                 "text": "string"
               },
-              "readonly": true,
               "attribute": "first"
             },
             {
@@ -1741,7 +1758,6 @@
               "type": {
                 "text": "string"
               },
-              "readonly": true,
               "attribute": "last-name"
             },
             {
@@ -1751,7 +1767,6 @@
               "type": {
                 "text": "any"
               },
-              "readonly": true,
               "attribute": "mode"
             }
           ]
@@ -1890,7 +1905,6 @@
                 "text": "string"
               },
               "default": "'basicProp'",
-              "readonly": true,
               "attribute": "basic-prop",
               "reflects": true
             },
@@ -1900,7 +1914,6 @@
               "type": {
                 "text": "number"
               },
-              "readonly": true,
               "attribute": "decorated-getter-setter-prop",
               "reflects": true
             },
@@ -1911,7 +1924,6 @@
                 "text": "number"
               },
               "default": "-10",
-              "readonly": true,
               "attribute": "decorated-prop",
               "reflects": true
             }
@@ -1972,7 +1984,6 @@
                   }
                 ]
               },
-              "readonly": true,
               "attribute": "car"
             }
           ]
@@ -2033,7 +2044,6 @@
                   }
                 ]
               },
-              "readonly": true,
               "attribute": "cars"
             },
             {
@@ -2250,7 +2260,6 @@
               "type": {
                 "text": "string"
               },
-              "readonly": true,
               "attribute": "label"
             }
           ],
@@ -2281,6 +2290,54 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/hydrate-timeout/slow-fetch-cmp.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "slow-fetch-cmp",
+          "name": "SlowFetchCmp",
+          "description": "Used by hydrate-timeout.e2e.ts to reproduce stenciljs/core#6864: a\ncomponent whose `componentWillLoad` is still awaiting `fetch()` when the\nrender's `opts.timeout` fires.",
+          "attributes": [
+            {
+              "name": "url",
+              "type": {
+                "text": "string"
+              },
+              "fieldName": "url"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "url",
+              "type": {
+                "text": "string"
+              },
+              "attribute": "url"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "SlowFetchCmp",
+          "declaration": {
+            "name": "SlowFetchCmp"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "slow-fetch-cmp",
+          "declaration": {
+            "name": "SlowFetchCmp"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/declarative-shadow-dom/ssr-shadow-cmp.tsx",
       "declarations": [
         {
@@ -2304,7 +2361,6 @@
               "type": {
                 "text": "boolean"
               },
-              "readonly": true,
               "attribute": "selected"
             }
           ],
@@ -2392,7 +2448,6 @@
               "type": {
                 "text": "boolean"
               },
-              "readonly": true,
               "attribute": "selected"
             }
           ],
