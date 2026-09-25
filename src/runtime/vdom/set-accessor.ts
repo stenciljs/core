@@ -9,9 +9,10 @@
 
 import { BUILD } from '@app-data';
 import { getHostRef, isMemberInElement, plt, win } from '@platform';
-import { isComplexType } from '../../utils/helpers';
 
 import type * as d from '../../declarations';
+import { HOST_FLAGS } from '../../utils/constants';
+import { isComplexType } from '../../utils/helpers';
 import { NODE_TYPE, VNODE_FLAGS, XLINK_NS } from '../runtime-constants';
 import { queueRefAttachment } from './vdom-render';
 
@@ -62,7 +63,15 @@ export const setAccessor = (
       newClasses = [...new Set(newClasses)].filter((c) => c);
       classList.add(...newClasses);
     } else {
-      classList.remove(...oldClasses.filter((c) => c && !newClasses.includes(c)));
+      let removedClasses = oldClasses.filter((c) => c && !newClasses.includes(c));
+      if (BUILD.hydrateClientSide && initialRender && !(flags & VNODE_FLAGS.isHost)) {
+        // on the first render after hydration, the old classes are the element's server
+        // `className`. For a child component that has already rendered, they include the
+        // classes it set on its own host, which the parent must not remove
+        const ownClasses = getOwnHostClasses(elm);
+        removedClasses = removedClasses.filter((c) => !ownClasses.includes(c));
+      }
+      classList.remove(...removedClasses);
       classList.add(...newClasses.filter((c) => c && !oldClasses.includes(c)));
     }
   } else if (BUILD.vdomStyle && memberName === 'style') {
@@ -263,6 +272,27 @@ const isEnumeratedAttribute = (attrName: string): boolean =>
   ENUMERATED_ATTRIBUTES.has(attrName) || attrName.startsWith('aria-');
 
 const parseClassListRegex = /\s/;
+
+/**
+ * Get the classes a rendered Stencil component set on its own host element: the classes
+ * of its `<Host>` and the hydrated flag.
+ *
+ * @param elm the element to check, which may be the host element of a Stencil component
+ * @returns the classes the component set on its host, or an empty list when `elm` is not
+ * the host of a rendered Stencil component
+ */
+const getOwnHostClasses = (elm: d.RenderNode): string[] => {
+  const hostRef = getHostRef(elm);
+  if (!hostRef || !(hostRef.$flags$ & HOST_FLAGS.hasRendered)) {
+    return [];
+  }
+  const ownClasses = parseClassList(hostRef.$vnode$?.$attrs$?.class);
+  if (BUILD.hydratedClass) {
+    ownClasses.push(BUILD.hydratedSelectorName ?? 'hydrated');
+  }
+  return ownClasses;
+};
+
 /**
  * Parsed a string of classnames into an array
  * @param value className string, e.g. "foo bar baz"
