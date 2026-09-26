@@ -42,13 +42,15 @@ export class MockTokenList {
     return getItems(this.elm, this.attr).includes(token);
   }
 
-  toggle(token: string) {
+  toggle(token: string, force?: boolean) {
     token = String(token);
-    if (this.contains(token) === true) {
-      this.remove(token);
-    } else {
+    const shouldAdd = force === undefined ? !this.contains(token) : !!force;
+    if (shouldAdd) {
       this.add(token);
+    } else {
+      this.remove(token);
     }
+    return shouldAdd;
   }
 
   get length() {
