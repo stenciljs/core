@@ -113,6 +113,18 @@ describe('scopeCSS', function () {
     expect(s(css, 'a')).toEqual(expected);
   });
 
+  it('should handle container rules', () => {
+    const css = '@container card (min-width: 400px) {section {display: flex;}}';
+    const expected = '@container card (min-width:400px) {section.a {display:flex;}}';
+    expect(s(css, 'a')).toEqual(expected);
+  });
+
+  it('should preserve original selectors in container rules', () => {
+    const css = '@container (min-width: 400px) {:host {display: flex;}}';
+    const expected = '@container (min-width:400px) {/*!@:host*/.a-h {display:flex;}}';
+    expect(s(css, 'a', true)).toEqual(expected);
+  });
+
   it('should preserve original selectors in nested grouping rules', () => {
     const css = '@layer defaults {@media (min-width: 640px) {:host {display: block;}}}';
     const expected = '@layer defaults {@media (min-width:640px) {/*!@:host*/.a-h {display:block;}}}';
