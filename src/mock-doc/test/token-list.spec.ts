@@ -36,6 +36,26 @@ describe('token-list', () => {
     expect(tokenList.toString()).toEqual('');
   });
 
+  it('toggle adds or removes a token and returns whether it is present', () => {
+    expect(tokenList.toggle('one')).toBe(true);
+    expect(tokenList.contains('one')).toBe(true);
+    expect(tokenList.toggle('one')).toBe(false);
+    expect(tokenList.contains('one')).toBe(false);
+  });
+
+  it('toggle with force only adds when true and only removes when false', () => {
+    expect(tokenList.toggle('one', false)).toBe(false);
+    expect(tokenList.contains('one')).toBe(false);
+
+    expect(tokenList.toggle('one', true)).toBe(true);
+    expect(tokenList.toggle('one', true)).toBe(true);
+    expect(tokenList.contains('one')).toBe(true);
+
+    expect(tokenList.toggle('one', false)).toBe(false);
+    expect(tokenList.toggle('one', false)).toBe(false);
+    expect(tokenList.contains('one')).toBe(false);
+  });
+
   it('should throw if empty', () => {
     expect(() => {
       tokenList.add('');
