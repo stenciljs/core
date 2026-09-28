@@ -70,7 +70,7 @@ export interface ComponentOptions {
   /**
    * Relative URL to an external stylesheet providing document-level styles for this component.
    * Unlike `styleUrl`, these styles are not scoped to shadow/scoped DOM - they are collected
-   * at build time and injected wherever `@import "stencil-globals"` appears in a global stylesheet.
+   * at build time and injected wherever `@import "stencil-component-globals"` appears in a global stylesheet.
    *
    * Useful for
    * - pre-first-js-render styles (combatting cumulative layout shift)
@@ -86,7 +86,7 @@ export interface ComponentOptions {
 
   /**
    * Inline CSS string providing document-level styles for this component.
-   * Collected at build time and injected wherever `@import "stencil-globals"` appears.
+   * Collected at build time and injected wherever `@import "stencil-component-globals"` appears.
    * @see globalStyleUrl
    */
   globalStyle?: string;

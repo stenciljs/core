@@ -3,10 +3,14 @@ import type * as d from '@stencil/core';
 import { catchError, isOutputTargetGlobalStyle, normalizePath } from '../../utils';
 import { runPluginTransforms } from '../plugin/plugin';
 import {
+  findStencilVirtualImports,
   generateHydrateCss,
+  getAnchoredHydrateCss,
+  getHydrateAnchor,
   hasStencilCssComponentsImport,
   hasStencilGlobalsImport,
   hasStencilHydrateImport,
+  insertBeforeStencilImport,
   replaceStencilHydrateImport,
   resolveStencilCssComponentsImport,
   resolveStencilGlobalsImport,
@@ -42,6 +46,41 @@ export const generateGlobalStyles = async (
     config.globalStyle,
   );
   return globalStyles ?? '';
+};
+
+/**
+ * Whether any global-style input imports `stencil-hydrate` itself. Reads each input's recorded
+ * imports, running just the preprocessing pass for one not built yet - building the others in full
+ * from inside one input's build would recurse.
+ *
+ * @param config the Stencil configuration
+ * @param compilerCtx the compiler context
+ * @param buildCtx the build context
+ * @returns whether some input places `stencil-hydrate`
+ */
+const isHydratePlacedExplicitly = async (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+): Promise<boolean> => {
+  const inputs = config.outputTargets
+    .filter(isOutputTargetGlobalStyle)
+    .map((t) => t.input)
+    .filter((input): input is string => !!input)
+    .map((input) => normalizePath(input));
+
+  for (const input of inputs) {
+    let found = compilerCtx.globalStyleVirtualImports.get(input);
+    if (!found) {
+      const result = await runPluginTransforms(config, compilerCtx, buildCtx, input);
+      const code = typeof result === 'string' ? result : result?.code;
+      if (!code) continue;
+      found = findStencilVirtualImports(code);
+      compilerCtx.globalStyleVirtualImports.set(input, found);
+    }
+    if (found.has('stencil-hydrate')) return true;
+  }
+  return false;
 };
 
 /**
@@ -95,7 +134,22 @@ export const buildGlobalStyleFromInput = async (
         dependencies = transformResults.dependencies;
       } else {
         compilerCtx.globalStyleCache.delete(normalizedPath);
+        compilerCtx.globalStyleVirtualImports.delete(normalizedPath);
         return null;
+      }
+
+      const virtualImports = findStencilVirtualImports(cssCode);
+      compilerCtx.globalStyleVirtualImports.set(normalizedPath, virtualImports);
+
+      // no input places `stencil-hydrate` - it goes just before the anchor's own import
+      const hydrateAnchor = getHydrateAnchor(buildCtx);
+      if (
+        hydrateAnchor &&
+        virtualImports.has(hydrateAnchor) &&
+        !(await isHydratePlacedExplicitly(config, compilerCtx, buildCtx))
+      ) {
+        const hydrateCss = getAnchoredHydrateCss(config, buildCtx);
+        if (hydrateCss) cssCode = insertBeforeStencilImport(cssCode, hydrateAnchor, hydrateCss);
       }
 
       if (hasStencilGlobalsImport(cssCode)) {
@@ -164,6 +218,7 @@ export const buildGlobalStyleFromInput = async (
   }
 
   compilerCtx.globalStyleCache.delete(normalizedPath);
+  compilerCtx.globalStyleVirtualImports.delete(normalizedPath);
   return null;
 };
 
@@ -177,7 +232,7 @@ export const buildGlobalStyleFromInput = async (
  * @param fileName the `global-style` output target's fileName
  * @param styleText the newly built CSS for that target
  */
-const upsertGlobalStyleLinkUpdate = (
+export const upsertGlobalStyleLinkUpdate = (
   buildCtx: d.BuildCtx,
   fileName: string,
   styleText: string,

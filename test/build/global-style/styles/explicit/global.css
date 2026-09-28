@@ -8,10 +8,11 @@
 }
 
 /* Component global styles are injected here */
-@import 'stencil-globals' supports(display: grid);
+@import 'stencil-component-globals' supports(display: grid);
 
-/* CSS-only component styles are injected here */
-@import 'stencil-css-components';
+/* CSS-only component styles are injected here, via a partial - so detection must see
+   imports after local @imports are inlined, not just in this file */
+@import './partials/css-components.css';
 
 body {
   margin: 0;

@@ -133,9 +133,11 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
 - **`global-style` output target now supports `inject`** - control whether styles are injected into component shadow DOMs (`'none'`, `'client'`, `'all'`)
 - **Multiple `global-style` outputs supported** - build separate CSS bundles from different input files, each with independent `inject` settings
 - **`www` can now use standalone loader**
-- **`@Component` now supports `globalStyleUrl` and `globalStyle`**  co-locate document-level styles with the component. Styles are collected at build time and injected wherever `@import "stencil-globals"` appears in a global stylesheet. Works for all encapsulation types (shadow, scoped, none). No mode variants  CSS handles runtime variants via selectors or custom properties. Changes to `globalStyleUrl` files invalidate the global style build cache and trigger HMR correctly.
-- **`@import "stencil-hydrate"` virtual placeholder**  add to any `global-style` input to inject static FOUC-prevention CSS at build time instead of relying on the dynamic `<style>` tag inserted by the loader. The compiler replaces the placeholder with the sorted component selectors + configured hydration CSS (e.g. `my-cmp,other-cmp{visibility:hidden}.hydrated{visibility:inherit}`). When detected, `BUILD.staticHydrationStyles = true` suppresses the loader's dynamic injection. For `standalone` builds (which have no loader), `stencil-hydrate.css` is auto-generated alongside the bundle.
-- **`@import "stencil-globals"` / `@import "stencil-hydrate"` now support standard `@import` modifiers** - trailing `layer(name)`, `supports(...)`, and media-query conditions are parsed off the import and used to wrap the injected CSS, e.g. `@import "stencil-globals" layer(init);` → `@layer init { ...collected global styles... }`, or `@import "stencil-hydrate" supports(display: grid) (min-width: 400px);` → nested `@supports`/`@media` wrapping. Implemented in `compiler/style/component-global-styles.ts` + `compiler/style/style-utils.ts`.
+- **`@Component` now supports `globalStyleUrl` and `globalStyle`**  co-locate document-level styles with the component. Styles are collected at build time and injected wherever `@import "stencil-component-globals"` appears in a global stylesheet. Works for all encapsulation types (shadow, scoped, none). No mode variants  CSS handles runtime variants via selectors or custom properties. Changes to `globalStyleUrl` files invalidate the global style build cache and trigger HMR correctly.
+- **`@import "stencil-hydrate"` virtual placeholder**  add to any `global-style` input to inject static FOUC-prevention CSS at build time instead of relying on the dynamic `<style>` tag inserted by the loader. The compiler replaces the placeholder with the sorted component selectors + configured hydration CSS (e.g. `my-cmp,other-cmp{visibility:hidden}.hydrated{visibility:inherit}`). When detected, `BUILD.staticHydrationStyles = true` suppresses the loader's dynamic injection. Without an explicit import, the hydrate CSS **follows its anchor**: if the build has component `globalStyle`/`globalStyleUrl`s (anchor: `stencil-component-globals`) or else CSS-only components (anchor: `stencil-css-components`), consumers already have to load the stylesheet holding that CSS, so the hydrate CSS goes immediately before it - unwrapped, outside the anchor import's modifiers - and the loader stops injecting. That's before an explicit anchor `@import` in an input (`insertBeforeStencilImport`, gated by `isHydratePlacedExplicitly` across all inputs), or first in the auto-placed CSS. No anchor: the loader keeps injecting at runtime ("one `<script>` does it all"), except `standalone` builds, which have no loader and get it auto-placed. Both anchor features are new in v5, so no v4 project changes behaviour.
+- **`stencil-globals` renamed to `stencil-component-globals`** (hard break during the beta, no alias) - says what it holds: CSS from `@Component({ globalStyle / globalStyleUrl })`.
+- **Auto-placed `stencil-*` CSS** (`compiler/output-targets/output-stencil-css.ts`) - any of `stencil-hydrate` (when following its anchor, or for a `standalone` output - see above) → `stencil-component-globals` → `stencil-css-components` that no `global-style` input imports explicitly is placed automatically: with **no** `global-style` output it's written to `{fsNamespace}.css` in the assets dir (+ `www/build/`; www-only projects get only the www copy); with **exactly one** it's prepended to that output (user globals win the cascade); with **several** it's a build error per un-imported part, telling the user to add the `@import` to the right stylesheet. No loader-bundle copies. Replaces standalone's old `stencil-hydrate.css`. HMR rides the `globalStylesUpdated` channel (keyed by the file it lands in); `CompilerBuildResults.globalStyleFiles` lists the generated `{fsNamespace}.css` when there's no `global-style` output to hold it. Explicit-import detection (here and for the lazy build's `staticHydrationStyles`) reads what `buildGlobalStyleFromInput` recorded from each input's *post-preprocessing* CSS (`compilerCtx.globalStyleVirtualImports`), so imports inside partials count and detection can't disagree with resolution. Import matching accepts every form CSS allows or a preprocessor emits (quoted or not, `url()`, no space after `@import` as in compressed Sass). Preprocessors treat a bare `@import "stencil-*"` as their own import and fail; core appends a hint to that error (`plugin.ts` → `addStencilVirtualImportHints`): `@import url("stencil-*")` for Sass, `@import (css) "stencil-*"` for Less, and for `postcss-import` - which resolves *every* form - its `filter: (path) => !path.startsWith('stencil-')` option. Auto-placed CSS is run through `optimizeStyleCss` like explicitly imported CSS. E2E: `test/build/global-style` is a scenario matrix (`stencil.config.<scenario>.ts`, run by `validate.js`) covering explicit / none / single-implicit / multi-missing / multi-split placement and Sass (`@stencil/sass`), Less (`@stencil-community/less`) and PostCSS (`@stencil-community/postcss` + `postcss-import`), each with a failing "bare import" counterpart; `test/special-config/no-config` covers the single-output auto-placement in the dev preview.
+- **`@import "stencil-component-globals"` / `@import "stencil-hydrate"` now support standard `@import` modifiers** - trailing `layer(name)`, `supports(...)`, and media-query conditions are parsed off the import and used to wrap the injected CSS, e.g. `@import "stencil-component-globals" layer(init);` → `@layer init { ...collected global styles... }`, or `@import "stencil-hydrate" supports(display: grid) (min-width: 400px);` → nested `@supports`/`@media` wrapping. Implemented in `compiler/style/component-global-styles.ts` + `compiler/style/style-utils.ts`.
 - **`loader-bundle` now supports `externalRuntime`**  set `externalRuntime: true` on the `loader-bundle` output target to mark `@stencil/core` as an external dependency in the ESM/CJS distribution output. Only affects the bundler variant; the browser/CDN build always includes the runtime. Useful when consumers already depend on `@stencil/core` and want to avoid bundling a second copy.
 - **setTagTransformer** - is now exported by default from your bundle entry point (same as `setNonce`), so library authors no longer need to manually re-export it from their `index.ts`. 
 - **Scoped Custom Element Registries** - always available, no config flag required. Pass a `CustomElementRegistry` instance and Stencil defines all components in it instead of `window.customElements`. What you do with that registry (attaching it to shadow roots, scoped DOM subtrees, etc.) is up to you.
@@ -277,7 +279,7 @@ resolves correctly, not via hand-rolled regex. New module:
 (new `getCssOnlyDocsComponents`, full readme.md/usage parity with real components - not the
 filesystem-free `cmpMetaToDocsComponent` path, which stays reserved for the no-fs
 `transpileSync` case), `component-global-styles.ts`/`global-styles.ts` (new
-`@import "stencil-css-components"` virtual import, same mechanism as `stencil-globals`/
+`@import "stencil-css-components"` virtual import, same mechanism as `stencil-component-globals`/
 `stencil-hydrate`), `docs/json/index.ts` and `docs/cem/index.ts` (new `cssOnly` flag,
 `JsonDocsStyle.syntax`/`.default` for `@property` passthrough). `docs.json`'s writer explicitly
 whitelists fields per-component rather than passing objects through - a real bug (the new
@@ -302,11 +304,48 @@ hydrate-CSS exclusion proof + "never referenced in emitted JS" proof), and
   them like any real component; `handleHotUpdate` refreshes the registry live on `.css` edits
   during a dev session, mirroring the existing `.tsx` live-docs-update path. Deliberately does
   **not** touch `css.ts` / add any `@import "stencil-css-components"` handling - unplugin has no
-  precedent for that even for `stencil-globals`/`stencil-hydrate` (no `global-style` output
+  precedent for that even for `stencil-component-globals`/`stencil-hydrate` (no `global-style` output
   target concept exists there at all); an end user just imports their CSS-only component's file
   through their bundler's native CSS handling like any other stylesheet. **Global-style handling
   in unplugin more broadly is a separate, larger piece being picked up elsewhere** - noted here
   so it isn't rediscovered as a surprise gap.
+- **unplugin virtual global-stylesheet imports** - scope is deliberately *not* recreating
+  Stencil's global-style pipeline in the bundler, just making the `stencil-*` imports mean
+  something there. Each import's CSS is written to `node_modules/.stencil/virtual-css/<serve|build>/`
+  (per command, so a dev server and a build in the same project don't clash) and the specifier
+  resolves to that file; the bundler then handles it like any CSS (partials, Sass, Less, modifiers,
+  minification). Routing: `resolveId` (esbuild; webpack via `css-loader`), a `resolve.alias` where
+  CSS `@import` resolution skips plugins (Vite, rspack). webpack/rspack read the files straight from
+  disk, so they're rewritten on every compile (`beforeCompile`); Vite rewrites in `buildStart`
+  (watch builds) and `handleHotUpdate` (dev HMR); esbuild via `load`. Ingredient caching is
+  mtime-validated, so watch rebuilds pick up changes without per-bundler invalidation. Replaced the
+  old `transform` rewrite of the consumer file, which only reached top-level `.css`. Also fixed:
+  `stencil-hydrate` hid CSS-only components forever; component globals were duplicated per plugin
+  instance in one process (e.g. Vite dev-server restart).
+  Verified with a local scratch matrix (10 placements x 5 bundlers, plus watch-rebuild and
+  multi-instance runs): Vite 10/10, webpack 10/10, rspack 9/10, esbuild 6/10, Rollup 0/10. Known
+  limits, all third-party preprocessor plugins resolving `@import` internally: esbuild's Sass/Less
+  plugins need the plain-CSS forms (`url()` / `(css)`), not bare imports; rspack can't match Less's
+  directory-prefixed `(css)` import from a partial (bare works); Rollup (no native CSS) +
+  `rollup-plugin-postcss`/`postcss-import` never asks `resolveId`. Not yet documented for users.
+  webpack/rspack watch mode (what Storybook's webpack builder runs): the generated stylesheets' modules
+  are tied to their ingredient files (`beforeLoaders` in webpack - `loader` discards deps and hasn't set
+  `resourcePath` yet; rspack only has `loader`) plus `src/` as a context dependency, and CSS-only
+  components are rescanned in `watchRun` (awaited, unlike `watchChange`; a file added to a watched dir is
+  reported as the dir). Verified with a Storybook-style dev-middleware + hot-middleware + style-loader
+  harness: ingredient edits and new CSS-only components hot-update the page with no full reload.
+  Component HMR under webpack/rspack: the `module.hot` snippet used to patch the prototype and only call
+  `connectedCallback()`, so live instances never re-rendered. Core's runtime now splits `hmrStandalone`'s
+  "apply the new class" half into `hmrApplyClass` (patch prototype, re-register styles, re-bind host
+  listeners, force re-render), reachable via an internal `s-hmr-apply` hook on the registered constructor;
+  the snippet hands it the re-executed class. Vite's `handleHotUpdate` doesn't fire for added files, so a
+  new CSS-only component is handled via `configureServer`'s watcher `add` event. Verified with scratch
+  browser harnesses (Vite dev server; webpack dev-middleware + hot-middleware + style-loader): ingredient
+  edits, a new CSS-only component and component render edits all hot-update with no full reload. rspack
+  HMR unverified - the harness's own control edit doesn't hot-update under rspack + hot-middleware. Each
+  ingredient edit costs one redundant follow-up compile (the regenerated files are themselves watched).
+  Note: Storybook 10 has no web-components webpack5 framework (`@storybook/web-components-webpack5` ends
+  at 8.6.x) - Vite is the only official Storybook builder for web components on the current major.
 - ~~`packages/dev-server` reload handling~~ - **not needed, confirmed by testing against a real
   watcher.** A CSS-only component has no JS to register or bundle, so unlike a real component's
   `.tsx` file, adding/removing/renaming one is *only* a CSS content change - it already rides
@@ -386,6 +425,13 @@ hydrate-CSS exclusion proof + "never referenced in emitted JS" proof), and
   premise itself turned out to be false, not just the fix. If accurate typed autocomplete for
   CSS-only components in the playground is wanted later, that's a real, separate, deliberately-
   chosen feature to design - not something needed to avoid an error.
+- ~~Dev-server auto-preview (`server/dev-preview.ts`)~~ - **done.** `CompilerBuildResults` now
+  carries `cssOnlyComponents` (separate from `components`); the preview renders them with the
+  same description + `usage/*.md` snippet flow as real components, and `handlers.ts` treats a
+  directory as a preview directory if it has a `.tsx` file *or* directly holds a CSS-only
+  component's source (build results only fetched when the dir has a style file). Styling comes
+  from `@import "stencil-css-components"` if placed, otherwise auto-placement (see "Auto-placed
+  `stencil-*` CSS" above).
 - Compile-time tag-prefix/rename - `setTagTransformer()` is a runtime hook with no static-CSS
   equivalent; no compile-time alternative designed yet.
 - A diagnostic for `@component` found nested inside `@media`/`@supports`/`@container` (v1 only

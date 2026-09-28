@@ -11,7 +11,7 @@ export namespace Components {
     interface CmpB {
     }
     /**
-     * A CSS-only badge, used to verify `@import "stencil-css-components"` end-to-end alongside the existing `@import "stencil-globals"`/`@import "stencil-hydrate"` coverage in this fixture.
+     * A CSS-only badge, used to verify `@import "stencil-css-components"` end-to-end alongside the existing `@import "stencil-component-globals"`/`@import "stencil-hydrate"` coverage in this fixture.
      */
     interface CssBadge {
         "variant"?: "danger" | (string & {});
@@ -31,7 +31,7 @@ declare global {
         new (): HTMLCmpBElement;
     };
     /**
-     * A CSS-only badge, used to verify `@import "stencil-css-components"` end-to-end alongside the existing `@import "stencil-globals"`/`@import "stencil-hydrate"` coverage in this fixture.
+     * A CSS-only badge, used to verify `@import "stencil-css-components"` end-to-end alongside the existing `@import "stencil-component-globals"`/`@import "stencil-hydrate"` coverage in this fixture.
      */
     interface HTMLCssBadgeElement extends Components.CssBadge, HTMLStencilElement {
     }
@@ -51,7 +51,7 @@ declare namespace LocalJSX {
     interface CmpB {
     }
     /**
-     * A CSS-only badge, used to verify `@import "stencil-css-components"` end-to-end alongside the existing `@import "stencil-globals"`/`@import "stencil-hydrate"` coverage in this fixture.
+     * A CSS-only badge, used to verify `@import "stencil-css-components"` end-to-end alongside the existing `@import "stencil-component-globals"`/`@import "stencil-hydrate"` coverage in this fixture.
      */
     interface CssBadge {
         "variant"?: "danger" | (string & {});
@@ -74,7 +74,7 @@ declare module "@stencil/core" {
             "cmp-a": LocalJSX.IntrinsicElements["cmp-a"] & JSXBase.HTMLAttributes<HTMLCmpAElement>;
             "cmp-b": LocalJSX.IntrinsicElements["cmp-b"] & JSXBase.HTMLAttributes<HTMLCmpBElement>;
             /**
-             * A CSS-only badge, used to verify `@import "stencil-css-components"` end-to-end alongside the existing `@import "stencil-globals"`/`@import "stencil-hydrate"` coverage in this fixture.
+             * A CSS-only badge, used to verify `@import "stencil-css-components"` end-to-end alongside the existing `@import "stencil-component-globals"`/`@import "stencil-hydrate"` coverage in this fixture.
              */
             "css-badge": LocalJSX.IntrinsicElements["css-badge"] & JSXBase.HTMLAttributes<HTMLCssBadgeElement>;
         }

@@ -248,7 +248,8 @@ export function transpileBaseClass(
  *   a cache-busted re-import and forced re-render.
  * - webpack / rspack / bun: use the `module.hot` re-execution pattern —
  *   `dispose` marks the reload with a flag, `accept` re-runs the module, and
- *   the new prototype is patched onto existing instances in-place. */
+ *   the new class goes to the runtime's `s-hmr-apply` hook, which patches it
+ *   onto the registered one and re-renders live instances. */
 function buildHmrSnippet(
   tagName: string,
   className: string,
@@ -268,10 +269,7 @@ function buildHmrSnippet(
       `\nif (_sHot) {` +
       `\n  if (_sHot.data && _sHot.data.stencilHmr) {` +
       `\n    var _sCtor = customElements.get(${tag});` +
-      `\n    if (_sCtor) Object.getOwnPropertyNames(${className}.prototype).forEach(function(k) {` +
-      `\n      if (k !== 'constructor') Object.defineProperty(_sCtor.prototype, k, Object.getOwnPropertyDescriptor(${className}.prototype, k));` +
-      `\n    });` +
-      `\n    document.querySelectorAll(${tag}).forEach(function(el) { el.connectedCallback && el.connectedCallback(); });` +
+      `\n    if (_sCtor && _sCtor['s-hmr-apply']) _sCtor['s-hmr-apply'](${className});` +
       `\n  }` +
       `\n  _sHot.dispose(function(data) { data.stencilHmr = true; });` +
       `\n  _sHot.accept();` +

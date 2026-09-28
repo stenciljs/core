@@ -60,4 +60,14 @@ describe('generateBuildResults', () => {
 
     expect(results.globalStyleFiles).toEqual([]);
   });
+
+  it('includes CSS-only components separately from real components', () => {
+    const cssOnly = { tagName: 'css-badge' } as d.ComponentCompilerMeta;
+    buildCtx.cssOnlyComponents = [cssOnly];
+
+    const results = generateBuildResults(config, compilerCtx, buildCtx);
+
+    expect(results.cssOnlyComponents).toEqual([cssOnly]);
+    expect(results.components).not.toContain(cssOnly);
+  });
 });

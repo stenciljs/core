@@ -112,11 +112,10 @@ describe('transformStencil', () => {
       expect(result!.code).not.toContain('webpackHot');
     });
 
-    it('re-execution snippet patches registered ctor and calls connectedCallback', async () => {
+    it("re-execution snippet hands the new class to the registered ctor's s-hmr-apply hook", async () => {
       const result = await transformStencil(COMPONENT, '/src/my-button.tsx', {}, true, 'webpack');
       expect(result!.code).toContain('customElements.get("my-button")');
-      expect(result!.code).toContain('Object.getOwnPropertyNames(MyButton.prototype)');
-      expect(result!.code).toContain('connectedCallback');
+      expect(result!.code).toContain("_sCtor['s-hmr-apply'](MyButton)");
     });
   });
 

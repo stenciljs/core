@@ -9,6 +9,7 @@ import {
   normalizePath,
   sortBy,
 } from '../../utils';
+import { getStencilCssFileName } from '../output-targets/output-stencil-css';
 import { getScopeId } from '../style/scope-css';
 
 /**
@@ -224,9 +225,10 @@ const getExternalStylesUpdated = (config: d.Config, buildCtx: d.BuildCtx) => {
   // global-style outputs are handled by the dedicated `globalStylesUpdated` link-patch
   // mechanism above, which avoids a network round-trip and preserves cascade order
   // relative to other `<link>` tags - exclude them here to avoid double-patching.
-  const globalStyleFileNames = new Set(
-    config.outputTargets.filter(isOutputTargetGlobalStyle).map((o) => o.fileName),
-  );
+  const globalStyleFileNames = new Set([
+    ...(config.fsNamespace ? [getStencilCssFileName(config.fsNamespace)] : []),
+    ...config.outputTargets.filter(isOutputTargetGlobalStyle).map((o) => o.fileName),
+  ]);
 
   const cssFiles = buildCtx.filesWritten
     .filter((f) => f.endsWith('.css'))

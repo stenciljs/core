@@ -20,6 +20,39 @@ const mount = async (page: Page, files?: PlaygroundFile[]): Promise<PreviewResul
   return ev.detail;
 };
 
+/**
+ * The preview iframe's CSS rules, from both adopted and regular stylesheets. Assert on the preview
+ * from the test itself (this, or {@link previewFlag}) rather than by throwing from
+ * `componentDidLoad`: `mount` resolves on the first `previewResult`, which auto-mount posts before
+ * components finish rendering - so a later throw can't fail the test.
+ * @param page the test page
+ * @returns every rule's `cssText`, and the layers that contain a given selector
+ */
+// the preview is a srcdoc iframe - not the dev server's connector iframe
+const previewFrame = (page: Page) => page.frames().find((f) => f.url() === 'about:srcdoc')!;
+
+const previewCssRules = (page: Page) =>
+  previewFrame(page).evaluate(() => {
+    const sheets = [...document.adoptedStyleSheets, ...Array.from(document.styleSheets)];
+    const rules = sheets.flatMap((sheet) => Array.from(sheet.cssRules));
+    return {
+      cssText: rules.map((r) => r.cssText).join('\n'),
+      layers: rules
+        .filter((r): r is CSSLayerBlockRule => r instanceof CSSLayerBlockRule)
+        .map((r) => ({ name: r.name, cssText: r.cssText })),
+    };
+  });
+
+/**
+ * A boolean the previewed components set on `window` - e.g. to record whether a global script
+ * had run by the time they loaded.
+ * @param page the test page
+ * @param name the `window` property
+ * @returns its value, `undefined` until set
+ */
+const previewFlag = (page: Page, name: string) =>
+  previewFrame(page).evaluate((key) => (window as unknown as Record<string, unknown>)[key], name);
+
 test.beforeEach(async ({ page }) => {
   await page.goto('/test/fixture.html');
 });
@@ -307,12 +340,12 @@ export class MyComponent {
     expect(result).toEqual({ ok: true, message: undefined });
   });
 
-  test('resolves @import "stencil-globals"/"stencil-hydrate" in a global stylesheet', async ({
+  test('resolves @import "stencil-component-globals"/"stencil-hydrate" in a global stylesheet', async ({
     page,
   }) => {
-    // Regression test: previously threw "Failed to resolve module specifier './stencil-globals'"
+    // Regression test: previously threw "Failed to resolve module specifier './stencil-component-globals'"
     // - transpileSync's CSS-to-ESM transform treated the virtual specifier as a real relative
-    // import. `stencil-globals` should collect the component's `globalStyleUrl` CSS;
+    // import. `stencil-component-globals` should collect the component's `globalStyleUrl` CSS;
     // `stencil-hydrate` has nothing to produce in a live preview (no SSR/hydration boundary), so
     // it should just resolve to nothing rather than crash.
     const result = await mount(page, [
@@ -322,15 +355,6 @@ export class MyComponent {
 
 @Component({ tag: 'my-component', globalStyleUrl: './my-component.global.css' })
 export class MyComponent {
-  componentDidLoad() {
-    const css = Array.from(document.adoptedStyleSheets)
-      .flatMap((sheet) => Array.from(sheet.cssRules))
-      .map((r) => r.cssText)
-      .join('\\n');
-    if (!css.includes('component-global-style-marker')) {
-      throw new Error('the component globalStyleUrl was not collected into stencil-globals');
-    }
-  }
   render() {
     return <div>Hello from Stencil!</div>;
   }
@@ -344,13 +368,53 @@ export class MyComponent {
       {
         name: 'global.css',
         content: `
-@import "stencil-globals";
+@import "stencil-component-globals";
 @import "stencil-hydrate";
 .global-style-marker { color: red; }
 `,
       },
     ]);
     expect(result).toEqual({ ok: true, message: undefined });
+    await expect
+      .poll(async () => (await previewCssRules(page)).cssText)
+      .toContain('component-global-style-marker');
+  });
+
+  test('resolves @import "stencil-css-components" into a layer', async ({ page }) => {
+    const result = await mount(page, [
+      {
+        name: 'my-component.tsx',
+        content: `import { Component, h } from '@stencil/core';
+
+@Component({ tag: 'my-component' })
+export class MyComponent {
+  render() {
+    return <css-badge>hi</css-badge>;
+  }
+}
+`,
+      },
+      {
+        name: 'css-badge.css',
+        content: `/** @component */
+css-badge { padding: 4px; }
+`,
+      },
+      {
+        name: 'global.css',
+        content: `@import "stencil-css-components" layer(cmps);
+.global-style-marker { color: red; }
+`,
+      },
+    ]);
+    expect(result).toEqual({ ok: true, message: undefined });
+    await expect
+      .poll(async () =>
+        (await previewCssRules(page)).layers.some(
+          (l) => l.name === 'cmps' && l.cssText.includes('css-badge'),
+        ),
+      )
+      .toBe(true);
   });
 
   test('auto-detects global.css/global.ts by convention with no stencil.config.ts at all', async ({
@@ -364,15 +428,7 @@ export class MyComponent {
 @Component({ tag: 'my-component' })
 export class MyComponent {
   componentDidLoad() {
-    if ((window as any).globalScriptRan !== true) {
-      throw new Error('global script did not run before the component mounted');
-    }
-    const injected = Array.from(document.adoptedStyleSheets).some((sheet) =>
-      Array.from(sheet.cssRules).some((r) => r.cssText.includes('playground-global-style-marker')),
-    );
-    if (!injected) {
-      throw new Error('global style was not injected');
-    }
+    (window as any).globalScriptRanBeforeLoad = (window as any).globalScriptRan === true;
   }
   render() {
     return <div>Hello from Stencil!</div>;
@@ -393,12 +449,13 @@ export class MyComponent {
       },
     ]);
     expect(result).toEqual({ ok: true, message: undefined });
+    await expect.poll(() => previewFlag(page, 'globalScriptRanBeforeLoad')).toBe(true);
+    await expect
+      .poll(async () => (await previewCssRules(page)).cssText)
+      .toContain('playground-global-style-marker');
   });
 
   test('executes a configured Config.globalScript before the preview mounts', async ({ page }) => {
-    // The preview iframe is sandboxed with `allow-scripts` only (opaque origin), so its
-    // document is cross-origin from this test - verified from inside the iframe instead, via the
-    // same throw -> setErrorHandler -> previewResult path the other tests rely on.
     const result = await mount(page, [
       {
         name: 'my-component.tsx',
@@ -407,9 +464,7 @@ export class MyComponent {
 @Component({ tag: 'my-component' })
 export class MyComponent {
   componentDidLoad() {
-    if ((window as any).globalScriptRan !== true) {
-      throw new Error('global script did not run before the component mounted');
-    }
+    (window as any).globalScriptRanBeforeLoad = (window as any).globalScriptRan === true;
   }
   render() {
     return <div>Hello from Stencil!</div>;
@@ -435,6 +490,7 @@ export const config: Config = {
       },
     ]);
     expect(result).toEqual({ ok: true, message: undefined });
+    await expect.poll(() => previewFlag(page, 'globalScriptRanBeforeLoad')).toBe(true);
   });
 
   test('injects a configured Config.globalStyle into the preview', async ({ page }) => {
@@ -445,14 +501,6 @@ export const config: Config = {
 
 @Component({ tag: 'my-component' })
 export class MyComponent {
-  componentDidLoad() {
-    const injected = Array.from(document.adoptedStyleSheets).some((sheet) =>
-      Array.from(sheet.cssRules).some((r) => r.cssText.includes('playground-global-style-marker')),
-    );
-    if (!injected) {
-      throw new Error('global style was not injected');
-    }
-  }
   render() {
     return <div>Hello from Stencil!</div>;
   }
@@ -474,6 +522,9 @@ export const config: Config = {
       },
     ]);
     expect(result).toEqual({ ok: true, message: undefined });
+    await expect
+      .poll(async () => (await previewCssRules(page)).cssText)
+      .toContain('playground-global-style-marker');
   });
 
   test('compiles and injects every explicit `global-style` output target', async ({ page }) => {
@@ -484,15 +535,6 @@ export const config: Config = {
 
 @Component({ tag: 'my-component' })
 export class MyComponent {
-  componentDidLoad() {
-    const css = Array.from(document.adoptedStyleSheets)
-      .flatMap((sheet) => Array.from(sheet.cssRules))
-      .map((r) => r.cssText)
-      .join('\\n');
-    if (!css.includes('marker-one') || !css.includes('marker-two')) {
-      throw new Error('not every global-style output target was injected');
-    }
-  }
   render() {
     return <div>Hello from Stencil!</div>;
   }
@@ -521,5 +563,7 @@ export const config: Config = {
       },
     ]);
     expect(result).toEqual({ ok: true, message: undefined });
+    await expect.poll(async () => (await previewCssRules(page)).cssText).toContain('marker-one');
+    expect((await previewCssRules(page)).cssText).toContain('marker-two');
   });
 });

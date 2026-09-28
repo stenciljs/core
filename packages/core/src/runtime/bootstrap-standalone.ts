@@ -27,7 +27,7 @@ import {
   patchSlotRemoveChild,
   patchTextContent,
 } from './dom-extras';
-import { hmrStart } from './hmr-component';
+import { hmrApplyClass, hmrStart } from './hmr-component';
 import { computeMode } from './mode';
 import { normalizeWatchers } from './normalize-watchers';
 import { proxyComponent } from './proxy-component';
@@ -81,6 +81,9 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
       (Cstr.prototype as d.HostElement)['s-hmr'] = function (hmrVersionId: string) {
         hmrStart(this, cmpMeta, hmrVersionId);
       };
+      // for bundlers that re-execute the module themselves (webpack/rspack `module.hot`) and hand
+      // over the new class - called on the registered constructor
+      Cstr['s-hmr-apply'] = (NewClass: unknown) => hmrApplyClass(cmpMeta, NewClass);
     }
 
     // patchCloneNode applies to all non-shadow components, not just those with slots

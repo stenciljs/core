@@ -31,216 +31,49 @@
  *     `resolveId`, so the whole test file - not just compiler output - resolves
  *     to a single platform instance.
  *
- *  6. **Virtual global-stylesheet imports** - a real `.css` file containing
- *     `@import "stencil-globals"`/`"stencil-hydrate"`/`"stencil-css-components"`
- *     is rewritten in `transform`, mirroring the full compiler's own string
- *     substitution rather than asking the bundler's CSS engine to resolve them
- *     (see `global-css.ts`). `handleHotUpdate` tracks the reverse dependency so
- *     editing an ingredient file (e.g. a component's `globalStyleUrl`) invalidates
- *     the consumer stylesheet, not just files the bundler's own graph would catch.
+ *  6. **Virtual global-stylesheet imports** - `@import "stencil-component-globals"`/
+ *     `"stencil-hydrate"`/`"stencil-css-components"` resolve to generated stylesheets (see
+ *     `global-css.ts`) via `resolveId`, or under Vite - which doesn't consult plugins for CSS
+ *     `@import` - via an alias. The bundler then treats them like any other CSS. `load` registers
+ *     their ingredient files (e.g. a component's `globalStyleUrl`) for watch mode;
+ *     `handleHotUpdate` regenerates them for Vite HMR.
  */
-import { readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { existsSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { createFilter } from '@rollup/pluginutils';
-import {
-  transpile,
-  cmpMetaToDocsComponent,
-  generateManifest,
-  parseCssOnlyComponents,
-  validateHydrated,
-} from '@stencil/core/compiler';
+import { validateHydrated } from '@stencil/core/compiler';
 import { createUnplugin } from 'unplugin';
-import type {
-  BuildOverrides,
-  ComponentCompilerMeta,
-  ComponentGlobalStyle,
-  CustomElementsManifest,
-  HydratedFlag,
-  JsonDocsComponent,
-} from '@stencil/core/compiler';
-import type { ModuleNode } from 'vite';
+import type { BuildOverrides, HydratedFlag } from '@stencil/core/compiler';
+import type { ModuleNode, ViteDevServer } from 'vite';
 
 import { loadStencilConfig, stencilConfigToOverrides } from './config.js';
+import { getRealCssPath, isStencilCss, loadStencilCss, resolveStencilCss } from './css.js';
 import {
-  collectStyleDocsForComponent,
-  getRealCssPath,
-  isStencilCss,
-  loadStencilCss,
-  resolveStencilCss,
-} from './css.js';
-import {
-  hasVirtualGlobalImport,
-  invalidateGlobalCssFile,
-  resolveVirtualGlobalImports,
+  createVirtualGlobalCss,
+  getHydrateTagNames,
+  virtualGlobalStylesheetAlias,
+  virtualGlobalStylesheetAliasMap,
 } from './global-css.js';
+import {
+  componentGlobalStyles,
+  cssOnlyComponentFiles,
+  docsRegistry,
+  getRegistrySnapshot,
+  getStencilCEM,
+  refreshComponentDocs,
+  rescanIfCssOnlyComponent,
+  rescanNewCssOnlyComponents,
+  scanCssOnlyDocsFile,
+  scanDocs,
+} from './project-scan.js';
 import { resolveImportedTypes } from './resolve-types.js';
 import { resolveSpecifier, transformStencil, transpileBaseClass } from './transform.js';
-import type { GlobalCssProjectData } from './global-css.js';
 import type { StencilPluginOptions } from './options.js';
+
+export { getStencilCEM } from './project-scan.js';
 
 export const STENCIL_DOCS_ID = '@stencil/unplugin/docs';
 const VIRTUAL_DOCS_PREFIX = '\0stencil-docs:';
-
-// Module-level registry so getStencilDocs() is callable from outside the plugin
-// (e.g. from a Storybook preset running in Node.js).
-const docsRegistry = new Map<string, JsonDocsComponent>();
-
-// Module-level, alongside docsRegistry - the project-wide data `@import "stencil-globals"`/
-// `"stencil-css-components"` need, populated by the same scanDocs() walk. Tag names for
-// `@import "stencil-hydrate"` come from docsRegistry's keys directly.
-const componentGlobalStyles: ComponentGlobalStyle[] = [];
-const cssOnlyComponentFiles = new Set<string>();
-
-/**
- * A snapshot of the whole docs registry's content, used to detect whether a CSS-only
- * component's docs changed after a re-scan. A `.css` file's tag(s) aren't known until after parsing
- *  - and it may define more than one; compares the whole registry rather than one entry.
- * Cheap in practice: only runs on file save
- *
- * @returns a string that changes whenever any registry entry's content does
- */
-const getRegistrySnapshot = (): string =>
-  JSON.stringify([...docsRegistry.entries()].sort(([a], [b]) => a.localeCompare(b)));
-
-/**
- * Returns the current CEM. Only populated when `docs: true` is set.
- * @returns the current CEM, or an empty CEM if `docs: true` was not set.
- */
-export function getStencilCEM(): CustomElementsManifest {
-  return generateManifest({ components: [...docsRegistry.values()] });
-}
-
-const isTsSourceFile = (abs: string): boolean =>
-  (abs.endsWith('.tsx') || abs.endsWith('.ts')) && !abs.endsWith('.d.ts');
-
-const isCssFile = (abs: string): boolean => abs.endsWith('.css');
-
-/**
- * Recursively collect file paths matching `matches` under `dir`, pruning
- * `node_modules` and hidden directories (`.git`, `.vite`, etc.) as it goes.
- *
- * `readdirSync(dir, { recursive: true })` can't prune during traversal - it
- * walks everything first and only lets the caller filter the flat result
- * afterward, which is disastrous under a symlink-heavy `node_modules` (e.g.
- * pnpm's `.pnpm` store, which flattens every dependency in the workspace) -
- * it can take minutes just to list, blocking `buildStart` the whole time.
- *
- * @param dir the directory to walk
- * @param matches predicate applied to each file's absolute path
- * @param out accumulator array of absolute file paths, mutated in place
- */
-function collectFiles(dir: string, matches: (abs: string) => boolean, out: string[]): void {
-  let entries: import('node:fs').Dirent[];
-  try {
-    entries = readdirSync(dir, { withFileTypes: true });
-  } catch {
-    return;
-  }
-  for (const entry of entries) {
-    if (entry.name === 'node_modules' || entry.name.startsWith('.')) continue;
-    const abs = join(dir, entry.name);
-    if (entry.isDirectory()) {
-      collectFiles(abs, matches, out);
-    } else if (entry.isFile() && matches(abs)) {
-      out.push(abs);
-    }
-  }
-}
-
-/**
- * Parse a single `.css` file for CSS-only components (pure-CSS custom-element definitions
- * marked with a `@component` JSDoc tag - see `@stencil/core/compiler`'s `parseCssOnlyComponents`)
- * and register each one in the docs registry with `cssOnly: true`.
- * @param abs absolute path to the `.css` file
- */
-async function scanCssOnlyDocsFile(abs: string): Promise<void> {
-  let code: string;
-  try {
-    code = readFileSync(abs, 'utf-8');
-  } catch {
-    return;
-  }
-  // Cheap guard, same one parseCssOnlyComponents applies internally - skip the
-  // postcss parse cost for the vast majority of .css files that aren't components.
-  if (!code.includes('@component')) return;
-
-  const { components } = await parseCssOnlyComponents(abs, code);
-  if (components.length > 0) cssOnlyComponentFiles.add(abs);
-  for (const item of components) {
-    // No resolveImportedTypes call here - a CSS-only component's props are always literal
-    // unions/primitives with empty `references`, never an imported TS type to resolve.
-    docsRegistry.set(item.tagName, { ...cmpMetaToDocsComponent(item, abs), cssOnly: true });
-  }
-}
-
-/**
- * Re-derives one component's docs from its `.tsx` / `.ts` source and merges the result into the
- * docs registry.
- *
- * @param tag the custom-element tag name to refresh
- * @param filePath absolute path to the component's `.tsx`/`.ts` source
- * @returns `true` if the registry entry's content actually changed
- */
-async function refreshComponentDocs(tag: string, filePath: string): Promise<boolean> {
-  const prevSnapshot = JSON.stringify(docsRegistry.get(tag));
-  try {
-    const code = readFileSync(filePath, 'utf-8');
-    const result = await transpile(code, { file: filePath, componentExport: 'customelement' });
-
-    for (const item of result.data ?? []) {
-      if (!item.tagName) continue;
-      await collectStyleDocsForComponent(item, filePath);
-      const component = cmpMetaToDocsComponent(item, filePath);
-      resolveImportedTypes(component, filePath);
-      docsRegistry.set(item.tagName, component);
-    }
-  } catch {
-    return false; // stale docs are acceptable on transpile error
-  }
-  return JSON.stringify(docsRegistry.get(tag)) !== prevSnapshot;
-}
-
-/**
- * Scan the project for component source files (`.tsx`/`.ts`) and CSS-only components
- * (`.css`), pre-populating the docs registry, `componentGlobalStyles`, and
- * `cssOnlyComponentFiles` - the project-wide data the virtual global-stylesheet imports need
- * (see `global-css.ts`), gathered eagerly so it doesn't depend on module-graph visitation order.
- * @param filter A function to filter which `.tsx`/`.ts` files should be included - not applied
- * to `.css` files, since the default `include` (`/\.tsx?$/`) would otherwise exclude all of them.
- * @param collectStyleDocs Whether to also collect CSS custom-property docs for each component's
- * stylesheet(s) - the extra parse cost only pays off when `options.docs` is set.
- * @returns A promise that resolves when the scan is complete.
- */
-async function scanDocs(filter: (id: string) => boolean, collectStyleDocs: boolean): Promise<void> {
-  const cwd = process.cwd();
-  const allFiles: string[] = [];
-  collectFiles(cwd, (abs) => isTsSourceFile(abs) || isCssFile(abs), allFiles);
-
-  const tsxFiles = allFiles.filter((abs) => isTsSourceFile(abs) && filter(abs));
-  const cssFiles = allFiles.filter(isCssFile);
-
-  await Promise.all([
-    ...tsxFiles.map(async (abs) => {
-      let code: string;
-      try {
-        code = readFileSync(abs, 'utf-8');
-      } catch {
-        return;
-      }
-      if (!/(@Component|@Prop|@State|@Event|@Method|@Watch|@Listen)\s*[(\s]/.test(code)) return;
-      const result = await transpile(code, { file: abs, componentExport: 'customelement' });
-      for (const item of (result.data ?? []) as ComponentCompilerMeta[]) {
-        if (!item.tagName) continue;
-        if (collectStyleDocs) await collectStyleDocsForComponent(item, abs);
-        const component = cmpMetaToDocsComponent(item, abs);
-        resolveImportedTypes(component, abs);
-        docsRegistry.set(item.tagName, component);
-        if (item.globalStyles?.length) componentGlobalStyles.push(...item.globalStyles);
-      }
-    }),
-    ...cssFiles.map(scanCssOnlyDocsFile),
-  ]);
-}
 
 // Null-byte prefix marks a virtual module - Rollup/Vite convention that
 // prevents the ID from being treated as a real filesystem path.
@@ -258,6 +91,64 @@ interface RollupResolveContext {
     importer?: string,
     options?: { skipSelf?: boolean },
   ): Promise<{ id: string; external?: boolean } | null>;
+}
+
+/** The parts of Vite's dev server `handleHotUpdate` uses. */
+interface HmrServer {
+  ws: { send: (msg: unknown) => void };
+  moduleGraph: {
+    invalidateModule(
+      mod: ModuleNode,
+      seen?: Set<unknown>,
+      timestamp?: number,
+      isHmr?: boolean,
+    ): void;
+    getModuleById?(id: string): ModuleNode | undefined;
+    getModulesByFile?(file: string): Set<ModuleNode> | undefined;
+    idToModuleMap?: Map<string, ModuleNode>;
+  };
+}
+
+const getModuleById = (server: HmrServer, id: string) =>
+  server.moduleGraph.getModuleById?.(id) ?? server.moduleGraph.idToModuleMap?.get(id);
+
+const invalidate = (server: HmrServer, mod: ModuleNode) =>
+  server.moduleGraph.invalidateModule(mod, new Set(), Date.now(), true);
+
+const PLUGIN_NAME = '@stencil/unplugin';
+
+interface Tapable<Args extends unknown[], Result = void> {
+  tap(name: string, fn: (...args: Args) => Result): void;
+}
+
+interface LoaderContextDeps {
+  resourcePath: string;
+  addDependency(path: string): void;
+  addContextDependency(path: string): void;
+}
+
+/** The parts of a webpack/rspack compiler used to keep the generated stylesheets current. */
+interface BundlerCompiler {
+  hooks: {
+    watchRun: {
+      tapPromise(
+        name: string,
+        fn: (compiler: { modifiedFiles?: ReadonlySet<string> }) => Promise<void>,
+      ): void;
+    };
+    beforeCompile: { tapPromise(name: string, fn: () => Promise<void>): void };
+    thisCompilation: Tapable<[compilation: unknown]>;
+  };
+  webpack: {
+    NormalModule: {
+      getCompilationHooks(compilation: unknown): {
+        beforeLoaders?: Tapable<
+          [loaders: unknown, module: { resource?: string }, loaderContext: LoaderContextDeps]
+        >;
+        loader?: Tapable<[loaderContext: LoaderContextDeps]>;
+      };
+    };
+  };
 }
 
 export const unpluginStencil = createUnplugin(
@@ -328,38 +219,192 @@ export const unpluginStencil = createUnplugin(
       return projectScanPromise;
     }
 
-    // Reverse dependency map for the virtual global-stylesheet imports
-    // (e.g. `@import "stencil-globals"`/`"stencil-css-components"): a component's globalStyleUrl,
-    // or a CSS-only-component file.
-    const globalCssConsumers = new Map<string, Set<string>>();
+    async function loadConfig() {
+      const detected = await loadStencilConfig(projectRoot);
+      // Merge: auto-detected config is the base; explicit stencilConfig overrides field-by-field.
+      const merged = detected
+        ? {
+            ...detected,
+            ...options.stencilConfig,
+            compat: { ...detected.compat, ...options.stencilConfig?.compat },
+          }
+        : (options.stencilConfig ?? {});
+      configOverrides = stencilConfigToOverrides(merged);
+      hydratedFlag = validateHydrated({ hydratedFlag: merged.hydratedFlag });
+    }
+    // Some bundlers (rspack's `beforeCompile`) ask for the virtual stylesheets before `buildStart`.
+    let stencilConfigLoaded: Promise<void> | null = null;
 
-    function trackGlobalCssDeps(consumerPath: string, deps: string[]) {
-      for (const dep of deps) {
-        if (!globalCssConsumers.has(dep)) globalCssConsumers.set(dep, new Set());
-        globalCssConsumers.get(dep)!.add(consumerPath);
+    // The generated virtual global stylesheets (see `global-css.ts`) - their dir is set by Vite's
+    // `config` hook / rspack's plugin hook, otherwise in `buildStart`.
+    const virtualCss = createVirtualGlobalCss(
+      async () => {
+        stencilConfigLoaded ??= loadConfig();
+        await Promise.all([stencilConfigLoaded, ensureProjectScanned()]);
+        return {
+          componentGlobalStyles,
+          cssOnlyComponentFiles,
+          tagNames: getHydrateTagNames(docsRegistry.values()),
+          hydratedFlag,
+        };
+      },
+      () => isDev,
+    );
+
+    /**
+     * webpack/rspack: they read the generated stylesheets straight from disk (`load` never runs for
+     * them), so this (re)writes them before every compile and makes their modules depend on the
+     * ingredient files - otherwise an ingredient edit neither triggers a watch-mode rebuild nor
+     * invalidates the cached stylesheet module. `src/` too, so a newly added CSS-only component
+     * does - not the whole project root, where build output would trigger rebuilds in a loop.
+     * @param compiler the webpack/rspack compiler
+     */
+    function watchVirtualCssForCompiles(compiler: BundlerCompiler) {
+      // before regenerating: a changed/added stylesheet may change which CSS-only components
+      // exist. Here rather than `watchChange`, which isn't awaited before the compile starts.
+      compiler.hooks.watchRun.tapPromise(PLUGIN_NAME, async ({ modifiedFiles }) => {
+        if (!virtualCss.started) return;
+        for (const file of modifiedFiles ?? []) {
+          await rescanIfCssOnlyComponent(file);
+          // a file added to a watched directory is reported as the directory itself
+          await rescanNewCssOnlyComponents(file);
+        }
+      });
+      compiler.hooks.beforeCompile.tapPromise(PLUGIN_NAME, () =>
+        virtualCss.forCompile(projectRoot),
+      );
+      compiler.hooks.thisCompilation.tap(PLUGIN_NAME, (compilation) => {
+        const addIngredients = (resource: string | undefined, loaderContext: LoaderContextDeps) => {
+          if (!resource || !virtualCss.isPath(resource)) return;
+          for (const dep of virtualCss.deps) loaderContext.addDependency(dep);
+          const srcDir = resolve(projectRoot, 'src');
+          if (existsSync(srcDir)) loaderContext.addContextDependency(srcDir);
+        };
+        const hooks = compiler.webpack.NormalModule.getCompilationHooks(compilation);
+        // webpack discards dependencies added in `loader` (the loader run starts a fresh list), and
+        // hasn't set `resourcePath` yet in `beforeLoaders`; rspack only has `loader`
+        if (hooks.beforeLoaders) {
+          hooks.beforeLoaders.tap(PLUGIN_NAME, (_loaders, module, ctx) =>
+            addIngredients(module.resource, ctx),
+          );
+        } else {
+          hooks.loader?.tap(PLUGIN_NAME, (ctx) => addIngredients(ctx.resourcePath, ctx));
+        }
+      });
+    }
+
+    /**
+     * Vite HMR: tell the client its docs changed, invalidating the docs virtual module.
+     * @param server the dev server
+     */
+    function notifyDocsChanged(server: HmrServer) {
+      const docsVirtualMod = getModuleById(server, VIRTUAL_DOCS_PREFIX);
+      if (docsVirtualMod) invalidate(server, docsVirtualMod);
+      server.ws.send({ type: 'custom', event: 'stencil:docs-update' });
+    }
+
+    /**
+     * Vite HMR, `docs` only: refresh docs affected by a changed stylesheet - a CSS-only
+     * component's own file, or a regular component's linked `styleUrl`.
+     * @param file the changed stylesheet
+     * @param server the dev server
+     */
+    async function refreshDocsForStylesheet(file: string, server: HmrServer) {
+      try {
+        const code = readFileSync(file, 'utf-8');
+        if (code.includes('@component')) {
+          // CSS-only components have no tracked tag / virtual-module entries (they're
+          // never imported directly by anything) - handle their docs-registry refresh here.
+          // No stencil:hmr to send; no JS component instance, only docs need refreshing.
+          const prevSnapshot = JSON.stringify(getRegistrySnapshot());
+          await scanCssOnlyDocsFile(file);
+          if (JSON.stringify(getRegistrySnapshot()) !== prevSnapshot) notifyDocsChanged(server);
+        } else {
+          // A regular component's *linked* stylesheet (styleUrl) - re-derive docs from
+          // each owning tag's `.tsx` source, the same as if that file had changed directly.
+          let anyChanged = false;
+          for (const tag of cssFileToTagNames.get(file) ?? []) {
+            const ownerFile = tagToFile.get(tag);
+            if (ownerFile && (await refreshComponentDocs(tag, ownerFile))) anyChanged = true;
+          }
+          if (anyChanged) notifyDocsChanged(server);
+        }
+      } catch {
+        // stale docs are acceptable on parse error
       }
+    }
+
+    /**
+     * Vite HMR: regenerate the virtual global stylesheets and hot-update whatever imports the ones
+     * that changed. Vite doesn't watch them (under node_modules), so they're returned as HMR modules
+     * - the documented pattern for hot-updating an untracked dependency.
+     * @param file the changed file
+     * @param server the dev server
+     * @returns the modules to hot-update
+     */
+    async function hotUpdateVirtualCss(file: string, server: HmrServer): Promise<ModuleNode[]> {
+      // with `docs`, refreshDocsForStylesheet already rescanned CSS-only components
+      if (virtualCss.started && !options.docs) await rescanIfCssOnlyComponent(file);
+      const modules: ModuleNode[] = [];
+      for (const written of await virtualCss.hotUpdate(file)) {
+        for (const mod of server.moduleGraph.getModulesByFile?.(written) ?? []) {
+          invalidate(server, mod);
+          modules.push(mod);
+        }
+      }
+      return modules;
+    }
+
+    /**
+     * Vite HMR: send `stencil:hmr` for every component the changed file belongs to.
+     * @param file the changed file
+     * @param server the dev server
+     * @returns whether the file belongs to any component
+     */
+    async function hotUpdateComponents(file: string, server: HmrServer): Promise<boolean> {
+      const tsxTag = fileToTagName.get(file);
+      const tagNames = new Set<string>(cssFileToTagNames.get(file));
+      if (tsxTag) tagNames.add(tsxTag);
+      if (tagNames.size === 0) return false;
+
+      // Invalidate every virtual CSS module that depends on this file so
+      // Vite adds ?t=timestamp when re-serving the TSX - busts browser cache.
+      for (const virtualId of cssRealToVirtualIds.get(file) ?? []) {
+        const virtualMod = getModuleById(server, virtualId);
+        if (virtualMod) invalidate(server, virtualMod);
+      }
+      // Update the docs registry and notify the client only when the CEM
+      // actually changed (new/renamed prop, type update, JSDoc edit, etc.).
+      // Pure implementation changes leave the CEM identical and fall through
+      // to normal stencil:hmr so HMR is not disrupted.
+      if (options.docs && tsxTag && (await refreshComponentDocs(tsxTag, file))) {
+        notifyDocsChanged(server);
+      }
+      for (const tagName of tagNames) {
+        server.ws.send({ type: 'custom', event: 'stencil:hmr', data: { tagName } });
+      }
+      return true;
     }
 
     return {
       name: '@stencil/unplugin',
 
       async buildStart() {
-        const detected = await loadStencilConfig(projectRoot);
-        // Merge: auto-detected config is the base; explicit stencilConfig overrides field-by-field.
-        const merged = detected
-          ? {
-              ...detected,
-              ...options.stencilConfig,
-              compat: { ...detected.compat, ...options.stencilConfig?.compat },
-            }
-          : (options.stencilConfig ?? {});
-        configOverrides = stencilConfigToOverrides(merged);
-        hydratedFlag = validateHydrated({ hydratedFlag: merged.hydratedFlag });
+        // reloaded every build, so a watch-mode rebuild picks up stencil.config changes
+        stencilConfigLoaded = loadConfig();
+        await stencilConfigLoaded;
         if (options.docs) await ensureProjectScanned();
+        virtualCss.useDefaultDir(projectRoot);
+        // Vite never asks `resolveId` about CSS `@import`s, so generate up front if they're used -
+        // and regenerate on a watch-mode rebuild, which reads them straight from disk
+        if (framework === 'vite') await virtualCss.forCompile(projectRoot);
       },
 
       async resolveId(id, importer) {
         if (id === STENCIL_DOCS_ID) return VIRTUAL_DOCS_PREFIX;
+
+        const virtualCssPath = await virtualCss.resolveId(id, importer);
+        if (virtualCssPath) return virtualCssPath;
 
         // spec-page mode transpiles components against `@stencil/core/testing`'s
         // platform (hostRefs, mode chain, etc. - a separate module instance from
@@ -400,29 +445,11 @@ export const unpluginStencil = createUnplugin(
       },
 
       transformInclude(id) {
-        const cleanId = id.split('?')[0];
-        return filter(cleanId) || isCssFile(cleanId);
+        return filter(id.split('?')[0]);
       },
 
       async transform(code, id) {
         const cleanId = id.split('?')[0];
-
-        if (isCssFile(cleanId)) {
-          // Cheap guard - the vast majority of real .css files the bundler visits have nothing
-          // to do with this feature, so skip the project scan/collection work entirely for them.
-          if (!hasVirtualGlobalImport(code)) return null;
-          await ensureProjectScanned();
-          const data: GlobalCssProjectData = {
-            componentGlobalStyles,
-            cssOnlyComponentFiles,
-            tagNames: new Set(docsRegistry.keys()),
-            hydratedFlag,
-          };
-          const { code: resolvedCode, deps } = await resolveVirtualGlobalImports(code, data, isDev);
-          trackGlobalCssDeps(cleanId, deps);
-          for (const dep of deps) this.addWatchFile(dep);
-          return { code: resolvedCode, map: null };
-        }
 
         if (!configOverrides.vdomSignals && SIGNALS_IMPORT_RE.test(code)) {
           configOverrides = { ...configOverrides, vdomSignals: true };
@@ -448,12 +475,22 @@ export const unpluginStencil = createUnplugin(
       },
 
       loadInclude(id) {
-        return id === VIRTUAL_DOCS_PREFIX || isStencilCss(id) || id.startsWith(VIRTUAL_BASE_PREFIX);
+        return (
+          id === VIRTUAL_DOCS_PREFIX ||
+          isStencilCss(id) ||
+          id.startsWith(VIRTUAL_BASE_PREFIX) ||
+          virtualCss.isPath(id)
+        );
       },
 
       async load(id) {
         if (id === VIRTUAL_DOCS_PREFIX) {
           return `export default ${JSON.stringify(getStencilCEM())}`;
+        }
+        if (virtualCss.isPath(id)) {
+          const { code, deps } = await virtualCss.load(id);
+          for (const dep of deps) this.addWatchFile(dep);
+          return { code, map: null };
         }
         if (id.startsWith(VIRTUAL_BASE_PREFIX)) {
           const realPath = id.slice(VIRTUAL_BASE_PREFIX.length);
@@ -480,117 +517,74 @@ export const unpluginStencil = createUnplugin(
         return null;
       },
 
+      // Watch mode for bundlers `load` regenerates for (Vite: `handleHotUpdate`; webpack/rspack:
+      // `watchVirtualCssForCompiles`) - only a change in which CSS-only components exist needs a
+      // rescan first.
+      async watchChange(id) {
+        if (!['vite', 'webpack', 'rspack'].includes(framework) && virtualCss.started) {
+          await rescanIfCssOnlyComponent(id);
+        }
+      },
+
+      // webpack/rspack read the resolved stylesheets straight from disk (`load` never runs for
+      // them), so (re)write them before every compile - watch-mode rebuilds included.
+      webpack(compiler) {
+        watchVirtualCssForCompiles(compiler);
+      },
+
+      // rspack's `css-loader` resolves `@import` natively, without asking `resolveId` - alias the
+      // virtual imports to their generated stylesheets instead, like Vite.
+      rspack(compiler) {
+        virtualCss.useDefaultDir(compiler.options.context ?? projectRoot);
+        const alias = compiler.options.resolve.alias;
+        compiler.options.resolve.alias = {
+          ...(alias && !Array.isArray(alias) ? alias : {}),
+          ...virtualGlobalStylesheetAliasMap(virtualCss.dir),
+        };
+        watchVirtualCssForCompiles(compiler);
+      },
+
       vite: {
         // Must run before Vite/rolldown's built-in TSX transform, which would
         // otherwise claim the file and emit react/jsx-dev-runtime imports.
         enforce: 'pre' as const,
+
+        config(userConfig: { root?: string }, env: { command: string }) {
+          // per command: a dev server and a build in the same project (e.g. an app plus
+          // Storybook) generate differently-optimized CSS and mustn't overwrite each other's
+          virtualCss.setDir(
+            resolve(
+              userConfig.root ?? process.cwd(),
+              'node_modules',
+              '.stencil',
+              'virtual-css',
+              env.command,
+            ),
+          );
+          return { resolve: { alias: [virtualGlobalStylesheetAlias(virtualCss.dir)] } };
+        },
 
         configResolved(config: { command: string; root: string }) {
           isDev = options.dev ?? config.command === 'serve';
           projectRoot = config.root;
         },
 
-        async handleHotUpdate({
-          file,
-          server,
-        }: {
-          file: string;
-          server: {
-            ws: { send: (msg: unknown) => void };
-            moduleGraph: {
-              invalidateModule(
-                mod: ModuleNode,
-                seen?: Set<unknown>,
-                timestamp?: number,
-                isHmr?: boolean,
-              ): void;
-              getModuleById?(id: string): ModuleNode | undefined;
-              idToModuleMap?: Map<string, ModuleNode>;
-            };
-          };
-        }) {
-          const notifyDocsChanged = () => {
-            const docsVirtualMod =
-              server.moduleGraph.getModuleById?.(VIRTUAL_DOCS_PREFIX) ??
-              server.moduleGraph.idToModuleMap?.get(VIRTUAL_DOCS_PREFIX);
-            if (docsVirtualMod)
-              server.moduleGraph.invalidateModule(docsVirtualMod, new Set(), Date.now(), true);
-            server.ws.send({ type: 'custom', event: 'stencil:docs-update' });
-          };
+        // Vite only runs `handleHotUpdate` for changed files - a newly added CSS-only component
+        // changes the generated stylesheets too
+        configureServer(server: ViteDevServer) {
+          server.watcher.on('add', async (file: string) => {
+            if (!file.endsWith('.css')) return;
+            if (options.docs) await refreshDocsForStylesheet(file, server);
+            for (const mod of await hotUpdateVirtualCss(file, server))
+              await server.reloadModule(mod);
+          });
+        },
 
-          if (options.docs && file.endsWith('.css')) {
-            try {
-              const code = readFileSync(file, 'utf-8');
-              if (code.includes('@component')) {
-                // CSS-only components have no tracked tag / virtual-module entries (they're
-                // never imported directly by anything) - handle their docs-registry refresh here.
-                // No stencil:hmr to send; no JS component instance, only docs need refreshing.
-                const prevSnapshot = JSON.stringify(getRegistrySnapshot());
-                await scanCssOnlyDocsFile(file);
-                if (JSON.stringify(getRegistrySnapshot()) !== prevSnapshot) notifyDocsChanged();
-              } else {
-                // A regular component's *linked* stylesheet (styleUrl) - re-derive docs from
-                // each owning tag's `.tsx` source, the same as if that file had changed directly.
-                let anyChanged = false;
-                for (const tag of cssFileToTagNames.get(file) ?? []) {
-                  const ownerFile = tagToFile.get(tag);
-                  if (ownerFile && (await refreshComponentDocs(tag, ownerFile))) anyChanged = true;
-                }
-                if (anyChanged) notifyDocsChanged();
-              }
-            } catch {
-              // stale docs are acceptable on parse error
-            }
-          }
-
-          // A changed ingredient file (a component's globalStyleUrl, or a CSS-only-component file)
-          // - the content was inlined as text in `transform`, never imported - so invalidate manually.
-          // Returning the invalidated modules (rather than relying on the fallthrough default)
-          // is the documented Vite pattern for hot-updating an implicit/untracked dependency.
-          const hmrModules: ModuleNode[] = [];
-          const globalCssConsumerPaths = globalCssConsumers.get(file);
-          if (globalCssConsumerPaths) {
-            invalidateGlobalCssFile(file);
-            for (const consumerPath of globalCssConsumerPaths) {
-              const consumerMod =
-                server.moduleGraph.getModuleById?.(consumerPath) ??
-                server.moduleGraph.idToModuleMap?.get(consumerPath);
-              if (consumerMod) {
-                server.moduleGraph.invalidateModule(consumerMod, new Set(), Date.now(), true);
-                hmrModules.push(consumerMod);
-              }
-            }
-          }
-
-          // Collect all tag names affected by this file change
-          const tsxTag = fileToTagName.get(file);
-          const cssTagNames = cssFileToTagNames.get(file);
-          const tagNames = new Set<string>(cssTagNames);
-          if (tsxTag) tagNames.add(tsxTag);
-          if (tagNames.size === 0) return hmrModules.length ? hmrModules : undefined;
-
-          // Invalidate every virtual CSS module that depends on this file so
-          // Vite adds ?t=timestamp when re-serving the TSX - busts browser cache.
-          const virtualIds = cssRealToVirtualIds.get(file);
-          if (virtualIds) {
-            for (const virtualId of virtualIds) {
-              const virtualMod =
-                server.moduleGraph.getModuleById?.(virtualId) ??
-                server.moduleGraph.idToModuleMap?.get(virtualId);
-              if (virtualMod)
-                server.moduleGraph.invalidateModule(virtualMod, new Set(), Date.now(), true);
-            }
-          }
-          // Update the docs registry and notify the client only when the CEM
-          // actually changed (new/renamed prop, type update, JSDoc edit, etc.).
-          // Pure implementation changes leave the CEM identical and fall through
-          // to normal stencil:hmr so HMR is not disrupted.
-          if (options.docs && tsxTag && (await refreshComponentDocs(tsxTag, file))) {
-            notifyDocsChanged();
-          }
-          for (const tagName of tagNames) {
-            server.ws.send({ type: 'custom', event: 'stencil:hmr', data: { tagName } });
-          }
+        async handleHotUpdate({ file, server }: { file: string; server: HmrServer }) {
+          if (options.docs && file.endsWith('.css')) await refreshDocsForStylesheet(file, server);
+          const hmrModules = await hotUpdateVirtualCss(file, server);
+          const isComponentFile = await hotUpdateComponents(file, server);
+          if (!isComponentFile && hmrModules.length === 0) return undefined;
           return hmrModules;
         },
       },

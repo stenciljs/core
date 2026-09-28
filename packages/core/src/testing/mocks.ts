@@ -238,6 +238,7 @@ export function mockCompilerCtx(config?: d.ValidatedConfig) {
     addWatchFile: noop,
     globalStyleCache: new Map(),
     cssOnlyComponentsCache: new Map(),
+    globalStyleVirtualImports: new Map(),
     changedFiles: new Set(),
     changedModules: new Set(),
     collections: [],

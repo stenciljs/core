@@ -5,6 +5,7 @@ import type * as d from '@stencil/core';
 import { buildError, catchError, isFunction, isString, relative } from '../../utils';
 import { isStencilPlugin } from '../config/validate-plugins';
 import { parseCssImports } from '../style/css-imports';
+import { addStencilVirtualImportHints } from '../style/style-utils';
 
 const runPluginResolveId = async (pluginCtx: PluginCtx, importee: string) => {
   for (const plugin of (pluginCtx.config?.plugins ?? []).filter(isStencilPlugin)) {
@@ -119,6 +120,8 @@ export const runPluginTransforms = async (
     transformResults.dependencies = cssParseResults.imports;
   }
 
+  const diagnosticsStart = buildCtx.diagnostics.length;
+
   for (const plugin of (pluginCtx.config?.plugins ?? []).filter(isStencilPlugin)) {
     if (isFunction(plugin.transform)) {
       try {
@@ -162,6 +165,7 @@ export const runPluginTransforms = async (
   }
 
   buildCtx.diagnostics.push(...pluginCtx.diagnostics);
+  addStencilVirtualImportHints(buildCtx.diagnostics.slice(diagnosticsStart), id);
 
   if (!isRawCssFile) {
     // sass precompiler just ran and converted @import "my.css" into @import url("my.css")

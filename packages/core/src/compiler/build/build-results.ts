@@ -36,11 +36,15 @@ export const generateBuildResults = (
     namespace: config.namespace,
     fsNamespace: config.fsNamespace,
     outputs: compilerCtx.fs.getBuildOutputs(),
-    globalStyleFiles: config.outputTargets
-      .filter(isOutputTargetGlobalStyle)
-      .filter((o) => o.input)
-      .map((o) => join(o.dir, o.fileName)),
+    globalStyleFiles: [
+      ...(buildCtx.stencilCssFile ? [buildCtx.stencilCssFile] : []),
+      ...config.outputTargets
+        .filter(isOutputTargetGlobalStyle)
+        .filter((o) => o.input)
+        .map((o) => join(o.dir, o.fileName)),
+    ],
     components: buildCtx.components.slice(),
+    cssOnlyComponents: buildCtx.cssOnlyComponents.slice(),
     rootDir: config.rootDir,
     srcDir: config.srcDir,
     timestamp: getBuildTimestamp(),

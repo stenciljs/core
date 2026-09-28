@@ -63,20 +63,24 @@ const INJECTED_STYLE_IMPORT_RE = /from\s*["']([^"']+\?tag=[^"']+)["']/g;
 export const findInjectedStyleImports = (code: string): string[] =>
   [...code.matchAll(INJECTED_STYLE_IMPORT_RE)].map((m) => m[1]);
 
-// Mirroring the real compiler's virtual `@import "stencil-globals"`/`"stencil-hydrate"` specifiers
-const STENCIL_GLOBALS_RE = /@import\s+(?:url\()?\s*['"]stencil-globals['"]\s*\)?[^;]*;?/g;
-const STENCIL_HYDRATE_RE = /@import\s+(?:url\()?\s*['"]stencil-hydrate['"]\s*\)?[^;]*;?/g;
+const STENCIL_IMPORT_RE =
+  /@import\s+(?:url\()?\s*['"](stencil-(?:component-globals|css-components|hydrate))['"]\s*\)?([^;]*);?/g;
 
-export const hasStencilGlobalsImport = (css: string): boolean => css.includes('stencil-globals');
-export const hasStencilHydrateImport = (css: string): boolean => css.includes('stencil-hydrate');
-
-// `stencil-globals` becomes the collected component `globalStyleUrl`/`globalStyle` CSS.
-export const resolveStencilGlobalsImport = (css: string, collectedCss: string): string =>
-  css.replace(STENCIL_GLOBALS_RE, collectedCss);
-
-// `stencil-hydrate` becomes empty: it's FOUC-prevention - not required in the browser preview
-export const resolveStencilHydrateImport = (css: string): string =>
-  css.replace(STENCIL_HYDRATE_RE, '');
+/**
+ * Replace the real compiler's virtual `@import "stencil-*"` specifiers with the given CSS. Simpler
+ * than the compiler's version - enough for demos: a `layer()` modifier wraps the CSS in that
+ * layer, other modifiers are dropped.
+ * @param css a global stylesheet
+ * @param replacements the CSS for each virtual import (missing ones resolve to nothing)
+ * @returns the stylesheet with its virtual imports replaced
+ */
+export const resolveStencilImports = (css: string, replacements: Record<string, string>): string =>
+  css.replace(STENCIL_IMPORT_RE, (_match, name: string, modifiers: string) => {
+    const content = replacements[name] ?? '';
+    const layer = /\blayer(?:\(([^)]*)\))?/.exec(modifiers);
+    if (!layer || !content) return content;
+    return `@layer${layer[1] ? ` ${layer[1].trim()}` : ''} {\n${content}\n}`;
+  });
 
 /** The subset of `generateComponentTypes()`'s `TypesModule` return value this needs. */
 interface JsxTypesModule {

@@ -141,12 +141,12 @@ describe('transformCssToEsm', () => {
       expect(result.styleText).toContain('https://fonts.googleapis.com');
     });
 
-    it('should leave stencil-globals/stencil-hydrate virtual imports unresolved as real files', async () => {
+    it('should leave stencil-component-globals/stencil-hydrate virtual imports unresolved as real files', async () => {
       // These are substituted by name-checking build-context code elsewhere
       // (component-global-styles.ts), never real file imports - resolving them here as if they
       // were would fail at runtime with no such module.
       mockInput.input = `
-        @import "stencil-globals";
+        @import "stencil-component-globals";
         @import "stencil-hydrate";
         .my-class { color: red; }
       `;
@@ -154,7 +154,7 @@ describe('transformCssToEsm', () => {
       const result = await transformCssToEsm(mockInput);
 
       expect(result.imports).toHaveLength(0);
-      expect(result.styleText).toContain('@import "stencil-globals"');
+      expect(result.styleText).toContain('@import "stencil-component-globals"');
       expect(result.styleText).toContain('@import "stencil-hydrate"');
     });
 

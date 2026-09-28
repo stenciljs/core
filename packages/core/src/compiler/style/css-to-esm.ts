@@ -313,7 +313,7 @@ const getCssToEsmImports = (
       // do nothing for @import url(http://external.css)
       continue;
     } else if (
-      cssImportData.url === 'stencil-globals' ||
+      cssImportData.url === 'stencil-component-globals' ||
       cssImportData.url === 'stencil-hydrate' ||
       cssImportData.url === 'stencil-css-components'
     ) {

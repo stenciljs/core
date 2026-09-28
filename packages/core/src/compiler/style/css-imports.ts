@@ -192,7 +192,7 @@ export const getCssImports = async (
     }
 
     if (
-      cssImportData.url === 'stencil-globals' ||
+      cssImportData.url === 'stencil-component-globals' ||
       cssImportData.url === 'stencil-hydrate' ||
       cssImportData.url === 'stencil-css-components'
     ) {

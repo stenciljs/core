@@ -1570,6 +1570,7 @@ export interface CompilerBuildResults {
   buildId: number;
   componentGraph?: BuildResultsComponentGraph;
   components: ComponentCompilerMeta[];
+  cssOnlyComponents: ComponentCompilerMeta[];
   diagnostics: Diagnostic[];
   dirsAdded: string[];
   dirsDeleted: string[];
@@ -1587,11 +1588,12 @@ export interface CompilerBuildResults {
   fsNamespace: string;
   outputs: BuildOutput[];
   /**
-   * Absolute paths to every `global-style` output target's compiled CSS file, in the order
-   * those output targets are declared in `config.outputTargets` (cascade order is meaningful
-   * for global stylesheets). Unlike `outputs`, which groups files by type and sorts them
-   * alphabetically, this preserves author-intended order for consumers like the dev-server's
-   * auto-generated component preview.
+   * Absolute paths to every global stylesheet, in cascade order: each `global-style` output
+   * target's compiled CSS in the order those targets are declared in `config.outputTargets` - or,
+   * with none configured, the generated `{fsNamespace}.css` holding Stencil's auto-placed CSS (when
+   * emitted). Unlike `outputs`, which groups files by type and sorts them alphabetically, this
+   * preserves author-intended order for consumers like the dev-server's auto-generated component
+   * preview.
    */
   globalStyleFiles: string[];
   rootDir: string;

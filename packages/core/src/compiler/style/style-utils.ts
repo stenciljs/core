@@ -1,3 +1,5 @@
+import type * as d from '@stencil/core';
+
 /**
  * Wrap CSS content according to the modifiers trailing an `@import` specifier
  * (`layer(name)`, `supports(condition)`, and/or a media query), mirroring what
@@ -116,4 +118,31 @@ export const stripCssComments = (input: string): string => {
     returnValue += currentCharacter;
   }
   return returnValue;
+};
+
+const VIRTUAL_IMPORT_NAME_RE = /stencil-(?:hydrate|component-globals|css-components)(?![\w-])/;
+const POSTCSS_IMPORT_ERROR_RE = /Failed to find ['"]stencil-/;
+
+/**
+ * Preprocessors treat a bare `@import "stencil-*"` as one of their own imports and fail to find
+ * it. Append a hint to any error raised on such an import: the plain-CSS form that survives
+ * preprocessing, or for `postcss-import` (which resolves every form) its `filter` option.
+ * @param diagnostics diagnostics raised while preprocessing `filePath`
+ * @param filePath the stylesheet being preprocessed
+ */
+export const addStencilVirtualImportHints = (diagnostics: d.Diagnostic[], filePath: string) => {
+  const ext = filePath.split('.').pop()?.toLowerCase();
+  for (const diagnostic of diagnostics) {
+    if (diagnostic.level !== 'error') continue;
+    const errorLine = diagnostic.lines?.find((l) => l.lineNumber === diagnostic.lineNumber)?.text;
+    const name = (errorLine?.match(VIRTUAL_IMPORT_NAME_RE) ??
+      diagnostic.messageText?.match(VIRTUAL_IMPORT_NAME_RE))?.[0];
+    if (!name) continue;
+    // postcss-import resolves every @import form, so it has to be told to skip them instead
+    const fix = POSTCSS_IMPORT_ERROR_RE.test(diagnostic.messageText)
+      ? `Skip them in postcss-import: postcssImport({ filter: (path) => !path.startsWith('stencil-') })`
+      : `Write it as a plain CSS import so your preprocessor leaves it for Stencil: ` +
+        (ext === 'less' ? `@import (css) "${name}";` : `@import url("${name}");`);
+    diagnostic.messageText = `${diagnostic.messageText.trim()}\n\n"${name}" is a Stencil virtual import. ${fix}`;
+  }
 };

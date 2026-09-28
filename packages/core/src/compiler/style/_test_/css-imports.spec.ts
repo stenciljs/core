@@ -758,8 +758,8 @@ describe('css-imports', () => {
     describe('virtual imports', () => {
       const filePath = normalizePath(path.join(root, 'src', 'global.css'));
 
-      it('skips @import "stencil-globals" - not resolved as a file', async () => {
-        const content = `@import "stencil-globals";`;
+      it('skips @import "stencil-component-globals" - not resolved as a file', async () => {
+        const content = `@import "stencil-component-globals";`;
         const results = await getCssImports(config, compilerCtx, buildCtx, filePath, content);
         expect(results).toHaveLength(0);
       });
@@ -773,14 +773,14 @@ describe('css-imports', () => {
       it('skips virtual imports but resolves real adjacent imports', async () => {
         const realCssPath = normalizePath(path.join(root, 'src', 'theme.css'));
         readFileMock.mockResolvedValueOnce(':root { color: red; }');
-        const content = `@import "stencil-globals";\n@import "stencil-hydrate";\n@import "./theme.css";`;
+        const content = `@import "stencil-component-globals";\n@import "stencil-hydrate";\n@import "./theme.css";`;
         const results = await getCssImports(config, compilerCtx, buildCtx, filePath, content);
         expect(results).toHaveLength(1);
         expect(results[0].filePath).toBe(realCssPath);
       });
 
-      it('skips url() form of stencil-globals', async () => {
-        const content = `@import url("stencil-globals");`;
+      it('skips url() form of stencil-component-globals', async () => {
+        const content = `@import url("stencil-component-globals");`;
         const results = await getCssImports(config, compilerCtx, buildCtx, filePath, content);
         expect(results).toHaveLength(0);
       });

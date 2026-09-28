@@ -5,11 +5,39 @@ import { runPluginTransforms } from '../plugin/plugin';
 import { optimizeStyleCss } from './optimize-style-css';
 import { wrapCssWithImportModifiers } from './style-utils';
 
-// the trailing capture group picks up any modifiers (e.g. `layer(name)`) following the specifier
-const STENCIL_GLOBALS_RE = /@import\s+(?:url\()?\s*['"]stencil-globals['"]\s*\)?([^;]*);?/g;
-const STENCIL_HYDRATE_RE = /@import\s+(?:url\()?\s*['"]stencil-hydrate['"]\s*\)?([^;]*);?/g;
+const STENCIL_VIRTUAL_IMPORTS: d.StencilVirtualImport[] = [
+  'stencil-hydrate',
+  'stencil-component-globals',
+  'stencil-css-components',
+];
 
-export const hasStencilGlobalsImport = (css: string): boolean => css.includes('stencil-globals');
+/**
+ * Match `@import` of a `stencil-*` virtual import in any form CSS allows or a preprocessor emits:
+ * quoted or not, bare or `url()`-wrapped, and with or without whitespace after `@import` (Sass's
+ * compressed output drops it). Capture group 2 holds any trailing modifiers, e.g. `layer(name)`.
+ * @param name the virtual import to match
+ * @returns a global regex
+ */
+const stencilVirtualImportRe = (name: d.StencilVirtualImport) =>
+  new RegExp(
+    `@import(?:\\s+|(?=['"]|url\\())(?:url\\(\\s*)?(['"]?)${name}(?![\\w-])\\1\\s*\\)?([^;]*);?`,
+    'g',
+  );
+
+const STENCIL_GLOBALS_RE = stencilVirtualImportRe('stencil-component-globals');
+const STENCIL_HYDRATE_RE = stencilVirtualImportRe('stencil-hydrate');
+const STENCIL_CSS_COMPONENTS_RE = stencilVirtualImportRe('stencil-css-components');
+
+/**
+ * Find which `stencil-*` virtual imports appear as real `@import` statements in CSS.
+ * @param css the CSS to scan - pass post-preprocessing CSS so imports from partials are seen
+ * @returns the virtual imports found
+ */
+export const findStencilVirtualImports = (css: string): Set<d.StencilVirtualImport> =>
+  new Set(STENCIL_VIRTUAL_IMPORTS.filter((name) => stencilVirtualImportRe(name).test(css)));
+
+export const hasStencilGlobalsImport = (css: string): boolean =>
+  css.includes('stencil-component-globals');
 export const hasStencilHydrateImport = (css: string): boolean => css.includes('stencil-hydrate');
 
 /**
@@ -56,6 +84,46 @@ export const generateHydrateCss = (config: d.ValidatedConfig, buildCtx: d.BuildC
   );
 
 /**
+ * The virtual import whose stylesheet also takes the FOUC-prevention CSS when no global-style
+ * input places `stencil-hydrate` itself: component global styles, or else CSS-only components.
+ * Consumers already have to load whichever stylesheet holds either, so the loader's runtime
+ * injection isn't needed.
+ * @param buildCtx the current build context
+ * @returns the anchor, or `undefined` if the build has neither
+ */
+export const getHydrateAnchor = (buildCtx: d.BuildCtx): d.StencilVirtualImport | undefined => {
+  if (buildCtx.components.some((c) => c.globalStyles?.length)) return 'stencil-component-globals';
+  if (buildCtx.cssOnlyComponents.length) return 'stencil-css-components';
+  return undefined;
+};
+
+/**
+ * The FOUC-prevention CSS to place alongside the {@link getHydrateAnchor anchor}.
+ * @param config the Stencil configuration
+ * @param buildCtx the current build context
+ * @returns the CSS, or an empty string when there's no anchor or prehydration hiding is off
+ */
+export const getAnchoredHydrateCss = (config: d.ValidatedConfig, buildCtx: d.BuildCtx): string =>
+  config.invisiblePrehydration === false || !getHydrateAnchor(buildCtx)
+    ? ''
+    : generateHydrateCss(config, buildCtx);
+
+/**
+ * Insert text immediately before the first `@import` of a virtual import - outside any modifiers
+ * that import carries, which describe its own content.
+ * @param css the CSS to insert into
+ * @param name the virtual import to insert before
+ * @param text the text to insert
+ * @returns the CSS with `text` inserted, or unchanged if it has no such import
+ */
+export const insertBeforeStencilImport = (
+  css: string,
+  name: d.StencilVirtualImport,
+  text: string,
+): string =>
+  css.replace(new RegExp(stencilVirtualImportRe(name).source), (match) => `${text}\n${match}`);
+
+/**
  * Replace `@import "stencil-hydrate"` in CSS with the given FOUC-prevention styles. Supports
  * trailing `layer()`/`supports()`/media modifiers, e.g. `@import "stencil-hydrate" layer(init);`.
  *
@@ -66,7 +134,7 @@ export const generateHydrateCss = (config: d.ValidatedConfig, buildCtx: d.BuildC
  * @returns the CSS string with `@import "stencil-hydrate"` replaced by hydrateCss
  */
 export const replaceStencilHydrateImport = (css: string, hydrateCss: string): string =>
-  css.replace(STENCIL_HYDRATE_RE, (_match, modifiers: string) =>
+  css.replace(STENCIL_HYDRATE_RE, (_match, _quote, modifiers: string) =>
     wrapCssWithImportModifiers(hydrateCss, modifiers),
   );
 
@@ -125,20 +193,20 @@ export const collectAndBuildComponentGlobalStyles = async (
 };
 
 /**
- * Replace `@import "stencil-globals"` in CSS with the given collected component global styles.
- * Supports trailing `layer()`/`supports()`/media modifiers, e.g. `@import "stencil-globals" layer(init);`.
+ * Replace `@import "stencil-component-globals"` in CSS with the given collected component global styles.
+ * Supports trailing `layer()`/`supports()`/media modifiers, e.g. `@import "stencil-component-globals" layer(init);`.
  *
  * @param css the CSS string to process
  * @param collectedCss the collected component global styles, from {@link collectAndBuildComponentGlobalStyles}
- * @returns the CSS string with `@import "stencil-globals"` replaced by collectedCss
+ * @returns the CSS string with `@import "stencil-component-globals"` replaced by collectedCss
  */
 export const replaceStencilGlobalsImport = (css: string, collectedCss: string): string =>
-  css.replace(STENCIL_GLOBALS_RE, (_match, modifiers: string) =>
+  css.replace(STENCIL_GLOBALS_RE, (_match, _quote, modifiers: string) =>
     wrapCssWithImportModifiers(collectedCss, modifiers),
   );
 
 /**
- * Replace `@import "stencil-globals"` in CSS with the collected component global styles.
+ * Replace `@import "stencil-component-globals"` in CSS with the collected component global styles.
  * Also registers component global style files as cssModuleImports of the global stylesheet
  * so the build cache is properly invalidated when those files change.
  *
@@ -147,7 +215,7 @@ export const replaceStencilGlobalsImport = (css: string, collectedCss: string): 
  * @param compilerCtx the compiler context
  * @param buildCtx the build context
  * @param globalStyleInputPath the absolute path of the global style input file (used as cache key)
- * @returns the CSS string with `@import "stencil-globals"` replaced by component global styles
+ * @returns the CSS string with `@import "stencil-component-globals"` replaced by component global styles
  */
 export const resolveStencilGlobalsImport = async (
   css: string,
@@ -176,8 +244,6 @@ export const resolveStencilGlobalsImport = async (
   return replaceStencilGlobalsImport(css, collectedCss);
 };
 
-const STENCIL_CSS_COMPONENTS_RE =
-  /@import\s+(?:url\()?\s*['"]stencil-css-components['"]\s*\)?([^;]*);?/g;
 export const hasStencilCssComponentsImport = (css: string): boolean =>
   css.includes('stencil-css-components');
 
@@ -235,14 +301,14 @@ export const collectCssOnlyComponentStyles = async (
 
 /**
  * Replace `@import "stencil-css-components"` in CSS with the given collected CSS-only component
- * styles. Supports trailing `layer()`/`supports()`/media modifiers, same as `@import "stencil-globals"`.
+ * styles. Supports trailing `layer()`/`supports()`/media modifiers, same as `@import "stencil-component-globals"`.
  *
  * @param css the CSS string to process
  * @param collectedCss the collected CSS-only component styles, from {@link collectCssOnlyComponentStyles}
  * @returns the CSS string with `@import "stencil-css-components"` replaced by collectedCss
  */
 export const replaceStencilCssComponentsImport = (css: string, collectedCss: string): string =>
-  css.replace(STENCIL_CSS_COMPONENTS_RE, (_match, modifiers: string) =>
+  css.replace(STENCIL_CSS_COMPONENTS_RE, (_match, _quote, modifiers: string) =>
     wrapCssWithImportModifiers(collectedCss, modifiers),
   );
 

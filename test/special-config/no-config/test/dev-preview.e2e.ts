@@ -33,4 +33,27 @@ test.describe('no-config dev preview', () => {
     await expect(preview).toHaveCount(1);
     expect(await preview.innerHTML()).toContain('<cmp-two class="hydrated"></cmp-two>');
   });
+
+  test('/src/css-cmp/ previews the CSS-only component from its usage snippet', async ({ page }) => {
+    await page.goto('/src/css-cmp/');
+    await expect(page.locator('.component-header')).toHaveText('<css-badge>');
+    await expect(page.locator('.component-description')).toHaveText('A dismissible badge.');
+    // rendered from usage/example.md, not the bare-tag fallback
+    await expect(page.locator('.component-preview css-badge')).toHaveCount(1);
+    await expect(page.locator('.preview-note')).toHaveCount(0);
+  });
+
+  test('CSS-only component styles are auto-placed into the only global stylesheet', async ({
+    page,
+  }) => {
+    await page.goto('/src/css-cmp/');
+    // global.css has no @import "stencil-css-components" - the styles are prepended to it,
+    // so there's still just the one stylesheet
+    await expect(page.locator('link[rel="stylesheet"]')).toHaveCount(1);
+
+    const badge = page.locator('.component-preview css-badge');
+    await expect(badge).toHaveCSS('padding', '4px');
+    await badge.evaluate((el) => el.setAttribute('variant', 'danger'));
+    await expect(badge).toHaveCSS('color', 'rgb(255, 0, 0)');
+  });
 });

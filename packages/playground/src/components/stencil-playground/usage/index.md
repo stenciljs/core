@@ -117,7 +117,7 @@ export class MyCounter extends Mixin(Countable) {
     {
       "name": "global.css",
       "content": `
-@import "stencil-globals";
+@import "stencil-component-globals";
 
 body {
   background-color: red;

@@ -148,7 +148,7 @@ async function runLightningCss(css: string, filePath: string, minify: boolean): 
  * Each step is skipped silently if the relevant peer dep is not installed.
  *
  * Shared by `loadStencilCss` (per-component `?tag=` styles) and `global-css.ts`
- * (including the files that feed `@import "stencil-globals"`/`"stencil-css-components"`)
+ * (including the files that feed `@import "stencil-component-globals"`/`"stencil-css-components"`)
  *
  * @param filePath - absolute path to the source file, with its real extension
  * @param isDev - `true` in dev mode (disables minification)

@@ -7,6 +7,7 @@ import { outputAssets } from './output-assets';
 import { outputCustom } from './output-custom';
 import { outputDocs } from './output-docs';
 import { outputGlobalStyle } from './output-global-style';
+import { outputStencilCss } from './output-stencil-css';
 import { outputTypes } from './output-types';
 import { outputWww } from './output-www';
 import { outputSsr } from './ssr';
@@ -81,6 +82,7 @@ export const generateOutputTargets = async (
   await Promise.all([
     // Global styles and assets output (unified dist/assets/ location)
     outputGlobalStyle(config, compilerCtx, buildCtx),
+    outputStencilCss(config, compilerCtx, buildCtx),
     outputAssets(config, compilerCtx, buildCtx),
 
     // the user may want to copy compiled assets which requires above tasks to

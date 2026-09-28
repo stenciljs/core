@@ -6,10 +6,16 @@ import { mockBuildCtx, mockCompilerCtx } from '../../../testing/compiler';
 import {
   collectAndBuildComponentGlobalStyles,
   collectCssOnlyComponentStyles,
+  findStencilVirtualImports,
   generateHydrateCss,
+  getAnchoredHydrateCss,
+  getHydrateAnchor,
   hasStencilCssComponentsImport,
   hasStencilGlobalsImport,
   hasStencilHydrateImport,
+  insertBeforeStencilImport,
+  replaceStencilCssComponentsImport,
+  replaceStencilGlobalsImport,
   replaceStencilHydrateImport,
   resolveStencilCssComponentsImport,
   resolveStencilGlobalsImport,
@@ -28,15 +34,15 @@ describe('component-global-styles', () => {
 
   describe('hasStencilGlobalsImport', () => {
     it('detects double-quote import', () => {
-      expect(hasStencilGlobalsImport(`@import "stencil-globals";`)).toBe(true);
+      expect(hasStencilGlobalsImport(`@import "stencil-component-globals";`)).toBe(true);
     });
 
     it('detects single-quote import', () => {
-      expect(hasStencilGlobalsImport(`@import 'stencil-globals';`)).toBe(true);
+      expect(hasStencilGlobalsImport(`@import 'stencil-component-globals';`)).toBe(true);
     });
 
     it('detects url() form', () => {
-      expect(hasStencilGlobalsImport(`@import url("stencil-globals");`)).toBe(true);
+      expect(hasStencilGlobalsImport(`@import url("stencil-component-globals");`)).toBe(true);
     });
 
     it('returns false when not present', () => {
@@ -80,11 +86,11 @@ describe('component-global-styles', () => {
   });
 
   describe('resolveStencilGlobalsImport', () => {
-    it('replaces @import "stencil-globals" with collected styles', async () => {
+    it('replaces @import "stencil-component-globals" with collected styles', async () => {
       buildCtx.components = [
         mockCmp({ globalStyles: [{ styleStr: 'my-cmp { display: block; }', absolutePath: null }] }),
       ];
-      const css = `:root { --token: red; }\n@import "stencil-globals";\nbody { margin: 0; }`;
+      const css = `:root { --token: red; }\n@import "stencil-component-globals";\nbody { margin: 0; }`;
       const result = await resolveStencilGlobalsImport(
         css,
         config,
@@ -95,14 +101,14 @@ describe('component-global-styles', () => {
       expect(result).toContain('my-cmp { display: block; }');
       expect(result).toContain(':root { --token: red; }');
       expect(result).toContain('body { margin: 0; }');
-      expect(result).not.toContain('@import "stencil-globals"');
+      expect(result).not.toContain('@import "stencil-component-globals"');
     });
 
     it('replaces url() form', async () => {
       buildCtx.components = [
         mockCmp({ globalStyles: [{ styleStr: 'my-cmp { display: block; }', absolutePath: null }] }),
       ];
-      const css = `@import url("stencil-globals");`;
+      const css = `@import url("stencil-component-globals");`;
       const result = await resolveStencilGlobalsImport(
         css,
         config,
@@ -116,7 +122,7 @@ describe('component-global-styles', () => {
 
     it('replaces all occurrences', async () => {
       buildCtx.components = [mockCmp({ globalStyles: [{ styleStr: 'x {}', absolutePath: null }] })];
-      const css = `@import "stencil-globals";\nbody {}\n@import "stencil-globals";`;
+      const css = `@import "stencil-component-globals";\nbody {}\n@import "stencil-component-globals";`;
       const result = await resolveStencilGlobalsImport(
         css,
         config,
@@ -124,7 +130,7 @@ describe('component-global-styles', () => {
         buildCtx,
         '/src/global.css',
       );
-      const count = (result.match(/@import "stencil-globals"/g) || []).length;
+      const count = (result.match(/@import "stencil-component-globals"/g) || []).length;
       expect(count).toBe(0);
     });
 
@@ -137,7 +143,7 @@ describe('component-global-styles', () => {
       vi.spyOn(compilerCtx.fs, 'readFile').mockResolvedValue('cmp-a {}');
 
       await resolveStencilGlobalsImport(
-        `@import "stencil-globals";`,
+        `@import "stencil-component-globals";`,
         config,
         compilerCtx,
         buildCtx,
@@ -150,7 +156,7 @@ describe('component-global-styles', () => {
 
     it('produces empty replacement when no components have globalStyles', async () => {
       buildCtx.components = [];
-      const css = `:root {}\n@import "stencil-globals";\nbody {}`;
+      const css = `:root {}\n@import "stencil-component-globals";\nbody {}`;
       const result = await resolveStencilGlobalsImport(
         css,
         config,
@@ -158,7 +164,7 @@ describe('component-global-styles', () => {
         buildCtx,
         '/src/global.css',
       );
-      expect(result).not.toContain('@import "stencil-globals"');
+      expect(result).not.toContain('@import "stencil-component-globals"');
       expect(result).toContain(':root {}');
       expect(result).toContain('body {}');
     });
@@ -167,7 +173,7 @@ describe('component-global-styles', () => {
       buildCtx.components = [
         mockCmp({ globalStyles: [{ styleStr: 'my-cmp { display: block; }', absolutePath: null }] }),
       ];
-      const css = `@import "stencil-globals" layer(init);`;
+      const css = `@import "stencil-component-globals" layer(init);`;
       const result = await resolveStencilGlobalsImport(
         css,
         config,
@@ -181,7 +187,7 @@ describe('component-global-styles', () => {
 
     it('wraps in @supports and @media when those modifiers are present', async () => {
       buildCtx.components = [mockCmp({ globalStyles: [{ styleStr: 'x {}', absolutePath: null }] })];
-      const css = `@import "stencil-globals" supports(display: grid) (min-width: 400px);`;
+      const css = `@import "stencil-component-globals" supports(display: grid) (min-width: 400px);`;
       const result = await resolveStencilGlobalsImport(
         css,
         config,
@@ -356,6 +362,70 @@ describe('component-global-styles', () => {
     });
   });
 
+  describe('hydrate anchor', () => {
+    const hydratedFlag = {
+      name: 'hydrated',
+      selector: 'class',
+      property: 'visibility',
+      initialValue: 'hidden',
+      hydratedValue: 'inherit',
+    } as const;
+
+    beforeEach(() => {
+      config.hydratedFlag = hydratedFlag;
+      buildCtx.components = [mockCmp({ tagName: 'cmp-a' })];
+    });
+
+    it('is component globals when any component declares a global style', () => {
+      buildCtx.components.push(
+        mockCmp({ tagName: 'cmp-b', globalStyles: [{ styleStr: 'x{}', absolutePath: null }] }),
+      );
+      buildCtx.cssOnlyComponents = [mockCmp({ tagName: 'css-badge' })];
+
+      expect(getHydrateAnchor(buildCtx)).toBe('stencil-component-globals');
+    });
+
+    it('is CSS-only components when there are no component globals', () => {
+      buildCtx.cssOnlyComponents = [mockCmp({ tagName: 'css-badge' })];
+
+      expect(getHydrateAnchor(buildCtx)).toBe('stencil-css-components');
+    });
+
+    it('is nothing when there are neither - the loader keeps injecting at runtime', () => {
+      expect(getHydrateAnchor(buildCtx)).toBeUndefined();
+      expect(getAnchoredHydrateCss(config, buildCtx)).toBe('');
+    });
+
+    it('carries the FOUC css when there is an anchor', () => {
+      buildCtx.cssOnlyComponents = [mockCmp({ tagName: 'css-badge' })];
+
+      expect(getAnchoredHydrateCss(config, buildCtx)).toBe(
+        'cmp-a{visibility:hidden}.hydrated{visibility:inherit}',
+      );
+    });
+
+    it('carries nothing when prehydration hiding is off', () => {
+      buildCtx.cssOnlyComponents = [mockCmp({ tagName: 'css-badge' })];
+      config.invisiblePrehydration = false;
+
+      expect(getAnchoredHydrateCss(config, buildCtx)).toBe('');
+    });
+  });
+
+  describe('insertBeforeStencilImport', () => {
+    it('inserts before the first import, outside its modifiers', () => {
+      const css = ':root{}\n@import "stencil-component-globals" layer(g);\nx{}';
+
+      expect(insertBeforeStencilImport(css, 'stencil-component-globals', 'h{}')).toBe(
+        ':root{}\nh{}\n@import "stencil-component-globals" layer(g);\nx{}',
+      );
+    });
+
+    it('leaves CSS without that import unchanged', () => {
+      expect(insertBeforeStencilImport('x{}', 'stencil-css-components', 'h{}')).toBe('x{}');
+    });
+  });
+
   describe('replaceStencilHydrateImport', () => {
     it('replaces @import "stencil-hydrate" with FOUC css', () => {
       config.hydratedFlag = {
@@ -412,6 +482,58 @@ describe('component-global-styles', () => {
       expect(result).toBe(
         '@layer init {\nmy-cmp{visibility:hidden}.hydrated{visibility:inherit}\n}',
       );
+    });
+  });
+
+  describe('virtual import syntax', () => {
+    // every form CSS allows or a preprocessor emits (Sass compressed output drops the space)
+    const forms = [
+      '@import "stencil-component-globals";',
+      "@import 'stencil-component-globals';",
+      '@import url("stencil-component-globals");',
+      "@import url('stencil-component-globals');",
+      '@import url(stencil-component-globals);',
+      '@import url( "stencil-component-globals" );',
+      '@import"stencil-component-globals";',
+    ];
+
+    it.each(forms)('resolves and detects %s', (form) => {
+      const css = `${form}\n:root{}`;
+
+      expect(findStencilVirtualImports(css)).toEqual(new Set(['stencil-component-globals']));
+      expect(replaceStencilGlobalsImport(css, 'x{}')).toBe('x{}\n:root{}');
+    });
+
+    it.each([
+      '@import "stencil-component-globals" layer(init);',
+      '@import url(stencil-component-globals) layer(init);',
+      '@import"stencil-component-globals"layer(init);',
+    ])('keeps the layer() modifier on %s', (form) => {
+      expect(replaceStencilGlobalsImport(form, 'x{}')).toBe(
+        replaceStencilGlobalsImport('@import "stencil-component-globals" layer(init);', 'x{}'),
+      );
+      expect(replaceStencilGlobalsImport(form, 'x{}')).toContain('@layer init');
+    });
+
+    it('resolves each virtual import independently', () => {
+      const css = '@import url(stencil-hydrate);@import"stencil-css-components";';
+
+      expect(findStencilVirtualImports(css)).toEqual(
+        new Set(['stencil-hydrate', 'stencil-css-components']),
+      );
+      expect(replaceStencilHydrateImport(css, 'h{}')).toBe('h{}@import"stencil-css-components";');
+      expect(replaceStencilCssComponentsImport(css, 'c{}')).toBe(
+        '@import url(stencil-hydrate);c{}',
+      );
+    });
+
+    it.each([
+      '/* see stencil-component-globals */',
+      '@import "stencil-component-globals-extra";',
+      '@import url(stencil-component-globals-extra);',
+      '@importstencil-component-globals;',
+    ])('ignores %s', (css) => {
+      expect(findStencilVirtualImports(css)).toEqual(new Set());
     });
   });
 });

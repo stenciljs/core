@@ -1,7 +1,7 @@
 /**
  * @component
  * A CSS-only badge, used to verify `@import "stencil-css-components"` end-to-end
- * alongside the existing `@import "stencil-globals"`/`@import "stencil-hydrate"` coverage
+ * alongside the existing `@import "stencil-component-globals"`/`@import "stencil-hydrate"` coverage
  * in this fixture.
  */
 css-badge {

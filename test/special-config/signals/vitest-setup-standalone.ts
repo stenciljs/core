@@ -1,5 +1,5 @@
 /// <reference types="@stencil/core" />
-import './dist/assets/stencil-hydrate.css';
+import './dist/assets/testsignals.css';
 await import('./dist/standalone/loader.js');
 
 export {};

@@ -42,6 +42,12 @@ export interface DocData {
 }
 export type StencilDocument = Document & { _stencilDocData: DocData };
 
+/** Build-time virtual `@import`s a `global-style` input can use to place Stencil-generated CSS. */
+export type StencilVirtualImport =
+  | 'stencil-hydrate'
+  | 'stencil-component-globals'
+  | 'stencil-css-components';
+
 export interface SourceMap {
   file: string;
   mappings: string;
@@ -296,6 +302,8 @@ export interface BuildCtx {
   stylesPromise: Promise<string>;
   stylesUpdated: BuildStyleUpdate[];
   globalStylesUpdated: BuildGlobalStyleLinkUpdate[];
+  /** Absolute path of the generated `{fsNamespace}.css`, when this build emitted one */
+  stencilCssFile?: string;
   timeSpan: LoggerTimeSpan;
   timestamp: string;
   transpileBuildCount: number;
@@ -526,6 +534,10 @@ export interface CompilerCtx {
   globalStyleCache: Map<string, string>;
   /** Cache of discovered CSS-only components from the last scan, keyed by absolute .css file path */
   cssOnlyComponentsCache: Map<string, ComponentCompilerMeta[]>;
+  /** Contents of the last auto-placed `stencil-*` CSS, used to detect changes for HMR */
+  stencilCss?: string;
+  /** Virtual imports found in each built global style (post-preprocessing), keyed by input path */
+  globalStyleVirtualImports: Map<string, Set<StencilVirtualImport>>;
   collections: CollectionCompilerMeta[];
   compilerOptions: any;
   events: BuildEvents;
