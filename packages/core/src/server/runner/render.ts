@@ -1,6 +1,5 @@
 import { ssrFactory } from '@stencil/core/runtime/server/ssr-factory';
 import { MockWindow, serializeNodeToHtml } from '@stencil/mock-doc';
-import { modeResolutionChain, setMode } from 'virtual:platform';
 import type {
   SsrDocumentOptions,
   SsrFactoryOptions,
@@ -168,14 +167,6 @@ async function render(win: MockWindow, opts: SsrFactoryOptions, results: SsrResu
   try {
     await Promise.resolve(beforeHydrateFn(win.document));
     return new Promise<SsrResults>((resolve) => {
-      if (Array.isArray(opts.modes)) {
-        /**
-         * Reset the mode resolution chain as we expect every `renderToString` call to render
-         * the components in new environment/document.
-         */
-        modeResolutionChain.length = 0;
-        opts.modes.forEach((mode) => setMode(mode));
-      }
       return ssrFactory(win, opts, results, afterSsr, resolve);
     });
   } catch (e) {

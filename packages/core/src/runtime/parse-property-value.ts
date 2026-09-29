@@ -24,31 +24,15 @@ import { isComplexType } from '../utils/helpers';
  *
  * @param propValue the new value to coerce to some type
  * @param propType the type of the prop, expressed as a binary number
- * @param isFormAssociated whether the component is form-associated (optional)
  * @returns the parsed/coerced value
  */
-export const parsePropertyValue = (
-  propValue: unknown,
-  propType: number,
-  isFormAssociated?: boolean,
-): any => {
+export const parsePropertyValue = (propValue: unknown, propType: number): any => {
   if (propValue != null && !isComplexType(propValue)) {
     /**
      * ensure this value is of the correct prop type
      */
     if (BUILD.propBoolean && propType & MEMBER_FLAGS.Boolean) {
-      /**
-       * For form-associated components, according to HTML spec, the presence of any boolean attribute
-       * (regardless of its value, even "false") should make the property true.
-       * For non-form-associated components, we maintain the legacy behavior where "false" becomes false.
-       */
-      if (BUILD.formAssociated && isFormAssociated && typeof propValue === 'string') {
-        // For form-associated components, any string attribute value (including "false") means true
-        return propValue === '' || !!propValue;
-      } else {
-        // Legacy behavior: string "false" becomes boolean false
-        return propValue === 'false' ? false : propValue === '' || !!propValue;
-      }
+      return propValue === '' || !!propValue;
     }
 
     /**

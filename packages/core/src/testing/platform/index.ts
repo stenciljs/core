@@ -1,6 +1,6 @@
-import { modeResolutionChain } from './testing-constants';
+import { modeResolver } from './testing-constants';
 export { Build } from './testing-build';
-export { modeResolutionChain, styles } from './testing-constants';
+export { modeResolver, styles } from './testing-constants';
 export { getHostRef, registerHost, registerInstance } from './testing-host-ref';
 export {
   consoleDevError,
@@ -40,8 +40,8 @@ export { renderVdom } from '../../runtime/vdom/vdom-render';
 // Testing-specific setMode that clears previous handlers first
 // This shadows the runtime's setMode so each test gets a clean slate
 export const setMode = (handler: (elm: any) => string | undefined | null) => {
-  modeResolutionChain.length = 0;
-  modeResolutionChain.push(handler);
+  modeResolver.length = 0;
+  modeResolver.push(handler);
 };
 
 export const setScopedSsr = (scoped?: boolean) => {

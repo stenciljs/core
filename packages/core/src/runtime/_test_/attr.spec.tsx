@@ -2,6 +2,7 @@ import { Component, Element, h, Host, Prop } from '@stencil/core';
 import { expect, describe, it } from '@stencil/vitest';
 
 import { newSpecPage } from '../../testing';
+import { withSilentWarn } from '../../testing/testing-utils';
 
 describe('attribute', () => {
   it('multi-word attribute', async () => {
@@ -53,7 +54,7 @@ describe('attribute', () => {
   });
 
   describe('already set', () => {
-    it('set boolean, "false"', async () => {
+    it('set boolean, "false" is true per HTML spec', async () => {
       @Component({ tag: 'cmp-a' })
       class CmpA {
         @Prop() bool: boolean;
@@ -62,27 +63,28 @@ describe('attribute', () => {
         }
       }
 
-      const { root } = await newSpecPage({
-        components: [CmpA],
-        html: `<cmp-a bool="false"></cmp-a>`,
+      await withSilentWarn(async (warn) => {
+        const { root } = await newSpecPage({
+          components: [CmpA],
+          html: `<cmp-a bool="false"></cmp-a>`,
+        });
+
+        expect(root).toEqualHtml(`
+          <cmp-a bool="false">
+            true
+          </cmp-a>
+        `);
+        expect(root.bool).toBe(true);
+        expect(warn).toHaveBeenCalledWith(
+          expect.stringContaining('<cmp-a bool="false">: boolean attributes are true when present'),
+        );
+
+        root.removeAttribute('bool');
+        expect(root.bool).toBe(false);
+
+        root.setAttribute('bool', 'false');
+        expect(root.bool).toBe(true);
       });
-
-      expect(root).toEqualHtml(`
-        <cmp-a bool="false">
-          false
-        </cmp-a>
-      `);
-
-      expect(root.textContent).toBe('false');
-      expect(root.bool).toBe(false);
-
-      // reset
-      root.setAttribute('bool', '');
-      expect(root.bool).toBe(true);
-
-      // check setAttribute
-      root.setAttribute('bool', 'false');
-      expect(root.bool).toBe(false);
     });
 
     it('set boolean, undefined when missing attribute', async () => {
@@ -205,7 +207,7 @@ describe('attribute', () => {
       expect(root.bool).toBe(true);
     });
 
-    it('set boolean true from any other string apart from "false"', async () => {
+    it('set boolean true from any other string', async () => {
       @Component({ tag: 'cmp-a' })
       class CmpA {
         @Prop() bool: boolean;

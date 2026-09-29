@@ -887,6 +887,14 @@ export namespace Components {
     }
     interface PropSetterLazyRace {
         /**
+          * @default ''
+         */
+        "connectedSnapshot": string;
+        /**
+          * @default 0
+         */
+        "count": number;
+        /**
           * @default false
          */
         "isReadonly": boolean;
@@ -894,6 +902,20 @@ export namespace Components {
           * @default false
          */
         "plainReadonly": boolean;
+    }
+    /**
+     * Only ever touched by one test, so its chunk is guaranteed to still be loading when that test
+     * writes to it.
+     */
+    interface PropSetterLazyRaceCold {
+        /**
+          * @default false
+         */
+        "isDisabled": boolean;
+        /**
+          * @default ''
+         */
+        "note": string;
     }
     interface RadioGroupBlurTest {
     }
@@ -2514,6 +2536,16 @@ declare global {
         prototype: HTMLPropSetterLazyRaceElement;
         new (): HTMLPropSetterLazyRaceElement;
     };
+    /**
+     * Only ever touched by one test, so its chunk is guaranteed to still be loading when that test
+     * writes to it.
+     */
+    interface HTMLPropSetterLazyRaceColdElement extends Components.PropSetterLazyRaceCold, HTMLStencilElement {
+    }
+    var HTMLPropSetterLazyRaceColdElement: {
+        prototype: HTMLPropSetterLazyRaceColdElement;
+        new (): HTMLPropSetterLazyRaceColdElement;
+    };
     interface HTMLRadioGroupBlurTestElement extends Components.RadioGroupBlurTest, HTMLStencilElement {
     }
     var HTMLRadioGroupBlurTestElement: {
@@ -3282,6 +3314,7 @@ declare global {
         "prefix-prop-root": HTMLPrefixPropRootElement;
         "prop-serializer": HTMLPropSerializerElement;
         "prop-setter-lazy-race": HTMLPropSetterLazyRaceElement;
+        "prop-setter-lazy-race-cold": HTMLPropSetterLazyRaceColdElement;
         "radio-group-blur-test": HTMLRadioGroupBlurTestElement;
         "ref-attr-order": HTMLRefAttrOrderElement;
         "reflect-nan-attribute": HTMLReflectNanAttributeElement;
@@ -4183,6 +4216,14 @@ declare namespace LocalJSX {
     }
     interface PropSetterLazyRace {
         /**
+          * @default ''
+         */
+        "connectedSnapshot"?: string;
+        /**
+          * @default 0
+         */
+        "count"?: number;
+        /**
           * @default false
          */
         "isReadonly"?: boolean;
@@ -4190,6 +4231,20 @@ declare namespace LocalJSX {
           * @default false
          */
         "plainReadonly"?: boolean;
+    }
+    /**
+     * Only ever touched by one test, so its chunk is guaranteed to still be loading when that test
+     * writes to it.
+     */
+    interface PropSetterLazyRaceCold {
+        /**
+          * @default false
+         */
+        "isDisabled"?: boolean;
+        /**
+          * @default ''
+         */
+        "note"?: string;
     }
     interface RadioGroupBlurTest {
     }
@@ -4729,6 +4784,12 @@ declare namespace LocalJSX {
     interface PropSetterLazyRaceAttributes {
         "plainReadonly": boolean;
         "isReadonly": boolean;
+        "count": number;
+        "connectedSnapshot": string;
+    }
+    interface PropSetterLazyRaceColdAttributes {
+        "isDisabled": boolean;
+        "note": string;
     }
     interface ReflectNanAttributeAttributes {
         "val": number;
@@ -4957,6 +5018,7 @@ declare namespace LocalJSX {
         "prefix-prop-root": PrefixPropRoot;
         "prop-serializer": Omit<PropSerializer, keyof PropSerializerAttributes> & { [K in keyof PropSerializer & keyof PropSerializerAttributes]?: PropSerializer[K] } & { [K in keyof PropSerializer & keyof PropSerializerAttributes as `attr:${K}`]?: PropSerializerAttributes[K] } & { [K in keyof PropSerializer & keyof PropSerializerAttributes as `prop:${K}`]?: PropSerializer[K] };
         "prop-setter-lazy-race": Omit<PropSetterLazyRace, keyof PropSetterLazyRaceAttributes> & { [K in keyof PropSetterLazyRace & keyof PropSetterLazyRaceAttributes]?: PropSetterLazyRace[K] } & { [K in keyof PropSetterLazyRace & keyof PropSetterLazyRaceAttributes as `attr:${K}`]?: PropSetterLazyRaceAttributes[K] } & { [K in keyof PropSetterLazyRace & keyof PropSetterLazyRaceAttributes as `prop:${K}`]?: PropSetterLazyRace[K] };
+        "prop-setter-lazy-race-cold": Omit<PropSetterLazyRaceCold, keyof PropSetterLazyRaceColdAttributes> & { [K in keyof PropSetterLazyRaceCold & keyof PropSetterLazyRaceColdAttributes]?: PropSetterLazyRaceCold[K] } & { [K in keyof PropSetterLazyRaceCold & keyof PropSetterLazyRaceColdAttributes as `attr:${K}`]?: PropSetterLazyRaceColdAttributes[K] } & { [K in keyof PropSetterLazyRaceCold & keyof PropSetterLazyRaceColdAttributes as `prop:${K}`]?: PropSetterLazyRaceCold[K] };
         "radio-group-blur-test": RadioGroupBlurTest;
         "ref-attr-order": RefAttrOrder;
         "reflect-nan-attribute": Omit<ReflectNanAttribute, keyof ReflectNanAttributeAttributes> & { [K in keyof ReflectNanAttribute & keyof ReflectNanAttributeAttributes]?: ReflectNanAttribute[K] } & { [K in keyof ReflectNanAttribute & keyof ReflectNanAttributeAttributes as `attr:${K}`]?: ReflectNanAttributeAttributes[K] } & { [K in keyof ReflectNanAttribute & keyof ReflectNanAttributeAttributes as `prop:${K}`]?: ReflectNanAttribute[K] };
@@ -5316,6 +5378,11 @@ declare module "@stencil/core" {
             "prefix-prop-root": LocalJSX.IntrinsicElements["prefix-prop-root"] & JSXBase.HTMLAttributes<HTMLPrefixPropRootElement>;
             "prop-serializer": LocalJSX.IntrinsicElements["prop-serializer"] & JSXBase.HTMLAttributes<HTMLPropSerializerElement>;
             "prop-setter-lazy-race": LocalJSX.IntrinsicElements["prop-setter-lazy-race"] & JSXBase.HTMLAttributes<HTMLPropSetterLazyRaceElement>;
+            /**
+             * Only ever touched by one test, so its chunk is guaranteed to still be loading when that test
+             * writes to it.
+             */
+            "prop-setter-lazy-race-cold": LocalJSX.IntrinsicElements["prop-setter-lazy-race-cold"] & JSXBase.HTMLAttributes<HTMLPropSetterLazyRaceColdElement>;
             "radio-group-blur-test": LocalJSX.IntrinsicElements["radio-group-blur-test"] & JSXBase.HTMLAttributes<HTMLRadioGroupBlurTestElement>;
             "ref-attr-order": LocalJSX.IntrinsicElements["ref-attr-order"] & JSXBase.HTMLAttributes<HTMLRefAttrOrderElement>;
             "reflect-nan-attribute": LocalJSX.IntrinsicElements["reflect-nan-attribute"] & JSXBase.HTMLAttributes<HTMLReflectNanAttributeElement>;

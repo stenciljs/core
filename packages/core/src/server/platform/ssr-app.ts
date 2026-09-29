@@ -1,11 +1,11 @@
 import { globalScripts } from 'virtual:app-globals';
 import type * as d from '@stencil/core';
 
-import { connectedCallback, addHostEventListeners } from '../../runtime';
+import { connectedCallback, addHostEventListeners, setMode } from '../../runtime';
 import { insertVdomAnnotations } from '../../runtime/vdom/vdom-annotations';
 import { CMP_FLAGS } from '../../utils/constants';
 import { proxyHostElement } from './proxy-host-element';
-import { getHostRef, loadModule, plt, registerHost, setScopedSsr } from './index';
+import { getHostRef, loadModule, plt, registerHost, setScopedSsr, modeResolver } from './index';
 
 /**
  * Native setTimeout/clearTimeout captured before globalThis is shadowed in the factory closure.
@@ -51,6 +51,9 @@ export function ssrApp(
 
   let tmrId: any;
   let ranCompleted = false;
+  // In case a per-call `opts.modes` is provided, cache any global mode
+  // resolver so we can restore it after the render is complete
+  let modeResolverSnapshot: d.ResolutionHandler[] | undefined;
   // Resolves once the render is finalizing (error or timeout), so components
   // still mid-`await` can stop waiting instead of resuming against a window
   // that's about to be torn down, and so their own in-flight `fetch()` calls
@@ -68,6 +71,12 @@ export function ssrApp(
     $nativeClearTimeout(tmrId);
     createdElements.clear();
     connectedElements.clear();
+
+    if (modeResolverSnapshot) {
+      modeResolver.length = 0;
+      modeResolver.push(...modeResolverSnapshot);
+      modeResolverSnapshot = undefined;
+    }
 
     if (!ranCompleted) {
       ranCompleted = true;
@@ -229,6 +238,13 @@ export function ssrApp(
     plt.$resourcesUrl$ = new URL(opts.resourcesUrl || './', win.document.baseURI).href;
 
     globalScripts();
+
+    // Apply `opts.modes` after the global script runs
+    // so an explicit per-call override always wins
+    if (Array.isArray(opts.modes)) {
+      modeResolverSnapshot = modeResolver.slice();
+      opts.modes.forEach((mode) => setMode(mode));
+    }
 
     patchChild(win.document.body);
 

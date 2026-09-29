@@ -85,7 +85,7 @@ describe('form associated', () => {
 });
 
 describe('form associated prop check', () => {
-  it('should determine that both are components are disabled', async () => {
+  it('treats a parsed `disabled="false"` and plain `disabled` attribute as true`', async () => {
     const { root } = await render(
       `<section>
         <form-associated-prop-check disabled></form-associated-prop-check>
@@ -99,13 +99,32 @@ describe('form associated prop check', () => {
       'form-associated-prop-check',
     ) as NodeListOf<HTMLFormAssociatedPropCheckElement>;
     expect(components[0].disabled).toBe(true);
-    expect(components[1].disabled).toBe(false);
+    expect(components[1].disabled).toBe(true);
 
     expect(components[0].shadowRoot!.querySelector('p')).toHaveTextContent(
       'Disabled prop value: true',
     );
     expect(components[1].shadowRoot!.querySelector('p')).toHaveTextContent(
-      'Disabled prop value: false',
+      'Disabled prop value: true',
     );
+  });
+
+  it('treats `setAttribute("disabled", "false")` as true and attribute removal as false', async () => {
+    const { root, waitForChanges } = await render(<form-associated-prop-check />);
+    await waitForExist('form-associated-prop-check.hydrated');
+
+    const cmp = root as HTMLFormAssociatedPropCheckElement;
+    const p = cmp.shadowRoot!.querySelector('p');
+    expect(p).toHaveTextContent('Disabled prop value: undefined');
+
+    cmp.setAttribute('disabled', 'false');
+    await waitForChanges();
+    expect(cmp.disabled).toBe(true);
+    expect(p).toHaveTextContent('Disabled prop value: true');
+
+    cmp.removeAttribute('disabled');
+    await waitForChanges();
+    expect(cmp.disabled).toBe(false);
+    expect(p).toHaveTextContent('Disabled prop value: false');
   });
 });

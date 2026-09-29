@@ -25,6 +25,7 @@ Stencil recently had its 10th birthday - this release is a consolidation, organi
   - [`openBrowser` Defaults to `false`](#openbrowser-defaults-to-false)
   - [`@Watch` Handlers No Longer Fire Before the Component Has Rendered](#watch-handlers-no-longer-fire-before-the-component-has-rendered)
   - [`componentShouldUpdate` Batching](#componentshouldupdate-batching)
+  - [Boolean Props: `"false"` Is Now `true`](#boolean-props-false-is-now-true)
   - [Rollup Replaced with Rolldown](#rollup-replaced-with-rolldown)
   - [JSX Types](#jsx-types)
   - [`extras` Renamed to `compat`](#extras-renamed-to-compat)
@@ -178,6 +179,35 @@ componentShouldUpdate(changes: ComponentShouldUpdateChanges<this>) {
 ```
 
 A compiler warning is now raised if `componentShouldUpdate` is declared with more than one parameter.
+
+#### Boolean Props: `"false"` Is Now `true`
+
+Boolean `@Prop()`s now follow the HTML spec for boolean attributes: an attribute's **presence** means `true` and its **absence** means `false`, whatever its value. Previously Stencil special-cased the literal string `"false"` (`<my-cmp disabled="false">` gave `disabled === false`), unlike every native element. This already applied to form-associated components; it now applies to all components.
+
+| | v4 | v5 |
+| --- | --- | --- |
+| `<my-cmp disabled>` / `disabled=""` | `true` | `true` |
+| `<my-cmp disabled="false">` | `false` | `true` |
+| `el.setAttribute('disabled', 'false')` | `false` | `true` |
+| `el.disabled = 'false'` | `false` | `true` |
+| `el.removeAttribute('disabled')` | `false` | `false` |
+
+Dev builds log a console warning when a boolean prop receives an attribute value of `"false"`.
+
+To migrate, remove the attribute instead of setting it to `"false"`, or set the property (`el.disabled = false`, or `disabled={false}` in JSX). Stencil's framework wrappers and React 19+ already set properties, so they're unaffected.
+
+If you need to keep accepting `"false"` (for example, markup from a server template that writes booleans as strings), add an `@AttrDeserialize()` for the prop:
+
+```tsx
+@Prop() disabled: boolean;
+
+@AttrDeserialize('disabled')
+parseDisabled(attr: string | null) {
+  return attr !== null && attr !== 'false';
+}
+```
+
+A getter/setter pair also works, but only if the prop is typed `boolean | string`. A plain `boolean` setter receives the already-coerced value.
 
 #### Rollup Replaced with Rolldown
 

@@ -7,7 +7,7 @@ import { expandPartSelectors, scopeCss } from '../utils/shadow-css';
 import { computeMode } from './mode';
 import { normalizeWatchers } from './normalize-watchers';
 import { createTime, uniqueTime } from './profile';
-import { proxyComponent } from './proxy-component';
+import { proxyComponent, replayPendingSetterValues } from './proxy-component';
 import { PROXY_FLAGS, MAX_LAZY_LOAD_RETRIES } from './runtime-constants';
 import { initializeEffects, initializeSignals } from './signals';
 import { getScopeId, registerStyle } from './styles';
@@ -103,6 +103,7 @@ export const initializeComponent = async (
 
         if (BUILD.member) {
           hostRef.$flags$ &= ~HOST_FLAGS.isConstructingInstance;
+          replayPendingSetterValues(hostRef, cmpMeta);
         }
         // Note: isWatchReady is now set in postUpdateComponent after componentDidLoad,
         // per lifecycle docs that @Watch should only fire on subsequent prop changes.
