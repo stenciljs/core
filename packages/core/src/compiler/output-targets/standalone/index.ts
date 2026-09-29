@@ -256,7 +256,9 @@ export const addStandaloneInputs = (
     if (relativeAssetPath) {
       exp.push(`import { setAssetPath } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';`);
       exp.push(`export { setAssetPath };`);
-      exp.push(`setAssetPath(new URL('${relativeAssetPath}', import.meta.url).href);`);
+      // `String()` stops bundlers (e.g. Vite) rewriting `new URL(literal, import.meta.url)` as an asset
+      // import, which drops the directory's trailing slash.
+      exp.push(`setAssetPath(new URL('${relativeAssetPath}', String(import.meta.url)).href);`);
     }
 
     if (cmp.isPlain) {
@@ -346,8 +348,9 @@ export const generateEntryPoint = (
       `import { setAssetPath } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';`,
     );
     exports.push(`export { setAssetPath };`);
-    // Use import.meta.url for runtime resolution that works regardless of where bundle is hosted
-    body.push(`setAssetPath(new URL('${relativeAssetPath}', import.meta.url).href);`);
+    // Use import.meta.url for runtime resolution that works regardless of where bundle is hosted.
+    // `String()` stops bundlers rewriting it as an asset import (see above).
+    body.push(`setAssetPath(new URL('${relativeAssetPath}', String(import.meta.url)).href);`);
   }
 
   // Content related to global scripts

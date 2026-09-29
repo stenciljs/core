@@ -667,7 +667,7 @@ importers:
 
   test/special-config: {}
 
-  test/special-config/assets-global-style:
+  test/special-config/assets:
     dependencies:
       '@stencil/core':
         specifier: workspace:*

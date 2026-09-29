@@ -21,6 +21,8 @@ const generatedPath = join(
   'stencil-css-components.css',
 );
 
+const toViteFilePath = (filePath: string) => filePath.replace(/\\/g, '/');
+
 describe('virtual global-stylesheet HMR under Vite', () => {
   it('regenerates and hot-updates when a CSS-only component changes', async () => {
     writeFileSync(badgePath, badgeCss('4px'));
@@ -50,11 +52,13 @@ describe('virtual global-stylesheet HMR under Vite', () => {
       });
 
       expect(readFileSync(generatedPath, 'utf-8')).toMatch(/hmr-badge\s*\{\s*padding:\s*9px/);
-      const generated = updated.find((m) => m.file === generatedPath);
+      expect(updated).toBeDefined();
+      // Vite's module graph uses forward-slash paths on every OS
+      const generated = updated.find((m) => m.file === toViteFilePath(generatedPath));
       expect(generated).toBeTruthy();
       // Vite propagates the update through the importing stylesheet, which self-accepts
       expect([...generated!.importers].map((m) => m.file)).toContain(
-        join(pkgRoot, 'test', 'fixtures', 'virtual-css', 'partial.css'),
+        toViteFilePath(join(pkgRoot, 'test', 'fixtures', 'virtual-css', 'partial.css')),
       );
     } finally {
       rmSync(badgePath, { force: true });

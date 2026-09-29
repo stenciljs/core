@@ -5,7 +5,7 @@
  * any plugin instance (e.g. a Storybook preset running in Node.js).
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, normalize } from 'node:path';
 import {
   cmpMetaToDocsComponent,
   generateManifest,
@@ -90,9 +90,11 @@ export function collectFiles(dir: string, matches: (abs: string) => boolean, out
  * Parse a single `.css` file for CSS-only components (pure-CSS custom-element definitions
  * marked with a `@component` JSDoc tag - see `@stencil/core/compiler`'s `parseCssOnlyComponents`)
  * and register each one in the docs registry with `cssOnly: true`.
- * @param abs absolute path to the `.css` file
+ * @param file absolute path to the `.css` file
  */
-export async function scanCssOnlyDocsFile(abs: string): Promise<void> {
+export async function scanCssOnlyDocsFile(file: string): Promise<void> {
+  // native separators, so the same file is one registry entry whichever form a watcher reports it in
+  const abs = normalize(file);
   let code: string;
   try {
     code = readFileSync(abs, 'utf-8');
@@ -113,15 +115,17 @@ export async function scanCssOnlyDocsFile(abs: string): Promise<void> {
 }
 
 /**
- * Rescan a changed stylesheet that defines (or used to define) CSS-only components - that changes
+ * Re-scan a changed stylesheet that defines (or used to define) CSS-only components - that changes
  * which ones exist, not just their CSS.
  * @param file the changed file
  */
 export async function rescanIfCssOnlyComponent(file: string): Promise<void> {
   if (!isCssFile(file)) return;
+  // Vite reports `/`-separated paths even on Windows, where the registry holds native ones
+  const abs = normalize(file);
   try {
-    if (readFileSync(file, 'utf-8').includes('@component') || cssOnlyComponentFiles.has(file)) {
-      await scanCssOnlyDocsFile(file);
+    if (readFileSync(abs, 'utf-8').includes('@component') || cssOnlyComponentFiles.has(abs)) {
+      await scanCssOnlyDocsFile(abs);
     }
   } catch {
     // deleted/unreadable - keep what's known

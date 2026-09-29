@@ -416,6 +416,9 @@ export const defineCustomElements = (opts) => {
           `import { setAssetPath } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';`,
         );
         expect(loaderContent).toContain('export { setAssetPath };');
+        expect(loaderContent).toContain(
+          `setAssetPath(new URL('../assets/', String(import.meta.url)).href);`,
+        );
       });
 
       it('should not add loader when autoLoader is not set', () => {

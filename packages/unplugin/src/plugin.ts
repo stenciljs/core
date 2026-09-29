@@ -115,6 +115,9 @@ const getModuleById = (server: HmrServer, id: string) =>
 const invalidate = (server: HmrServer, mod: ModuleNode) =>
   server.moduleGraph.invalidateModule(mod, new Set(), Date.now(), true);
 
+// Vite keys its module graph by forward-slash paths on every OS; Node's `path` uses `\` on Windows
+const toViteFilePath = (filePath: string) => filePath.replace(/\\/g, '/');
+
 const PLUGIN_NAME = '@stencil/unplugin';
 
 interface Tapable<Args extends unknown[], Result = void> {
@@ -343,11 +346,11 @@ export const unpluginStencil = createUnplugin(
      * @returns the modules to hot-update
      */
     async function hotUpdateVirtualCss(file: string, server: HmrServer): Promise<ModuleNode[]> {
-      // with `docs`, refreshDocsForStylesheet already rescanned CSS-only components
+      // with `docs`, refreshDocsForStylesheet already re-scanned CSS-only components
       if (virtualCss.started && !options.docs) await rescanIfCssOnlyComponent(file);
       const modules: ModuleNode[] = [];
       for (const written of await virtualCss.hotUpdate(file)) {
-        for (const mod of server.moduleGraph.getModulesByFile?.(written) ?? []) {
+        for (const mod of server.moduleGraph.getModulesByFile?.(toViteFilePath(written)) ?? []) {
           invalidate(server, mod);
           modules.push(mod);
         }
@@ -519,7 +522,7 @@ export const unpluginStencil = createUnplugin(
 
       // Watch mode for bundlers `load` regenerates for (Vite: `handleHotUpdate`; webpack/rspack:
       // `watchVirtualCssForCompiles`) - only a change in which CSS-only components exist needs a
-      // rescan first.
+      // re-scan first.
       async watchChange(id) {
         if (!['vite', 'webpack', 'rspack'].includes(framework) && virtualCss.started) {
           await rescanIfCssOnlyComponent(id);
