@@ -1,5 +1,5 @@
 {
-  "name": "@stencil-core-tests/special-config-assets-global-style",
+  "name": "@stencil-core-tests/special-config-assets",
   "version": "0.0.1",
   "private": true,
   "description": "Tests explicit assets and global-style output target configurations",
@@ -11,7 +11,7 @@
   "types": "dist/types/loader.d.ts",
   "scripts": {
     "build": "stencil build",
-    "test": "stencil build && node test-outputs.js && playwright test",
+    "test": "stencil build && node test-outputs.js && playwright test && vitest",
     "vitest": "stencil-test"
   },
   "dependencies": {

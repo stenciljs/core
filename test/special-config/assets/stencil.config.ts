@@ -33,6 +33,7 @@ export const config: Config = {
     {
       type: 'global-style',
       input: './src/global.css',
+      fileName: 'global-styles.css',
       dir: 'dist/custom-assets',
       copyToLoaderBrowser: false,
       inject: 'none', // Explicit default - styles must be loaded externally

@@ -24,12 +24,19 @@ const customAssetsDir = path.join(distDir, 'custom-assets');
 // ========================================
 // First global-style: explicit input, fileName derived from input basename
 // ========================================
+const renameGlobalStylePath = path.join(customAssetsDir, 'global-styles.css');
 const globalStylePath = path.join(customAssetsDir, 'global.css');
-fs.accessSync(globalStylePath);
-console.log('✅ First global-style (global.css) written to custom directory');
+fs.accessSync(renameGlobalStylePath);
+console.log('✅ First global-style (global.css) written to custom directory as global-style.css');
+try {
+  fs.accessSync(globalStylePath);
+  throw new Error('First global-style should NOT be written to custom directory as global.css');
+} catch {
+  // Expected - global.css should NOT exist here since we renamed it to global-styles.css
+}
 
 // Verify global styles contain expected content
-const globalStyleContent = fs.readFileSync(globalStylePath, 'utf8');
+const globalStyleContent = fs.readFileSync(renameGlobalStylePath, 'utf8');
 if (!globalStyleContent.includes('--test-color')) {
   throw new Error('Global styles missing expected CSS variable');
 }
@@ -110,7 +117,7 @@ try {
 // Note: This check may need adjustment - explicit config might still create default
 // For now, just log if it exists
 if (defaultAssetsDirExists) {
-  console.log('ℹ️  Default dist/assets/ also exists (explicit config adds to, does not replace)');
+  throw new Error('Default dist/assets/ also exists!');
 } else {
   console.log('✅ Only custom assets directory exists (explicit config)');
 }
