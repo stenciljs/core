@@ -19,6 +19,20 @@ import { getCssImports } from './css-imports';
 import { optimizeStyleCss } from './optimize-style-css';
 
 /**
+ * Drop cached CSS for files this rebuild changed or deleted. The cache is keyed by file path and
+ * shared by global-style inputs and the files feeding their virtual imports (a component's
+ * `globalStyleUrl`, a CSS-only component) - the latter are otherwise never rebuilt once cached.
+ *
+ * @param compilerCtx the compiler context
+ * @param buildCtx the build context
+ */
+export const evictChangedGlobalStyles = (compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
+  for (const filePath of [...buildCtx.filesChanged, ...buildCtx.filesDeleted]) {
+    compilerCtx.globalStyleCache.delete(normalizePath(filePath));
+  }
+};
+
+/**
  * Build global styles from the `globalStyle` config option (legacy entry point).
  *
  * This is called during the build phase to pre-build the globalStyle CSS for HMR.

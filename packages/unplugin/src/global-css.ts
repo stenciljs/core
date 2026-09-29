@@ -235,6 +235,7 @@ export function createVirtualGlobalCss(
   const useDefaultDir = (root: string) => {
     dir ||= resolve(root, 'node_modules', '.stencil', 'virtual-css', isDev() ? 'serve' : 'build');
   };
+  const isPath = (id: string) => !!dir && dirname(id) === dir;
 
   return {
     get dir() {
@@ -253,7 +254,7 @@ export function createVirtualGlobalCss(
     },
     /** Use the default dir under `root`, unless one's already been set. */
     useDefaultDir,
-    isPath: (id: string) => !!dir && dirname(id) === dir,
+    isPath,
     refresh,
 
     /**
@@ -263,6 +264,12 @@ export function createVirtualGlobalCss(
      * name (as Less writes `(css)` imports in a partial) only counts when no such file exists.
      */
     async resolveId(id: string, importer?: string): Promise<string | undefined> {
+      // Vite's alias has already swapped a JS import's name for its generated path - that's a use
+      // too, even if no stylesheet mentions one (e.g. a Storybook preview entry importing them)
+      if (isPath(id)) {
+        await ensure();
+        return id;
+      }
       const name = getVirtualGlobalImportName(id);
       if (!name || (name !== id && importer && existsSync(resolve(dirname(importer), id)))) {
         return undefined;

@@ -134,15 +134,26 @@ describe('loadStencilConfig', () => {
     });
   });
 
-  it('ignores config fields that are not transpile-relevant', async () => {
+  it('ignores config fields the plugin does not use', async () => {
     const dir = join(tmpDir, 'irrelevant');
     mkdirSync(dir, { recursive: true });
     writeFileSync(
       join(dir, 'stencil.config.js'),
-      `export const config = { namespace: 'my-app', srcDir: './src', signalBacking: true };`,
+      `export const config = { namespace: 'my-app', outputTargets: [], signalBacking: true };`,
     );
     const result = await loadStencilConfig(dir);
     expect(result).toEqual({ signalBacking: true });
+  });
+
+  it('extracts srcDir (where `types` writes components.d.ts)', async () => {
+    const dir = join(tmpDir, 'src-dir');
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(
+      join(dir, 'stencil.config.js'),
+      `export const config = { namespace: 'my-app', srcDir: './lib' };`,
+    );
+    const result = await loadStencilConfig(dir);
+    expect(result).toEqual({ srcDir: './lib' });
   });
 
   it('returns null for a malformed config (no valid export)', async () => {

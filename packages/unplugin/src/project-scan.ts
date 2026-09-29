@@ -32,6 +32,13 @@ export const cssOnlyComponentFiles = new Set<string>();
 // the tags each file in cssOnlyComponentFiles registered, so they can be dropped when it changes
 const cssOnlyTagsByFile = new Map<string, string[]>();
 
+// Compiler metadata per tag - what `components.d.ts` is generated from (see `component-types.ts`).
+// JS-backed and CSS-only components are kept apart because core orders them that way.
+export const componentMetaRegistry = new Map<string, ComponentCompilerMeta>();
+export const cssOnlyMetaRegistry = new Map<string, ComponentCompilerMeta>();
+// the tags each `.tsx`/`.ts` file defined, so they can be dropped when it changes
+const tagsBySourceFile = new Map<string, string[]>();
+
 /**
  * A snapshot of the whole docs registry's content, used to detect whether a CSS-only
  * component's docs changed after a re-scan. A `.css` file's tag(s) aren't known until after parsing
@@ -50,6 +57,9 @@ export const getRegistrySnapshot = (): string =>
 export function getStencilCEM(): CustomElementsManifest {
   return generateManifest({ components: [...docsRegistry.values()] });
 }
+
+// cheap pre-filter before transpiling a file that might define a component
+const COMPONENT_DECORATOR_RE = /(@Component|@Prop|@State|@Event|@Method|@Watch|@Listen)\s*[(\s]/;
 
 const isTsSourceFile = (abs: string): boolean =>
   (abs.endsWith('.tsx') || abs.endsWith('.ts')) && !abs.endsWith('.d.ts');
@@ -111,7 +121,10 @@ export async function scanCssOnlyDocsFile(file: string): Promise<void> {
     ? await parseCssOnlyComponents(abs, code)
     : { components: [] };
 
-  for (const tag of cssOnlyTagsByFile.get(abs) ?? []) docsRegistry.delete(tag);
+  for (const tag of cssOnlyTagsByFile.get(abs) ?? []) {
+    docsRegistry.delete(tag);
+    cssOnlyMetaRegistry.delete(tag);
+  }
   if (components.length > 0) {
     cssOnlyComponentFiles.add(abs);
     cssOnlyTagsByFile.set(
@@ -126,6 +139,7 @@ export async function scanCssOnlyDocsFile(file: string): Promise<void> {
     // No resolveImportedTypes call here - a CSS-only component's props are always literal
     // unions/primitives with empty `references`, never an imported TS type to resolve.
     docsRegistry.set(item.tagName, { ...cmpMetaToDocsComponent(item, abs), cssOnly: true });
+    cssOnlyMetaRegistry.set(item.tagName, item);
   }
 }
 
@@ -200,6 +214,41 @@ export async function refreshComponentDocs(tag: string, filePath: string): Promi
 }
 
 /**
+ * Re-derive a changed (or added, or deleted) `.tsx`/`.ts` file's compiler metadata - replacing
+ * whatever it defined before, so a removed or renamed component stops being typed.
+ * @param file absolute path to the source file
+ * @returns whether the file defines, or used to define, any component
+ */
+export async function refreshComponentMeta(file: string): Promise<boolean> {
+  const abs = normalize(file);
+  let code = '';
+  try {
+    code = readFileSync(abs, 'utf-8');
+  } catch {
+    // deleted - defines nothing now
+  }
+  const previous = tagsBySourceFile.get(abs) ?? [];
+  let items: ComponentCompilerMeta[] = [];
+  if (COMPONENT_DECORATOR_RE.test(code)) {
+    try {
+      const result = await transpile(code, { file: abs, componentExport: 'customelement' });
+      items = ((result.data ?? []) as ComponentCompilerMeta[]).filter((item) => item.tagName);
+    } catch {
+      return previous.length > 0; // stale types are acceptable on transpile error
+    }
+  }
+  for (const tag of previous) componentMetaRegistry.delete(tag);
+  for (const item of items) componentMetaRegistry.set(item.tagName, item);
+  if (items.length > 0)
+    tagsBySourceFile.set(
+      abs,
+      items.map((item) => item.tagName),
+    );
+  else tagsBySourceFile.delete(abs);
+  return previous.length > 0 || items.length > 0;
+}
+
+/**
  * Scan the project for component source files (`.tsx`/`.ts`) and CSS-only components
  * (`.css`), pre-populating the docs registry, `componentGlobalStyles`, and
  * `cssOnlyComponentFiles` - the project-wide data the virtual global-stylesheet imports need
@@ -220,6 +269,9 @@ export async function scanDocs(
   for (const tags of cssOnlyTagsByFile.values()) for (const tag of tags) docsRegistry.delete(tag);
   cssOnlyTagsByFile.clear();
   cssOnlyComponentFiles.clear();
+  componentMetaRegistry.clear();
+  cssOnlyMetaRegistry.clear();
+  tagsBySourceFile.clear();
   const cwd = process.cwd();
   const allFiles: string[] = [];
   collectFiles(cwd, (abs) => isTsSourceFile(abs) || isCssFile(abs), allFiles);
@@ -235,7 +287,7 @@ export async function scanDocs(
       } catch {
         return;
       }
-      if (!/(@Component|@Prop|@State|@Event|@Method|@Watch|@Listen)\s*[(\s]/.test(code)) return;
+      if (!COMPONENT_DECORATOR_RE.test(code)) return;
       const result = await transpile(code, { file: abs, componentExport: 'customelement' });
       for (const item of (result.data ?? []) as ComponentCompilerMeta[]) {
         if (!item.tagName) continue;
@@ -243,6 +295,11 @@ export async function scanDocs(
         const component = cmpMetaToDocsComponent(item, abs);
         resolveImportedTypes(component, abs);
         docsRegistry.set(item.tagName, component);
+        componentMetaRegistry.set(item.tagName, item);
+        tagsBySourceFile.set(normalize(abs), [
+          ...(tagsBySourceFile.get(normalize(abs)) ?? []),
+          item.tagName,
+        ]);
         if (item.globalStyles?.length) componentGlobalStyles.push(...item.globalStyles);
       }
     }),

@@ -7,11 +7,7 @@ export default defineConfig({
   test: {
     include: [
       'src/**/*.spec.ts',
-      'test/build.spec.ts',
-      'test/docs.spec.ts',
-      'test/docs-hmr.spec.ts',
-      'test/virtual-css-hmr.spec.ts',
-      'test/spec-page.spec.ts',
+      'test/**/*.spec.ts',
     ],
   },
 });

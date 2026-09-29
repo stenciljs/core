@@ -8,7 +8,10 @@ type TranspileCompatKeys = 'lightDomPatches' | 'lifecycleDOMEvents' | 'initializ
  *
  * Auto-populated from the project's `stencil.config.ts`; values set here override the auto-detected ones.
  */
-export type StencilConfigSubset = Pick<StencilConfig, 'signalBacking' | 'hydratedFlag'> & {
+export type StencilConfigSubset = Pick<
+  StencilConfig,
+  'signalBacking' | 'hydratedFlag' | 'srcDir'
+> & {
   compat?: Pick<ConfigCompat, TranspileCompatKeys>;
 };
 
@@ -71,6 +74,15 @@ export interface StencilPluginOptions {
    * preset) to avoid paying the startup scan cost for non-docs builds.
    */
   docs?: boolean;
+
+  /**
+   * When `true`, the plugin writes `<srcDir>/components.d.ts` - the same typings `stencil build`
+   * generates, CSS-only components included - at build start, and keeps it current as component
+   * sources change. For projects whose dev loop doesn't run the Stencil compiler (e.g. Storybook).
+   *
+   * Uses the same project scan as `docs`. Off by default.
+   */
+  types?: boolean;
 
   /**
    * Stencil config flags that affect transpilation. The plugin automatically

@@ -70,16 +70,6 @@
           "tagName": "another-car-list",
           "name": "AnotherCarList",
           "description": "Component that helps display a list of cars",
-          "tags": [
-            {
-              "name": "slot",
-              "text": "header - The slot for the header content."
-            },
-            {
-              "name": "part",
-              "text": "car - The shadow part to target to style the car."
-            }
-          ],
           "attributes": [
             {
               "name": "cars",
@@ -294,16 +284,6 @@
           "tagName": "car-list",
           "name": "CarList",
           "description": "Component that helps display a list of cars",
-          "tags": [
-            {
-              "name": "slot",
-              "text": "header - The slot for the header content."
-            },
-            {
-              "name": "part",
-              "text": "car - The shadow part to target to style the car."
-            }
-          ],
           "attributes": [
             {
               "name": "cars",
@@ -2429,16 +2409,6 @@
           "tagName": "scoped-car-list",
           "name": "ScopedCarList",
           "description": "Component that helps display a list of cars",
-          "tags": [
-            {
-              "name": "slot",
-              "text": "header - The slot for the header content."
-            },
-            {
-              "name": "part",
-              "text": "car - The shadow part to target to style the car."
-            }
-          ],
           "attributes": [
             {
               "name": "cars",

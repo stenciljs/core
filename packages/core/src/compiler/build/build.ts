@@ -6,7 +6,7 @@ import { catchError, isString, join, readPackageJson } from '../../utils';
 import { discoverCssOnlyComponents } from '../css-components/discover-css-components';
 import { generateOutputTargets } from '../output-targets';
 import { emptyOutputTargets } from '../output-targets/empty-dir';
-import { generateGlobalStyles } from '../style/global-styles';
+import { evictChangedGlobalStyles, generateGlobalStyles } from '../style/global-styles';
 import { ingestConfigCollections } from '../transformers/collection/add-external-import';
 import { resetDeprecatedApiWarning } from '../transformers/decorators-to-static/component-decorator';
 import { runTsProgram, validateTypesAfterGeneration } from '../transpile/run-program';
@@ -101,6 +101,7 @@ export const build = async (
     }
 
     // preprocess and generate styles before any outputTarget starts
+    evictChangedGlobalStyles(compilerCtx, buildCtx);
     buildCtx.stylesPromise = generateGlobalStyles(config, compilerCtx, buildCtx);
     if (buildCtx.hasError) return buildAbort(buildCtx);
 

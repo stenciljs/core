@@ -37,15 +37,19 @@
  *     `@import` - via an alias. The bundler then treats them like any other CSS. `load` registers
  *     their ingredient files (e.g. a component's `globalStyleUrl`) for watch mode;
  *     `handleHotUpdate` regenerates them for Vite HMR.
+ *
+ *  7. **`components.d.ts`** - with `types: true`, written to `srcDir` from the project scan by
+ *     core's own generator (see `component-types.ts`), and rewritten as component sources change.
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { createFilter } from '@rollup/pluginutils';
 import { validateHydrated } from '@stencil/core/compiler';
 import { createUnplugin } from 'unplugin';
-import type { BuildOverrides, HydratedFlag } from '@stencil/core/compiler';
+import type { BuildOverrides, ComponentTypesConfig, HydratedFlag } from '@stencil/core/compiler';
 import type { ModuleNode, ViteDevServer } from 'vite';
 
+import { writeComponentTypes } from './component-types.js';
 import { loadStencilConfig, stencilConfigToOverrides } from './config.js';
 import { getRealCssPath, isStencilCss, loadStencilCss, resolveStencilCss } from './css.js';
 import {
@@ -62,6 +66,7 @@ import {
   getStencilCEM,
   isCssOnlyComponentFile,
   refreshComponentDocs,
+  refreshComponentMeta,
   rescanIfCssOnlyComponent,
   rescanNewCssOnlyComponents,
   scanCssOnlyDocsFile,
@@ -218,6 +223,9 @@ export const unpluginStencil = createUnplugin(
     // hydratedFlag is explicitly disabled - same meaning as the full compiler's config.
     let hydratedFlag: HydratedFlag | null = null;
 
+    // What `options.types` generates `components.d.ts` with - set alongside hydratedFlag.
+    let typesConfig: ComponentTypesConfig | null = null;
+
     // Memoized so scanDocs() - a full project walk - runs at most once per build, however many
     // triggers ask for it.
     let projectScanPromise: Promise<void> | null = null;
@@ -238,6 +246,10 @@ export const unpluginStencil = createUnplugin(
         : (options.stencilConfig ?? {});
       configOverrides = stencilConfigToOverrides(merged);
       hydratedFlag = validateHydrated({ hydratedFlag: merged.hydratedFlag });
+      typesConfig = {
+        srcDir: resolve(projectRoot, merged.srcDir ?? 'src'),
+        signalBacking: !!merged.signalBacking,
+      };
     }
     // Some bundlers (rspack's `beforeCompile`) ask for the virtual stylesheets before `buildStart`.
     let stencilConfigLoaded: Promise<void> | null = null;
@@ -298,6 +310,24 @@ export const unpluginStencil = createUnplugin(
           hooks.loader?.tap(PLUGIN_NAME, (ctx) => addIngredients(ctx.resourcePath, ctx));
         }
       });
+    }
+
+    /**
+     * `options.types`: bring the registries up to date with a changed file - a component source,
+     * or a stylesheet that defines (or used to define) CSS-only components - then rewrite
+     * `components.d.ts` if its content changed.
+     * @param file the changed, added or deleted file
+     */
+    async function updateComponentTypes(file: string) {
+      if (!options.types || !typesConfig) return;
+      if (/\.tsx?$/.test(file) && !file.endsWith('.d.ts') && filter(file)) {
+        await refreshComponentMeta(file);
+      } else {
+        await rescanIfCssOnlyComponent(file);
+        // a file added to a watched directory may be reported as the directory itself
+        await rescanNewCssOnlyComponents(file);
+      }
+      writeComponentTypes(typesConfig);
     }
 
     /**
@@ -406,7 +436,8 @@ export const unpluginStencil = createUnplugin(
         // reloaded every build, so a watch-mode rebuild picks up stencil.config changes
         stencilConfigLoaded = loadConfig();
         await stencilConfigLoaded;
-        if (options.docs) await ensureProjectScanned();
+        if (options.docs || options.types) await ensureProjectScanned();
+        if (options.types && typesConfig) writeComponentTypes(typesConfig);
         virtualCss.useDefaultDir(projectRoot);
         // Vite never asks `resolveId` about CSS `@import`s, so generate up front if they're used -
         // and regenerate on a watch-mode rebuild, which reads them straight from disk
@@ -537,6 +568,8 @@ export const unpluginStencil = createUnplugin(
         if (!['vite', 'webpack', 'rspack'].includes(framework) && virtualCss.started) {
           await rescanIfCssOnlyComponent(id);
         }
+        // Vite: after its own HMR handling instead - see `handleHotUpdate`
+        if (framework !== 'vite') await updateComponentTypes(id);
       },
 
       // webpack/rspack read the resolved stylesheets straight from disk (`load` never runs for
@@ -586,10 +619,12 @@ export const unpluginStencil = createUnplugin(
         // component changes the generated stylesheets too
         configureServer(server: ViteDevServer) {
           const onAddedOrDeleted = async (file: string) => {
-            if (!file.endsWith('.css')) return;
-            if (options.docs) await refreshDocsForStylesheet(file, server);
-            for (const mod of await hotUpdateVirtualCss(file, server))
-              await server.reloadModule(mod);
+            if (file.endsWith('.css')) {
+              if (options.docs) await refreshDocsForStylesheet(file, server);
+              for (const mod of await hotUpdateVirtualCss(file, server))
+                await server.reloadModule(mod);
+            }
+            await updateComponentTypes(file);
           };
           server.watcher.on('add', onAddedOrDeleted);
           server.watcher.on('unlink', onAddedOrDeleted);
@@ -599,6 +634,9 @@ export const unpluginStencil = createUnplugin(
           if (options.docs && file.endsWith('.css')) await refreshDocsForStylesheet(file, server);
           const hmrModules = await hotUpdateVirtualCss(file, server);
           const isComponentFile = await hotUpdateComponents(file, server);
+          // last: the docs/stylesheet handling above compares registry snapshots across its own
+          // re-scan, which re-scanning here first would hide
+          await updateComponentTypes(file);
           if (!isComponentFile && hmrModules.length === 0) return undefined;
           return hmrModules;
         },

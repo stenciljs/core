@@ -14,6 +14,8 @@ export { generateManifest } from './docs/cem/index';
 export type { CustomElementsManifest } from './docs/cem/index';
 export { cmpMetaToDocsComponent } from './docs/generate-doc-data';
 export { parseCssOnlyComponents } from './css-components/parse-css-component';
+export { generateComponentTypesFile } from './types/generate-app-types';
+export type { ComponentTypesConfig } from './types/generate-app-types';
 export {
   buildHydrateCss,
   hasStencilCssComponentsImport,

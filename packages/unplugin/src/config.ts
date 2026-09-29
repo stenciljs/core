@@ -24,6 +24,7 @@ const STENCIL_CONFIG_KEYS = new Set([
   'plugins',
   'signalBacking',
   'compat',
+  'srcDir',
 ]);
 
 const looksLikeConfig = (v: unknown): v is Record<string, unknown> =>
@@ -71,6 +72,7 @@ export async function loadStencilConfig(cwd: string): Promise<StencilConfigSubse
 function extractSubset(c: Record<string, unknown>): StencilConfigSubset {
   const result: StencilConfigSubset = {};
   if (c['signalBacking'] === true) result.signalBacking = true;
+  if (typeof c['srcDir'] === 'string') result.srcDir = c['srcDir'];
   // `null` is a meaningful, explicit value here (disables the hydrated-flag CSS entirely) -
   // only `undefined` (the key absent) should fall through to validateHydrated's own default.
   if ('hydratedFlag' in c)

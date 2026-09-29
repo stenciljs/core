@@ -43,7 +43,14 @@ export const generateAppTypes = async (
   const areTypesInternal = destination === 'src';
 
   // Generate d.ts files for component types
-  let componentTypesFileContent = generateComponentTypesFile(config, buildCtx, areTypesInternal);
+  let componentTypesFileContent = generateComponentTypesFile(
+    [
+      ...buildCtx.components.filter((m) => !m.isCollectionDependency),
+      ...buildCtx.cssOnlyComponents,
+    ],
+    config,
+    areTypesInternal,
+  );
 
   // immediately write the components.d.ts file to disk and put it into fs memory
   let componentsDtsFilePath = getComponentsDtsSrcFilePath(config);
@@ -76,24 +83,29 @@ export const generateAppTypes = async (
 };
 
 /**
+ * The config {@link generateComponentTypesFile} reads - a subset of {@link d.ValidatedConfig}, so
+ * callers without a full compiler context (e.g. `@stencil/unplugin`) can generate the same file.
+ */
+export type ComponentTypesConfig = Pick<d.ValidatedConfig, 'srcDir'> &
+  Partial<
+    Pick<d.ValidatedConfig, 'signalBacking' | 'transformAliasedImportPaths' | 'tsCompilerOptions'>
+  >;
+
+/**
  * Generates a `components.d.ts` file's contents, which contains the typings for all components in a Stencil project
- * @param config the Stencil configuration associated with the project being compiled
- * @param buildCtx the context associated with the current build
+ * @param components every component to type - JS-backed and CSS-only alike
+ * @param config the config fields that affect the output - see {@link ComponentTypesConfig}
  * @param areTypesInternal determines if non-exported type definitions are being generated or not
  * @returns the contents of the `components.d.ts` file
  */
-const generateComponentTypesFile = (
-  config: d.ValidatedConfig,
-  buildCtx: d.BuildCtx,
-  areTypesInternal: boolean,
+export const generateComponentTypesFile = (
+  components: d.ComponentCompilerMeta[],
+  config: ComponentTypesConfig,
+  areTypesInternal = true,
 ): string => {
   let typeImportData: d.TypesImportData = {};
   const c: string[] = [];
   const allTypes = new Map<string, number>();
-  const components = [
-    ...buildCtx.components.filter((m) => !m.isCollectionDependency),
-    ...buildCtx.cssOnlyComponents,
-  ];
   const componentEventDetailTypes: d.TypesModule[] = [];
 
   const modules: d.TypesModule[] = components.map((cmp) => {

@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { mockValidatedConfig } from '../../../testing';
 import { mockBuildCtx, mockCompilerCtx } from '../../../testing/compiler';
-import { buildGlobalStyleFromInput } from '../global-styles';
+import { buildGlobalStyleFromInput, evictChangedGlobalStyles } from '../global-styles';
 
 describe('buildGlobalStyleFromInput', () => {
   let config: d.ValidatedConfig;
@@ -139,5 +139,22 @@ describe('buildGlobalStyleFromInput', () => {
 
       expect(css).not.toContain('visibility');
     });
+  });
+});
+
+describe('evictChangedGlobalStyles', () => {
+  it("drops cached CSS for files the rebuild changed or deleted, so they're re-read", () => {
+    const config = mockValidatedConfig();
+    const compilerCtx = mockCompilerCtx(config);
+    const buildCtx = mockBuildCtx(config, compilerCtx);
+    compilerCtx.globalStyleCache.set('/src/css-badge.css', 'css-badge{}');
+    compilerCtx.globalStyleCache.set('/src/gone.css', 'gone{}');
+    compilerCtx.globalStyleCache.set('/src/untouched.css', 'untouched{}');
+    buildCtx.filesChanged = ['/src/css-badge.css'];
+    buildCtx.filesDeleted = ['/src/gone.css'];
+
+    evictChangedGlobalStyles(compilerCtx, buildCtx);
+
+    expect([...compilerCtx.globalStyleCache.keys()]).toEqual(['/src/untouched.css']);
   });
 });

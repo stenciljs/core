@@ -281,11 +281,40 @@ describe('generate task', () => {
 
     await taskGenerate(config, flags);
 
-    expect(specTemplate).toHaveBeenCalledWith('my-component', toPascalCase('my-component'));
+    expect(specTemplate).toHaveBeenCalledWith('my-component', toPascalCase('my-component'), {
+      cssOnly: false,
+    });
     expect(writeFileSpy).toHaveBeenCalledWith(
       `${SRC}/components/my-component/test/my-component.spec.tsx`,
       '// spec content',
     );
+  });
+
+  it('tells file templates and resolvers when the component is CSS-only', async () => {
+    const storyTemplate = vi.fn().mockReturnValue('// story content');
+    const fileTemplatesFn = vi
+      .fn()
+      .mockResolvedValue([
+        { label: 'Story (.stories.tsx)', extension: 'stories.tsx', template: storyTemplate },
+      ]);
+    mockDiscoverPlugins.mockResolvedValue([
+      {
+        packageName: '@stencil/storybook-plugin',
+        plugin: { generate: { fileTemplates: fileTemplatesFn } },
+      },
+    ]);
+    mockSelect.mockReset();
+    mockSelect.mockResolvedValueOnce('css-only'); // component type
+    mockSelect.mockResolvedValue('css'); // stylesheet format / demo fallback
+    mockMultiselect.mockResolvedValue(['stories.tsx']);
+
+    const { config, flags } = setup();
+    withTagName(flags, 'my-tag');
+
+    await taskGenerate(config, flags);
+
+    expect(fileTemplatesFn).toHaveBeenCalledWith(expect.objectContaining({ cssOnly: true }));
+    expect(storyTemplate).toHaveBeenCalledWith('my-tag', toPascalCase('my-tag'), { cssOnly: true });
   });
 
   it('offers plugin style extensions in the style select', async () => {

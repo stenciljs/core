@@ -144,6 +144,7 @@ export const taskGenerate = async (config: ValidatedConfig, flags: ConfigFlags):
   // resolve plugin file templates sequentially - resolvers may prompt the user
   const generateCtx: GenerateContext = {
     tagName: componentName,
+    cssOnly: isCssOnly,
     config: toProjectConfig(config),
     prompts: p,
     nypm,
@@ -196,7 +197,10 @@ export const taskGenerate = async (config: ValidatedConfig, flags: ConfigFlags):
   for (const ext of pickedExtensions) {
     const tmpl = allFileTemplates.find((ft) => ft.extension === ext)!;
     const absPath = normalizePath(join(outDir, tmpl.subdirectory ?? '', `${componentName}.${ext}`));
-    filesToWrite.push({ absPath, content: tmpl.template(componentName, className) });
+    filesToWrite.push({
+      absPath,
+      content: tmpl.template(componentName, className, { cssOnly: isCssOnly }),
+    });
   }
 
   if (demoPick === 'usage') {
