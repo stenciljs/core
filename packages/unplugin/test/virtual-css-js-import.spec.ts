@@ -1,4 +1,11 @@
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdtempSync,
+  realpathSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createServer } from 'vite';
@@ -8,8 +15,10 @@ import { stencilVite } from '../src/index.js';
 
 describe('virtual global stylesheets imported from JS under Vite', () => {
   it('generates them even when no stylesheet mentions one', async () => {
-    // a root with no stylesheets at all, so nothing trips the "is it used?" text scan
-    const root = mkdtempSync(join(tmpdir(), 'stencil-unplugin-js-import-'));
+    // a root with no stylesheets at all, so nothing trips the "is it used?" text scan. Canonical:
+    // Windows' temp dir can be an 8.3 short path (`RUNNER~1`), which Vite resolves to the long
+    // form, so the id it resolves wouldn't match the file it loads
+    const root = realpathSync.native(mkdtempSync(join(tmpdir(), 'stencil-unplugin-js-import-')));
     writeFileSync(join(root, 'entry.js'), "import 'stencil-css-components';\n");
     const generatedPath = join(
       root,

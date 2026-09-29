@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -20,7 +20,9 @@ const typesCmp = (prop: string) =>
 describe('components.d.ts generation (`types: true`) under Vite', () => {
   it('writes it at startup and keeps it current as components come, change and go', async () => {
     // the project scan runs from cwd (this package's fixtures); only the output goes to srcDir
-    const srcDir = mkdtempSync(join(tmpdir(), 'stencil-unplugin-types-'));
+    // canonical path - Windows' temp dir can be an 8.3 short path (`RUNNER~1`), which Vite
+    // resolves to the long form, so the id it resolves wouldn't match the file it loads
+    const srcDir = realpathSync.native(mkdtempSync(join(tmpdir(), 'stencil-unplugin-types-')));
     const dtsPath = join(srcDir, 'components.d.ts');
     const server = await createServer({
       root: srcDir,
