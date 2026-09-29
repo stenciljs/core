@@ -13,7 +13,16 @@ import url from 'node:url';
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 const distDir = path.resolve(__dirname, 'dist');
-const stencilBin = path.resolve(__dirname, 'node_modules', '.bin', 'stencil');
+// the CLI script itself, run with this Node - `.bin/stencil` is a `.cmd` shim on Windows, which
+// spawnSync can't execute without a shell
+const stencilCli = path.resolve(
+  __dirname,
+  'node_modules',
+  '@stencil',
+  'core',
+  'bin',
+  'stencil.mjs',
+);
 
 // How each virtual import's CSS appears in minified output
 const HYDRATE = /cmp-a,cmp-b\{visibility:hidden\}/g;
@@ -237,10 +246,11 @@ for (const [name, scenario] of Object.entries(scenarios)) {
 
   await fs.rm(distDir, { recursive: true, force: true });
   const config = name === 'explicit' ? 'stencil.config.ts' : `stencil.config.${name}.ts`;
-  const run = spawnSync(stencilBin, ['build', '--config', config], {
+  const run = spawnSync(process.execPath, [stencilCli, 'build', '--config', config], {
     cwd: __dirname,
     encoding: 'utf-8',
   });
+  if (run.error) throw run.error;
   const result = { status: run.status, output: `${run.stdout}${run.stderr}` };
 
   try {

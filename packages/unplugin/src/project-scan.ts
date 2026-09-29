@@ -29,6 +29,8 @@ export const docsRegistry = new Map<string, JsonDocsComponent>();
 // docsRegistry.
 export const componentGlobalStyles: ComponentGlobalStyle[] = [];
 export const cssOnlyComponentFiles = new Set<string>();
+// the tags each file in cssOnlyComponentFiles registered, so they can be dropped when it changes
+const cssOnlyTagsByFile = new Map<string, string[]>();
 
 /**
  * A snapshot of the whole docs registry's content, used to detect whether a CSS-only
@@ -89,30 +91,50 @@ export function collectFiles(dir: string, matches: (abs: string) => boolean, out
 /**
  * Parse a single `.css` file for CSS-only components (pure-CSS custom-element definitions
  * marked with a `@component` JSDoc tag - see `@stencil/core/compiler`'s `parseCssOnlyComponents`)
- * and register each one in the docs registry with `cssOnly: true`.
+ * and register each one in the docs registry with `cssOnly: true` - replacing whatever the file
+ * registered before, so a component whose definition was removed (or whose file was deleted)
+ * stops being emitted.
  * @param file absolute path to the `.css` file
  */
 export async function scanCssOnlyDocsFile(file: string): Promise<void> {
   // native separators, so the same file is one registry entry whichever form a watcher reports it in
   const abs = normalize(file);
-  let code: string;
+  let code = '';
   try {
     code = readFileSync(abs, 'utf-8');
   } catch {
-    return;
+    // deleted/unreadable - defines nothing now
   }
   // Cheap guard, same one parseCssOnlyComponents applies internally - skip the
   // postcss parse cost for the vast majority of .css files that aren't components.
-  if (!code.includes('@component')) return;
+  const { components } = code.includes('@component')
+    ? await parseCssOnlyComponents(abs, code)
+    : { components: [] };
 
-  const { components } = await parseCssOnlyComponents(abs, code);
-  if (components.length > 0) cssOnlyComponentFiles.add(abs);
+  for (const tag of cssOnlyTagsByFile.get(abs) ?? []) docsRegistry.delete(tag);
+  if (components.length > 0) {
+    cssOnlyComponentFiles.add(abs);
+    cssOnlyTagsByFile.set(
+      abs,
+      components.map((c) => c.tagName),
+    );
+  } else {
+    cssOnlyComponentFiles.delete(abs);
+    cssOnlyTagsByFile.delete(abs);
+  }
   for (const item of components) {
     // No resolveImportedTypes call here - a CSS-only component's props are always literal
     // unions/primitives with empty `references`, never an imported TS type to resolve.
     docsRegistry.set(item.tagName, { ...cmpMetaToDocsComponent(item, abs), cssOnly: true });
   }
 }
+
+/**
+ * @param file a stylesheet path, in either separator form
+ * @returns whether it currently defines CSS-only components
+ */
+export const isCssOnlyComponentFile = (file: string): boolean =>
+  cssOnlyComponentFiles.has(normalize(file));
 
 /**
  * Re-scan a changed stylesheet that defines (or used to define) CSS-only components - that changes
@@ -123,12 +145,14 @@ export async function rescanIfCssOnlyComponent(file: string): Promise<void> {
   if (!isCssFile(file)) return;
   // Vite reports `/`-separated paths even on Windows, where the registry holds native ones
   const abs = normalize(file);
+  let code = '';
   try {
-    if (readFileSync(abs, 'utf-8').includes('@component') || cssOnlyComponentFiles.has(abs)) {
-      await scanCssOnlyDocsFile(abs);
-    }
+    code = readFileSync(abs, 'utf-8');
   } catch {
-    // deleted/unreadable - keep what's known
+    // deleted/unreadable - a registered file still needs rescanning, to drop what it defined
+  }
+  if (code.includes('@component') || cssOnlyComponentFiles.has(abs)) {
+    await scanCssOnlyDocsFile(abs);
   }
 }
 
@@ -193,6 +217,9 @@ export async function scanDocs(
   // module-level, so a later plugin instance in the same process (e.g. Vite restarting its dev
   // server after a config change) must start over rather than append
   componentGlobalStyles.length = 0;
+  for (const tags of cssOnlyTagsByFile.values()) for (const tag of tags) docsRegistry.delete(tag);
+  cssOnlyTagsByFile.clear();
+  cssOnlyComponentFiles.clear();
   const cwd = process.cwd();
   const allFiles: string[] = [];
   collectFiles(cwd, (abs) => isTsSourceFile(abs) || isCssFile(abs), allFiles);

@@ -60,6 +60,7 @@ import {
   docsRegistry,
   getRegistrySnapshot,
   getStencilCEM,
+  isCssOnlyComponentFile,
   refreshComponentDocs,
   rescanIfCssOnlyComponent,
   rescanNewCssOnlyComponents,
@@ -136,7 +137,10 @@ interface BundlerCompiler {
     watchRun: {
       tapPromise(
         name: string,
-        fn: (compiler: { modifiedFiles?: ReadonlySet<string> }) => Promise<void>,
+        fn: (compiler: {
+          modifiedFiles?: ReadonlySet<string>;
+          removedFiles?: ReadonlySet<string>;
+        }) => Promise<void>,
       ): void;
     };
     beforeCompile: { tapPromise(name: string, fn: () => Promise<void>): void };
@@ -265,9 +269,9 @@ export const unpluginStencil = createUnplugin(
     function watchVirtualCssForCompiles(compiler: BundlerCompiler) {
       // before regenerating: a changed/added stylesheet may change which CSS-only components
       // exist. Here rather than `watchChange`, which isn't awaited before the compile starts.
-      compiler.hooks.watchRun.tapPromise(PLUGIN_NAME, async ({ modifiedFiles }) => {
+      compiler.hooks.watchRun.tapPromise(PLUGIN_NAME, async ({ modifiedFiles, removedFiles }) => {
         if (!virtualCss.started) return;
-        for (const file of modifiedFiles ?? []) {
+        for (const file of [...(modifiedFiles ?? []), ...(removedFiles ?? [])]) {
           await rescanIfCssOnlyComponent(file);
           // a file added to a watched directory is reported as the directory itself
           await rescanNewCssOnlyComponents(file);
@@ -313,9 +317,15 @@ export const unpluginStencil = createUnplugin(
      * @param server the dev server
      */
     async function refreshDocsForStylesheet(file: string, server: HmrServer) {
+      let code = '';
       try {
-        const code = readFileSync(file, 'utf-8');
-        if (code.includes('@component')) {
+        code = readFileSync(file, 'utf-8');
+      } catch {
+        // deleted - a file that defined CSS-only components still needs rescanning
+      }
+      try {
+        // one that no longer does (definition removed, or file deleted) too, to drop them
+        if (code.includes('@component') || isCssOnlyComponentFile(file)) {
           // CSS-only components have no tracked tag / virtual-module entries (they're
           // never imported directly by anything) - handle their docs-registry refresh here.
           // No stencil:hmr to send; no JS component instance, only docs need refreshing.
@@ -572,15 +582,17 @@ export const unpluginStencil = createUnplugin(
           projectRoot = config.root;
         },
 
-        // Vite only runs `handleHotUpdate` for changed files - a newly added CSS-only component
-        // changes the generated stylesheets too
+        // Vite only runs `handleHotUpdate` for changed files - adding or deleting a CSS-only
+        // component changes the generated stylesheets too
         configureServer(server: ViteDevServer) {
-          server.watcher.on('add', async (file: string) => {
+          const onAddedOrDeleted = async (file: string) => {
             if (!file.endsWith('.css')) return;
             if (options.docs) await refreshDocsForStylesheet(file, server);
             for (const mod of await hotUpdateVirtualCss(file, server))
               await server.reloadModule(mod);
-          });
+          };
+          server.watcher.on('add', onAddedOrDeleted);
+          server.watcher.on('unlink', onAddedOrDeleted);
         },
 
         async handleHotUpdate({ file, server }: { file: string; server: HmrServer }) {
