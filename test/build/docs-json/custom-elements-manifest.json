@@ -50,7 +50,6 @@
               "type": {
                 "text": "boolean"
               },
-              "readonly": true,
               "attribute": "dismissible"
             },
             {
@@ -59,7 +58,6 @@
               "type": {
                 "text": "\"danger\" | \"warning\" | (string & {})"
               },
-              "readonly": true,
               "attribute": "variant"
             }
           ],
