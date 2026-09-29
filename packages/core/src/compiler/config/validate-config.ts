@@ -158,6 +158,7 @@ export const validateConfig = (
     generateExportMaps: isBoolean(config.generateExportMaps)
       ? config.generateExportMaps
       : !isString(config.configPath),
+    enableCssOnlyComponents: config.enableCssOnlyComponents ?? true,
     hydratedFlag: validateHydrated(config),
     logLevel,
     logger,

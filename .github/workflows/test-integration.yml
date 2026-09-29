@@ -51,3 +51,6 @@ jobs:
       - name: Playground Browser Tests
         run: pnpm --filter "@stencil/playground" test:browser
         shell: bash
+
+      - name: Check Git Context
+        uses: ./.github/workflows/actions/check-git-context

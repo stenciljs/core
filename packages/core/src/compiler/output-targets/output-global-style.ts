@@ -7,12 +7,16 @@ import {
   join,
 } from '../../utils';
 import { buildGlobalStyleFromInput } from '../style/global-styles';
+import { getStencilCssMergeTarget, mergeStencilCss } from './output-stencil-css';
 
 /**
  * Output target generator for global styles.
  *
  * Builds and writes CSS for each global-style output target.
  * Each output target can have its own `input` file and `fileName`.
+ *
+ * The target writing `{fsNamespace}.css` into the assets dir (if any) also gets the generated
+ * stencil CSS prepended - see `output-stencil-css.ts`.
  *
  * Also handles backwards-compatible copies:
  * - If `copyToLoaderBrowser` is true (default), copies to the loader-bundle browser directory
@@ -38,6 +42,7 @@ export const outputGlobalStyle = async (
   const loaderBundleTargets = config.outputTargets.filter(isOutputTargetLoaderBundle);
   const wwwTargets = config.outputTargets.filter(isOutputTargetWww);
   const namespace = config.fsNamespace || 'app';
+  const mergeTarget = getStencilCssMergeTarget(config);
 
   await Promise.all(
     globalStyleTargets.map(async (outputTarget) => {
@@ -47,12 +52,16 @@ export const outputGlobalStyle = async (
       }
 
       // Build CSS for this input (uses cache if already built)
-      const css = await buildGlobalStyleFromInput(
+      const targetCss = await buildGlobalStyleFromInput(
         config,
         compilerCtx,
         buildCtx,
         outputTarget.input,
       );
+      const css =
+        outputTarget === mergeTarget
+          ? await mergeStencilCss(config, compilerCtx, buildCtx, outputTarget, targetCss ?? '')
+          : targetCss;
 
       if (!css) {
         return;

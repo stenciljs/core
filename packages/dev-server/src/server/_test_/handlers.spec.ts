@@ -1,6 +1,8 @@
+import { mockComponentMeta } from '@stencil/core/testing';
 import { describe, expect, it } from 'vitest';
 
-import { appendDevServerClientIframe, hasNestedHtmlFile } from '../handlers';
+import { appendDevServerClientIframe, hasCssOnlyComponent, hasNestedHtmlFile } from '../handlers';
+import type { CompilerBuildResults } from '../types';
 import type { DevServerContext } from '../types';
 
 const mockSys = (filesByDir: Record<string, string[]>): DevServerContext['sys'] =>
@@ -54,6 +56,44 @@ describe('hasNestedHtmlFile', () => {
 
     const result = await hasNestedHtmlFile(sys, await sys.readDir('/src/my-cmp'));
     expect(result).toBe(true);
+  });
+});
+
+describe('hasCssOnlyComponent', () => {
+  const mockCtx = (sourceFilePaths: string[]) => {
+    let calls = 0;
+    const ctx = {
+      getBuildResults: async () => {
+        calls++;
+        return {
+          cssOnlyComponents: sourceFilePaths.map((sourceFilePath) =>
+            mockComponentMeta({ sourceFilePath }),
+          ),
+        } as CompilerBuildResults;
+      },
+    };
+    return { ctx, getCalls: () => calls };
+  };
+
+  it('returns true when a CSS-only component is defined in the directory', async () => {
+    const { ctx } = mockCtx(['/src/css-badge/css-badge.css']);
+
+    expect(await hasCssOnlyComponent(ctx, ['/src/css-badge/css-badge.css'], '/src/css-badge')).toBe(
+      true,
+    );
+  });
+
+  it('returns false for a stylesheet that is not a CSS-only component', async () => {
+    const { ctx } = mockCtx(['/src/css-badge/css-badge.css']);
+
+    expect(await hasCssOnlyComponent(ctx, ['/src/global.css'], '/src')).toBe(false);
+  });
+
+  it('does not request build results when the directory has no style files', async () => {
+    const { ctx, getCalls } = mockCtx([]);
+
+    expect(await hasCssOnlyComponent(ctx, ['/src/utils/helpers.ts'], '/src/utils')).toBe(false);
+    expect(getCalls()).toBe(0);
   });
 });
 

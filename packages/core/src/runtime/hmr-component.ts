@@ -81,69 +81,62 @@ const hmrStandalone = async (
         (v: any) => typeof v === 'function' && v.is === cmpMeta.$tagName$,
       ) ?? newModule.default;
 
-    if (!NewClass) {
-      return;
-    }
-
-    // Patch the registered constructor prototype in-place so all existing
-    // instances pick up the new render/lifecycle methods.
-    // Object.assign is intentionally NOT used here - class methods are
-    // non-enumerable and would be silently skipped.
-    const ctor = customElements.get(cmpMeta.$tagName$) as any;
-
-    if (ctor) {
-      for (const key of Object.getOwnPropertyNames(NewClass.prototype)) {
-        if (key === 'constructor') continue;
-        Object.defineProperty(
-          ctor.prototype,
-          key,
-          Object.getOwnPropertyDescriptor(NewClass.prototype, key)!,
-        );
-      }
-
-      // Re-register updated styles so live instances pick up new CSS.
-      // Shadow components with constructable stylesheets: replaceSync updates
-      // all adopted sheets immediately. Scoped/none components: registerStyle
-      // updates the styles map, but attachStyles must be called explicitly
-      // because updateComponent only calls it on isInitialLoad.
-      const styleDesc = Object.getOwnPropertyDescriptor(NewClass, 'style');
-      if (styleDesc) {
-        Object.defineProperty(ctor, 'style', styleDesc);
-        const newStyle = (NewClass as any).style;
-        if (newStyle) {
-          const scopeId = getScopeId(cmpMeta);
-          const isShadow = !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation);
-          console.log('[stencil-hmr] registerStyle', {
-            tag: cmpMeta.$tagName$,
-            scopeId,
-            isShadow,
-            cssLen: newStyle.length,
-          });
-          registerStyle(scopeId, newStyle, isShadow);
-        }
-      }
-    }
-
-    const isShadow = !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation);
-
-    // Force a re-render on all live instances
-    const instances = document.querySelectorAll(cmpMeta.$tagName$);
-    instances.forEach((el) => {
-      const hostRef = getHostRef(el as any);
-      if (BUILD.hostListener && hostRef?.$rmListeners$) {
-        hostRef.$rmListeners$.map((rmListener) => rmListener());
-        hostRef.$rmListeners$ = undefined;
-        addHostEventListeners(el as any, hostRef, cmpMeta.$listeners$);
-      }
-      // For scoped/none components, attachStyles must be called explicitly -
-      // updateComponent only calls it when isInitialLoad is true.
-      if (!isShadow && hostRef) {
-        console.log('[stencil-hmr] calling attachStyles for', cmpMeta.$tagName$);
-        attachStyles(hostRef);
-      }
-      forceUpdate(el);
-    });
+    if (NewClass) hmrApplyClass(cmpMeta, NewClass);
   } catch (e) {
     console.error(`[Stencil HMR] Failed to reload <${cmpMeta.$tagName$}>`, e);
   }
+};
+
+/**
+ * Patch a re-executed component class onto the registered one and re-render every live instance.
+ * Shared by the standalone re-import above and bundlers that re-execute the module themselves
+ * (webpack/rspack `module.hot`), which reach it via the constructor's `s-hmr-apply` hook.
+ *
+ * @param cmpMeta runtime metadata for the component
+ * @param NewClass the component's newly executed class
+ */
+export const hmrApplyClass = (cmpMeta: d.ComponentRuntimeMeta, NewClass: any) => {
+  // Patch the registered constructor prototype in-place so all existing
+  // instances pick up the new render/lifecycle methods.
+  // Object.assign is intentionally NOT used here - class methods are
+  // non-enumerable and would be silently skipped.
+  const ctor = customElements.get(cmpMeta.$tagName$) as any;
+  const isShadow = !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation);
+
+  if (ctor && ctor !== NewClass) {
+    for (const key of Object.getOwnPropertyNames(NewClass.prototype)) {
+      if (key === 'constructor') continue;
+      Object.defineProperty(
+        ctor.prototype,
+        key,
+        Object.getOwnPropertyDescriptor(NewClass.prototype, key)!,
+      );
+    }
+
+    // Re-register updated styles so live instances pick up new CSS.
+    // Shadow components with constructable stylesheets: replaceSync updates
+    // all adopted sheets immediately. Scoped/none components: registerStyle
+    // updates the styles map, but attachStyles must be called explicitly
+    // because updateComponent only calls it on isInitialLoad.
+    const styleDesc = Object.getOwnPropertyDescriptor(NewClass, 'style');
+    if (styleDesc) {
+      Object.defineProperty(ctor, 'style', styleDesc);
+      const newStyle = NewClass.style;
+      if (newStyle) registerStyle(getScopeId(cmpMeta), newStyle, isShadow);
+    }
+  }
+
+  // Force a re-render on all live instances
+  document.querySelectorAll(cmpMeta.$tagName$).forEach((el) => {
+    const hostRef = getHostRef(el as any);
+    if (BUILD.hostListener && hostRef?.$rmListeners$) {
+      hostRef.$rmListeners$.map((rmListener) => rmListener());
+      hostRef.$rmListeners$ = undefined;
+      addHostEventListeners(el as any, hostRef, cmpMeta.$listeners$);
+    }
+    // For scoped/none components, attachStyles must be called explicitly -
+    // updateComponent only calls it when isInitialLoad is true.
+    if (!isShadow && hostRef) attachStyles(hostRef);
+    forceUpdate(el);
+  });
 };

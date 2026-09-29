@@ -5,10 +5,8 @@ import type * as d from '@stencil/core';
 import {
   catchError,
   isOutputTargetAssets,
-  isOutputTargetGlobalStyle,
   isOutputTargetLoaderBundle,
   isOutputTargetDistLazy,
-  normalizePath,
   relative,
   sortBy,
 } from '../../../utils';
@@ -23,11 +21,13 @@ import {
 } from '../../bundle/entry-alias-ids';
 import { generateComponentBundles } from '../../entries/component-bundles';
 import { generateModuleGraph } from '../../entries/component-graph';
+import { getAnchoredHydrateCss } from '../../style/component-global-styles';
 import { addTagTransform } from '../../transformers/add-tag-transform';
 import { lazyComponentTransform } from '../../transformers/component-lazy/transform-lazy-component';
 import { removeCollectionImports } from '../../transformers/remove-collection-imports';
 import { rewriteAliasedSourceFileImportPaths } from '../../transformers/rewrite-aliased-paths';
 import { updateStencilCoreImports } from '../../transformers/update-stencil-core-import';
+import { getExplicitStencilImports } from '../output-stencil-css';
 import { generateCjs } from './generate-cjs';
 import { generateEsm } from './generate-esm';
 import { generateEsmBrowser } from './generate-esm-browser';
@@ -64,21 +64,11 @@ export const outputLazy = async (
     const externalTarget = outputTargets.find((o) => !o.isBrowserBuild && o.esmDir);
     const useExternalRuntime = externalTarget?.externalRuntime ?? false;
 
-    // Pre-scan global-style inputs to detect @import "stencil-hydrate" before bundling.
-    // When found, the BUILD flag suppresses the dynamic <style> injection in bootstrap-loader.
-    let staticHydrationStyles = false;
-    for (const target of config.outputTargets.filter(isOutputTargetGlobalStyle)) {
-      if (!target.input) continue;
-      try {
-        const content = await compilerCtx.fs.readFile(normalizePath(target.input));
-        if (content?.includes('stencil-hydrate')) {
-          staticHydrationStyles = true;
-          break;
-        }
-      } catch {
-        // file not readable yet - will be caught properly during actual style build
-      }
-    }
+    // FOUC-prevention CSS shipped in a stylesheet - via an explicit @import "stencil-hydrate", or
+    // alongside its anchor - sets a BUILD flag that suppresses bootstrap-loader's runtime injection.
+    const staticHydrationStyles =
+      (await getExplicitStencilImports(config, compilerCtx, buildCtx)).has('stencil-hydrate') ||
+      !!getAnchoredHydrateCss(config, buildCtx);
 
     const conditionals = getLazyBuildConditionals(
       config,

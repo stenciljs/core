@@ -3,9 +3,10 @@ import ts from 'typescript';
 import type * as d from '@stencil/core';
 
 import { catchError, isString, join, readPackageJson } from '../../utils';
+import { discoverCssOnlyComponents } from '../css-components/discover-css-components';
 import { generateOutputTargets } from '../output-targets';
 import { emptyOutputTargets } from '../output-targets/empty-dir';
-import { generateGlobalStyles } from '../style/global-styles';
+import { evictChangedGlobalStyles, generateGlobalStyles } from '../style/global-styles';
 import { ingestConfigCollections } from '../transformers/collection/add-external-import';
 import { resetDeprecatedApiWarning } from '../transformers/decorators-to-static/component-decorator';
 import { runTsProgram, validateTypesAfterGeneration } from '../transpile/run-program';
@@ -67,6 +68,16 @@ export const build = async (
       buildCtx.hasScriptChanges = false;
     }
 
+    // Discover pure-CSS "CSS-only" components (no backing JS class) - runs after runTsProgram
+    // so buildCtx.components is already populated for tag-collision checks.
+    const cssOnlyChanged = await discoverCssOnlyComponents(config, compilerCtx, buildCtx);
+    if (buildCtx.hasError) return buildAbort(buildCtx);
+    if (cssOnlyChanged) {
+      // Force components.d.ts/docs regeneration below, which otherwise only fires on
+      // hasScriptChanges - a CSS-only component's tag/docs can change with no .tsx involved.
+      buildCtx.hasScriptChanges = true;
+    }
+
     // Skip type validation on rebuilds with no script changes - the type graph is unchanged.
     const skipTypeValidation = buildCtx.isRebuild && !buildCtx.hasScriptChanges;
 
@@ -90,6 +101,7 @@ export const build = async (
     }
 
     // preprocess and generate styles before any outputTarget starts
+    evictChangedGlobalStyles(compilerCtx, buildCtx);
     buildCtx.stylesPromise = generateGlobalStyles(config, compilerCtx, buildCtx);
     if (buildCtx.hasError) return buildAbort(buildCtx);
 

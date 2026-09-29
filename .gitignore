@@ -31,3 +31,4 @@ test-results
 __screenshots__
 .vitest-attachments
 packages/playground/src/generated
+tmp-component-starter/

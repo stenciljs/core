@@ -9,7 +9,7 @@ import * as path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as zlib from 'node:zlib';
 
-import { generateDevPreview } from './dev-preview';
+import { generateDevPreview, isComponentInDir } from './dev-preview';
 import { getEditors, serveOpenInEditor } from './editor';
 import { ssrPageRequest, ssrStaticDataRequest } from './ssr';
 import {
@@ -532,8 +532,10 @@ async function serveDirectoryIndex(
   try {
     const dirFilePaths = await serverCtx.sys.readDir(req.filePath!);
 
-    const hasTsx = dirFilePaths.some((f) => f.endsWith('.tsx'));
-    if (hasTsx && !(await hasNestedHtmlFile(serverCtx.sys, dirFilePaths))) {
+    const isComponentDir =
+      dirFilePaths.some((f) => f.endsWith('.tsx')) ||
+      (await hasCssOnlyComponent(serverCtx, dirFilePaths, req.filePath!));
+    if (isComponentDir && !(await hasNestedHtmlFile(serverCtx.sys, dirFilePaths))) {
       return serveDevPreview(devServerConfig, serverCtx, req, res, req.filePath!);
     }
 
@@ -585,6 +587,28 @@ async function serveDirectoryIndex(
   } catch {
     return serverCtx.serve404(req, res, 'serveDirectoryIndex');
   }
+}
+
+const STYLE_FILE_RE = /\.(css|scss|sass|less|styl|stylus|pcss)$/i;
+
+/**
+ * Checks whether a directory directly contains a CSS-only component's source file. Only asks the
+ * compiler for build results when the directory has a style file, to keep plain listings cheap.
+ * @param serverCtx The dev server context, used to fetch the latest build results.
+ * @param dirFilePaths The full paths of entries in the directory to check.
+ * @param dirPath The directory being served.
+ * @returns true if a CSS-only component is defined in this directory.
+ */
+export async function hasCssOnlyComponent(
+  serverCtx: Pick<DevServerContext, 'getBuildResults'>,
+  dirFilePaths: string[],
+  dirPath: string,
+): Promise<boolean> {
+  if (!dirFilePaths.some((f) => STYLE_FILE_RE.test(f))) {
+    return false;
+  }
+  const { cssOnlyComponents = [] } = await serverCtx.getBuildResults();
+  return cssOnlyComponents.some((c) => isComponentInDir(c, dirPath));
 }
 
 /**

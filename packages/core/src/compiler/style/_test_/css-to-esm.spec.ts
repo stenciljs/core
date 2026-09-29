@@ -141,12 +141,12 @@ describe('transformCssToEsm', () => {
       expect(result.styleText).toContain('https://fonts.googleapis.com');
     });
 
-    it('should leave stencil-globals/stencil-hydrate virtual imports unresolved as real files', async () => {
+    it('should leave stencil-component-globals/stencil-hydrate virtual imports unresolved as real files', async () => {
       // These are substituted by name-checking build-context code elsewhere
       // (component-global-styles.ts), never real file imports - resolving them here as if they
       // were would fail at runtime with no such module.
       mockInput.input = `
-        @import "stencil-globals";
+        @import "stencil-component-globals";
         @import "stencil-hydrate";
         .my-class { color: red; }
       `;
@@ -154,7 +154,7 @@ describe('transformCssToEsm', () => {
       const result = await transformCssToEsm(mockInput);
 
       expect(result.imports).toHaveLength(0);
-      expect(result.styleText).toContain('@import "stencil-globals"');
+      expect(result.styleText).toContain('@import "stencil-component-globals"');
       expect(result.styleText).toContain('@import "stencil-hydrate"');
     });
 
@@ -302,6 +302,61 @@ describe('transformCssToEsm', () => {
       const result = await transformCssToEsm(mockInput);
 
       expect(result.styleDocs).toHaveLength(0);
+    });
+
+    it('auto-detects a doc-commented custom property inside :host for shadow encapsulation', async () => {
+      mockInput.docs = true;
+      mockInput.encapsulation = 'shadow';
+      mockInput.input = `
+        :host {
+          /** Corner radius. */
+          --my-radius: 4px;
+        }
+      `;
+
+      const result = await transformCssToEsm(mockInput);
+
+      expect(result.styleDocs).toHaveLength(1);
+      expect(result.styleDocs[0].name).toBe('--my-radius');
+      expect(result.styleDocs[0].docs).toBe('Corner radius.');
+    });
+
+    it('auto-detects a doc-commented custom property inside the tag selector for none encapsulation', async () => {
+      mockInput.docs = true;
+      mockInput.encapsulation = 'none';
+      mockInput.input = `
+        my-component {
+          /** Corner radius. */
+          --my-radius: 4px;
+        }
+      `;
+
+      const result = await transformCssToEsm(mockInput);
+
+      expect(result.styleDocs).toHaveLength(1);
+      expect(result.styleDocs[0].name).toBe('--my-radius');
+      expect(result.styleDocs[0].docs).toBe('Corner radius.');
+    });
+
+    it('collects syntax/default from a native @property at-rule', async () => {
+      mockInput.docs = true;
+      mockInput.input = `
+        /** Corner radius. */
+        @property --my-radius {
+          syntax: "<length>";
+          initial-value: 4px;
+        }
+      `;
+
+      const result = await transformCssToEsm(mockInput);
+
+      expect(result.styleDocs).toHaveLength(1);
+      expect(result.styleDocs[0]).toMatchObject({
+        name: '--my-radius',
+        docs: 'Corner radius.',
+        syntax: '<length>',
+        default: '4px',
+      });
     });
   });
 

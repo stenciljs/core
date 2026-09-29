@@ -5,6 +5,7 @@ export { run, runTask } from './run';
 export type { TaskCommand } from './types';
 export type {
   GenerateContext,
+  GeneratedComponentInfo,
   ProjectConfig,
   StencilConfigEditor,
   StencilWizardPlugin,

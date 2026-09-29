@@ -134,6 +134,38 @@ describe('standalone', () => {
       expect(perComponentChunk).toContain(`setAssetPath(new URL(`);
     });
 
+    it('wraps import.meta.url in String() so bundlers do not rewrite it as an asset import', () => {
+      const cmpMeta = stubComponentCompilerMeta({
+        assetsDirs: [
+          {
+            absolutePath: '/src/assets',
+            cmpRelativePath: 'assets',
+            originalComponentPath: 'assets',
+          },
+        ],
+      });
+      const config = mockValidatedConfig({
+        outputTargets: [{ type: ASSETS, dir: '/dist/assets' }],
+      });
+      const buildCtx = mockBuildCtx(config);
+      buildCtx.components = [cmpMeta];
+      const bundleOpts: BundleOptions = {
+        id: 'customElements',
+        platform: 'client',
+        inputs: {},
+        loader: {},
+      };
+      const outputTarget: d.OutputTargetStandalone = {
+        type: STANDALONE,
+        dir: '/dist/standalone',
+        customElementsExportBehavior: 'single-export-module',
+      };
+      addStandaloneInputs(config, buildCtx, bundleOpts, outputTarget);
+      const expected = `setAssetPath(new URL('../assets/', String(import.meta.url)).href);`;
+      expect(bundleOpts.loader['\x00core']).toContain(expected);
+      expect(bundleOpts.loader['\x00StubCmp']).toContain(expected);
+    });
+
     it('does not export setAssetPath when no components have assets', () => {
       const cmpMeta = stubComponentCompilerMeta({ assetsDirs: [] });
       const config = mockValidatedConfig();

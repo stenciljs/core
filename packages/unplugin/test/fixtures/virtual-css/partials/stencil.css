@@ -1,0 +1,3 @@
+@import 'stencil-hydrate';
+@import 'stencil-component-globals';
+@import 'stencil-css-components' layer(cmps);

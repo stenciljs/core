@@ -160,6 +160,9 @@ const transpileCss = async (transformInput: TransformCssToEsmInput, results: Tra
   results.map = cssResults.map;
   results.imports = cssResults.imports.map((p) => ({ path: p.importPath }));
   results.diagnostics.push(...cssResults.diagnostics);
+  if (transformInput.docs) {
+    results.styleDocs = cssResults.styleDocs;
+  }
 };
 
 const transpileCssSync = (transformInput: TransformCssToEsmInput, results: TranspileResults) => {
@@ -168,6 +171,9 @@ const transpileCssSync = (transformInput: TransformCssToEsmInput, results: Trans
   results.map = cssResults.map;
   results.imports = cssResults.imports.map((p) => ({ path: p.importPath }));
   results.diagnostics.push(...cssResults.diagnostics);
+  if (transformInput.docs) {
+    results.styleDocs = cssResults.styleDocs;
+  }
 };
 
 const transpileJson = (results: TranspileResults) => {

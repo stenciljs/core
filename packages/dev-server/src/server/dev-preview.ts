@@ -5,7 +5,7 @@ import type { CompilerBuildResults, ComponentCompilerMeta } from '@stencil/core/
 /**
  * Generate a virtual HTML page for the dev server when no index.html is present.
  *
- * Renders all discovered components. For each component, usage markdown files
+ * Renders all discovered components, including CSS-only components. For each component, usage markdown files
  * (src/components/my-cmp/usage/*.md) are scanned for ```html``` code blocks, which
  * are used as preview snippets. Falls back to a bare tag if none are found.
  * @param buildResults The compiler build results containing component metadata and output file information.
@@ -17,13 +17,11 @@ export const generateDevPreview = (
   filterDirPath?: string,
 ): string => {
   const { namespace } = buildResults;
-  let { components } = buildResults;
+  // `cssOnlyComponents` may be absent when talking to an older compiler
+  let components = [...buildResults.components, ...(buildResults.cssOnlyComponents ?? [])];
 
   if (filterDirPath) {
-    const normalized = path.normalize(filterDirPath);
-    components = components.filter(
-      (c) => path.normalize(path.dirname(c.sourceFilePath)) === normalized,
-    );
+    components = components.filter((c) => isComponentInDir(c, filterDirPath));
   }
 
   const title = filterDirPath ? `${namespace} / ${path.basename(filterDirPath)}` : namespace;
@@ -70,6 +68,15 @@ ${sections.join('\n')}
 </body>
 </html>`;
 };
+
+/**
+ * Whether a component's source file lives directly in the given directory.
+ * @param component The component metadata.
+ * @param dirPath The directory path to check against.
+ * @returns true if the component's source file is in `dirPath`.
+ */
+export const isComponentInDir = (component: ComponentCompilerMeta, dirPath: string): boolean =>
+  path.normalize(path.dirname(component.sourceFilePath)) === path.normalize(dirPath);
 
 const renderComponentSection = (component: ComponentCompilerMeta): string => {
   const snippets = getUsageSnippets(component);
@@ -149,14 +156,11 @@ const getLoaderUrl = ({ outputs, fsNamespace, rootDir }: CompilerBuildResults): 
 };
 
 /**
- * Collect server-relative URLs for all global-style CSS outputs.
+ * Collect server-relative URLs for all global-style CSS outputs, in the same order their
+ * output targets are declared in config - cascade order is meaningful when more than one
+ * `global-style` output target is configured.
  * @param buildResults The compiler build results containing output file information.
  * @returns An array of server-relative URLs to global-style CSS files.
  */
-const getGlobalCssUrls = ({ outputs, rootDir }: CompilerBuildResults): string[] => {
-  const globalStyle = outputs.find((o) => o.type === 'global-style');
-  if (!globalStyle) return [];
-  return globalStyle.files
-    .filter((f) => f.endsWith('.css') && !f.endsWith('.css.map'))
-    .map((f) => toServePath(f, rootDir));
-};
+const getGlobalCssUrls = ({ globalStyleFiles, rootDir }: CompilerBuildResults): string[] =>
+  globalStyleFiles.map((f) => toServePath(f, rootDir));

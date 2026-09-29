@@ -4,6 +4,7 @@ import type * as d from '@stencil/core';
 import { mockCompilerSystem, mockValidatedConfig } from '../../../testing';
 import { mockBuildCtx, mockCompilerCtx } from '../../../testing/compiler';
 import { GLOBAL_STYLE, LOADER_BUNDLE, WWW, join } from '../../../utils';
+import * as componentGlobalStyles from '../../style/component-global-styles';
 import * as globalStylesModule from '../../style/global-styles';
 import { outputGlobalStyle } from '../output-global-style';
 
@@ -23,6 +24,9 @@ describe('outputGlobalStyle', () => {
       namespace: 'TestApp',
       sys,
     });
+    // keep CSS verbatim - optimization is covered by the test/build/global-style matrix
+    config.autoprefixCss = false;
+    config.minifyCss = false;
     compilerCtx = mockCompilerCtx(config);
     buildCtx = mockBuildCtx(config, compilerCtx);
 
@@ -123,6 +127,50 @@ describe('outputGlobalStyle', () => {
         cssContent,
         { outputTargetType: GLOBAL_STYLE },
       );
+    });
+  });
+
+  describe('generated stencil CSS', () => {
+    const target = (fileName: string): d.OutputTargetGlobalStyle => ({
+      type: GLOBAL_STYLE,
+      dir: '/dist/assets',
+      fileName,
+      input: inputPath,
+      copyToLoaderBrowser: false,
+      skipInDev: false,
+    });
+
+    beforeEach(() => {
+      vi.spyOn(componentGlobalStyles, 'collectAndBuildComponentGlobalStyles').mockResolvedValue('');
+      vi.spyOn(componentGlobalStyles, 'collectCssOnlyComponentStyles').mockResolvedValue(
+        'css-badge{}',
+      );
+    });
+
+    it('prepends it to the only global-style target', async () => {
+      config.outputTargets = [target('custom.css')];
+
+      await outputGlobalStyle(config, compilerCtx, buildCtx);
+
+      expect(compilerCtx.fs.writeFile).toHaveBeenCalledWith(
+        join('/dist/assets', 'custom.css'),
+        `css-badge{}\n${cssContent}`,
+        { outputTargetType: GLOBAL_STYLE },
+      );
+    });
+
+    it('leaves targets untouched when there are several', async () => {
+      config.outputTargets = [target('a.css'), target('b.css')];
+
+      await outputGlobalStyle(config, compilerCtx, buildCtx);
+
+      for (const fileName of ['a.css', 'b.css']) {
+        expect(compilerCtx.fs.writeFile).toHaveBeenCalledWith(
+          join('/dist/assets', fileName),
+          cssContent,
+          { outputTargetType: GLOBAL_STYLE },
+        );
+      }
     });
   });
 

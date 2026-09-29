@@ -190,7 +190,7 @@ export async function writeStencilConfig(rootDir: string, content: string) {
 export async function writeGlobalStyle(rootDir: string) {
   const path = join(rootDir, 'src', 'global.css');
   await mkdir(dirname(path), { recursive: true });
-  await writeIfAbsent(path, `@import "stencil-globals";\n@import "stencil-hydrate";\n`);
+  await writeIfAbsent(path, `@import "stencil-component-globals";\n@import "stencil-hydrate";\n`);
 }
 
 export async function writeGlobalScript(rootDir: string) {

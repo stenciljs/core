@@ -70,16 +70,6 @@
           "tagName": "another-car-list",
           "name": "AnotherCarList",
           "description": "Component that helps display a list of cars",
-          "tags": [
-            {
-              "name": "slot",
-              "text": "header - The slot for the header content."
-            },
-            {
-              "name": "part",
-              "text": "car - The shadow part to target to style the car."
-            }
-          ],
           "attributes": [
             {
               "name": "cars",
@@ -294,16 +284,6 @@
           "tagName": "car-list",
           "name": "CarList",
           "description": "Component that helps display a list of cars",
-          "tags": [
-            {
-              "name": "slot",
-              "text": "header - The slot for the header content."
-            },
-            {
-              "name": "part",
-              "text": "car - The shadow part to target to style the car."
-            }
-          ],
           "attributes": [
             {
               "name": "cars",
@@ -510,7 +490,6 @@
                 "text": "number"
               },
               "default": "0",
-              "readonly": true,
               "attribute": "initial-counter",
               "tags": [
                 {
@@ -669,8 +648,7 @@
                     "package": "global:"
                   }
                 ]
-              },
-              "readonly": true
+              }
             },
             {
               "kind": "field",
@@ -678,8 +656,7 @@
               "description": "basic object",
               "type": {
                 "text": "{ bar: string; loo: number[]; qux: { quux: symbol; }; }"
-              },
-              "readonly": true
+              }
             },
             {
               "kind": "field",
@@ -688,7 +665,6 @@
               "type": {
                 "text": "number"
               },
-              "readonly": true,
               "attribute": "grault"
             },
             {
@@ -698,7 +674,6 @@
               "type": {
                 "text": "any"
               },
-              "readonly": true,
               "attribute": "kids-names"
             },
             {
@@ -713,8 +688,7 @@
                     "package": "global:"
                   }
                 ]
-              },
-              "readonly": true
+              }
             },
             {
               "kind": "field",
@@ -722,8 +696,7 @@
               "description": "null",
               "type": {
                 "text": "null"
-              },
-              "readonly": true
+              }
             }
           ]
         }
@@ -1285,7 +1258,6 @@
                 "text": "number"
               },
               "default": "0",
-              "readonly": true,
               "attribute": "some-prop",
               "tags": [
                 {
@@ -1898,7 +1870,6 @@
               "type": {
                 "text": "boolean"
               },
-              "readonly": true,
               "attribute": "selected"
             }
           ],
@@ -1963,7 +1934,6 @@
               "type": {
                 "text": "boolean"
               },
-              "readonly": true,
               "attribute": "selected"
             }
           ],
@@ -2121,7 +2091,6 @@
                 "text": "string"
               },
               "default": "'life preservers'",
-              "readonly": true,
               "attribute": "clothes",
               "tags": [
                 {
@@ -2440,16 +2409,6 @@
           "tagName": "scoped-car-list",
           "name": "ScopedCarList",
           "description": "Component that helps display a list of cars",
-          "tags": [
-            {
-              "name": "slot",
-              "text": "header - The slot for the header content."
-            },
-            {
-              "name": "part",
-              "text": "car - The shadow part to target to style the car."
-            }
-          ],
           "attributes": [
             {
               "name": "cars",
@@ -2642,7 +2601,6 @@
               "type": {
                 "text": "string[]"
               },
-              "readonly": true,
               "attribute": "array",
               "reflects": true
             },
@@ -2652,7 +2610,6 @@
               "type": {
                 "text": "{ [key: string]: string; }"
               },
-              "readonly": true,
               "attribute": "get-set",
               "reflects": true
             },
@@ -2992,7 +2949,6 @@
                 "text": "string[]"
               },
               "default": "[]",
-              "readonly": true,
               "tags": [
                 {
                   "name": "default",

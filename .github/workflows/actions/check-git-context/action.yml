@@ -1,0 +1,10 @@
+name: 'Check Git Context'
+description: 'checks for a dirty git context, failing if the context is dirty'
+runs:
+  using: composite
+  steps:
+    - name: Git status check
+      # here we check that there are no changed / new files.
+      # we use `git status` and check if there are more than 0 lines in the output.
+      run: if [[ $(git status --short | wc -l) -ne 0 ]]; then STATUS=$(git status --verbose); printf "%s" "$STATUS"; git diff | cat; exit 1; fi
+      shell: bash

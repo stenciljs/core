@@ -10,7 +10,7 @@ export const getHmrHref = (versionId: string, fileName: string, testUrl: string)
   return testUrl;
 };
 
-const getUrlFileName = (url: string) => {
+export const getUrlFileName = (url: string) => {
   // not using URL because IE11 doesn't support it
   const splt = url.split('/');
   return splt[splt.length - 1].split('&')[0].split('?')[0];

@@ -5,12 +5,9 @@ import {
   buildIntrinsicElementsDts,
   findComponentTags,
   findInjectedStyleImports,
-  hasStencilGlobalsImport,
-  hasStencilHydrateImport,
   replaceSpecifier,
   resolveProjectImport,
-  resolveStencilGlobalsImport,
-  resolveStencilHydrateImport,
+  resolveStencilImports,
   type CompiledFile,
   type PlaygroundFile,
 } from '../../utils';
@@ -345,7 +342,7 @@ export class StencilPlayground {
     }
 
     // A component's `globalStyleUrl`/`globalStyle` collects into whichever global stylesheet
-    // contains `@import "stencil-globals";` (see resolveStencilGlobalsImport) - each entry is
+    // contains `@import "stencil-component-globals";` (see resolveStencilImports) - each entry is
     // either an inline string or a path to a project file, resolved the same way `styleUrl`s are
     // resolved elsewhere in this file (an `absolutePath` here is `/`-prefixed, like `sys`'s paths).
     const collectedGlobalStylesCss = componentMetas
@@ -360,19 +357,25 @@ export class StencilPlayground {
       .filter((css): css is string => !!css)
       .join('\n');
 
+    // CSS-only components (a `.css` file with an `@component` JSDoc tag) collect into
+    // `@import "stencil-css-components";` - a text check is enough, the preview needs no metadata.
+    const cssOnlyComponentsCss = sourceFiles
+      .filter((f) => f.name.endsWith('.css') && /@component\b/.test(f.content))
+      .map((f) => f.content)
+      .join('\n');
+
     // Unlike a component's `styleUrl` (scoped via a `?tag=...` query, see cssRequests above), a
     // global stylesheet has no tag to scope against - transpiled as-is, it's ordinary unscoped CSS.
     const globalStylePaths: string[] = [];
     for (const name of globalStyleNames) {
       const globalStyleFile = sourceFiles.find((f) => f.name === name);
       if (!globalStyleFile) continue;
-      let content = globalStyleFile.content;
-      if (hasStencilGlobalsImport(content)) {
-        content = resolveStencilGlobalsImport(content, collectedGlobalStylesCss);
-      }
-      if (hasStencilHydrateImport(content)) {
-        content = resolveStencilHydrateImport(content);
-      }
+      const content = resolveStencilImports(globalStyleFile.content, {
+        'stencil-component-globals': collectedGlobalStylesCss,
+        'stencil-css-components': cssOnlyComponentsCss,
+        // FOUC-prevention - not needed in a live preview
+        'stencil-hydrate': '',
+      });
       const result = transpileSync(content, {
         ...compileOptions,
         sys,

@@ -269,6 +269,23 @@ const appendGlobalStyles = async (
   const cssResults = await Promise.all(cssPromises);
   const globalStyles = cssResults.filter(Boolean).join('\n');
 
+  // Keep the shadow-root fallback copy (`GLOBAL_STYLE_ID`/'sc-global' in
+  // utils/shadow-root.ts) live-patchable in dev: it's the single concatenation of every
+  // inject-eligible target above, so it's pushed here - where that concatenation is
+  // already computed - rather than per-target in `buildGlobalStyleFromInput`.
+  if (platform === 'client' && buildCtx.isRebuild && config.devServer?.reloadStrategy === 'hmr') {
+    const existing = buildCtx.stylesUpdated.find((u) => u.styleTag === 'global');
+    if (existing) {
+      existing.styleText = globalStyles;
+    } else {
+      buildCtx.stylesUpdated.push({
+        styleTag: 'global',
+        styleMode: undefined,
+        styleText: globalStyles,
+      });
+    }
+  }
+
   s.append(`export const globalStyles = ${JSON.stringify(globalStyles)};\n`);
 };
 

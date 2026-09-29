@@ -57,6 +57,9 @@ export class CompilerContext implements d.CompilerCtx {
    */
   prevStylesMap = new Map<string, string>();
   globalStyleCache = new Map<string, string>();
+  cssOnlyComponentsCache = new Map<string, d.ComponentCompilerMeta[]>();
+  stencilCss: string | undefined;
+  globalStyleVirtualImports = new Map<string, Set<d.StencilVirtualImport>>();
   styleModeNames = new Set<string>();
   worker: d.CompilerWorkerContext = null;
 
@@ -64,6 +67,9 @@ export class CompilerContext implements d.CompilerCtx {
     this.cache.clear();
     this.cssModuleImports.clear();
     this.globalStyleCache.clear();
+    this.cssOnlyComponentsCache.clear();
+    this.stencilCss = undefined;
+    this.globalStyleVirtualImports.clear();
     this.collections.length = 0;
     this.compilerOptions = null;
     this.hasSuccessfulBuild = false;

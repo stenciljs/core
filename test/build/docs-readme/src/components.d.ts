@@ -8,6 +8,16 @@ import { HTMLStencilElement, JSXBase } from "@stencil/core/runtime";
 export namespace Components {
     interface StyleurlsComponent {
     }
+    /**
+     * A CSS-only badge - no JS class, no shadow DOM, never registered via `customElements.define()`. Verifies the generated docs-readme output for this kind of component: description, Properties table, and CSS Custom Properties table.
+     */
+    interface CssOnlyBadge {
+        /**
+          * Whether the badge can be dismissed.
+         */
+        "dismissible"?: boolean;
+        "variant"?: "danger" | "warning" | (string & {});
+    }
 }
 declare global {
     interface HTMLStyleurlsComponentElement extends Components.StyleurlsComponent, HTMLStencilElement {
@@ -16,15 +26,42 @@ declare global {
         prototype: HTMLStyleurlsComponentElement;
         new (): HTMLStyleurlsComponentElement;
     };
+    /**
+     * A CSS-only badge - no JS class, no shadow DOM, never registered via `customElements.define()`. Verifies the generated docs-readme output for this kind of component: description, Properties table, and CSS Custom Properties table.
+     */
+    interface HTMLCssOnlyBadgeElement extends Components.CssOnlyBadge, HTMLStencilElement {
+    }
+    var HTMLCssOnlyBadgeElement: {
+        prototype: HTMLCssOnlyBadgeElement;
+        new (): HTMLCssOnlyBadgeElement;
+    };
     interface HTMLElementTagNameMap {
         "styleurls-component": HTMLStyleurlsComponentElement;
+        "css-only-badge": HTMLCssOnlyBadgeElement;
     }
 }
 declare namespace LocalJSX {
     interface StyleurlsComponent {
     }
+    /**
+     * A CSS-only badge - no JS class, no shadow DOM, never registered via `customElements.define()`. Verifies the generated docs-readme output for this kind of component: description, Properties table, and CSS Custom Properties table.
+     */
+    interface CssOnlyBadge {
+        /**
+          * Whether the badge can be dismissed.
+         */
+        "dismissible"?: boolean;
+        "variant"?: "danger" | "warning" | (string & {});
+    }
+
+    interface CssOnlyBadgeAttributes {
+        "dismissible": boolean;
+        "variant": string;
+    }
+
     interface IntrinsicElements {
         "styleurls-component": StyleurlsComponent;
+        "css-only-badge": Omit<CssOnlyBadge, keyof CssOnlyBadgeAttributes> & { [K in keyof CssOnlyBadge & keyof CssOnlyBadgeAttributes]?: CssOnlyBadge[K] } & { [K in keyof CssOnlyBadge & keyof CssOnlyBadgeAttributes as `attr:${K}`]?: CssOnlyBadgeAttributes[K] } & { [K in keyof CssOnlyBadge & keyof CssOnlyBadgeAttributes as `prop:${K}`]?: CssOnlyBadge[K] };
     }
 }
 export { LocalJSX as JSX };
@@ -32,6 +69,10 @@ declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
             "styleurls-component": LocalJSX.IntrinsicElements["styleurls-component"] & JSXBase.HTMLAttributes<HTMLStyleurlsComponentElement>;
+            /**
+             * A CSS-only badge - no JS class, no shadow DOM, never registered via `customElements.define()`. Verifies the generated docs-readme output for this kind of component: description, Properties table, and CSS Custom Properties table.
+             */
+            "css-only-badge": LocalJSX.IntrinsicElements["css-only-badge"] & JSXBase.HTMLAttributes<HTMLCssOnlyBadgeElement>;
         }
     }
 }

@@ -22,7 +22,8 @@ export const generateCustomElementsManifestDocs = async (
   }
 
   const manifest = generateManifest(docsData);
-  const jsonContent = JSON.stringify(manifest, null, 2);
+  // trailing newline; POSIX convention
+  const jsonContent = JSON.stringify(manifest, null, 2) + '\n';
 
   await Promise.all(
     cemOutputTargets.map((outputTarget) =>
@@ -113,15 +114,19 @@ const convertTypeReferences = (
   }));
 };
 
+/** Component-level JSDoc tags that become CEM fields of their own (`slots`, `cssParts`). */
+const COMPONENT_FIELD_TAGS = ['slot', 'part'];
+
 /**
  * Converts Stencil docsTags to CEM Tag objects, skipping `@deprecated` which
  * is already conveyed by the dedicated `deprecated` CEM field.
  * @param docsTags the Stencil docsTags array
+ * @param skip further tag names to leave out - ones another CEM field already conveys
  * @returns CEM Tag array or undefined if no tags remain
  */
-const toTags = (docsTags: d.JsonDocsTag[]): Tag[] | undefined => {
+const toTags = (docsTags: d.JsonDocsTag[], skip: string[] = []): Tag[] | undefined => {
   const tags = docsTags
-    .filter((t) => t.name !== 'deprecated')
+    .filter((t) => t.name !== 'deprecated' && !skip.includes(t.name))
     .map((t): Tag => ({ name: t.name, ...(t.text && { text: t.text }) }));
   return tags.length > 0 ? tags : undefined;
 };
@@ -230,6 +235,8 @@ const componentToDeclaration = (component: d.JsonDocsComponent): CustomElementDe
     .map((style) => ({
       name: style.name,
       ...(style.docs && { description: style.docs }),
+      ...(style.syntax && { syntax: style.syntax }),
+      ...(style.default && { default: style.default }),
     }));
 
   // Generate demos from usage examples
@@ -246,7 +253,10 @@ const componentToDeclaration = (component: d.JsonDocsComponent): CustomElementDe
     name: className,
     ...(component.docs && { description: component.docs }),
     ...(component.deprecation !== undefined && { deprecated: component.deprecation || true }),
-    ...(toTags(component.docsTags) && { tags: toTags(component.docsTags) }),
+    // `@slot`/`@part` are already the `slots`/`cssParts` fields
+    ...(toTags(component.docsTags, COMPONENT_FIELD_TAGS) && {
+      tags: toTags(component.docsTags, COMPONENT_FIELD_TAGS),
+    }),
     ...(attributes.length > 0 && { attributes }),
     ...(members.length > 0 && { members }),
     ...(events.length > 0 && { events }),
@@ -411,4 +421,6 @@ interface CustomState {
 interface CssCustomProperty {
   name: string;
   description?: string;
+  syntax?: string;
+  default?: string;
 }

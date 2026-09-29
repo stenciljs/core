@@ -5,7 +5,7 @@ import type * as d from '@stencil/core';
 import { mockValidatedConfig } from '../../../testing';
 import { mockBuildCtx, mockCompilerCtx } from '../../../testing/compiler';
 import { patchTypescript } from '../../sys/typescript/typescript-sys';
-import { generateAppTypes } from '../generate-app-types';
+import { generateAppTypes, generateComponentTypesFile } from '../generate-app-types';
 import { stubComponentCompilerEvent } from './ComponentCompilerEvent.stub';
 import { stubComponentCompilerMeta } from './ComponentCompilerMeta.stub';
 import { stubComponentCompilerProperty } from './ComponentCompilerProperty.stub';
@@ -687,5 +687,67 @@ describe('generateAppTypes', () => {
 
       expect(mockWriteFile.mock.calls[0][1]).toMatchSnapshot();
     });
+  });
+
+  describe('CSS-only components', () => {
+    it('includes a CSS-only component alongside a real component in the generated JSX types', async () => {
+      buildCtx.components = [
+        stubComponentCompilerMeta({ tagName: 'my-real-cmp', componentClassName: 'MyRealCmp' }),
+      ];
+      buildCtx.cssOnlyComponents = [
+        stubComponentCompilerMeta({
+          tagName: 'my-badge',
+          componentClassName: '',
+          sourceFilePath: '/src/my-badge.css',
+          properties: [
+            stubComponentCompilerProperty({
+              name: 'variant',
+              attribute: 'variant',
+              type: 'any',
+              complexType: {
+                original: '"danger" | (string & {})',
+                resolved: '"danger" | (string & {})',
+                references: {},
+              },
+            }),
+          ],
+        }),
+      ];
+
+      await generateAppTypes(config, compilerCtx, buildCtx, 'src');
+
+      const output = mockWriteFile.mock.calls[0][1] as string;
+      expect(output).toContain('my-real-cmp');
+      expect(output).toContain('my-badge');
+      expect(output).toContain('variant');
+      expect(output).toContain('"danger" | (string & {})');
+    });
+  });
+});
+
+describe('generateComponentTypesFile', () => {
+  it('generates the same file as generateAppTypes from just components and a config subset', async () => {
+    const config = mockValidatedConfig({ srcDir: '/' });
+    const compilerCtx = mockCompilerCtx(config);
+    const buildCtx = mockBuildCtx(config, compilerCtx);
+    const writeFile = vi.fn().mockResolvedValue({ changedContent: true });
+    compilerCtx.fs.writeFile = writeFile;
+    const real = stubComponentCompilerMeta({
+      tagName: 'my-real-cmp',
+      componentClassName: 'MyRealCmp',
+    });
+    const cssOnly = stubComponentCompilerMeta({
+      tagName: 'my-badge',
+      componentClassName: '',
+      sourceFilePath: '/src/my-badge.css',
+    });
+    buildCtx.components = [real];
+    buildCtx.cssOnlyComponents = [cssOnly];
+
+    await generateAppTypes(config, compilerCtx, buildCtx, 'src');
+
+    expect(generateComponentTypesFile([real, cssOnly], { srcDir: '/' })).toBe(
+      writeFile.mock.calls[0][1],
+    );
   });
 });

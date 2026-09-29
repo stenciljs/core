@@ -190,4 +190,266 @@ describe('style-docs', () => {
       ]);
     },
   );
+
+  it('recognizes @cssprop as a synonym for @prop', () => {
+    const styleText = `
+      /**
+       * @cssprop --max-width: Max width of the alert
+       */
+      body {
+        color: red;
+      }
+    `;
+    parseStyleDocs(styleDocs, styleText);
+    expect(styleDocs).toEqual([
+      { name: `--max-width`, docs: `Max width of the alert`, annotation: 'prop' },
+    ]);
+  });
+
+  it('recognizes @cssproperty as a synonym for @prop', () => {
+    const styleText = `
+      /**
+       * @cssproperty --max-width: Max width of the alert
+       */
+      body {
+        color: red;
+      }
+    `;
+    parseStyleDocs(styleDocs, styleText);
+    expect(styleDocs).toEqual([
+      { name: `--max-width`, docs: `Max width of the alert`, annotation: 'prop' },
+    ]);
+  });
+
+  it('recognizes a mix of @prop, @cssprop and @cssproperty in the same comment', () => {
+    const styleText = `
+      /**
+       * @prop --a: docs for a
+       * @cssprop --b: docs for b
+       * @cssproperty --c: docs for c
+       */
+      body {
+        color: red;
+      }
+    `;
+    parseStyleDocs(styleDocs, styleText);
+    expect(styleDocs).toEqual([
+      { name: `--a`, docs: `docs for a`, annotation: 'prop' },
+      { name: `--b`, docs: `docs for b`, annotation: 'prop' },
+      { name: `--c`, docs: `docs for c`, annotation: 'prop' },
+    ]);
+  });
+
+  describe('auto-detected custom properties (shadow/scoped encapsulation)', () => {
+    it.each(['shadow', 'scoped'])(
+      "collects a doc-commented custom property declared inside :host ('%s' encapsulation)",
+      (encapsulation) => {
+        const styleText = `
+          :host {
+            /** Corner radius. */
+            --my-radius: 4px;
+          }
+        `;
+        parseStyleDocs(styleDocs, styleText, undefined, 'my-cmp', encapsulation);
+        expect(styleDocs).toEqual([
+          { name: `--my-radius`, docs: `Corner radius.`, annotation: 'prop', mode: undefined },
+        ]);
+      },
+    );
+
+    it('does not collect an undocumented custom property inside :host', () => {
+      const styleText = `
+        :host {
+          --my-radius: 4px;
+        }
+      `;
+      parseStyleDocs(styleDocs, styleText, undefined, 'my-cmp', 'shadow');
+      expect(styleDocs).toEqual([]);
+    });
+
+    it('does not collect a doc-commented custom property declared outside :host', () => {
+      const styleText = `
+        .inner {
+          /** Not part of the public surface. */
+          --tmp-offset: 2px;
+        }
+      `;
+      parseStyleDocs(styleDocs, styleText, undefined, 'my-cmp', 'shadow');
+      expect(styleDocs).toEqual([]);
+    });
+
+    it('an explicit @prop annotation wins over an auto-detected declaration of the same name', () => {
+      const styleText = `
+        /**
+         * @prop --my-radius: The documented radius
+         */
+        :host {
+          /** A different, auto-detected description. */
+          --my-radius: 4px;
+        }
+      `;
+      parseStyleDocs(styleDocs, styleText, undefined, 'my-cmp', 'shadow');
+      expect(styleDocs).toEqual([
+        { name: `--my-radius`, docs: `The documented radius`, annotation: 'prop' },
+      ]);
+    });
+  });
+
+  describe('auto-detected custom properties (none encapsulation)', () => {
+    it('collects a doc-commented custom property declared inside the component tag selector', () => {
+      const styleText = `
+        my-cmp {
+          /** Corner radius. */
+          --my-radius: 4px;
+        }
+      `;
+      parseStyleDocs(styleDocs, styleText, undefined, 'my-cmp', 'none');
+      expect(styleDocs).toEqual([
+        { name: `--my-radius`, docs: `Corner radius.`, annotation: 'prop', mode: undefined },
+      ]);
+    });
+
+    it('does not collect a doc-commented custom property declared inside :host', () => {
+      const styleText = `
+        :host {
+          /** Corner radius. */
+          --my-radius: 4px;
+        }
+      `;
+      parseStyleDocs(styleDocs, styleText, undefined, 'my-cmp', 'none');
+      expect(styleDocs).toEqual([]);
+    });
+
+    it('does nothing when no tag is provided', () => {
+      const styleText = `
+        my-cmp {
+          /** Corner radius. */
+          --my-radius: 4px;
+        }
+      `;
+      parseStyleDocs(styleDocs, styleText, undefined, undefined, 'none');
+      expect(styleDocs).toEqual([]);
+    });
+
+    it('collects explicit properties, even without tag definition', () => {
+      const styleText = `
+        /** 
+         * @prop --my-radius: The documented radius 
+         */
+        .inner {
+          /** Corner radius. */
+          --my-radius: 4px;
+        }
+      `;
+      parseStyleDocs(styleDocs, styleText, undefined, 'my-cmp', 'none');
+      expect(styleDocs).toEqual([
+        { name: `--my-radius`, docs: `The documented radius`, annotation: 'prop' },
+      ]);
+    });
+  });
+
+  describe('native @property at-rules', () => {
+    it('collects syntax/default from a documented @property at-rule', () => {
+      const styleText = `
+        /** Corner radius. */
+        @property --my-radius {
+          syntax: "<length>";
+          initial-value: 4px;
+          inherits: false;
+        }
+      `;
+      parseStyleDocs(styleDocs, styleText);
+      expect(styleDocs).toEqual([
+        {
+          name: `--my-radius`,
+          docs: `Corner radius.`,
+          annotation: 'prop',
+          mode: undefined,
+          syntax: `<length>`,
+          default: `4px`,
+        },
+      ]);
+    });
+
+    it('collects an undocumented @property at-rule with an empty description', () => {
+      const styleText = `
+        @property --my-radius {
+          syntax: "<length>";
+          initial-value: 4px;
+        }
+      `;
+      parseStyleDocs(styleDocs, styleText);
+      expect(styleDocs).toEqual([
+        {
+          name: `--my-radius`,
+          docs: ``,
+          annotation: 'prop',
+          mode: undefined,
+          syntax: `<length>`,
+          default: `4px`,
+        },
+      ]);
+    });
+
+    it('is not scoped to :host - applies regardless of encapsulation', () => {
+      const styleText = `
+        /** Corner radius. */
+        @property --my-radius {
+          syntax: "<length>";
+          initial-value: 4px;
+        }
+      `;
+      parseStyleDocs(styleDocs, styleText, undefined, 'my-cmp', 'none');
+      expect(styleDocs).toEqual([
+        {
+          name: `--my-radius`,
+          docs: `Corner radius.`,
+          annotation: 'prop',
+          mode: undefined,
+          syntax: `<length>`,
+          default: `4px`,
+        },
+      ]);
+    });
+
+    it('an explicit @prop annotation wins over a native @property at-rule of the same name', () => {
+      const styleText = `
+        /**
+         * @prop --my-radius: The documented radius
+         */
+        /** A different, auto-detected description. */
+        @property --my-radius {
+          syntax: "<length>";
+          initial-value: 4px;
+        }
+      `;
+      parseStyleDocs(styleDocs, styleText);
+      expect(styleDocs).toEqual([
+        { name: `--my-radius`, docs: `The documented radius`, annotation: 'prop' },
+      ]);
+    });
+
+    it('an auto-detected :host declaration wins over a native @property at-rule of the same name', () => {
+      const styleText = `
+        :host {
+          /** The :host description. */
+          --my-radius: 4px;
+        }
+        /** The @property description. */
+        @property --my-radius {
+          syntax: "<length>";
+          initial-value: 4px;
+        }
+      `;
+      parseStyleDocs(styleDocs, styleText, undefined, 'my-cmp', 'shadow');
+      expect(styleDocs).toEqual([
+        {
+          name: `--my-radius`,
+          docs: `The :host description.`,
+          annotation: 'prop',
+          mode: undefined,
+        },
+      ]);
+    });
+  });
 });

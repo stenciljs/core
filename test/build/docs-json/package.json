@@ -11,11 +11,10 @@
   "module": "dist/standalone/index.js",
   "types": "dist/types/index.d.ts",
   "scripts": {
-    "build": "stencil build",
-    "postprocess": "node test-docs-json.js",
+    "build": "stencil build && node test-docs-json.js",
     "build.dev": "stencil build --dev",
     "start": "stencil build --dev --watch --serve",
-    "test": "pnpm build && npm run postprocess",
+    "test": "pnpm build",
     "test.watch": "stencil test --spec --e2e --watch",
     "generate": "stencil generate"
   },

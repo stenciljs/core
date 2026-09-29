@@ -60,9 +60,11 @@ export default _default;
       dependencies: cmp.dependencies,
       dependencyGraph: cmp.dependencyGraph,
       deprecation: cmp.deprecation,
+      cssOnly: cmp.cssOnly,
     })),
   };
-  const jsonContent = JSON.stringify(json, null, 2);
+  // trailing newline; POSIX convention
+  const jsonContent = JSON.stringify(json, null, 2) + '\n';
   await Promise.all(
     jsonOutputTargets.map((jsonOutput) => {
       return writeDocsOutput(compilerCtx, jsonOutput, jsonContent, typesContent);

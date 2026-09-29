@@ -81,3 +81,39 @@ describe('@stencil/unplugin integration', () => {
     expect(code).toContain('defineCustomElement');
   });
 });
+
+/**
+ * Build a JS entry that imports a stylesheet and return the emitted CSS.
+ * @param entry path of the entry, relative to `fixtures/`
+ * @returns the CSS asset's contents
+ */
+async function buildCss(entry: string): Promise<string> {
+  const result = await build({
+    root: pkgRoot,
+    plugins: [stencilVite()],
+    build: { write: false, rollupOptions: { input: join(fixturesDir, entry) } },
+    logLevel: 'silent',
+  });
+  const output = Array.isArray(result) ? result[0] : result;
+  if (!('output' in output)) throw new Error('Vite build failed to produce output');
+  return output.output
+    .filter((o) => o.type === 'asset' && o.fileName.endsWith('.css'))
+    .map((o) => String((o as { source: string | Uint8Array }).source))
+    .join('');
+}
+
+describe('virtual global-stylesheet imports under Vite', () => {
+  it('resolves them from a partial, where only the alias can reach them', async () => {
+    const css = await buildCss('virtual-css/entry-partial.js');
+
+    expect(css).not.toMatch(/stencil-(hydrate|component-globals|css-components)/);
+    expect(css).toMatch(/my-global-styled\s*\{\s*display:\s*block/);
+    expect(css).toMatch(/@layer cmps\s*\{[^}]*my-css-badge/);
+    expect(css).toContain('.user-rule');
+
+    // CSS-only components never hydrate, so hiding them would be permanent
+    const hiddenTags = css.match(/([a-z0-9,-]+)\{visibility:hidden\}/)?.[1].split(',') ?? [];
+    expect(hiddenTags).toContain('my-button');
+    expect(hiddenTags).not.toContain('my-css-badge');
+  });
+});

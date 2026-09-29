@@ -99,6 +99,23 @@ export function TypeTestComponent() {
           `aria`-prefixed prop name) must still accept an object value, not just string/boolean */}
       <typed-props strRequired='ok' aria={{ 'aria-label': 'Close' }}></typed-props>
       <typed-props strRequired='ok' ariaCustomThing={{ foo: 'bar' }}></typed-props>
+
+      {/* ===== CSS-only Component Type Checks (css-badge.css, no .tsx/JS backing) ===== */}
+
+      {/* Valid: variant is one of the auto-detected literal values from css-badge.css's
+          attribute selectors */}
+      <css-badge variant='danger'></css-badge>
+      <css-badge variant='warning'></css-badge>
+
+      {/* Valid: variant also accepts an arbitrary string via the (string & {}) escape hatch -
+          there's no @ts-expect-error case for an "invalid" variant value, by design */}
+      <css-badge variant='some-other-value'></css-badge>
+
+      {/* Valid: dismissible is boolean, from the explicit @attr {boolean} annotation */}
+      <css-badge dismissible={true}></css-badge>
+
+      {/* @ts-expect-error - dismissible should be boolean, not string */}
+      <css-badge dismissible='true'></css-badge>
     </>
   );
 }

@@ -4,7 +4,10 @@ import { describe, expect, it } from 'vitest';
 import { generateDevPreview } from '../dev-preview';
 import type { CompilerBuildResults } from '../types';
 
-const mockBuildResults = (components: CompilerBuildResults['components']): CompilerBuildResults =>
+const mockBuildResults = (
+  components: CompilerBuildResults['components'],
+  overrides: Partial<CompilerBuildResults> = {},
+): CompilerBuildResults =>
   ({
     buildId: 0,
     components,
@@ -22,9 +25,12 @@ const mockBuildResults = (components: CompilerBuildResults['components']): Compi
     namespace: 'TestApp',
     fsNamespace: 'testapp',
     outputs: [],
+    cssOnlyComponents: [],
+    globalStyleFiles: [],
     rootDir: '/',
     srcDir: '/src',
     timestamp: '',
+    ...overrides,
   }) as unknown as CompilerBuildResults;
 
 describe('generateDevPreview', () => {
@@ -57,5 +63,61 @@ describe('generateDevPreview', () => {
 
     expect(html).toContain('usage/*.md');
     expect(html).toContain('<my-cmp></my-cmp>');
+  });
+
+  it('links global stylesheets in declaration order, not alphabetically', () => {
+    const component = mockComponentMeta({ tagName: 'my-cmp' });
+    const buildResults = mockBuildResults([component], {
+      globalStyleFiles: ['/dist/assets/z.css', '/dist/assets/a.css'],
+    });
+
+    const html = generateDevPreview(buildResults);
+    const zIndex = html.indexOf('z.css');
+    const aIndex = html.indexOf('a.css');
+
+    expect(zIndex).toBeGreaterThan(-1);
+    expect(aIndex).toBeGreaterThan(-1);
+    expect(zIndex).toBeLessThan(aIndex);
+  });
+
+  it('renders CSS-only components alongside real components', () => {
+    const real = mockComponentMeta({ tagName: 'my-cmp' });
+    const cssOnly = mockComponentMeta({
+      tagName: 'css-badge',
+      sourceFilePath: '/src/css-badge/css-badge.css',
+    });
+
+    const html = generateDevPreview(mockBuildResults([real], { cssOnlyComponents: [cssOnly] }));
+
+    expect(html).toContain('&lt;my-cmp&gt;');
+    expect(html).toContain('&lt;css-badge&gt;');
+    expect(html).toContain('<css-badge></css-badge>');
+  });
+
+  it('filters CSS-only components by directory', () => {
+    const inDir = mockComponentMeta({
+      tagName: 'css-badge',
+      sourceFilePath: '/src/css-badge/css-badge.css',
+    });
+    const elsewhere = mockComponentMeta({
+      tagName: 'css-card',
+      sourceFilePath: '/src/css-card/css-card.css',
+    });
+
+    const html = generateDevPreview(
+      mockBuildResults([], { cssOnlyComponents: [inDir, elsewhere] }),
+      '/src/css-badge',
+    );
+
+    expect(html).toContain('&lt;css-badge&gt;');
+    expect(html).not.toContain('&lt;css-card&gt;');
+  });
+
+  it('tolerates build results without cssOnlyComponents', () => {
+    const component = mockComponentMeta({ tagName: 'my-cmp' });
+    const buildResults = mockBuildResults([component]);
+    delete (buildResults as Partial<CompilerBuildResults>).cssOnlyComponents;
+
+    expect(generateDevPreview(buildResults)).toContain('&lt;my-cmp&gt;');
   });
 });

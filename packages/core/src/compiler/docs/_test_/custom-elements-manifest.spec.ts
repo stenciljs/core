@@ -585,6 +585,124 @@ describe('custom-elements-manifest', () => {
     });
   });
 
+  it('includes syntax/default on CSS custom properties registered via a native @property at-rule', async () => {
+    const docsData: d.JsonDocs = {
+      timestamp: 'test',
+      compiler: { name: '@stencil/core', version: '1.0.0', typescriptVersion: '4.0.0' },
+      components: [
+        createMockComponent({
+          tag: 'my-component',
+          styles: [
+            {
+              name: '--badge-radius',
+              annotation: 'prop',
+              docs: 'Corner radius',
+              mode: undefined,
+              syntax: '<length>',
+              default: '4px',
+            },
+          ],
+        }),
+      ],
+      typeLibrary: {},
+    };
+    const outputTargets: d.OutputTargetDocsCustomElementsManifest[] = [
+      { type: 'docs-custom-elements-manifest', file: '/output/custom-elements.json' },
+    ];
+
+    await generateCustomElementsManifestDocs(compilerCtx, docsData, outputTargets);
+
+    const writtenContent = JSON.parse(writeFileSpy.mock.calls[0][1]);
+    const declaration = writtenContent.modules[0].declarations[0];
+    expect(declaration.cssProperties[0]).toEqual({
+      name: '--badge-radius',
+      description: 'Corner radius',
+      syntax: '<length>',
+      default: '4px',
+    });
+  });
+
+  it('round-trips a CSS-only component as a valid CustomElementDeclaration', async () => {
+    const docsData: d.JsonDocs = {
+      timestamp: 'test',
+      compiler: { name: '@stencil/core', version: '1.0.0', typescriptVersion: '4.0.0' },
+      components: [
+        createMockComponent({
+          tag: 'my-badge',
+          filePath: 'src/my-badge.css',
+          cssOnly: true,
+          props: [
+            {
+              name: 'variant',
+              type: '"danger" | (string & {})',
+              complexType: {
+                original: '"danger" | (string & {})',
+                resolved: '"danger" | (string & {})',
+                references: {},
+              },
+              mutable: false,
+              attr: 'variant',
+              reflectToAttr: false,
+              docs: '',
+              docsTags: [],
+              default: undefined,
+              values: [],
+              optional: true,
+              required: false,
+              getter: false,
+              setter: false,
+            },
+          ],
+        }),
+      ],
+      typeLibrary: {},
+    };
+    const outputTargets: d.OutputTargetDocsCustomElementsManifest[] = [
+      { type: 'docs-custom-elements-manifest', file: '/output/custom-elements.json' },
+    ];
+
+    await generateCustomElementsManifestDocs(compilerCtx, docsData, outputTargets);
+
+    const writtenContent = JSON.parse(writeFileSpy.mock.calls[0][1]);
+    const declaration = writtenContent.modules[0].declarations[0];
+    expect(declaration.kind).toBe('class');
+    expect(declaration.customElement).toBe(true);
+    expect(declaration.tagName).toBe('my-badge');
+    expect(declaration.attributes).toEqual([expect.objectContaining({ name: 'variant' })]);
+  });
+
+  it('leaves @slot/@part out of component tags - they are the slots/cssParts fields', async () => {
+    const docsData: d.JsonDocs = {
+      timestamp: 'test',
+      compiler: { name: '@stencil/core', version: '1.0.0', typescriptVersion: '4.0.0' },
+      components: [
+        createMockComponent({
+          tag: 'my-component',
+          filePath: 'src/my-component.tsx',
+          docsTags: [
+            { name: 'slot', text: " - The badge's label." },
+            { name: 'part', text: 'label - The label wrapper.' },
+            { name: 'since', text: '2.0.0' },
+          ],
+          slots: [{ name: '', docs: "The badge's label." }],
+          parts: [{ name: 'label', docs: 'The label wrapper.' }],
+        }),
+      ],
+      typeLibrary: {},
+    };
+    const outputTargets: d.OutputTargetDocsCustomElementsManifest[] = [
+      { type: 'docs-custom-elements-manifest', file: '/output/custom-elements.json' },
+    ];
+
+    await generateCustomElementsManifestDocs(compilerCtx, docsData, outputTargets);
+
+    const writtenContent = JSON.parse(writeFileSpy.mock.calls[0][1]);
+    const declaration = writtenContent.modules[0].declarations[0];
+    expect(declaration.tags).toEqual([{ name: 'since', text: '2.0.0' }]);
+    expect(declaration.slots).toEqual([{ name: '', description: "The badge's label." }]);
+    expect(declaration.cssParts).toEqual([{ name: 'label', description: 'The label wrapper.' }]);
+  });
+
   it('includes deprecation info', async () => {
     const docsData: d.JsonDocs = {
       timestamp: 'test',

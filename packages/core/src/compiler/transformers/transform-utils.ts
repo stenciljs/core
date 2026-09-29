@@ -1182,11 +1182,11 @@ export const serializeSymbol = (checker: ts.TypeChecker, symbol: ts.Symbol): d.C
 };
 
 /**
- * Maps a TypeScript 4.3+ JSDocTagInfo to a flattened Stencil CompilerJsDocTagInfo.
+ * Maps a TypeScript 4.3+ JSDocTagInfo to a flattened Stencil JsonDocsTag.
  * @param tags A readonly array of JSDocTagInfo objects.
- * @returns An array of CompilerJsDocTagInfo objects.
+ * @returns An array of JsonDocsTag objects.
  */
-export const mapJSDocTagInfo = (tags: readonly ts.JSDocTagInfo[]): d.CompilerJsDocTagInfo[] => {
+export const mapJSDocTagInfo = (tags: readonly ts.JSDocTagInfo[]): d.JsonDocsTag[] => {
   // The text following a tag is split semantically by TS 4.3+, e.g. '@param foo the first parameter' ->
   // [{text: 'foo', kind: 'parameterName'}, {text: ' ', kind: 'space'}, {text: 'the first parameter', kind: 'text'}], so
   // we join the elements to reconstruct the text.

@@ -18,7 +18,6 @@ import {
   bundleStandalone,
   generateEntryPoint,
   getBundleOptions,
-  isHydrateInlinedByGlobalStyle,
   outputStandalone,
 } from '../standalone';
 
@@ -417,6 +416,9 @@ export const defineCustomElements = (opts) => {
           `import { setAssetPath } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';`,
         );
         expect(loaderContent).toContain('export { setAssetPath };');
+        expect(loaderContent).toContain(
+          `setAssetPath(new URL('../assets/', String(import.meta.url)).href);`,
+        );
       });
 
       it('should not add loader when autoLoader is not set', () => {
@@ -432,66 +434,6 @@ export const defineCustomElements = (opts) => {
         expect(bundleOptions.inputs['loader']).toBeUndefined();
         expect(bundleOptions.loader['\0loader']).toBeUndefined();
       });
-    });
-  });
-
-  describe('isHydrateInlinedByGlobalStyle', () => {
-    it('returns false when no global-style output targets are configured', async () => {
-      const { config, compilerCtx } = setup();
-      config.outputTargets = [{ type: 'standalone' }];
-      expect(await isHydrateInlinedByGlobalStyle(config, compilerCtx)).toBe(false);
-    });
-
-    it('returns false when global-style has no input', async () => {
-      const { config, compilerCtx } = setup();
-      config.outputTargets = [{ type: 'standalone' }, { type: 'global-style' }];
-      expect(await isHydrateInlinedByGlobalStyle(config, compilerCtx)).toBe(false);
-    });
-
-    it('returns false when global-style input does not contain stencil-hydrate', async () => {
-      const { config, compilerCtx } = setup();
-      config.outputTargets = [
-        { type: 'standalone' },
-        { type: 'global-style', input: '/src/global.css' },
-      ];
-      vi.spyOn(compilerCtx.fs, 'readFile').mockResolvedValue(':root { color: red; }');
-      expect(await isHydrateInlinedByGlobalStyle(config, compilerCtx)).toBe(false);
-    });
-
-    it('returns true when global-style input contains @import "stencil-hydrate"', async () => {
-      const { config, compilerCtx } = setup();
-      config.outputTargets = [
-        { type: 'standalone' },
-        { type: 'global-style', input: '/src/global.css' },
-      ];
-      vi.spyOn(compilerCtx.fs, 'readFile').mockResolvedValue(
-        '@import "stencil-hydrate";\n:root {}',
-      );
-      expect(await isHydrateInlinedByGlobalStyle(config, compilerCtx)).toBe(true);
-    });
-
-    it('returns true when at least one global-style input contains stencil-hydrate', async () => {
-      const { config, compilerCtx } = setup();
-      config.outputTargets = [
-        { type: 'standalone' },
-        { type: 'global-style', input: '/src/a.css' },
-        { type: 'global-style', input: '/src/b.css' },
-      ];
-      vi.spyOn(compilerCtx.fs, 'readFile').mockImplementation(async (path) => {
-        if (path === '/src/b.css') return '@import "stencil-hydrate";';
-        return ':root {}';
-      });
-      expect(await isHydrateInlinedByGlobalStyle(config, compilerCtx)).toBe(true);
-    });
-
-    it('returns false when readFile throws for all inputs', async () => {
-      const { config, compilerCtx } = setup();
-      config.outputTargets = [
-        { type: 'standalone' },
-        { type: 'global-style', input: '/src/global.css' },
-      ];
-      vi.spyOn(compilerCtx.fs, 'readFile').mockRejectedValue(new Error('file not found'));
-      expect(await isHydrateInlinedByGlobalStyle(config, compilerCtx)).toBe(false);
     });
   });
 });

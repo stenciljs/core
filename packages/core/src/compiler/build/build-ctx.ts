@@ -15,6 +15,7 @@ export class BuildContext implements d.BuildCtx {
   completedTasks: d.BuildTask[] = [];
   compilerCtx: d.CompilerCtx;
   components: d.ComponentCompilerMeta[] = [];
+  cssOnlyComponents: d.ComponentCompilerMeta[] = [];
   componentGraph = new Map<string, string[]>();
   config: d.ValidatedConfig;
   data: any = {};
@@ -56,6 +57,7 @@ export class BuildContext implements d.BuildCtx {
   styleBuildCount = 0;
   stylesPromise: Promise<string> = null;
   stylesUpdated: d.BuildStyleUpdate[] = [];
+  globalStylesUpdated: d.BuildGlobalStyleLinkUpdate[] = [];
   timeSpan: d.LoggerTimeSpan = null;
   timestamp: string;
   transpileBuildCount = 0;

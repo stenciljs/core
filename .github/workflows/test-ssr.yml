@@ -39,3 +39,6 @@ jobs:
       - name: SSR Tests
         run: pnpm --filter "@stencil-core-tests/ssr" test
         shell: bash
+
+      - name: Check Git Context
+        uses: ./.github/workflows/actions/check-git-context

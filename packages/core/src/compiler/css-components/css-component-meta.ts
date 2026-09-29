@@ -1,0 +1,154 @@
+import type * as d from '@stencil/core';
+
+import { DEFAULT_STYLE_MODE } from '../../utils';
+import type { CssOnlyComponentDef, CssOnlySlotDoc } from './types';
+
+/**
+ * Build a full, safe-defaults `ComponentCompilerMeta` from a parsed CSS-only component
+ * definition. Every `has*` feature flag is `false` and `componentClassName` is empty - this
+ * meta has no backing JS class and must never be merged into `buildCtx.components`
+ *
+ * @param def the parsed CSS-only component definition
+ * @returns a `ComponentCompilerMeta` suitable for JSX type generation and the docs pipeline
+ */
+export const createCssOnlyComponentMeta = (def: CssOnlyComponentDef): d.ComponentCompilerMeta => ({
+  assetsDirs: [],
+  attachInternalsMemberName: null,
+  attachInternalsCustomStates: [],
+  componentClassName: '',
+  dependencies: [],
+  dependents: [],
+  deserializers: [],
+  directDependencies: [],
+  directDependents: [],
+  docs: {
+    text: def.docsText,
+    tags: [...def.docsTags, ...def.slots.filter((s) => s.docs).map(slotToDocsTag)],
+  },
+  doesExtend: false,
+  elementRef: '',
+  encapsulation: 'none',
+  events: [],
+  excludeFromCollection: false,
+  formAssociated: false,
+  hasAttribute: false,
+  hasAttributeChangedCallbackFn: false,
+  hasComponentDidLoadFn: false,
+  hasComponentDidRenderFn: false,
+  hasComponentDidUpdateFn: false,
+  hasComponentShouldUpdateFn: false,
+  hasComponentWillLoadFn: false,
+  hasComponentWillRenderFn: false,
+  hasComponentWillUpdateFn: false,
+  hasConnectedCallbackFn: false,
+  hasDeserializer: false,
+  hasDisconnectedCallbackFn: false,
+  hasElement: false,
+  hasEvent: false,
+  hasLifecycle: false,
+  hasListener: false,
+  hasListenerTarget: false,
+  hasListenerTargetBody: false,
+  hasListenerTargetDocument: false,
+  hasListenerTargetWindow: false,
+  hasMember: false,
+  hasMethod: false,
+  hasMode: false,
+  hasModernPropertyDecls: false,
+  hasPatchAll: false,
+  hasPatchChildren: false,
+  hasPatchClone: false,
+  hasPatchInsert: false,
+  hasProp: false,
+  hasPropBoolean: false,
+  hasPropMutable: false,
+  hasPropNumber: false,
+  hasPropString: false,
+  hasReflect: false,
+  hasRenderFn: false,
+  hasSerializer: false,
+  hasSlot: false,
+  hasState: false,
+  hasStyle: false,
+  hasVdomAttribute: false,
+  hasVdomClass: false,
+  hasVdomFunctional: false,
+  hasVdomKey: false,
+  hasVdomListener: false,
+  hasVdomPropOrAttr: false,
+  hasVdomPropOrAttrPrefix: false,
+  hasVdomRef: false,
+  hasVdomRender: false,
+  hasVdomStyle: false,
+  hasVdomText: false,
+  hasVdomXlink: false,
+  hasSignalsImport: false,
+  hasWatchCallback: false,
+  htmlAttrNames: [],
+  htmlParts: [],
+  htmlSlots: def.slots.map((s) => s.name),
+  htmlTagNames: [],
+  internal: false,
+  isCollectionDependency: false,
+  isPlain: false,
+  isUpdateable: false,
+  jsFilePath: '',
+  listeners: [],
+  methods: [],
+  patches: null,
+  potentialCmpRefs: [],
+  properties: def.attributes.map(attributeToProperty),
+  serializers: [],
+  shadowDelegatesFocus: false,
+  shadowClonable: false,
+  shadowSerializable: false,
+  shadowMode: null,
+  slotAssignment: null,
+  sourceFilePath: def.sourceFilePath,
+  sourceMapPath: '',
+  states: [],
+  styleDocs: def.properties.map(propertyToStyleDoc),
+  styles: [],
+  globalStyles: [],
+  tagName: def.tagName,
+  virtualProperties: [],
+  watchers: [],
+});
+
+const attributeToProperty = (
+  attr: CssOnlyComponentDef['attributes'][number],
+): d.ComponentCompilerProperty => ({
+  name: attr.name,
+  internal: false,
+  mutable: false,
+  optional: true,
+  required: false,
+  type: primitiveType(attr.type),
+  complexType: {
+    original: attr.type,
+    resolved: attr.type,
+    references: {},
+  },
+  attribute: attr.name,
+  reflect: false,
+  docs: { text: attr.docs, tags: [] },
+  getter: false,
+  setter: false,
+});
+
+const primitiveType = (type: string): d.ComponentCompilerPropertyType =>
+  type === 'boolean' || type === 'string' || type === 'number' ? type : 'any';
+
+const slotToDocsTag = (slot: CssOnlySlotDoc): d.JsonDocsTag => ({
+  name: 'slot',
+  text: `${slot.name} - ${slot.docs}`,
+});
+
+const propertyToStyleDoc = (prop: CssOnlyComponentDef['properties'][number]): d.StyleDoc => ({
+  name: prop.name,
+  docs: prop.docs,
+  annotation: 'prop',
+  mode: DEFAULT_STYLE_MODE,
+  ...(prop.syntax && { syntax: prop.syntax }),
+  ...(prop.default && { default: prop.default }),
+});

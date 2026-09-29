@@ -226,6 +226,17 @@ export interface WizardContext {
 }
 
 /**
+ * What `stencil generate` is creating - passed to each {@link WizardFileTemplate.template}.
+ */
+export interface GeneratedComponentInfo {
+  /**
+   * `true` for a CSS-only component: a `@component`-marked stylesheet with no JS class, so there's
+   * nothing to import - refer to it by tag name.
+   */
+  cssOnly: boolean;
+}
+
+/**
  * A single file a plugin can offer during `stencil generate`.
  */
 export interface WizardFileTemplate {
@@ -244,7 +255,7 @@ export interface WizardFileTemplate {
   /**
    * Returns the file content. `className` is the PascalCase form of `tagName`.
    */
-  template: (tagName: string, className: string) => string;
+  template: (tagName: string, className: string, component: GeneratedComponentInfo) => string;
   /** Pre-selected in the generate prompt. Defaults to `true`. */
   selectedByDefault?: boolean;
 }
@@ -255,6 +266,8 @@ export interface WizardFileTemplate {
 export interface GenerateContext {
   /** The dash-case component tag name entered by the user. */
   tagName: string;
+  /** `true` when generating a CSS-only component - e.g. to leave out templates that need a JS class. */
+  cssOnly: boolean;
   /** Resolved project config. See {@link ProjectConfig} for available fields. */
   config: ProjectConfig;
   /** Clack prompts - use instead of importing `@clack/prompts` directly for consistent UX. */

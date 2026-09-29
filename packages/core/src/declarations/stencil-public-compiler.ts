@@ -15,6 +15,7 @@ import type {
   JsonDocsComponent,
   JsonDocsEvent,
   JsonDocsProp,
+  StyleDoc,
 } from './stencil-public-docs';
 import type { ResolutionHandler } from './stencil-public-runtime';
 
@@ -108,6 +109,16 @@ export interface StencilConfig {
    * whenever a config file is present - set this explicitly to opt an existing project in or out.
    */
   generateExportMaps?: boolean;
+
+  /**
+   * Set to `false` to disable discovery of "CSS-only components" - pure-CSS custom-element
+   * definitions marked with a `@component` JSDoc tag in `.css` files under `srcDir`. No JS
+   * class, never registered via `customElements.define()` - just a documented,
+   * type-checked tag name and its CSS custom properties/attribute variants.
+   *
+   * Defaults to `true`.
+   */
+  enableCssOnlyComponents?: boolean;
 
   /**
    * The namespace config is a string representing a namespace for the app.
@@ -1559,6 +1570,7 @@ export interface CompilerBuildResults {
   buildId: number;
   componentGraph?: BuildResultsComponentGraph;
   components: ComponentCompilerMeta[];
+  cssOnlyComponents: ComponentCompilerMeta[];
   diagnostics: Diagnostic[];
   dirsAdded: string[];
   dirsDeleted: string[];
@@ -1575,6 +1587,15 @@ export interface CompilerBuildResults {
   namespace: string;
   fsNamespace: string;
   outputs: BuildOutput[];
+  /**
+   * Absolute paths to every global stylesheet, in cascade order: each `global-style` output
+   * target's compiled CSS in the order those targets are declared in `config.outputTargets` - or,
+   * with none configured, the generated `{fsNamespace}.css` holding Stencil's auto-placed CSS (when
+   * emitted). Unlike `outputs`, which groups files by type and sorts them alphabetically, this
+   * preserves author-intended order for consumers like the dev-server's auto-generated component
+   * preview.
+   */
+  globalStyleFiles: string[];
   rootDir: string;
   srcDir: string;
   timestamp: string;
@@ -1593,6 +1614,7 @@ export interface HotModuleReplacement {
   componentsUpdated?: string[];
   excludeHmr?: string[];
   externalStylesUpdated?: string[];
+  globalStylesUpdated?: HmrGlobalStyleUpdate[];
   imagesUpdated?: string[];
   indexHtmlUpdated?: boolean;
   inlineStylesUpdated?: HmrStyleUpdate[];
@@ -1606,6 +1628,16 @@ export interface HotModuleReplacement {
 export interface HmrStyleUpdate {
   styleId: string;
   styleTag: string;
+  styleText: string;
+}
+
+/**
+ * A live-reload update for a `global-style` output target's CSS. Applied on
+ * the client by matching `fileName` against the `<link>` that loads it and
+ * inserting/updating an adjacent `<style>` override
+ */
+export interface HmrGlobalStyleUpdate {
+  fileName: string;
   styleText: string;
 }
 
@@ -3071,6 +3103,13 @@ export interface TranspileOptions {
    * that the specified flags take effect for this component at runtime.
    */
   buildOverrides?: BuildOverrides;
+
+  /**
+   * When `true`, a `.css`/`.scss` transpile also collects CSS custom-property docs
+   * onto {@link TranspileResults.styleDocs}. Off by default, since it costs an extra parse
+   * of the style text.
+   */
+  docs?: boolean;
 }
 
 /**
@@ -3117,6 +3156,7 @@ export interface TranspileResults {
   inputFilePath: string;
   map: any;
   outputFilePath: string;
+  styleDocs?: StyleDoc[];
 }
 
 export interface TransformOptions {

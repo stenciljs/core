@@ -25,4 +25,4 @@ The compiler's watch task talks to the server process over the worker thread int
 
 ## Filesystem-Driven Preview
 
-For projects without a `www` output target, the dev server serves component previews directly from the source directory - a directory containing `.tsx` files with no `.html` file gets an auto-generated preview page (`server/dev-preview.ts`) listing just the components in that directory. This is unrelated to any config flag; it applies to any non-`www` project.
+For projects without a `www` output target, the dev server serves component previews directly from the source directory - a directory containing `.tsx` files (or a CSS-only component's stylesheet) with no `.html` file gets an auto-generated preview page (`server/dev-preview.ts`) listing just the components in that directory. This is unrelated to any config flag; it applies to any non-`www` project.

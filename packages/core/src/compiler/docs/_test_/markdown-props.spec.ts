@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import type * as d from '@stencil/core';
 
 import { propsToMarkdown } from '../readme/markdown-props';
 
@@ -102,7 +103,7 @@ describe('markdown props', () => {
 `);
   });
 
-  it('outputs `undefined` in default column when `prop.default` is undefined', () => {
+  it('outputs `undefined` in the default column for a real prop with no initializer', () => {
     const markdown = propsToMarkdown([
       {
         name: 'first',
@@ -126,6 +127,37 @@ describe('markdown props', () => {
 | Property | Attribute | Description | Type     | Default     |
 | -------- | --------- | ----------- | -------- | ----------- |
 | \`first\`  | \`first\`   | First name  | \`string\` | \`undefined\` |
+
+`);
+  });
+
+  it('omits the Property column and outputs `--` in the default column for a CSS-only component', () => {
+    const markdown = propsToMarkdown(
+      [
+        {
+          name: 'variant',
+          attr: 'variant',
+          docs: 'The badge variant',
+          default: undefined,
+          type: '"danger" | (string & {})',
+          mutable: false,
+          optional: true,
+          required: false,
+          reflectToAttr: false,
+          docsTags: [],
+          values: [],
+          getter: false,
+          setter: false,
+        },
+      ],
+      { cssOnly: true } as d.JsonDocsComponent,
+    ).join('\n');
+
+    expect(markdown).toBe(`## Properties
+
+| Attribute | Description       | Type                        | Default |
+| --------- | ----------------- | --------------------------- | ------- |
+| \`variant\` | The badge variant | \`"danger" \\| (string & {})\` | --      |
 
 `);
   });

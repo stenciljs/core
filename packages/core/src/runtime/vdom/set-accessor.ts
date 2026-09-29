@@ -250,7 +250,6 @@ export const setAccessor = (
         !isStandardAttr &&
         elm.tagName?.includes('-') &&
         elm.tagName !== 'SLOT-FB' &&
-        typeof customElements !== 'undefined' &&
         !customElements.get(elm.tagName.toLowerCase());
 
       if (isUndefinedCE) {
@@ -259,7 +258,12 @@ export const setAccessor = (
           (elm as any)['s-pp'] = new Map();
         }
         (elm as any)['s-pp'].set(memberName, newValue);
-        return;
+
+        // If this must be set as a property (i.e isn't simple or is camelCase)
+        // return now - don't set as an attribute (below)
+        if (isComplex || /[A-Z]/.test(memberName)) {
+          return;
+        }
       }
     }
 

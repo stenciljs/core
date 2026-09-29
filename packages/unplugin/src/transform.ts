@@ -23,6 +23,7 @@ import { cmpMetaToDocsComponent, transpileSync } from '@stencil/core/compiler';
 import type { BuildOverrides, JsonDocsComponent } from '@stencil/core/compiler';
 import type { SupportedFramework } from 'unplugin';
 
+import { collectStyleDocsForComponent } from './css.js';
 import type { StencilPluginOptions } from './options.js';
 
 const SOURCE_EXTS = ['.tsx', '.ts', '.js'];
@@ -127,7 +128,7 @@ export function resolveSpecifier(specifier: string, importer: string): string | 
  * @param configOverrides - pass stencil config option overrides to the transpiler
  * @returns transformed output, or `null` if the file is not a Stencil file
  */
-export function transformStencil(
+export async function transformStencil(
   code: string,
   id: string,
   options: StencilPluginOptions,
@@ -135,12 +136,12 @@ export function transformStencil(
   framework: SupportedFramework | '' = '',
   onBaseClass?: (absPath: string, rawCode: string) => void,
   configOverrides?: BuildOverrides,
-): {
+): Promise<{
   code: string;
   map: string | null;
   tagName: string;
   docsComponent: JsonDocsComponent | null;
-} | null {
+} | null> {
   if (!id.endsWith('.tsx') && !id.endsWith('.ts')) return null;
   if (id.endsWith('.d.ts')) return null;
 
@@ -205,6 +206,7 @@ export function transformStencil(
       : result.code + namedExport;
   }
 
+  if (options.docs) await collectStyleDocsForComponent(result.data[0], id);
   const docsComponent = cmpMetaToDocsComponent(result.data[0], id);
 
   return { code: out, map: result.map ?? null, tagName, docsComponent };
@@ -246,7 +248,8 @@ export function transpileBaseClass(
  *   a cache-busted re-import and forced re-render.
  * - webpack / rspack / bun: use the `module.hot` re-execution pattern —
  *   `dispose` marks the reload with a flag, `accept` re-runs the module, and
- *   the new prototype is patched onto existing instances in-place. */
+ *   the new class goes to the runtime's `s-hmr-apply` hook, which patches it
+ *   onto the registered one and re-renders live instances. */
 function buildHmrSnippet(
   tagName: string,
   className: string,
@@ -266,10 +269,7 @@ function buildHmrSnippet(
       `\nif (_sHot) {` +
       `\n  if (_sHot.data && _sHot.data.stencilHmr) {` +
       `\n    var _sCtor = customElements.get(${tag});` +
-      `\n    if (_sCtor) Object.getOwnPropertyNames(${className}.prototype).forEach(function(k) {` +
-      `\n      if (k !== 'constructor') Object.defineProperty(_sCtor.prototype, k, Object.getOwnPropertyDescriptor(${className}.prototype, k));` +
-      `\n    });` +
-      `\n    document.querySelectorAll(${tag}).forEach(function(el) { el.connectedCallback && el.connectedCallback(); });` +
+      `\n    if (_sCtor && _sCtor['s-hmr-apply']) _sCtor['s-hmr-apply'](${className});` +
       `\n  }` +
       `\n  _sHot.dispose(function(data) { data.stencilHmr = true; });` +
       `\n  _sHot.accept();` +
