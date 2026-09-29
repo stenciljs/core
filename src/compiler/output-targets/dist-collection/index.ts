@@ -7,6 +7,7 @@ import {
   join,
   normalizePath,
   relative,
+  shouldExcludeComponent,
   sortBy,
 } from '@utils';
 import ts from 'typescript';
@@ -37,11 +38,14 @@ export const outputCollection = async (
     return;
   }
 
+  const collectionModuleFiles = changedModuleFiles.filter(
+    (mod) => config.devMode || !mod.cmps.some((cmp) => shouldExcludeComponent(cmp.tagName, config.excludeComponents)),
+  );
   const bundlingEventMessage = `generate collections${config.sourceMap ? ' + source maps' : ''}`;
   const timespan = buildCtx.createTimeSpan(`${bundlingEventMessage} started`, true);
   try {
     await Promise.all(
-      changedModuleFiles.map(async (mod) => {
+      collectionModuleFiles.map(async (mod) => {
         let code = mod.staticSourceFileText;
         if (config.preamble) {
           code = `${generatePreamble(config)}\n${code}`;
@@ -122,7 +126,12 @@ const serializeCollectionManifest = (config: d.ValidatedConfig, compilerCtx: d.C
   // create the single collection we're going to fill up with data
   const collectionManifest: d.CollectionManifest = {
     entries: buildCtx.moduleFiles
-      .filter((mod) => !mod.isCollectionDependency && mod.cmps.length > 0)
+      .filter(
+        (mod) =>
+          !mod.isCollectionDependency &&
+          mod.cmps.length > 0 &&
+          (config.devMode || !mod.cmps.some((cmp) => shouldExcludeComponent(cmp.tagName, config.excludeComponents))),
+      )
       .map((mod) => relative(config.srcDir, mod.jsFilePath)),
     // Include mixin/abstract class modules that can be extended by consuming projects
     // These are modules with Stencil static members but no @Component decorator
