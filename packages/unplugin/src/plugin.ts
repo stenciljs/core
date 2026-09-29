@@ -321,7 +321,7 @@ export const unpluginStencil = createUnplugin(
       try {
         code = readFileSync(file, 'utf-8');
       } catch {
-        // deleted - a file that defined CSS-only components still needs rescanning
+        // deleted - a file that defined CSS-only components still needs re-scanning
       }
       try {
         // one that no longer does (definition removed, or file deleted) too, to drop them

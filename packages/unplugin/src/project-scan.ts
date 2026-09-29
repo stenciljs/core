@@ -149,7 +149,7 @@ export async function rescanIfCssOnlyComponent(file: string): Promise<void> {
   try {
     code = readFileSync(abs, 'utf-8');
   } catch {
-    // deleted/unreadable - a registered file still needs rescanning, to drop what it defined
+    // deleted/unreadable - a registered file still needs re-scanning, to drop what it defined
   }
   if (code.includes('@component') || cssOnlyComponentFiles.has(abs)) {
     await scanCssOnlyDocsFile(abs);
