@@ -544,17 +544,19 @@ Compiles the SSR script to a standalone `.wasm` binary via [Extism PDK](https://
 - [ ] No reference implementation exists - needs investigation if this is still the right approach
 - [ ] May be deferrable if not blocking other goals
 
-### 💧 SSR: Defer Child Hydration Until Its Rendering Parent Hydrates (Investigate)
+### 💧 SSR: Defer Child Hydration Until Its Rendering Parent Hydrates (Prototype landed, follow-ups pending)
 
-**Problem:** SSR serializes a component's rendered output but not the props its parent passed in (e.g. `<child disabled>` set as a property by the parent's render). A child only waits for its ancestor when that ancestor is already upgraded (`s-p` check in `runtime/connected-callback.ts`). With the lazy loader, the parent always renders first, so this is fine. In `standalone` builds, dependencies are defined first. The child then hydrates with default props, renders a wrong state (a flash plus an extra render), and is corrected only when the parent renders and re-sets the prop. #6912 (keep child host classes after hydration, `setAccessor` `getOwnHostClasses`) patches one symptom. Others remain: any parent-passed prop, and derived `@State`/`aria-*`. `test/ssr` "child component host classes" has to `expect.poll` through that window.
+**Problem:** SSR serializes a component's rendered output but not the props its parent passed in (e.g. `<child disabled>` set as a property by the parent's render). A child only waits for its ancestor when that ancestor is already upgraded (`s-p` check in `runtime/connected-callback.ts`). With the lazy loader, the parent always renders first, so this is fine. In `standalone` builds, dependencies are defined first. The child then hydrates with default props, renders a wrong state (a flash plus an extra render), and is corrected only when the parent renders and re-sets the prop. #6912 (keep child host classes after hydration, `setAccessor` `getOwnHostClasses`) patched only one symptom; any other parent-passed prop, and derived `@State`/`aria-*`, still started out wrong. It was merged from main and then reverted on v5 in favour of this ordering fix.
 
 **Rejected: auto-reflecting props to attributes during SSR.** It only covers primitives. It adds attributes the author didn't reflect, so `[disabled]` selectors start matching and the attributes go stale after hydration. It also conflicts with the HTML-spec boolean semantics (`"false"` is truthy).
 
-**Proposal:** a hydrating child's `c-id` already names the host that rendered it (`1.0.0.0` → `s-id="1"`). On connect, if that host exists and hasn't hydrated yet, attach to it as `$ancestorComponent$` and wait, like the lazy build does. This works for every prop type, needs no new payload, and probably makes the #6912 workaround removable.
+**Prototype (landed in `connected-callback.ts`):** the standalone autoloader already pre-seeds `s-p`/`s-rc`/`s-pc` on un-upgraded ancestors (`generate-loader-module.ts`), so it already had the right ordering. The gap was manual `defineCustomElement` imports. Now, with `hydrateClientSide` on, the ancestor walk seeds those arrays on the nearest un-upgraded `s-id` host. This covers manual standalone defines and a child whose SSR host belongs to another lazy app that hasn't bootstrapped yet. The child's first render then queues in the host's `s-rc`, like the lazy build. The `test/ssr` "child hydrating before its parent" test asserts that the child's `componentWillLoad` sees the parent-passed prop. It fails without the change.
 
-- [ ] Prototype in `connected-callback.ts` (standalone + `hydrateClientSide` only)
-- [ ] Decide the fallback when the parent is never defined (not imported / excluded): wait forever and keep the SSR markup non-interactive, `customElements.whenDefined(parentTag)` + timeout, or opt-out
-- [ ] If it lands: tighten the `test/ssr` host-class test to a single assertion and assess removing `getOwnHostClasses`
+- [x] Prototype in `connected-callback.ts`
+- [x] Tighten the `test/ssr` test to a single assertion (no `expect.poll`)
+- [ ] Decide the fallback when the SSR parent is never defined (not imported / excluded). Currently the child's render, `connectedCallback` and `componentOnReady` wait forever, and the SSR markup stays non-interactive. Before this change it rendered immediately with default props. This applies to lazy builds as well (a host no loader registers). Options: accept it (same as the autoloader today), `customElements.whenDefined(parentTag)` + timeout, or opt-out
+- [ ] Mixed Stencil runtimes: a host upgraded by a runtime whose `registerHost` overwrites (rather than preserves) `s-p`/`s-rc` would drop the queued child render. Check older runtimes / decide whether to care
+- [x] Revert #6912's `getOwnHostClasses` (`set-accessor.ts`), which the ordering makes redundant
 - [ ] Alternative if ordering proves insufficient: serialize prop state into hydration annotations keyed by `s-id` (not DOM attributes); bounded by the same limits `@PropSerialize` handles
 
 ---

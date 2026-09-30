@@ -80,12 +80,20 @@ export const connectedCallback = (elm: d.HostElement) => {
           // climb up the ancestors looking for the first
           // component that hasn't finished its lifecycle update yet
           if (
-            (BUILD.hydrateClientSide &&
-              ancestorComponent.nodeType === NODE_TYPE.ElementNode &&
-              ancestorComponent.hasAttribute('s-id') &&
-              ancestorComponent['s-p']) ||
-            ancestorComponent['s-p']
+            BUILD.hydrateClientSide &&
+            !ancestorComponent['s-p'] &&
+            ancestorComponent.nodeType === NODE_TYPE.ElementNode &&
+            ancestorComponent.hasAttribute(HYDRATE_ID)
           ) {
+            // an SSR host that hasn't been upgraded yet (e.g. its `defineCustomElement` runs
+            // after ours, or it belongs to another lazy app that hasn't bootstrapped). Seed the
+            // arrays `registerHost` would, so this component's first render waits for the host
+            // to render and pass its props down
+            ancestorComponent['s-p'] = [];
+            ancestorComponent['s-rc'] = [];
+            ancestorComponent['s-pc'] = [];
+          }
+          if (ancestorComponent['s-p']) {
             // we found this components first ancestor component
             // keep a reference to this component's ancestor component
             attachToAncestor(hostRef, (hostRef.$ancestorComponent$ = ancestorComponent));
