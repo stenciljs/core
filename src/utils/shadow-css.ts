@@ -476,7 +476,8 @@ const isScopableAtRule = (selector: string) =>
   selector.startsWith('@supports') ||
   selector.startsWith('@page') ||
   selector.startsWith('@document') ||
-  selector.startsWith('@layer');
+  selector.startsWith('@layer') ||
+  selector.startsWith('@container');
 
 const scopeSelectors = (
   cssText: string,
