@@ -12,9 +12,11 @@ const queueDomReads: d.RafCallback[] = [];
 const queueDomWrites: d.RafCallback[] = [];
 const queueDomWritesLow: d.RafCallback[] = [];
 
-// Fallback to microtask when `document.hidden`: `requestAnimationFrame` callbacks
-// do not fire so scheduling flush queues tasks indefinitely.
-const scheduleFlush = () => (win.document?.hidden ? nextTick(flush) : plt.raf(flush));
+// Fallback to a macrotask when `document.hidden`: `requestAnimationFrame` callbacks
+// do not fire so scheduling flush queues tasks indefinitely. A microtask can't be used
+// because `flush` reschedules itself while work remains, which would never yield to the browser.
+// The 16ms delay keeps flush pacing in line with a ~60fps `requestAnimationFrame`.
+const scheduleFlush = () => (win.document?.hidden ? setTimeout(flush, 16) : plt.raf(flush));
 
 const queueTask = (queue: d.RafCallback[], write: boolean) => (cb: d.RafCallback) => {
   queue.push(cb);

@@ -195,3 +195,5 @@ cssprop
 metas
 combinators
 cssproperty
+reentrancy
+macrotask

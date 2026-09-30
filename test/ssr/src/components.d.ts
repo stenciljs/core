@@ -216,6 +216,14 @@ export namespace Components {
          */
         "anArray": never[];
     }
+    interface SsrClassChildCmp {
+        /**
+          * @default false
+         */
+        "disabled": boolean;
+    }
+    interface SsrClassParentCmp {
+    }
     interface SsrOrderCmp {
     }
     interface SsrOrderWrapCmp {
@@ -527,6 +535,18 @@ declare global {
         prototype: HTMLSlowSsrPropElement;
         new (): HTMLSlowSsrPropElement;
     };
+    interface HTMLSsrClassChildCmpElement extends Components.SsrClassChildCmp, HTMLStencilElement {
+    }
+    var HTMLSsrClassChildCmpElement: {
+        prototype: HTMLSsrClassChildCmpElement;
+        new (): HTMLSsrClassChildCmpElement;
+    };
+    interface HTMLSsrClassParentCmpElement extends Components.SsrClassParentCmp, HTMLStencilElement {
+    }
+    var HTMLSsrClassParentCmpElement: {
+        prototype: HTMLSsrClassParentCmpElement;
+        new (): HTMLSsrClassParentCmpElement;
+    };
     interface HTMLSsrOrderCmpElement extends Components.SsrOrderCmp, HTMLStencilElement {
     }
     var HTMLSsrOrderCmpElement: {
@@ -590,6 +610,8 @@ declare global {
         "shadow-wrapper": HTMLShadowWrapperElement;
         "slow-fetch-cmp": HTMLSlowFetchCmpElement;
         "slow-ssr-prop": HTMLSlowSsrPropElement;
+        "ssr-class-child-cmp": HTMLSsrClassChildCmpElement;
+        "ssr-class-parent-cmp": HTMLSsrClassParentCmpElement;
         "ssr-order-cmp": HTMLSsrOrderCmpElement;
         "ssr-order-wrap-cmp": HTMLSsrOrderWrapCmpElement;
         "ssr-shadow-cmp": HTMLSsrShadowCmpElement;
@@ -805,6 +827,14 @@ declare namespace LocalJSX {
          */
         "anArray"?: never[];
     }
+    interface SsrClassChildCmp {
+        /**
+          * @default false
+         */
+        "disabled"?: boolean;
+    }
+    interface SsrClassParentCmp {
+    }
     interface SsrOrderCmp {
     }
     interface SsrOrderWrapCmp {
@@ -878,6 +908,9 @@ declare namespace LocalJSX {
     interface SlowFetchCmpAttributes {
         "url": string;
     }
+    interface SsrClassChildCmpAttributes {
+        "disabled": boolean;
+    }
     interface SsrShadowCmpAttributes {
         "selected": boolean;
     }
@@ -924,6 +957,8 @@ declare namespace LocalJSX {
         "shadow-wrapper": ShadowWrapper;
         "slow-fetch-cmp": Omit<SlowFetchCmp, keyof SlowFetchCmpAttributes> & { [K in keyof SlowFetchCmp & keyof SlowFetchCmpAttributes]?: SlowFetchCmp[K] } & { [K in keyof SlowFetchCmp & keyof SlowFetchCmpAttributes as `attr:${K}`]?: SlowFetchCmpAttributes[K] } & { [K in keyof SlowFetchCmp & keyof SlowFetchCmpAttributes as `prop:${K}`]?: SlowFetchCmp[K] };
         "slow-ssr-prop": SlowSsrProp;
+        "ssr-class-child-cmp": Omit<SsrClassChildCmp, keyof SsrClassChildCmpAttributes> & { [K in keyof SsrClassChildCmp & keyof SsrClassChildCmpAttributes]?: SsrClassChildCmp[K] } & { [K in keyof SsrClassChildCmp & keyof SsrClassChildCmpAttributes as `attr:${K}`]?: SsrClassChildCmpAttributes[K] } & { [K in keyof SsrClassChildCmp & keyof SsrClassChildCmpAttributes as `prop:${K}`]?: SsrClassChildCmp[K] };
+        "ssr-class-parent-cmp": SsrClassParentCmp;
         "ssr-order-cmp": SsrOrderCmp;
         "ssr-order-wrap-cmp": SsrOrderWrapCmp;
         "ssr-shadow-cmp": Omit<SsrShadowCmp, keyof SsrShadowCmpAttributes> & { [K in keyof SsrShadowCmp & keyof SsrShadowCmpAttributes]?: SsrShadowCmp[K] } & { [K in keyof SsrShadowCmp & keyof SsrShadowCmpAttributes as `attr:${K}`]?: SsrShadowCmpAttributes[K] } & { [K in keyof SsrShadowCmp & keyof SsrShadowCmpAttributes as `prop:${K}`]?: SsrShadowCmp[K] };
@@ -998,6 +1033,8 @@ declare module "@stencil/core" {
              */
             "slow-fetch-cmp": LocalJSX.IntrinsicElements["slow-fetch-cmp"] & JSXBase.HTMLAttributes<HTMLSlowFetchCmpElement>;
             "slow-ssr-prop": LocalJSX.IntrinsicElements["slow-ssr-prop"] & JSXBase.HTMLAttributes<HTMLSlowSsrPropElement>;
+            "ssr-class-child-cmp": LocalJSX.IntrinsicElements["ssr-class-child-cmp"] & JSXBase.HTMLAttributes<HTMLSsrClassChildCmpElement>;
+            "ssr-class-parent-cmp": LocalJSX.IntrinsicElements["ssr-class-parent-cmp"] & JSXBase.HTMLAttributes<HTMLSsrClassParentCmpElement>;
             "ssr-order-cmp": LocalJSX.IntrinsicElements["ssr-order-cmp"] & JSXBase.HTMLAttributes<HTMLSsrOrderCmpElement>;
             "ssr-order-wrap-cmp": LocalJSX.IntrinsicElements["ssr-order-wrap-cmp"] & JSXBase.HTMLAttributes<HTMLSsrOrderWrapCmpElement>;
             "ssr-shadow-cmp": LocalJSX.IntrinsicElements["ssr-shadow-cmp"] & JSXBase.HTMLAttributes<HTMLSsrShadowCmpElement>;

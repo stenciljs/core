@@ -5,6 +5,7 @@ import type { plt as pltType, win as winType } from '../client-window';
 describe('client task queue', () => {
   let plt: typeof pltType;
   let win: typeof winType;
+  let readTask: typeof import('../client-task-queue').readTask;
   let writeTask: typeof import('../client-task-queue').writeTask;
 
   beforeEach(async () => {
@@ -13,14 +14,14 @@ describe('client task queue', () => {
     // otherwise leak between tests
     vi.resetModules();
     ({ plt, win } = await import('../client-window'));
-    ({ writeTask } = await import('../client-task-queue'));
+    ({ readTask, writeTask } = await import('../client-task-queue'));
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  it('flushes a queued write task via a microtask when the document is hidden, without ever calling rAF', async () => {
+  it('flushes a queued write task via a macrotask when the document is hidden, without ever calling rAF', async () => {
     (win as any).document = { hidden: true };
     const rafSpy = vi.spyOn(plt, 'raf').mockImplementation(() => 0);
 
@@ -29,14 +30,29 @@ describe('client task queue', () => {
       called = true;
     });
 
-    expect(called).toBe(false);
-
-    // let the microtask queue drain
-    await Promise.resolve();
-    await Promise.resolve();
+    await new Promise((resolve) => setTimeout(resolve, 16));
 
     expect(called).toBe(true);
     expect(rafSpy).not.toHaveBeenCalled();
+  });
+
+  it('yields to the event loop between flushes when reads and writes keep queuing each other while the document is hidden', async () => {
+    (win as any).document = { hidden: true };
+
+    let rounds = 0;
+    const measure = () => {
+      rounds++;
+      writeTask(render);
+    };
+    const render = () => rounds < 2 && readTask(measure);
+    readTask(measure);
+
+    // a macrotask queued now must run before the second flush
+    await new Promise((resolve) => setTimeout(resolve, 16));
+    expect(rounds).toBe(1);
+
+    await new Promise((resolve) => setTimeout(resolve, 16));
+    expect(rounds).toBe(2);
   });
 
   it('still schedules the flush via rAF when the document is visible', async () => {

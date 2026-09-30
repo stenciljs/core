@@ -357,4 +357,43 @@ test.describe('client hydration', () => {
       expect(slottedText).toBe('Slotted Text');
     });
   });
+
+  test.describe('child component host classes', () => {
+    test('keeps the classes a child sets on its own host when it hydrates before its parent', async ({
+      page,
+    }) => {
+      const { html } = await renderToString('<ssr-class-parent-cmp></ssr-class-parent-cmp>', {
+        fullDocument: true,
+        serializeShadowRoot: 'declarative-shadow-dom',
+      });
+
+      // standalone build (not `setContent`'s lazy loader) so the child can be defined first
+      // and hydrate + render before its parent
+      const body = (html || '').replace(
+        '</body>',
+        `<script type="module">
+          import { defineCustomElement as defineChild } from '/standalone/ssr-class-child-cmp.js';
+          import { defineCustomElement as defineParent } from '/standalone/ssr-class-parent-cmp.js';
+          defineChild();
+          defineParent();
+        </script></body>`,
+      );
+      await page.route('**/ssr-class-hydration', (route) =>
+        route.fulfill({ status: 200, contentType: 'text/html', body }),
+      );
+      await page.goto('/ssr-class-hydration');
+
+      await page.waitForFunction(() => !!customElements.get('ssr-class-parent-cmp'));
+
+      const classesOf = (id: string) =>
+        page.evaluate((id) => {
+          const root = document.querySelector('ssr-class-parent-cmp')?.shadowRoot;
+          return Array.from(root?.querySelector(id)?.classList ?? []).sort();
+        }, id);
+      await expect
+        .poll(() => classesOf('#with-class'))
+        .toEqual(['child-disabled', 'child-own', 'parent-set']);
+      await expect.poll(() => classesOf('#without-class')).toEqual(['child-disabled', 'child-own']);
+    });
+  });
 });

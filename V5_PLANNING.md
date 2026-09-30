@@ -544,6 +544,19 @@ Compiles the SSR script to a standalone `.wasm` binary via [Extism PDK](https://
 - [ ] No reference implementation exists - needs investigation if this is still the right approach
 - [ ] May be deferrable if not blocking other goals
 
+### 💧 SSR: Defer Child Hydration Until Its Rendering Parent Hydrates (Investigate)
+
+**Problem:** SSR serializes a component's rendered output but not the props its parent passed in (e.g. `<child disabled>` set as a property by the parent's render). A child only waits for its ancestor when that ancestor is already upgraded (`s-p` check in `runtime/connected-callback.ts`). With the lazy loader, the parent always renders first, so this is fine. In `standalone` builds, dependencies are defined first. The child then hydrates with default props, renders a wrong state (a flash plus an extra render), and is corrected only when the parent renders and re-sets the prop. #6912 (keep child host classes after hydration, `setAccessor` `getOwnHostClasses`) patches one symptom. Others remain: any parent-passed prop, and derived `@State`/`aria-*`. `test/ssr` "child component host classes" has to `expect.poll` through that window.
+
+**Rejected: auto-reflecting props to attributes during SSR.** It only covers primitives. It adds attributes the author didn't reflect, so `[disabled]` selectors start matching and the attributes go stale after hydration. It also conflicts with the HTML-spec boolean semantics (`"false"` is truthy).
+
+**Proposal:** a hydrating child's `c-id` already names the host that rendered it (`1.0.0.0` → `s-id="1"`). On connect, if that host exists and hasn't hydrated yet, attach to it as `$ancestorComponent$` and wait, like the lazy build does. This works for every prop type, needs no new payload, and probably makes the #6912 workaround removable.
+
+- [ ] Prototype in `connected-callback.ts` (standalone + `hydrateClientSide` only)
+- [ ] Decide the fallback when the parent is never defined (not imported / excluded): wait forever and keep the SSR markup non-interactive, `customElements.whenDefined(parentTag)` + timeout, or opt-out
+- [ ] If it lands: tighten the `test/ssr` host-class test to a single assertion and assess removing `getOwnHostClasses`
+- [ ] Alternative if ordering proves insufficient: serialize prop state into hydration annotations keyed by `s-id` (not DOM attributes); bounded by the same limits `@PropSerialize` handles
+
 ---
 
 ## 🚀 Watch Mode Fast Path (Planned)
@@ -917,4 +930,4 @@ pnpm run dev       # Watch mode
 
 ---
 
-*Last updated: 2026-09-07*
+*Last updated: 2026-09-30*
