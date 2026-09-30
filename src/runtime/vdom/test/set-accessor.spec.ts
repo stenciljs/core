@@ -1,6 +1,9 @@
 import { BUILD } from '@app-data';
+import { getHostRef, registerHost } from '@platform';
 
+import { HOST_FLAGS } from '../../../utils/constants';
 import { VNODE_FLAGS } from '../../runtime-constants';
+import { newVNode } from '../h';
 import { parseClassList, setAccessor } from '../set-accessor';
 
 describe('setAccessor for custom elements', () => {
@@ -903,6 +906,54 @@ describe('setAccessor for standard html elements', () => {
       elm.className = '';
       setAccessor(elm, 'class', 'something-old a-scope-id-something', 'something-new', false, 0);
       expect(elm.className).toEqual('something-new');
+    });
+
+    describe('hydrated child component', () => {
+      // A child component that rendered its host as <Host class="own">, e.g. before its
+      // parent was defined in a custom elements build
+      const renderedChild = (tagName = 'cmp-child') => {
+        const elm = document.createElement(tagName) as any;
+        registerHost(elm, { $flags$: 0, $tagName$: tagName });
+        const hostRef = getHostRef(elm);
+        hostRef.$flags$ |= HOST_FLAGS.hasRendered;
+        hostRef.$vnode$ = newVNode(null, null);
+        hostRef.$vnode$.$attrs$ = { class: 'own own-state' };
+        elm.className = 'parent-old own own-state sc-cmp-child hydrated';
+        return elm;
+      };
+      // The old class the hydration seeds for the child: its full server `className`
+      const serverClassName = 'parent-old own own-state sc-cmp-child hydrated';
+
+      it('should keep the classes of its own host when the parent sets no class on initial render', () => {
+        const elm = renderedChild();
+        setAccessor(elm, 'class', serverClassName, undefined, false, 0, true);
+        expect(elm.className).toEqual('own own-state hydrated');
+      });
+
+      it('should keep the classes of its own host next to the classes of the parent on initial render', () => {
+        const elm = renderedChild();
+        setAccessor(elm, 'class', serverClassName, 'parent-new', false, 0, true);
+        expect(elm.className).toEqual('own own-state hydrated parent-new');
+      });
+
+      it('should keep the classes of its own host only on initial render', () => {
+        const elm = renderedChild();
+        setAccessor(elm, 'class', serverClassName, undefined, false, 0);
+        expect(elm.className).toEqual('');
+      });
+
+      it('should remove every old class when the child has not rendered yet', () => {
+        const elm = renderedChild();
+        getHostRef(elm).$flags$ &= ~HOST_FLAGS.hasRendered;
+        setAccessor(elm, 'class', serverClassName, undefined, false, 0, true);
+        expect(elm.className).toEqual('');
+      });
+
+      it('should remove every old class when the component renders its own host', () => {
+        const elm = renderedChild();
+        setAccessor(elm, 'class', serverClassName, undefined, false, VNODE_FLAGS.isHost, true);
+        expect(elm.className).toEqual('');
+      });
     });
   });
 
