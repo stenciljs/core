@@ -239,10 +239,10 @@ The `extras` section of `stencil.config.ts` has been renamed to `compat`. Within
 - `experimentalSlotFixes` (and the individual `slotChildNodesFix`, `scopedSlotTextContentFix`, `appendChildSlotFix` flags) have been consolidated into a single `lightDomPatches` option:
   ```ts
   lightDomPatches?: boolean | {
-    slotChildNodes: boolean,
-    slotCloneNode: boolean,
-    slotDomMutations: boolean,
-    slotTextContent: boolean,
+    childNodes?: boolean,
+    cloneNode?: boolean,
+    domMutations?: boolean,
+    textContent?: boolean,
   };
   ```
   `lightDomPatches` is `true` by default, but is only bundled into a build if light DOM components with slots are actually used. The `insertAdjacentText`/`insertAdjacentElement` patched methods have been removed entirely to save runtime bytes.
@@ -278,7 +278,7 @@ Additional related changes:
 - `dist.typesDir` removed - use `types.dir`.
 - `dist.collectionsDir` removed - use `collection.dir`.
 - `collectionDir` and `typesDir` removed from `loader-bundle` config entirely.
-- `dist-custom-elements.isPrimaryPackageOutputTarget` removed - choose your own default export in `package.json` (CLI hints will guide you based on your configured outputs). `validatePrimaryPackageOutputTarget` config option renamed to `validatePackageJson`.
+- `dist-custom-elements.isPrimaryPackageOutputTarget` removed - choose your own default export in `package.json` (CLI hints will guide you based on your configured outputs). `validatePrimaryPackageOutputTarget` config option removed - `package.json` validation is now automatic.
 - `dist-custom-elements.generateTypeDeclarations` removed - types are now always generated and written to `types.dir`.
 - `dist.esmLoaderPath` renamed to `loaderPath` - and its path is now calculated relative to `dist/loader-bundle` instead of `dist` (use `loaderPath: '../'` to reproduce the old resolved path).
 - Export map generation now uses smart defaults: `loader-bundle` takes priority over `standalone` for the root package export, and types always come from the `types` output target.
@@ -315,12 +315,12 @@ To migrate, run `stencil migrate` to move any explicit values into the appropria
 
 #### Global Styles & Assets Modernized
 
-`globalStyle` is now backed by its own first-class, configurable `global-style` output target (and multiple `global-style` outputs are now supported). The `extras.addGlobalStyleToComponents` option has been removed in favor of an `inject` property on the output target:
+`globalStyle` is now backed by its own first-class, configurable `global-style` output target (and multiple `global-style` outputs are now supported). The `extras.addGlobalStyleToComponents` option has been removed in favor of an `inject` property on the output target. It defaults to `'client'` when the stylesheet comes from `globalStyle` or an auto-detected `src/global.*` (matching v4), and `'none'` when a target is explicitly set:
 
 ```ts
 {
   type: 'global-style',
-  inject: 'client', // 'none' (default) | 'client' | 'all'
+  inject: 'client', // 'none' | 'client' | 'all'
 }
 ```
 
