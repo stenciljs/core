@@ -156,3 +156,4 @@ jsxdev
 jsxs
 labelable
 reentrancy
+macrotask
