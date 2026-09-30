@@ -9,9 +9,10 @@
 
 import { BUILD } from '@app-data';
 import { getHostRef, isMemberInElement, plt, win } from '@platform';
-import { isComplexType } from '../../utils/helpers';
 
 import type * as d from '../../declarations';
+import { HOST_FLAGS } from '../../utils/constants';
+import { isComplexType } from '../../utils/helpers';
 import { NODE_TYPE, VNODE_FLAGS, XLINK_NS } from '../runtime-constants';
 import { queueRefAttachment } from './vdom-render';
 
@@ -62,7 +63,10 @@ export const setAccessor = (
       newClasses = [...new Set(newClasses)].filter((c) => c);
       classList.add(...newClasses);
     } else {
-      classList.remove(...oldClasses.filter((c) => c && !newClasses.includes(c)));
+      // on the first render after hydration, `oldClasses` are the element's SSR classes,
+      // which can include classes a rendered child component owns on its own host
+      const hostOwnedClasses = BUILD.hydrateClientSide && initialRender ? getRenderedHostClasses(elm) : [];
+      classList.remove(...oldClasses.filter((c) => c && !newClasses.includes(c) && !hostOwnedClasses.includes(c)));
       classList.add(...newClasses.filter((c) => c && !oldClasses.includes(c)));
     }
   } else if (BUILD.vdomStyle && memberName === 'style') {
@@ -261,6 +265,25 @@ const ENUMERATED_ATTRIBUTES = /*@__PURE__*/ new Set(['draggable', 'contenteditab
 
 const isEnumeratedAttribute = (attrName: string): boolean =>
   ENUMERATED_ATTRIBUTES.has(attrName) || attrName.startsWith('aria-');
+
+/**
+ * Returns the classes a component has set on its own host element: those of its `<Host>` vnode
+ * and the hydrated flag. Returns an empty list if the element is not a component that has rendered.
+ *
+ * @param elm the element to check
+ * @returns list of classes owned by the element's own component
+ */
+const getRenderedHostClasses = (elm: d.RenderNode) => {
+  const hostRef = getHostRef(elm);
+  if (!hostRef || !(hostRef.$flags$ & HOST_FLAGS.hasRendered)) {
+    return [];
+  }
+  const classes = parseClassList(hostRef.$vnode$?.$attrs$?.class);
+  if (BUILD.hydratedClass) {
+    classes.push(BUILD.hydratedSelectorName ?? 'hydrated');
+  }
+  return classes;
+};
 
 const parseClassListRegex = /\s/;
 /**

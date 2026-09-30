@@ -1,5 +1,7 @@
 import { BUILD } from '@app-data';
+import { getHostRef, registerHost } from '@platform';
 
+import { HOST_FLAGS } from '../../../utils/constants';
 import { VNODE_FLAGS } from '../../runtime-constants';
 import { parseClassList, setAccessor } from '../set-accessor';
 
@@ -903,6 +905,48 @@ describe('setAccessor for standard html elements', () => {
       elm.className = '';
       setAccessor(elm, 'class', 'something-old a-scope-id-something', 'something-new', false, 0);
       expect(elm.className).toEqual('something-new');
+    });
+
+    describe('rendered component host on initial render', () => {
+      const { hydratedClass, hydratedSelectorName } = BUILD;
+      let elm: any;
+
+      beforeEach(() => {
+        BUILD.hydratedClass = true;
+        BUILD.hydratedSelectorName = 'hydrated';
+        elm = document.createElement('my-child');
+        registerHost(elm, { $flags$: 0, $tagName$: 'my-child' });
+        const hostRef = getHostRef(elm);
+        hostRef.$flags$ |= HOST_FLAGS.hasRendered;
+        hostRef.$vnode$ = { $attrs$: { class: 'child-own child-disabled' } } as any;
+        elm.className = 'parent-old parent-set child-own child-disabled hydrated';
+      });
+
+      afterEach(() => {
+        BUILD.hydratedClass = hydratedClass;
+        BUILD.hydratedSelectorName = hydratedSelectorName;
+      });
+
+      it('keeps the classes the component set on its own host', () => {
+        setAccessor(elm, 'class', elm.className, 'parent-set', false, 0, true);
+        expect(elm.className).toEqual('parent-set child-own child-disabled hydrated');
+      });
+
+      it('keeps the classes the component set on its own host when the new vnode has no class', () => {
+        setAccessor(elm, 'class', elm.className, undefined, false, 0, true);
+        expect(elm.className).toEqual('child-own child-disabled hydrated');
+      });
+
+      it('removes its own classes on later renders', () => {
+        setAccessor(elm, 'class', elm.className, 'parent-set', false, 0);
+        expect(elm.className).toEqual('parent-set');
+      });
+
+      it('removes all stale classes if the component has not rendered', () => {
+        getHostRef(elm).$flags$ &= ~HOST_FLAGS.hasRendered;
+        setAccessor(elm, 'class', elm.className, 'parent-set', false, 0, true);
+        expect(elm.className).toEqual('parent-set');
+      });
     });
   });
 
