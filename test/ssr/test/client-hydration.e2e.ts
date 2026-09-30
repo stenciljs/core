@@ -358,8 +358,8 @@ test.describe('client hydration', () => {
     });
   });
 
-  test.describe('child component host classes', () => {
-    test('keeps the classes a child sets on its own host when it hydrates before its parent', async ({
+  test.describe('child hydrating before its parent', () => {
+    test('waits for the parent to render, and keeps the classes the child sets on its own host', async ({
       page,
     }) => {
       const { html } = await renderToString('<ssr-class-parent-cmp></ssr-class-parent-cmp>', {
@@ -383,17 +383,28 @@ test.describe('client hydration', () => {
       );
       await page.goto('/ssr-class-hydration');
 
-      await page.waitForFunction(() => !!customElements.get('ssr-class-parent-cmp'));
-
-      const classesOf = (id: string) =>
-        page.evaluate((id) => {
-          const root = document.querySelector('ssr-class-parent-cmp')?.shadowRoot;
-          return Array.from(root?.querySelector(id)?.classList ?? []).sort();
-        }, id);
-      await expect
-        .poll(() => classesOf('#with-class'))
-        .toEqual(['child-disabled', 'child-own', 'parent-set']);
-      await expect.poll(() => classesOf('#without-class')).toEqual(['child-disabled', 'child-own']);
+      const classes = await page.evaluate(async () => {
+        await customElements.whenDefined('ssr-class-parent-cmp');
+        const parent = document.querySelector('ssr-class-parent-cmp') as HTMLElement & {
+          componentOnReady(): Promise<unknown>;
+        };
+        await parent.componentOnReady();
+        const child = (id: string) =>
+          parent.shadowRoot?.querySelector(id) as HTMLElement & { initialDisabled?: boolean };
+        const sorted = (id: string) => Array.from(child(id)?.classList ?? []).sort();
+        return {
+          initialDisabled: [
+            child('#with-class')?.initialDisabled,
+            child('#without-class')?.initialDisabled,
+          ],
+          withClass: sorted('#with-class'),
+          withoutClass: sorted('#without-class'),
+        };
+      });
+      // children wait for the SSR parent to render (and pass `disabled`) before their first render
+      expect(classes.initialDisabled).toEqual([true, true]);
+      expect(classes.withClass).toEqual(['child-disabled', 'child-own', 'parent-set']);
+      expect(classes.withoutClass).toEqual(['child-disabled', 'child-own']);
     });
   });
 });
