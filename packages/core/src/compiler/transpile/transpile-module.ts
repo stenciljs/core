@@ -9,6 +9,7 @@ import { STENCIL_APP_DATA_ID } from '../bundle/entry-alias-ids';
 import { performAutomaticKeyInsertion } from '../transformers/automatic-key-insertion';
 import { lazyComponentTransform } from '../transformers/component-lazy/transform-lazy-component';
 import { nativeComponentTransform } from '../transformers/component-native/tranform-to-native-component';
+import { resetDeprecatedApiWarning } from '../transformers/decorators-to-static/component-decorator';
 import { convertDecoratorsToStatic } from '../transformers/decorators-to-static/convert-decorators';
 import {
   rewriteAliasedDTSImportPaths,
@@ -36,6 +37,8 @@ export const transpileModule = (
       logger: createNodeLogger(),
     };
   }
+  // each transpile is its own build
+  resetDeprecatedApiWarning();
   const compilerCtx = new CompilerContext();
   const buildCtx = new BuildContext(config, compilerCtx);
   const tsCompilerOptions: ts.CompilerOptions = {

@@ -44,7 +44,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { createFilter } from '@rollup/pluginutils';
-import { validateHydrated } from '@stencil/core/compiler';
+import { foldBuildFlags, validateHydrated } from '@stencil/core/compiler';
 import { createUnplugin } from 'unplugin';
 import type { BuildOverrides, ComponentTypesConfig, HydratedFlag } from '@stencil/core/compiler';
 import type { ModuleNode, ViteDevServer } from 'vite';
@@ -173,6 +173,10 @@ export const unpluginStencil = createUnplugin(
 
     // Vite auto-detects dev mode via configResolved; other bundlers use options.dev.
     let isDev = options.dev ?? false;
+
+    // Fold `Build.isBrowser` / `isServer` so production bundles drop server-only code.
+    // Never under Vite serve (incl. Vitest), so tests can still `vi.mock` `Build`.
+    let foldFlags = !isDev && options.mode !== 'spec-page';
 
     // For Vite, configResolved sets this to config.root (more accurate than process.cwd()).
     // For other bundlers, process.cwd() is the fallback.
@@ -492,8 +496,16 @@ export const unpluginStencil = createUnplugin(
         return filter(id.split('?')[0]);
       },
 
-      async transform(code, id) {
+      async transform(code, id, transformOpts?: { ssr?: boolean }) {
         const cleanId = id.split('?')[0];
+
+        // `@stencil/core` resolves to the client runtime; `isDev` / `isTesting` come from the
+        // consumer's app-data, so aren't folded
+        const folded =
+          foldFlags && !transformOpts?.ssr
+            ? foldBuildFlags(code, cleanId, { isBrowser: true, isServer: false })
+            : null;
+        if (folded !== null) code = folded;
 
         if (!configOverrides.vdomSignals && SIGNALS_IMPORT_RE.test(code)) {
           configOverrides = { ...configOverrides, vdomSignals: true };
@@ -515,7 +527,8 @@ export const unpluginStencil = createUnplugin(
           resolveImportedTypes(result.docsComponent, cleanId);
           docsRegistry.set(result.docsComponent.tag, result.docsComponent);
         }
-        return result;
+        // same-length replacement, so a null map keeps positions intact
+        return result ?? (folded !== null ? { code, map: null } : null);
       },
 
       loadInclude(id) {
@@ -612,6 +625,7 @@ export const unpluginStencil = createUnplugin(
 
         configResolved(config: { command: string; root: string }) {
           isDev = options.dev ?? config.command === 'serve';
+          foldFlags = config.command === 'build' && options.mode !== 'spec-page';
           projectRoot = config.root;
         },
 

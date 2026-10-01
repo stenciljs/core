@@ -1,3 +1,5 @@
+import type * as d from '@stencil/core';
+
 /**
  * Bit flags for recording various properties of VDom nodes
  */
@@ -99,3 +101,19 @@ export const FORM_ASSOCIATED_CUSTOM_ELEMENT_CALLBACKS = [
   'formDisabledCallback',
   'formStateRestoreCallback',
 ] as const;
+
+/**
+ * `Build` values fixed per platform. Shared by each runtime's `Build` export and the compiler's
+ * `Build.*` folding (`compiler/bundle/build-flags-plugin.ts`), so the two can't disagree.
+ */
+export const CLIENT_BUILD_FLAGS = {
+  isBrowser: true,
+  isServer: false,
+} as const satisfies Partial<d.UserBuildConditionals>;
+
+export const SERVER_BUILD_FLAGS = {
+  isBrowser: false,
+  isServer: true,
+  isDev: false,
+  isTesting: false,
+} as const satisfies d.UserBuildConditionals;

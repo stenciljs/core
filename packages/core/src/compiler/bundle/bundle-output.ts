@@ -5,6 +5,7 @@ import { createOnWarnFn, isRolldownError, loadRolldownDiagnostics } from '../../
 import { lazyComponentPlugin } from '../output-targets/dist-lazy/lazy-component-plugin';
 import { appDataPlugin } from './app-data-plugin';
 import { buildConditionalsPlugin } from './build-conditionals-plugin';
+import { buildFlagsPlugin } from './build-flags-plugin';
 import { coreResolvePlugin } from './core-resolve-plugin';
 import { devNodeModuleResolveId } from './dev-node-module-resolve';
 import { extFormatPlugin } from './ext-format-plugin';
@@ -110,6 +111,7 @@ export const getRolldownOptions = (
       loaderPlugin(bundleOpts.loader),
       userIndexPlugin(config, compilerCtx),
       typescriptPlugin(compilerCtx, bundleOpts, config),
+      buildFlagsPlugin(bundleOpts),
       extFormatPlugin(config),
       extTransformsPlugin(config, compilerCtx, buildCtx),
       workerPlugin(config, compilerCtx, buildCtx, bundleOpts.platform, !!bundleOpts.inlineWorkers),
