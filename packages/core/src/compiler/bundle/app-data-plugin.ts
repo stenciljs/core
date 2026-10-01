@@ -13,11 +13,7 @@ import {
 } from '../../utils';
 import { buildGlobalStyleFromInput } from '../style/global-styles';
 import { removeCollectionImports } from '../transformers/remove-collection-imports';
-import {
-  APP_DATA_CONDITIONAL,
-  STENCIL_APP_DATA_ID,
-  STENCIL_APP_GLOBALS_ID,
-} from './entry-alias-ids';
+import { STENCIL_APP_DATA_ID, STENCIL_APP_GLOBALS_ID } from './entry-alias-ids';
 import type { BundlePlatform } from './bundle-interface';
 
 /**
@@ -50,25 +46,14 @@ export const appDataPlugin = (
     // Use Rolldown's hook filter to only call resolveId for specific Stencil IDs
     resolveId: {
       filter: { id: /^@stencil\/core\/app-(data|globals)$/ },
-      handler(id: string, importer: string | undefined): ResolveIdResult {
+      handler(id: string): ResolveIdResult {
         if (id === STENCIL_APP_DATA_ID || id === STENCIL_APP_GLOBALS_ID) {
           if (platform === 'worker') {
             this.error('@stencil/core packages cannot be imported from a worker.');
           }
-
-          if (platform === 'ssr' || STENCIL_APP_GLOBALS_ID) {
-            // ssr will always bundle app-data and runtime
-            // and the load() fn will build a custom globals import
-            return id;
-          } else if (platform === 'client' && importer && importer.endsWith(APP_DATA_CONDITIONAL)) {
-            // since the importer ends with ?app-data=conditional we know that
-            // we need to build custom app-data based off of component metadata
-            // return the same "id" so that the "load()" method knows to
-            // build custom app-data
-            return id;
-          }
-          // for a client build that does not have ?app-data=conditional at the end then we
-          // do not want to create custom app-data, but should use the default
+          // Every bundled runtime gets app-data / globals built by load() from this build's
+          // conditionals. An external runtime never reaches here; its consumer supplies app-data.
+          return id;
         }
         return null;
       },

@@ -7,6 +7,7 @@
 import { BUILD } from 'virtual:app-data';
 import type * as d from '@stencil/core';
 
+import { SERVER_BUILD_FLAGS } from '../../runtime/runtime-constants';
 import { CMP_FLAGS } from '../../utils/constants';
 import { reWireGetterSetter } from '../../utils/es2022-rewire-class-members';
 
@@ -187,12 +188,7 @@ export const registerHost = (elm: d.HostElement, cmpMeta: d.ComponentRuntimeMeta
   return hostRef;
 };
 
-export const Build: d.UserBuildConditionals = {
-  isDev: false,
-  isBrowser: false,
-  isServer: true,
-  isTesting: false,
-};
+export const Build: d.UserBuildConditionals = { ...SERVER_BUILD_FLAGS };
 
 export const styles: d.StyleMap = new Map();
 export const modeResolver: d.ResolutionHandler[] = [];

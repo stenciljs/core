@@ -13,6 +13,6 @@ export default defineConfig({
       headless: true,
       instances: [{ browser: 'chromium' }],
     },
-    include: ['test/browser.test.ts'],
+    include: ['test/browser.test.ts', 'test/build-flag-mock.test.ts'],
   },
 });

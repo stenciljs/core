@@ -116,9 +116,13 @@ stencilVite({
 
 ### Component transform
 
-Only files containing Stencil decorators (`@Component`, `@Prop`, `@State`, etc.) are transformed. Everything else passes through untouched.
+Only files containing Stencil decorators (`@Component`, `@Prop`, `@State`, etc.) are compiled. Everything else passes through untouched, apart from `Build` flag folding (below).
 
 Matching files are compiled with `componentExport: 'customelement'`, which means each component self-registers via `customElements.define` (if not already defined) when the module is imported — no separate registration step needed.
+
+### `Build` flags
+
+In production builds, `Build.isBrowser` / `Build.isServer` checks are replaced with `true` / `false`, so server-only code is tree-shaken out of browser bundles.
 
 ### CSS pipeline
 

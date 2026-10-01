@@ -107,3 +107,19 @@ describe('transpile() - CSS style docs', () => {
     ]);
   });
 });
+
+describe('transpileSync() - deprecated @Component API', () => {
+  it('reports the error on every call, not just the first in the process', () => {
+    const code = `
+      import { Component, h } from '@stencil/core';
+      @Component({ tag: 'my-cmp', shadow: true })
+      export class MyCmp { render() { return <div />; } }
+    `;
+    for (let i = 0; i < 2; i++) {
+      const { diagnostics } = transpileSync(code, { file: '/src/my-cmp.tsx' });
+      expect(
+        diagnostics.some((d) => d.level === 'error' && /deprecated API/.test(d.messageText)),
+      ).toBe(true);
+    }
+  });
+});

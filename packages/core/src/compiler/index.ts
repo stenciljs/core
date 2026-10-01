@@ -25,6 +25,7 @@ export {
   replaceStencilGlobalsImport,
   replaceStencilHydrateImport,
 } from './style/component-global-styles';
+export { foldBuildFlags } from './bundle/build-flags-plugin';
 export { transpile, transpileSync } from './transpile';
 export { scopeCss } from '../utils/shadow-css';
 export { createWorkerContext } from './worker/worker-thread';

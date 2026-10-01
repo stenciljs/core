@@ -10,12 +10,13 @@ const fixturesDir = join(__dirname, 'fixtures');
 // Root is the package dir so Vite can find node_modules/@stencil/core
 const pkgRoot = join(__dirname, '..');
 
-async function buildFixture(filename: string): Promise<string> {
+async function buildFixture(filename: string, ssr = false): Promise<string> {
   const result = await build({
     root: pkgRoot,
     plugins: [stencilVite()],
     build: {
       write: false,
+      ssr,
       rollupOptions: {
         input: join(fixturesDir, filename),
         // Keep @stencil/core and virtual: as externals — we're testing the
@@ -101,6 +102,19 @@ async function buildCss(entry: string): Promise<string> {
     .map((o) => String((o as { source: string | Uint8Array }).source))
     .join('');
 }
+
+describe('Build flag folding', () => {
+  it('drops Build.isServer-gated code and its imports from a client build', async () => {
+    const code = await buildFixture('my-build-flag.tsx');
+    expect(code).toMatch(/my-build-flag/);
+    expect(code).not.toContain('SERVER_ONLY_PAYLOAD');
+  });
+
+  it('keeps Build.isServer-gated code in an ssr build', async () => {
+    const code = await buildFixture('my-build-flag.tsx', true);
+    expect(code).toContain('SERVER_ONLY_PAYLOAD');
+  });
+});
 
 describe('virtual global-stylesheet imports under Vite', () => {
   it('resolves them from a partial, where only the alias can reach them', async () => {

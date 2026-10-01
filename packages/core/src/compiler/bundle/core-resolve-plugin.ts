@@ -2,7 +2,7 @@ import { dirname } from 'path';
 import type * as d from '@stencil/core';
 import type { Plugin } from 'rolldown';
 
-import { HYDRATED_CSS } from '../../runtime/runtime-constants';
+import { CLIENT_BUILD_FLAGS, HYDRATED_CSS } from '../../runtime/runtime-constants';
 import { isRemoteUrl, join, normalizeFsPath, normalizePath } from '../../utils';
 import { fetchModuleAsync } from '../sys/fetch/fetch-module-async';
 import { getStencilModuleUrl, packageVersions } from '../sys/fetch/fetch-utils';
@@ -63,12 +63,11 @@ export const coreResolvePlugin = (
               };
             }
             if (lazyLoad) {
-              // with a lazy / loader-bundle build, add `?app-data=conditional` as an identifier to ensure we don't
-              // use the default app-data, but build a custom one based on component meta
+              // with a lazy / loader-bundle build, add `?app-data=conditional` so the lazy runtime is a
+              // distinct module from the standalone one
               return internalClient + APP_DATA_CONDITIONAL;
             }
-            // for a non-lazy / standalone build, use the default, complete core.
-            // This ensures all features are available for any importer library
+            // standalone: app-data is still built from this build's conditionals (see appDataPlugin)
             return internalClient;
           }
           if (platform === 'ssr') {
@@ -105,11 +104,9 @@ export const coreResolvePlugin = (
               };
             }
             if (lazyLoad) {
-              // with a lazy / loader-bundle build, add `?app-data=conditional` as an identifier to ensure we don't
-              // use the default app-data, but build a custom one based on component meta
+              // see the matching @stencil/core branch above
               return internalClient + APP_DATA_CONDITIONAL;
             }
-            // for a non-lazy / standalone build, use the default, complete core.
             return internalClient;
           }
           if (platform === 'ssr') {
@@ -128,13 +125,7 @@ export const coreResolvePlugin = (
 
           if (filePath === internalClient || filePath === internalSsr) {
             if (platform === 'worker') {
-              return `
-export const Build = {
-  isDev: ${config.devMode},
-  isBrowser: true,
-  isServer: false,
-  isTesting: false,
-};`;
+              return `export const Build = ${JSON.stringify({ ...CLIENT_BUILD_FLAGS, isDev: config.devMode, isTesting: false })};`;
             }
 
             // Check cache first - transformed content is deterministic per file
