@@ -3,38 +3,7 @@ import { expect, describe, it } from '@stencil/vitest';
 
 import { newSpecPage } from '../../testing';
 
-describe('hostData', () => {
-  it('render hostData() attributes', async () => {
-    @Component({ tag: 'cmp-a' })
-    class CmpA {
-      @Prop() hidden = false;
-
-      hostData() {
-        return {
-          value: 'somevalue',
-          role: 'alert',
-          'aria-hidden': this.hidden ? 'true' : null,
-          hidden: this.hidden,
-        };
-      }
-    }
-
-    const { root, waitForChanges } = await newSpecPage({
-      components: [CmpA],
-      html: `<cmp-a></cmp-a>`,
-    });
-    expect(root).toEqualHtml(`
-      <cmp-a value="somevalue" role="alert"></cmp-a>
-    `);
-
-    root.hidden = true;
-    await waitForChanges();
-
-    expect(root).toEqualHtml(`
-      <cmp-a value="somevalue" role="alert" aria-hidden="true" hidden></cmp-a>
-    `);
-  });
-
+describe('Host', () => {
   it('render <host> attributes', async () => {
     @Component({ tag: 'cmp-a' })
     class CmpA {

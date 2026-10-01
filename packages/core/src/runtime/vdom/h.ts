@@ -90,9 +90,9 @@ export const h = (nodeName: any, vnodeData: d.PropsType, ...children: d.ChildTyp
   }
 
   if (BUILD.isDev && vNodeChildren.some(isHost)) {
-    consoleDevError(`The <Host> must be the single root component. Make sure:
-- You are NOT using hostData() and <Host> in the same component.
-- <Host> is used once, and it's the single root component of the render() function.`);
+    consoleDevError(
+      `The <Host> must be used once, and be the single root component of the render() function.`,
+    );
   }
 
   if (BUILD.vdomFunctional && typeof nodeName === 'function') {

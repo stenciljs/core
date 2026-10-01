@@ -7,7 +7,6 @@ import { startupCompilerLog } from './logs';
 import { detectMigrations, taskMigrate, type MigrationDetectionResult } from './task-migrate';
 import { runPrerenderTask } from './task-prerender';
 import { taskWatch } from './task-watch';
-import { telemetryBuildFinishedAction } from './telemetry/telemetry';
 import type { ConfigFlags } from './config-flags';
 import type { CoreCompiler } from './load-compiler';
 
@@ -51,8 +50,6 @@ export const taskBuild = async (
 
     const compiler = await coreCompiler.createCompiler(config);
     const results = await compiler.build();
-
-    await telemetryBuildFinishedAction(config.sys, config, coreCompiler, results, flags);
 
     await compiler.destroy();
 

@@ -21,13 +21,17 @@ const previousComponentStyles = new Map<string, string[]>();
 
 /**
  * Generate the Hot Module Replacement (HMR) data for the current build.
- * @param config a user-supplied config
+ * @param config the validated Stencil config
  * @param compilerCtx the compiler context
  * @param buildCtx the build context
  * @returns the HMR data
  */
-export const generateHmr = (config: d.Config, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
-  if (config.devServer?.reloadStrategy == null) {
+export const generateHmr = (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+) => {
+  if (config.devServer.reloadStrategy == null) {
     return null;
   }
 
@@ -217,7 +221,7 @@ const addTsFileImporters = (
   });
 };
 
-const getExternalStylesUpdated = (config: d.Config, buildCtx: d.BuildCtx) => {
+const getExternalStylesUpdated = (config: d.ValidatedConfig, buildCtx: d.BuildCtx) => {
   if (!buildCtx.isRebuild) {
     return null;
   }
@@ -226,7 +230,7 @@ const getExternalStylesUpdated = (config: d.Config, buildCtx: d.BuildCtx) => {
   // mechanism above, which avoids a network round-trip and preserves cascade order
   // relative to other `<link>` tags - exclude them here to avoid double-patching.
   const globalStyleFileNames = new Set([
-    ...(config.fsNamespace ? [getStencilCssFileName(config.fsNamespace)] : []),
+    getStencilCssFileName(config.fsNamespace),
     ...config.outputTargets.filter(isOutputTargetGlobalStyle).map((o) => o.fileName),
   ]);
 
@@ -266,7 +270,7 @@ const getImagesUpdated = (buildCtx: d.BuildCtx, outputTargetsWww: d.OutputTarget
 /**
  * Determine a list of files (if any) which should be excluded from HMR updates.
  *
- * @param config a user-supplied config
+ * @param config the validated Stencil config
  * @param excludeHmr a list of glob patterns that should be used to determine
  * whether to exclude a file or not (a file will be excluded if it matches one
  * @param filesChanged an array of files which are changed in the HMR update
@@ -274,7 +278,7 @@ const getImagesUpdated = (buildCtx: d.BuildCtx, outputTargetsWww: d.OutputTarget
  * @returns a sorted list of files to exclude
  */
 const excludeHmrFiles = (
-  config: d.Config,
+  config: d.ValidatedConfig,
   excludeHmr: string[],
   filesChanged: string[],
 ): string[] => {

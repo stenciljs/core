@@ -19,7 +19,7 @@ import type {
 } from '@stencil/core';
 
 import { createNodeLogger } from '../../sys/node';
-import { isRootPath, join, normalizePath } from '../../utils';
+import { isRootPath, join, noop, normalizePath } from '../../utils';
 import { version } from '../../version';
 import { buildEvents } from '../events';
 import { resolveModuleIdAsync } from './resolve/resolve-module-async';
@@ -521,23 +521,6 @@ export const createSystem = (c?: { logger?: Logger }): CompilerSystem => {
     return results;
   };
 
-  /**
-   * `self` is the global namespace object used within a web worker.
-   * `window` is the browser's global namespace object (I reorganized this to check the reference on that second)
-   * `global` is Node's global namespace object. https://nodejs.org/api/globals.html#globals_global
-   *
-   * loading in this order should allow workers, which are most common, then browser,
-   * then Node to grab the reference to fetch correctly.
-   */
-  const fetch =
-    typeof self !== 'undefined'
-      ? self?.fetch
-      : typeof window !== 'undefined'
-        ? window?.fetch
-        : typeof global !== 'undefined'
-          ? global?.fetch
-          : undefined;
-
   const writeFile = async (p: string, data: string) => writeFileSync(p, data);
 
   const tmpDirSync = () => '/.tmp';
@@ -556,6 +539,9 @@ export const createSystem = (c?: { logger?: Logger }): CompilerSystem => {
     return hashHex;
   };
 
+  const generateFileHash = async (filePath: string, hashLength: number) =>
+    generateContentHash(readFileSync(filePath), hashLength);
+
   const copy = async (copyTasks: Required<CopyTask>[], srcDir: string) => {
     const results: CopyResults = {
       diagnostics: [],
@@ -564,10 +550,6 @@ export const createSystem = (c?: { logger?: Logger }): CompilerSystem => {
     };
     logger.info('todo, copy task', copyTasks.length, srcDir);
     return results;
-  };
-
-  const getEnvironmentVar = (key: string) => {
-    return process?.env[key];
   };
 
   const getLocalModulePath = (opts: { rootDir: string; moduleId: string; path: string }) =>
@@ -590,13 +572,14 @@ export const createSystem = (c?: { logger?: Logger }): CompilerSystem => {
     access,
     accessSync,
     addDestroy,
+    checkVersion: async () => noop,
     copyFile,
     createDir,
     createDirSync,
     homeDir,
     isTTY,
-    getEnvironmentVar,
     destroy,
+    dynamicImport: (p) => import(p),
     encodeToBase64,
     exit: async (exitCode) => logger.warn(`exit ${exitCode}`),
     getCurrentDirectory,
@@ -607,6 +590,7 @@ export const createSystem = (c?: { logger?: Logger }): CompilerSystem => {
     isSymbolicLink,
     nextTick,
     normalizePath: normalize,
+    onProcessInterrupt: noop,
     platformPath: path,
     readDir,
     readDirSync,
@@ -616,7 +600,6 @@ export const createSystem = (c?: { logger?: Logger }): CompilerSystem => {
     realpathSync,
     removeDestroy,
     rename,
-    fetch,
     resolvePath,
     removeDir,
     removeDirSync,
@@ -631,6 +614,7 @@ export const createSystem = (c?: { logger?: Logger }): CompilerSystem => {
     writeFile,
     writeFileSync,
     generateContentHash,
+    generateFileHash,
     // no threading when we're running in-memory
     createWorkerController: null,
     details: {

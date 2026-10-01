@@ -67,6 +67,6 @@ const flags = createConfigFlags({ task: 'build', dev: true });
 await runTask(coreCompiler, config, 'build', sys, flags);
 ```
 
-Valid `task` values: `'build'` | `'docs'` | `'generate'` | `'serve'` | `'prerender'` | `'info'` | `'migrate'` | `'init'` | `'add'` | `'telemetry'`
+Valid `task` values: `'build'` | `'docs'` | `'generate'` | `'serve'` | `'prerender'` | `'info'` | `'migrate'` | `'init'` | `'add'`
 
 `flags` is optional - if omitted, defaults are derived from the task.

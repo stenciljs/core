@@ -3,7 +3,6 @@ import type * as d from '@stencil/core';
 
 import { STANDALONE } from '../../../utils';
 import { addOutputTargetCoreRuntimeApi, HTML_ELEMENT, RUNTIME_APIS } from '../core-runtime-apis';
-import { transformHostData } from '../host-data-transform';
 import { addReactivePropHandlers } from '../reactive-handler-meta-transform';
 import { removeStaticMetaProperties } from '../remove-static-meta-properties';
 import { foundSuper, updateConstructor } from '../transform-utils';
@@ -212,8 +211,6 @@ const updateNativeHostComponentMembers = (
   if (transformOpts.style === 'static') {
     addNativeStaticStyle(classMembers, cmp, buildCtx);
   }
-
-  transformHostData(classMembers, moduleFile);
 
   return classMembers;
 };

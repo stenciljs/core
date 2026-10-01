@@ -1,3 +1,4 @@
+import { basename } from 'path';
 import type * as d from '@stencil/core';
 
 import { join } from '../utils';
@@ -90,7 +91,7 @@ export class Cache implements d.Cache {
   }
 
   async createKey(domain: string, ...args: any[]) {
-    if (!this.config.enableCache || !this.sys.generateContentHash) {
+    if (!this.config.enableCache) {
       return domain + Math.random() * 9999999;
     }
 
@@ -103,55 +104,50 @@ export class Cache implements d.Cache {
       this.skip = false;
       this.failed = 0;
       await this.cacheFs.commit();
-      await this.clearExpiredCache();
+      await this.pruneExpired();
     }
+  }
+
+  /**
+   * Remove cache files last written over a week ago. Runs at most once a day,
+   * throttled by the mtime of a marker file in the cache dir.
+   */
+  private async pruneExpired() {
+    if (!this.buildCacheDir) {
+      return;
+    }
+
+    const now = Date.now();
+    const markerPath = join(this.buildCacheDir, PRUNE_MARKER);
+    const marker = await this.sys.stat(markerPath);
+    if (marker.isFile && marker.mtimeMs && now - marker.mtimeMs < ONE_DAY) {
+      return;
+    }
+
+    const filePaths = await this.sys.readDir(this.buildCacheDir);
+    let removed = 0;
+    await Promise.all(
+      filePaths.map(async (filePath) => {
+        if (basename(filePath).startsWith('_')) {
+          return;
+        }
+        const { isFile, mtimeMs } = await this.sys.stat(filePath);
+        if (isFile && mtimeMs && now - mtimeMs > ONE_WEEK) {
+          await this.sys.removeFile(filePath);
+          this.cacheFs.clearFileCache(filePath);
+          removed++;
+        }
+      }),
+    );
+
+    this.logger.debug(`cache prune: removed ${removed} of ${filePaths.length} files`);
+    await this.sys.writeFile(markerPath, '');
   }
 
   clear() {
     if (this.cacheFs != null) {
       this.cacheFs.clearCache();
     }
-  }
-
-  async clearExpiredCache() {
-    if (this.cacheFs == null || this.sys.cacheStorage == null) {
-      return;
-    }
-
-    const now = Date.now();
-
-    const lastClear = (await this.sys.cacheStorage.get(EXP_STORAGE_KEY)) as number;
-    if (lastClear != null) {
-      const diff = now - lastClear;
-      if (diff < ONE_DAY) {
-        return;
-      }
-
-      const fs = this.cacheFs.sys;
-      const cachedFileNames = await fs.readDir(this.buildCacheDir);
-      const cachedFilePaths = cachedFileNames.map((f) => join(this.buildCacheDir, f));
-
-      let totalCleared = 0;
-
-      const promises = cachedFilePaths.map(async (filePath) => {
-        const stat = await fs.stat(filePath);
-        const lastModified = stat.mtimeMs;
-
-        if (lastModified && now - lastModified > ONE_WEEK) {
-          await fs.removeFile(filePath);
-          totalCleared++;
-        }
-      });
-
-      await Promise.all(promises);
-
-      this.logger.debug(
-        `clearExpiredCache, cachedFileNames: ${cachedFileNames.length}, totalCleared: ${totalCleared}`,
-      );
-    }
-
-    this.logger.debug(`clearExpiredCache, set last clear`);
-    await this.sys.cacheStorage.set(EXP_STORAGE_KEY, now);
   }
 
   async clearDiskCache() {
@@ -179,7 +175,7 @@ export class Cache implements d.Cache {
 const MAX_FAILED = 100;
 const ONE_DAY = 1000 * 60 * 60 * 24;
 const ONE_WEEK = ONE_DAY * 7;
-const EXP_STORAGE_KEY = `last_clear_expired_cache`;
+const PRUNE_MARKER = '_last_prune.log';
 
 const CACHE_DIR_README = `# Stencil Cache Directory
 

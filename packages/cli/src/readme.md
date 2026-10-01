@@ -6,7 +6,7 @@ The command-line entry point for Stencil. Thin by design - loads `@stencil/core/
 
 - Parses CLI flags and dispatches to a task
 - Loads the compiler dynamically (`load-compiler.ts`) so the CLI itself stays small
-- Owns config discovery/merging, telemetry, migrations, and the `stencil init`/`stencil generate` wizard
+- Owns config discovery/merging, migrations, and the `stencil init`/`stencil generate` wizard
 
 ## Key Files
 
@@ -19,7 +19,7 @@ The command-line entry point for Stencil. Thin by design - loads `@stencil/core/
 | `find-config.ts`        | Locates `stencil.config.ts`                                     |
 | `load-compiler.ts`      | Dynamically loads `@stencil/core/compiler`                      |
 | `check-version.ts`      | npm version check / update notice                                |
-| `task-*.ts`             | One file per task (`build`, `serve`, `watch`, `generate`, `init`, `migrate`, `docs`, `prerender`, `add`, `info`, `help`, `telemetry`) |
+| `task-*.ts`             | One file per task (`build`, `serve`, `watch`, `generate`, `init`, `migrate`, `docs`, `prerender`, `add`, `info`, `help`) |
 
 ## Directory Structure
 
@@ -27,7 +27,6 @@ The command-line entry point for Stencil. Thin by design - loads `@stencil/core/
 | -------------- | ------------------------------------------------------------------- |
 | `wizard/`     | `stencil init` / `stencil generate` interactive prompts (clack-based) |
 | `migrations/` | `stencil migrate` codemod rules - one file per breaking change      |
-| `telemetry/`  | Anonymous usage telemetry                                           |
 
 ## Wizard
 

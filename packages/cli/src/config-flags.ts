@@ -6,7 +6,6 @@ import type { TaskCommand } from './types';
  * All the Boolean options supported by the Stencil CLI
  */
 export const BOOLEAN_CLI_FLAGS = [
-  'build',
   'cache',
   'ci',
   'debug',

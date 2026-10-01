@@ -1,20 +1,11 @@
 import type * as d from '@stencil/core/compiler';
 
-import { ConfigFlags } from './config-flags';
-import { taskTelemetry } from './task-telemetry';
-
 /**
  * Entrypoint for the Help task, providing Stencil usage context to the user
- * @param flags configuration flags provided to Stencil when a task was call (either this task or a task that invokes
- * telemetry)
  * @param logger a logging implementation to log the results out to the user
  * @param sys the abstraction for interfacing with the operating system
  */
-export const taskHelp = async (
-  flags: ConfigFlags,
-  logger: d.Logger,
-  sys: d.CompilerSystem,
-): Promise<void> => {
+export const taskHelp = async (logger: d.Logger, sys: d.CompilerSystem): Promise<void> => {
   const prompt = logger.dim(sys.details?.platform === 'windows' ? '>' : '$');
 
   console.log(`
@@ -90,8 +81,6 @@ export const taskHelp = async (
 
 `);
 
-  await taskTelemetry(flags, sys, logger);
-
   console.log(`
   ${logger.bold('Examples:')}
 
@@ -101,6 +90,5 @@ export const taskHelp = async (
   ${prompt} ${logger.green('stencil build --prerender')}
   ${prompt} ${logger.green('stencil serve --root www')}
   ${prompt} ${logger.green('stencil migrate --dry-run')}
-  ${prompt} ${logger.green('stencil telemetry on')}
 `);
 };

@@ -1,6 +1,6 @@
 import { dirname } from 'node:path';
 import { ValidatedConfig } from '@stencil/core/compiler';
-import { hasError, isFunction, result, shouldIgnoreError } from '@stencil/core/compiler/utils';
+import { hasError, result, shouldIgnoreError } from '@stencil/core/compiler/utils';
 import type * as d from '@stencil/core/compiler';
 
 import { ConfigFlags, createConfigFlags } from './config-flags';
@@ -19,8 +19,6 @@ import { taskInit } from './task-init';
 import { taskMigrate } from './task-migrate';
 import { taskPrerender } from './task-prerender';
 import { taskServe } from './task-serve';
-import { taskTelemetry } from './task-telemetry';
-import { telemetryAction } from './telemetry/telemetry';
 import type { TaskCommand } from './types';
 
 /**
@@ -48,10 +46,6 @@ export const run = async (init: d.CliInitOptions) => {
       logger.enableColors(false);
     }
 
-    if (isFunction(sys.applyGlobalPatch)) {
-      sys.applyGlobalPatch(sys.getCurrentDirectory());
-    }
-
     if ((task && task === 'version') || flags.version) {
       // we need to load the compiler here to get the version, but we don't
       // want to load it in the case that we're going to just log the help
@@ -63,7 +57,7 @@ export const run = async (init: d.CliInitOptions) => {
     }
 
     if (!task || task === 'help' || flags.help) {
-      await taskHelp(createConfigFlags({ task: 'help', args }), logger, sys);
+      await taskHelp(logger, sys);
 
       return;
     }
@@ -162,13 +156,7 @@ export const run = async (init: d.CliInitOptions) => {
       }
     }
 
-    if (isFunction(sys.applyGlobalPatch)) {
-      sys.applyGlobalPatch(validated.config.rootDir);
-    }
-
-    await telemetryAction(sys, validated.config, coreCompiler, flags, async () => {
-      await runTask(coreCompiler, validated.config, task, sys, flags);
-    });
+    await runTask(coreCompiler, validated.config, task, sys, flags);
   } catch (e) {
     if (!shouldIgnoreError(e)) {
       const details = `${logger.getLevel() === 'debug' && e instanceof Error ? e.stack : ''}`;
@@ -226,7 +214,7 @@ export const runTask = async (
       break;
 
     case 'help':
-      await taskHelp(resolvedFlags, strictConfig.logger, sys);
+      await taskHelp(strictConfig.logger, sys);
       break;
 
     case 'init':
@@ -245,10 +233,6 @@ export const runTask = async (
       await taskServe(strictConfig, resolvedFlags);
       break;
 
-    case 'telemetry':
-      await taskTelemetry(resolvedFlags, sys, strictConfig.logger);
-      break;
-
     case 'version':
       console.log(coreCompiler.version);
       break;
@@ -257,7 +241,7 @@ export const runTask = async (
       strictConfig.logger.error(
         `${strictConfig.logger.emoji('❌ ')}Invalid stencil command, please see the options below:`,
       );
-      await taskHelp(resolvedFlags, strictConfig.logger, sys);
+      await taskHelp(strictConfig.logger, sys);
       return configWithFlags.sys.exit(1);
   }
 };

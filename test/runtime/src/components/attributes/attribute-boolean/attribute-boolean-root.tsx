@@ -1,4 +1,4 @@
-import { Component, Element, Method, State } from '@stencil/core';
+import { Component, Element, Host, Method, State } from '@stencil/core';
 
 @Component({
   tag: 'attribute-boolean-root',
@@ -13,32 +13,28 @@ export class AttributeBooleanRoot {
     this.state = !this.state;
   }
 
-  hostData() {
-    return {
-      readonly: this.state,
-      tappable: this.state,
-      str: this.state ? 'hello' : null,
-      'aria-hidden': `${this.state}`,
-
-      fixedtrue: 'true',
-      fixedfalse: 'false',
-
-      'no-appear': undefined as any,
-      'no-appear2': false,
-    };
-  }
-
   render() {
     const AttributeBoolean = 'attribute-boolean' as any;
-    return [
-      <button onClick={this.toggleState.bind(this)}>Toggle attributes</button>,
-      <AttributeBoolean
-        boolState={this.state}
-        strState={this.state}
-        noreflect={this.state}
-        attr:tappable={this.state}
+    return (
+      <Host
+        readonly={this.state}
+        tappable={this.state}
+        str={this.state ? 'hello' : null}
         aria-hidden={`${this.state}`}
-      />,
-    ];
+        fixedtrue='true'
+        fixedfalse='false'
+        no-appear={undefined}
+        no-appear2={false}
+      >
+        <button onClick={this.toggleState.bind(this)}>Toggle attributes</button>
+        <AttributeBoolean
+          boolState={this.state}
+          strState={this.state}
+          noreflect={this.state}
+          attr:tappable={this.state}
+          aria-hidden={`${this.state}`}
+        />
+      </Host>
+    );
   }
 }

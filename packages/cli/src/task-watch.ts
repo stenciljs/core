@@ -21,10 +21,6 @@ export const taskWatch = async (
     const compiler = await coreCompiler.createCompiler(config);
     const watcher = await compiler.createWatcher();
 
-    if (!config.sys.onProcessInterrupt) {
-      throw new Error(`Environment doesn't provide required function: onProcessInterrupt`);
-    }
-
     if (flags.serve) {
       const { start } = await import('@stencil/dev-server');
       devServer = await start(config.devServer, config.logger, watcher);

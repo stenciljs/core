@@ -89,7 +89,6 @@ export function createNodeSys(c: { process?: any; logger?: Logger } = {}): Compi
       opts.window.Request = global.Request;
       opts.window.Response = global.Response;
     },
-    fetch: global.fetch,
     checkVersion,
     copyFile(src, dst) {
       return new Promise((resolve) => {
@@ -175,9 +174,6 @@ export function createNodeSys(c: { process?: any; logger?: Logger } = {}): Compi
     },
     getCompilerExecutingPath() {
       return compilerExecutingPath;
-    },
-    getEnvironmentVar(key) {
-      return process.env[key];
     },
     getLocalModulePath() {
       return null;

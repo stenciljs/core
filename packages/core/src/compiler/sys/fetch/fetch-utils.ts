@@ -1,27 +1,5 @@
-import type * as d from '@stencil/core';
-
-import { isFunction, isTsFile, isTsxFile, normalizePath } from '../../../utils';
+import { isTsFile, isTsxFile, normalizePath } from '../../../utils';
 import { isCommonDirModuleFile } from '../resolve/resolve-utils';
-
-/**
- * A fetch wrapper which dispatches to `sys.fetch` if present, and otherwise
- * uses `global.fetch`.
- *
- * @param sys a compiler system object
- * @param input a `RequestInfo` object
- * @param init an optional `RequestInit` object
- * @returns a Promise wrapping a response
- */
-export const httpFetch = (
-  sys: d.CompilerSystem,
-  input: RequestInfo,
-  init?: RequestInit,
-): Promise<Response> => {
-  if (sys && isFunction(sys.fetch)) {
-    return sys.fetch(input, init);
-  }
-  return fetch(input, init);
-};
 
 export const packageVersions = new Map<string, string>();
 export const known404Urls = new Set<string>();

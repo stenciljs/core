@@ -13,5 +13,4 @@ export type TaskCommand =
   | 'migrate'
   | 'prerender'
   | 'serve'
-  | 'telemetry'
   | 'version';
