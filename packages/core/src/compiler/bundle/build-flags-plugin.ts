@@ -62,7 +62,7 @@ export const getFoldableBuildFlags = (
 
 /**
  * Replaces `Build.<flag>` reads (where `Build` is imported from `@stencil/core`) with literals,
- * letting bundlers / minifiers drop dead branches. Neither oxc nor terser can fold a property
+ * letting bundlers / minify-ers drop dead branches. Neither oxc nor terser can fold a property
  * read on the runtime's `Build` object.
  *
  * e.g. with `{ isServer: false }`:
