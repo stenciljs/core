@@ -1,0 +1,16 @@
+:host {
+  display: block;
+  height: 100%;
+  border-radius: 0 inherit inherit 0;
+  overflow: clip;
+}
+
+iframe {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-left: 1px solid #333;
+  background: #fff;
+}

@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  /**
+   * Exclude the test where we do type assertions using the hydrate module
+   * which doesn't exist at build time.
+   */
+  "exclude": [
+    "src/ssr-declarative-shadow-dom/test.e2e.ts",
+    "src/ssr-complex-properties/test.e2e.ts",
+    "src/ssr-serialize-deserialize/test.e2e.ts",
+    "src/ssr-hydration/test.e2e.ts",
+    "src/ssr-scoped-hydration/scoped-hydration.e2e.ts"
+  ]
+}

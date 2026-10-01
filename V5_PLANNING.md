@@ -1,0 +1,946 @@
+# Stencil v5 Planning Document
+
+> **Living Document** - Track progress on v5 modernization
+
+## Vision
+
+Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simplify architecture, streamline user experience.
+
+---
+
+## Major Goals
+
+### 1. 🧪 Remove Integrated Testing
+**Status:** 📋 Replacement packages ready - need to remove integrated testing
+- `@stencil/vitest` + `@stencil/playwright` audited and ready
+- Still need to migrate Stencil's internal tests from jest to vitest
+- Still migrating integration / e2e test suites (in `packages/core/tests/`)
+
+### 2. 🗑️ Update / Remove Legacy Features
+**Status:** In Progress
+- ES5 builds → ✅ REMOVED
+- Internal CommonJS → ✅ REMOVED (Pure ESM, Node 18+)
+- Ancient polyfills → ✅ REMOVED
+- In-browser compilation → REMOVE
+- `*-sys` in-memory file-system → Replace with TypeScript incremental APIs (see Tasks)
+- Hand-crafted dev server / HMR → modernize as `@stencil/dev-server`
+
+### 3. 🔧 Build System
+**Status:** ✅ Complete
+- **tsdown** for all package builds (single config per package)
+- **pnpm -r** for build orchestration (no Turborepo)
+
+### 4. 📦 Mono-repo Restructure
+**Status:** ✅ Complete (dev-server pending)
+- `packages/core/` (@stencil/core), `packages/cli/` (@stencil/cli), `packages/mock-doc/` (@stencil/mock-doc)
+
+### 5. 🔗 CLI/Core Dependency Architecture
+**Status:** ✅ Complete
+- Broke circular dependency between CLI and Core. Core standalone, CLI thin.
+
+### 6. Update Public Build Chain
+**Status:** 📋 Planned
+- Migrate from rollup to rolldown
+- Potentially move from typescript to tsgo
+
+### 7. 📤 Output Target Modernization
+**Status:** ✅ Complete
+- Renamed output targets for clarity (`dist` → `loader-bundle`, `dist-custom-elements` → `standalone`, etc.)
+- Elevated sub-outputs to first-class citizens (`types`, `collection`)
+- See Breaking Changes for full details
+
+### 8. 📁 Global Styles & Assets Modernization
+**Status:** ✅ Complete
+- New `global-style` and `assets` output targets (first-class, auto-generated)
+- Unified `dist/assets/` location shared by all outputs
+- See Breaking Changes for full details
+
+### 9. 🏷️ Release Management: Changesets
+**Status:** 📋 Planned
+- Adopt [Changesets](https://github.com/changesets/changesets) for monorepo release management with lockstep versioning
+
+---
+
+## Breaking Changes
+
+- `@stencil/core/internal` → `@stencil/core/runtime`
+- `@stencil/core/internal/client` → `@stencil/core/runtime/client`
+- `@stencil/core/internal/hydrate` → `@stencil/core/runtime/server`
+- `@stencil/core/cli` → `@stencil/cli`
+- `@stencil/core/dev-server` → `@stencil/dev-server`
+- `openBrowser` now defaults to `false`. Override with `--open` flag or `openBrowser: true` in config.
+- **Output target renames:**
+  - `dist` → `loader-bundle` (default dir: `dist/loader-bundle/`)
+  - `dist-custom-elements` → `standalone` (default dir: `dist/standalone/`)
+  - `dist-hydrate-script` → `ssr` (default dir: `dist/ssr/`)
+  - `dist-collection` (sub-output) → `collection` (first-class output, default dir: `dist/collection/`, auto-generated in prod)
+  - `dist-types` (sub-output) → `types` (first-class output, default dir: `dist/types/`, auto-generated in prod)
+  - `collectionDir` and `typesDir` config options removed from `loader-bundle` config
+  - Run `stencil migrate` to automatically update your config
+- `loader-bundle` and `ssr` output targets no longer generate CJS bundles by default. Add `cjs: true` to your output target config to restore CJS output.
+- **`streamToString()` return type changed** from Node.js `Readable` to web-standard `ReadableStream<string>`. Works in Node 22+, Cloudflare Workers, Deno, Bun, and all WinterCG runtimes.
+- `ssr` no longer generates a `package.json` file. Use `exports` in your library's main `package.json` to expose the SSR script.
+- **ES5 build output removed.** The `buildEs5` config option, `--es5` CLI flag, and all ES5-related output have been removed. Stencil now targets ES2017+ only. IE11 and Edge 18 and below are no longer supported.
+- **@Component decorator `shadow`, `scoped`, and `formAssociated` properties removed.** Use the new unified `encapsulation` property instead:
+  - `shadow: true` → `encapsulation: { type: 'shadow' }`
+  - `shadow: { delegatesFocus: true }` → `encapsulation: { type: 'shadow', delegatesFocus: true }`
+  - `scoped: true` → `encapsulation: { type: 'scoped' }`
+  - Default (no encapsulation) → `encapsulation: { type: 'none' }` (optional, 'none' is default)
+  - **New feature:** `encapsulation: { type: 'shadow', mode: 'closed' }` enables closed shadow DOM
+  - **New feature:** Per-component slot patches via `encapsulation: { type: 'scoped', patches: ['children', 'clone', 'insert'] }`
+  - `formAssociated: true` → Use `@AttachInternals()` decorator instead (auto-sets `formAssociated: true`)
+  - To use `@AttachInternals` without form association: `@AttachInternals({ formAssociated: false })`
+  - Run `stencil migrate --dry-run` to preview automatic migration, or `stencil migrate` to apply changes
+- **`buildDist` and `buildDocs` config options removed.** Use `skipInDev` on individual output targets for granular control.
+- **`docs-readme` is no longer auto-injected on production builds.** It previously had a v4 behavior gap where it was implicitly added whenever `!config.devMode` (later carried into v5's `buildDocs`/`buildDist` removal, which briefly made it unconditional on every non-dev build with no opt-out). It's now purely `outputTargets`-driven, consistent with every other docs target (`docs-json`, `docs-custom`, `docs-vscode`, `docs-custom-elements-manifest`, `docs-agent-skill`) — nothing generates unless `{ type: 'docs-readme' }` is explicitly declared. `stencil docs` / `--docs` remain a fast, docs-only rebuild (filters `outputTargets`, sets `skipInDev: false`) but no longer force-create a target that isn't configured. Fixed in `packages/core/src/compiler/config/outputs/validate-docs.ts`.
+- **`--esm` CLI flag removed.** Configure `skipInDev` on output targets instead.
+- **`--prod` CLI flag removed.** Production is the default. Use `--dev` to opt into a development build.
+- **`devMode` config option removed from `stencil.config.ts`.** Build mode is now exclusively controlled by the `--dev` CLI flag.
+- **`isPrimaryPackageOutputTarget` removed from output targets.** Package.json validation now auto-detects based on configured outputs.
+- **`validatePrimaryPackageOutputTarget` config option renamed to `validatePackageJson`.**
+- **Export maps generation uses smart defaults.** `generateExportMaps` defaults to `true` for "no-config" projects (no `stencil.config.ts`/`.js` found - `loadConfig` sets `configPath: null` in that case) and `false` whenever a config file exists, so existing projects aren't silently opted in; set it explicitly to override either way. Implemented in [validate-config.ts](packages/core/src/compiler/config/validate-config.ts). Priority: `loader-bundle` > `standalone` for the root export. Types always come from the `types` output target. Export map generation is skipped entirely on dev builds (`config.devMode`) regardless of the `generateExportMaps` value, since it exists to keep the published `package.json` accurate and has no reason to run on every watch rebuild. It shells out to `npm pkg set`; if that fails (e.g. no `npm` binary on PATH), the build emits one warning and skips the rest of export map generation rather than failing the build. Without a `src/index.ts`, the root `"."` export falls back to the loader-bundle's `esm/loader.js` (and matching `loader.d.ts`) instead of the auto-generated, effectively-empty `index.js`/`index.d.ts` - mirrors the fallback `validatePackageJson`'s `module`/`types` suggestions already used. Same fallback logic in [validate-package-json.ts](packages/core/src/compiler/config/validate-package-json.ts) and [write-export-maps.ts](packages/core/src/compiler/build/write-export-maps.ts). Note: the "smart default" (don't clobber an existing valid-looking root export) means a project that already generated the old, wrong `index.js` value will keep it on rebuild - only a fresh/cleared `exports["."]` picks up the corrected default.
+- **`collection` field in package.json renamed to `collection`.**
+- **Output file extensions modernized:**
+  - ESM files now use `.js` extension (was `.esm.js`)
+  - CJS files now use `.cjs` extension (was `.cjs.js`)
+  - Backwards compat: forwarding module `<namespace>.esm.js` generated for existing CDN consumers
+- **Global styles and assets modernized:**
+  - New `global-style` output target (first-class, auto-generated when `globalStyle` config exists)
+  - New `assets` output target (first-class, auto-generated when components have `assetsDirs`)
+  - Unified location: `dist/assets/` for both global styles and component assets
+  - `copyAssets` option removed from `loader-bundle` and `www` output targets
+  - `extras.addGlobalStyleToComponents` removed - use `inject` option on `global-style` output target instead:
+    - `inject: 'none'` - don't inject, load stylesheet externally
+    - `inject: 'client'` - inject into components on client only
+    - `inject: 'all'` - inject into components on both client and SSR
+  - Auto-generated `global-style` (from `globalStyle` config) defaults to `inject: 'client'` (preserves v4 behavior)
+  - Explicitly configured `global-style` outputs default to `inject: 'none'`
+- **`standalone` output target: `externalRuntime` now defaults to `false`**. The runtime is bundled as a shared local chunk rather than kept as an external `@stencil/core/runtime/client` import. Set `externalRuntime: true` if you need multiple Stencil component libraries on the same page to share a single runtime instance (e.g., for `setNonce`/`setTagTransformer` to propagate across libraries).
+- **`esmLoaderPath` config option renamed to `loaderPath`** in `loader-bundle` output target.
+- **`hashFileNames` and `hashedFileNameLength` moved from top-level config to `loader-bundle` and `www` output targets.** Only these two targets serve bundles directly in the browser. Run `stencil migrate` to remove them from the top-level config, then add to your output targets if non-default values are needed.
+- **`suppressReservedPublicNameWarnings` / `suppressReservedEventNameWarnings` moved into `compat` and renamed** to `compat.suppressPublicNameWarnings` / `compat.suppressEventNameWarnings`. Run `stencil migrate` to update your config automatically.
+- **`componentShouldUpdate` signature changed from `(newVal, oldVal, propName)` to a single batched `(changes)` argument**, where `changes` is a `{ [propName]: { newVal, oldVal } }` map of every `@Prop`/`@State` that changed since the last render. It now fires once per render cycle instead of once per changed member (fixes [#6759](https://github.com/stenciljs/core/issues/6759) — v4.42's per-prop firing multiplied lifecycle cost by prop count on every update).
+- **Ambient asset module declarations (`*.css`, `*.svg`, `*.txt`, `*.frag`, `*.vert`) now require a `?stencil` suffix on the import specifier**, e.g. `import styles from './my-styles.css?stencil'`. The old bare `declare module "*.css"` was a global ambient type shipped by `@stencil/core`, which could silently clash with other packages in a monorepo declaring their own (differently-shaped) `*.css` module type. The `?stencil` marker disambiguates it, following the same query-param convention already used for `*?worker` and `*?format=url|text`. Runtime bundling of bare (non-suffixed) asset imports still works unchanged — only the TS ambient type requires the suffix. Run `stencil migrate` to automatically append `?stencil` to existing raw asset imports (rule: `css-import-query-param`).
+- **`@stencil/core/compiler` no longer wildcard-exports `declarations/stencil-private.ts`.** That file mixes genuinely compiler-facing types with runtime-internal ones (`HostElement`, `HostRef`, `RenderNode`, `PlatformRuntime`, `VNodeProdData`, SSR/worker internals), and the old `export *` in `compiler/index.ts` leaked all of it onto the public API. Now only the subset actually consumed by `@stencil/cli`/`@stencil/dev-server`/`@stencil/unplugin` is re-exported by name: `ComponentCompilerMeta`, `ComponentCompilerTypeReferences`, `LazyBundlesRuntimeData`, `PackageJsonData`, `PrintLine`, `SsrResults`. If you need the public host-element type for `componentOnReady()`, use `HTMLStencilElement` from `@stencil/core/runtime` instead — it's the intentionally-narrow public counterpart to the internal `HostElement`.
+- **Default JS minifier changed from `terser` to `oxc`** when `minifyJs` is enabled. Functionally equivalent output, but oxc currently produces somewhat larger bundles than terser (see `jsMinifier` in New Features). Set `jsMinifier: 'terser'` to keep the previous minifier/output size.
+- **Boolean props follow the HTML spec: a `"false"` attribute value is `true`.** Presence means `true`, absence means `false`, for every component (previously only form-associated ones). `parsePropertyValue()` lost its `isFormAssociated` param; `attributeChangedCallback` warns in dev builds on `"false"`. Opt-out for string-boolean sources is an `@AttrDeserialize()`; see BREAKING_CHANGES.md.
+- **`hostData()` removed** (deprecated since Stencil One) — use `<Host>`. Now silently ignored; no build diagnostic.
+- **Telemetry removed** — `stencil telemetry` task and `~/.ionic/config.json` handling gone.
+- **`CompilerSystem` tightened** — removed `applyGlobalPatch`, `cacheStorage`, `fetch`, `getEnvironmentVar`, `parseYarnLockFile`; made `checkVersion`, `copy`, `details`, `dynamicImport`, `generateContentHash`, `generateFileHash`, `onProcessInterrupt` required.
+
+---
+
+## New Features
+
+- **`global-style` output target now supports explicit `input`** - specify CSS source file directly on output target instead of using `globalStyle` config
+- **`global-style` output target now supports `fileName`** - customize output filename
+- **`global-style` output target now supports `inject`** - control whether styles are injected into component shadow DOMs (`'none'`, `'client'`, `'all'`)
+- **Multiple `global-style` outputs supported** - build separate CSS bundles from different input files, each with independent `inject` settings
+- **`www` can now use standalone loader**
+- **`@Component` now supports `globalStyleUrl` and `globalStyle`**  co-locate document-level styles with the component. Styles are collected at build time and injected wherever `@import "stencil-component-globals"` appears in a global stylesheet. Works for all encapsulation types (shadow, scoped, none). No mode variants  CSS handles runtime variants via selectors or custom properties. Changes to `globalStyleUrl` files invalidate the global style build cache and trigger HMR correctly.
+- **`@import "stencil-hydrate"` virtual placeholder**  add to any `global-style` input to inject static FOUC-prevention CSS at build time instead of relying on the dynamic `<style>` tag inserted by the loader. The compiler replaces the placeholder with the sorted component selectors + configured hydration CSS (e.g. `my-cmp,other-cmp{visibility:hidden}.hydrated{visibility:inherit}`). When detected, `BUILD.staticHydrationStyles = true` suppresses the loader's dynamic injection. Without an explicit import, the hydrate CSS **follows its anchor**: if the build has component `globalStyle`/`globalStyleUrl`s (anchor: `stencil-component-globals`) or else CSS-only components (anchor: `stencil-css-components`), consumers already have to load the stylesheet holding that CSS, so the hydrate CSS goes immediately before it - unwrapped, outside the anchor import's modifiers - and the loader stops injecting. That's before an explicit anchor `@import` in an input (`insertBeforeStencilImport`, gated by `isHydratePlacedExplicitly` across all inputs), or first in the auto-placed CSS. No anchor: the loader keeps injecting at runtime ("one `<script>` does it all"), except `standalone` builds, which have no loader and get it auto-placed. Both anchor features are new in v5, so no v4 project changes behaviour.
+- **`stencil-globals` renamed to `stencil-component-globals`** (hard break during the beta, no alias) - says what it holds: CSS from `@Component({ globalStyle / globalStyleUrl })`.
+- **Auto-placed `stencil-*` CSS** (`compiler/output-targets/output-stencil-css.ts`) - any of `stencil-hydrate` (when following its anchor, or for a `standalone` output - see above) → `stencil-component-globals` → `stencil-css-components` that no `global-style` input imports explicitly is placed automatically: with **no** `global-style` output it's written to `{fsNamespace}.css` in the assets dir (+ `www/build/`; www-only projects get only the www copy); with **exactly one** it's prepended to that output (user globals win the cascade); with **several** it's a build error per un-imported part, telling the user to add the `@import` to the right stylesheet. No loader-bundle copies. Replaces standalone's old `stencil-hydrate.css`. HMR rides the `globalStylesUpdated` channel (keyed by the file it lands in); `CompilerBuildResults.globalStyleFiles` lists the generated `{fsNamespace}.css` when there's no `global-style` output to hold it. Explicit-import detection (here and for the lazy build's `staticHydrationStyles`) reads what `buildGlobalStyleFromInput` recorded from each input's *post-preprocessing* CSS (`compilerCtx.globalStyleVirtualImports`), so imports inside partials count and detection can't disagree with resolution. Import matching accepts every form CSS allows or a preprocessor emits (quoted or not, `url()`, no space after `@import` as in compressed Sass). Preprocessors treat a bare `@import "stencil-*"` as their own import and fail; core appends a hint to that error (`plugin.ts` → `addStencilVirtualImportHints`): `@import url("stencil-*")` for Sass, `@import (css) "stencil-*"` for Less, and for `postcss-import` - which resolves *every* form - its `filter: (path) => !path.startsWith('stencil-')` option. Auto-placed CSS is run through `optimizeStyleCss` like explicitly imported CSS. E2E: `test/build/global-style` is a scenario matrix (`stencil.config.<scenario>.ts`, run by `validate.js`) covering explicit / none / single-implicit / multi-missing / multi-split placement and Sass (`@stencil/sass`), Less (`@stencil-community/less`) and PostCSS (`@stencil-community/postcss` + `postcss-import`), each with a failing "bare import" counterpart; `test/special-config/no-config` covers the single-output auto-placement in the dev preview.
+- **`@import "stencil-component-globals"` / `@import "stencil-hydrate"` now support standard `@import` modifiers** - trailing `layer(name)`, `supports(...)`, and media-query conditions are parsed off the import and used to wrap the injected CSS, e.g. `@import "stencil-component-globals" layer(init);` → `@layer init { ...collected global styles... }`, or `@import "stencil-hydrate" supports(display: grid) (min-width: 400px);` → nested `@supports`/`@media` wrapping. Implemented in `compiler/style/component-global-styles.ts` + `compiler/style/style-utils.ts`.
+- **`loader-bundle` now supports `externalRuntime`**  set `externalRuntime: true` on the `loader-bundle` output target to mark `@stencil/core` as an external dependency in the ESM/CJS distribution output. Only affects the bundler variant; the browser/CDN build always includes the runtime. Useful when consumers already depend on `@stencil/core` and want to avoid bundling a second copy.
+- **setTagTransformer** - is now exported by default from your bundle entry point (same as `setNonce`), so library authors no longer need to manually re-export it from their `index.ts`. 
+- **Scoped Custom Element Registries** - always available, no config flag required. Pass a `CustomElementRegistry` instance and Stencil defines all components in it instead of `window.customElements`. What you do with that registry (attaching it to shadow roots, scoped DOM subtrees, etc.) is up to you.
+  - **Standalone per-component**: `defineCustomElement({ registry })` - stamps `._registry` on the class and registers in the scoped registry.
+  - **Standalone auto-loader / lazy loader**: pre-configure with `setRegistry(registry)` before the bundle loads. All components will be defined in the provided registry.
+  - **Shadow components**: `attachShadow({ customElementRegistry: registry })` is set automatically so nested components inside a shadow root resolve from the same registry.
+
+  Requires native SCER support (Chrome ≥ 100, Safari ≥ 2025-01) or the `@webcomponents/scoped-custom-element-registry` polyfill. Example:
+  ```js
+  import { setRegistry, defineCustomElements } from 'my-lib/loader';
+  const registry = new CustomElementRegistry();
+  setRegistry(registry);
+  await defineCustomElements();
+  ```
+- **`setTagTransformer` auto-exported** - now auto-injected into generated library entry points (same as `setNonce`), so library authors no longer need to manually re-export it from their `index.ts`.
+- **Signals** - opt-in signal-backed reactivity via `extras.signalBacking: true`. Zero API changes for component authors; `@State` and `@Prop` are backed by `@preact/signals-core` signals internally. New `@stencil/core/signals` subpath exports `signal`, `computed`, `effect`, `batch`, `untracked`, `@Effect()`, `getSignal<T>()`, and `STENCIL_SIGNALS_SYMBOL` for cross-framework interop. Signal values are valid JSX children and attributes - DOM updates bypass the vdom diff entirely. `@Prop`-only signals are exposed on the host element via `Symbol.for('stencil.signals')` for framework adapters without requiring a `@stencil/core` import.
+- **`stencil init` wizard** — ground-up redesign of project scaffolding and capability management. Context-aware: scaffolds a new project from the `component-starter` template, or runs in "add capabilities" mode on an existing project. Third-party packages participate by exporting a `wizard` object from a `stencil.wizard` entry declared in their `package.json` — no central registry. The `init` contribution's `run(context)` function owns its entire setup (prompts, peer dep installs, config file writes, example tests, script updates), matching the pattern used by `@nuxt/test-utils`. `generate` contributions add file templates and style extensions to `stencil generate`. `STENCIL_WIZARD_DEV=./path/to/wizard.js` injects a local wizard during development without publishing. Replaces `create-stencil` as the primary project bootstrapping path.
+  - **Monorepo-aware** — `stencil init`/`stencil add` correctly discover and install into the right workspace package rather than assuming a single-package repo root (`task-init.ts`, `task-add.ts`, `wizard/discover.ts`, `wizard/init/apply.ts`).
+  - **Preview file options** — the wizard can scaffold an `index.html` preview page when adding a `www` output, with configurable preview file options.
+- **`ReactiveController`/`ReactiveControllerHost`** — Lit-compatible reactive controller pattern, resurrected from [stenciljs/core#6548](https://github.com/stenciljs/core/pull/6548) as a `Mixin()` factory rather than a class to extend directly: `class MyComponent extends Mixin(ReactiveControllerHost) { private mouse = new MouseController(this); }`. The original PR got stuck because `ReactiveControllerHost` shipped as a plain class in `@stencil/core`, and the standalone/`dist-custom-elements` build never injects `extends HTMLElement` into a base class living outside the consumer's own TS program - the class-extension AST walk can't rewrite prebuilt `node_modules` code. As a mixin factory it's just a plain function; `Mixin()`'s own runtime already resolves its base to `HTMLElement` (standalone) or a no-op class (lazy) per `BUILD.lazyLoad`, so no compiler changes were needed for that half. Along the way, fixed two adjacent gaps this surfaced: (1) `class-extension.ts`'s extends-tree walker didn't follow re-export barrels (e.g. `@stencil/core`'s own `index.d.mts`), which meant a spurious "unable to find X in imported module" warning for every consumer of `Mixin(ReactiveControllerHost)` — now follows one level of `export { X } from '...'`; (2) `isPlain`'s fast-path optimization (which replaces `connectedCallback` outright with `this.textContent = this.render()`) didn't know a component with no own members/lifecycle could still inherit a `connectedCallback` from an unintrospectable external mixin — `isPlain` is now `false` for any class with an `extends` clause, resolvable or not. Includes `updateComplete: Promise<boolean>` on the host interface for structural compatibility with Lit's own `ReactiveControllerHost` type (resolves after the next render commits) - validated against a real third-party consumer, `@lit/context`'s `ContextProvider`/`ContextConsumer`, in `test/integration/lit-context`.
+- **`docs-readme` output target supports `customColumns`** — add extra columns to the generated Properties/Events tables, driven by arbitrary JSDoc tags (already captured unfiltered in `JsonDocsProp.docsTags`/`JsonDocsEvent.docsTags`). `content(member, cmp)` is invoked per row; columns are appended left-to-right after the built-in ones, in array order. Scoped to props/events only — methods render as prose per-signature (no per-row table to attach a column to), and slots/parts/custom-states/CSS custom-properties don't carry `docsTags` at all. New `DocsReadmeCustomColumn<T>` type in `stencil-public-compiler.ts`; rendering in `compiler/docs/readme/markdown-props.ts` and `markdown-events.ts`, wired through `compiler/docs/readme/output-docs.ts`.
+- **`docs-readme` generates multi-component sections within a single `readme.md`** — when a directory contains more than one component, the generated readme now gets one section per component instead of only documenting one (or overwriting). `compiler/docs/readme/index.ts` + `output-docs.ts`.
+- **`config.modes`** — declares the valid set of style "modes" (e.g. `ios`, `md`) used by mode-keyed `styleUrls`/`styles` in `@Component()`. When set, the compiler validates every mode key used in a component against this allowlist, catching typos at build time; entries can be marked `required` to enforce every mode-keyed component defines that mode. `modes?: (string | ModeConfig)[]` in `stencil-public-compiler.ts`; validation in `compiler/config/validate-config.ts` + `utils/validation.ts`.
+- **ShadowDOM `clonable`/`serializable`** — `encapsulation: { type: 'shadow', clonable: true }` preserves the shadow root across `Node.cloneNode(true)`; `encapsulation: { type: 'shadow', serializable: true }` marks it serializable for `Element.getHTML({ serializableShadowRoots: true })`. See Breaking Changes.
+- **`@stencil/mock-doc`: hand-rolled jQuery-style selector engine replaced with `nwsapi`** — the ~2400-line custom CSS selector matcher (`third-party/jquery.ts`) is gone; `querySelector`/`querySelectorAll`/`matches()` now run on [nwsapi](https://github.com/dperini/nwsapi) (also used by jsdom), a maintained, spec-conformant selector engine. Should mean broader/more correct CSS selector support in SSR and `newSpecPage` tests, though edge-case selector matching behavior may differ from the old implementation.
+- **`jsMinifier` config option** — choose the JS minifier used when `minifyJs` is enabled: `'oxc'` (default) or `'terser'`. `oxc` is the minifier built into rolldown (already a dependency) — much faster than terser, no extra dependency. Its compressor doesn't constant-fold object property reads on its own (e.g. `BUILD.isDev` from a `{ isDev: false }` literal), which Stencil's `BUILD.*` conditional-compilation flags rely on to strip dev-only/unused-feature code — without help, this cost ~5x runtime bundle size in testing (62KB vs 12KB on the `build-size/shadow` fixture). Fixed with a dedicated rolldown plugin (`compiler/bundle/build-conditionals-plugin.ts`) that pre-substitutes `BUILD.<flag>` reads with their literal values before minification runs (can't use rolldown's `transform.define` for this — `define` only replaces free/global identifiers, and `BUILD` is always a real import); gated to `jsMinifier: 'oxc'` only (terser already does this folding itself) and scoped by module `id` to Stencil's own resolved runtime files only, never the rest of a downstream app's bundle (the replacement is a plain text/regex match with no scope/binding awareness, so it must not run over arbitrary user or dependency code that might coincidentally have its own unrelated `BUILD`-named object). Handles the `BUILD`/`BUILD$1`/... aliasing that shows up in Stencil's own prebuilt runtime chunk, a predictable consequence of that chunk both re-exporting `BUILD` (for `@stencil/core/runtime/*` consumers) and separately importing it internally in ~30 files. Remaining known gap vs. terser: a few terser-only compress passes (`unsafe`, `inline`, multi-pass compression) have no oxc equivalent yet, so oxc output is still somewhat larger (e.g. ~14KB vs terser's ~12KB on the same fixture). The `test/build/build-size/*` bundle-size regression fixtures pin `jsMinifier: 'terser'` explicitly (their tight budgets were tuned for terser's output) - oxc's bundle size isn't separately regression-tested yet. New `minify-js-oxc.ts` alongside the renamed `minify-js-terser.ts` (was `minify-js.ts`); `optimizeModule()` in `compiler/optimize/optimize-module.ts` branches on the engine - terser still dispatches through the worker pool, oxc calls `minifySync` directly (synchronous native call, no thread-dispatch overhead). CodSpeed A/B benchmarking of the two engines is still outstanding.
+- **User-code `Build.*` flags are now built away** — previously `if (Build.isServer) { … }` in user code survived into browser bundles along with everything it imported (static ESM, CJS libs, even a dynamic `import()` chunk): neither oxc nor terser fold a property read on the runtime's `Build` object (terser only manages it when `Build` happens to land in the same chunk, and still keeps CJS wrappers and already-emitted chunks). `compiler/bundle/build-flags-plugin.ts` (`buildFlagsPlugin`) rewrites `Build.<flag>` reads of a `Build` imported from `@stencil/core` to literals inside rolldown, before tree-shaking, for every bundle and either minifier. Values must match each runtime's `Build`: `isBrowser`/`isServer` always (fixed per platform); `isDev`/`isTesting` only when the runtime is bundled (from `bundleOpts.conditionals`; SSR's `Build` hardcodes them `false`). With an external runtime they stay runtime reads - the consumer owns app-data (`virtual:app-data-external`). Shared `foldBuildFlags()` (exported from `@stencil/core/compiler`) is AST-based (handles aliased imports, skips shadowed / written bindings) and pads replacements to the original length so incoming sourcemaps stay valid (`map: null`). `@stencil/unplugin` uses it for `isBrowser`/`isServer` on `vite build` (non-SSR) and non-dev builds of other bundlers - never under Vite serve / Vitest, so `vi.mock`ing `Build` keeps working (`test/build-flag-mock.test.ts`).
+  - Related tidy-ups: `appDataPlugin.resolveId` had an always-true `platform === 'ssr' || STENCIL_APP_GLOBALS_ID` (since 2020), so every bundled runtime - standalone included - has always got per-build app-data; the unreachable "standalone uses default app-data" branch was removed (no behaviour change). `transpile()` / `transpileSync()` now reset the once-per-build deprecated `@Component` API error, which previously surfaced only for the first offending file per process (later ones silently compiled to no component under the unplugin).
+
+---
+
+## Tasks
+
+### 🚀 Zero-Config DX (In Progress)
+
+Stencil is now 90%+ design systems, not apps. The DX should reflect that - `npx stencil build --dev --serve` in a directory with some `.tsx` files should just work.
+
+**Key decisions:**
+- No `stencil.config.ts` required - the compiler already handles a missing config gracefully (`loadConfig` has a "which is fine" path)
+- Default output is `loader-bundle`, not `www` - reflects the design system use case
+- Namespace derives from `package.json#name` (scope-stripped) → directory name → `'App'` as last resort
+- `validateDistNamespace` removed - derivation makes the "don't use App" guard unnecessary
+
+**What's done:**
+- [x] Default output changed from `www` to `loader-bundle` (`outputs/index.ts`)
+- [x] `validate-www.ts` no longer handles defaulting - only validates explicit `www` outputs
+- [x] Namespace auto-derived from `package.json` / directory name (`validate-namespace.ts`)
+- [x] `validateDistNamespace` removed
+- [x] `src/global.{css,scss,sass}` auto-detected → `config.globalStyle` if not set
+- [x] `src/global.{ts,js}` auto-detected → `config.globalScript` if not set
+
+**What's next:**
+
+#### ~~Auto-generate `tsconfig.json`~~ ✅
+- The mechanism already existed behind an `initTsConfig` flag that was never activated
+- Removed the flag - tsconfig is now always auto-written when missing (`typescript-config.ts`)
+- Updated template for v5: `moduleResolution: bundler`, `lib: [dom, ES2017]`, `strict: true`, dropped `sourceMap`/`inlineSources` (Stencil overrides at runtime)
+- Target version check now uses `< ES2017` comparison instead of deprecated `ES3`/`ES5` enum values
+
+#### ~~Dev server: no `index.html` required~~ ✅
+Default behaviour for any project **without a `www` output** (no-config or explicit config using `loader-bundle`/`standalone`):
+
+- `/` → redirects to `/src/` if it exists, otherwise shows dir listing
+- **Dir has `.tsx` files + no `.html` files** → per-directory component preview (only components from that dir), with loader `<script>` and global CSS `<link>`
+- **Dir has an `.html` file** → dir listing as usual (user can click through to their own page)
+- `www` projects are unaffected - their server root is `www.appDir`, not the project root
+
+This is filesystem-driven with no config gating - any non-www project benefits automatically.
+
+---
+
+### 🎨 CSS-Only Components (Core implementation shipped, follow-ups pending)
+
+Pure-CSS custom-element definitions — a `.css` file under `srcDir` with a rule whose selector
+is a valid custom-element tag name, marked with an explicit `@component` JSDoc tag. No `.tsx`,
+no compiled JS, no shadow root, no `customElements.define()` - just a documented,
+type-checked tag with CSS custom properties and attribute-based variants. Fits components that
+are pure styling contracts (a common design-system pattern) without requiring a real Stencil
+component when there's no JS behavior to justify one.
+
+**Discovery**: zero-config, content-marker based - scans all `.css` under `srcDir`; a rule only
+counts as a definition if immediately preceded by a JSDoc comment containing an explicit
+`@component` tag (not just any comment over a hyphenated selector, to avoid false positives
+with existing conventions like `my-component.light-dom.css`).
+
+**Architecture**: synthetic metadata lives in a new, parallel `buildCtx.cssOnlyComponents`
+array, deliberately never merged into `buildCtx.components` - that array is read by many
+JS-codegen consumers (proxy generation, `define-custom-element`, output targets) that assume a
+real backing class. Keeping CSS-only components out of it entirely (rather than adding guards
+to every consumer) is what makes them automatically excluded from `stencil-hydrate`'s FOUC CSS
+and safe from every JS-emitting code path, and is what makes them a genuinely zero-JS,
+never-registered tag at runtime.
+
+**Parsing**: `postcss` + `postcss-selector-parser` + `postcss-nesting` (all three now
+dependencies of `@stencil/core`) - native CSS nesting (`my-badge { &[variant="danger"] {} }`)
+resolves correctly, not via hand-rolled regex. New module:
+`packages/core/src/compiler/css-components/`.
+
+**Docs model** (`@component`-marked JSDoc block, `packages/core/src/compiler/css-components/parse-css-component.ts`):
+- `@prop`/`@cssprop`/`@cssproperty --name: desc` (explicit) - `@cssprop`/`@cssproperty` are now
+  also recognized as synonyms for `@prop` on *real* components' style docs too (`style-docs.ts`),
+  not just CSS-only ones.
+- Auto-detected `--custom-property: value;` declarations, but only when preceded by their own
+  doc comment (undocumented properties stay undocumented, not silently exposed).
+- Native `@property --name { syntax; initial-value; inherits; }` at-rules (global per file,
+  applied to every component in it, lowest precedence).
+- `@attr {type} name - description` (explicit) - needed because presence-only attributes
+  (`[dismissible]`) have no literal value to infer a type from.
+- Auto-detected attribute-selector literal unions (`[variant="danger"]` →
+  `"danger" | (string & {})`, the `KnownClass` escape-hatch pattern from the button-typing spike
+  below) for attributes with no explicit `@attr`.
+- `@slot name - description` (explicit, `name` may be the literal keyword `default` for the
+  unnamed slot) plus auto-detected `[slot="x"]` selectors that are a *direct* child rule of the
+  component's own defining rule (found once, in pass 1 - not a separate file-wide re-scan by
+  tag) - deliberately not recursive, so a nested custom element's own slot styling (`my-card {
+  my-icon-widget { [slot="icon"] {...} } }`) doesn't leak onto the outer component; only
+  `my-card`'s own one level of nesting is its own slot. Unlike custom properties, an
+  undocumented slot is still collected (a `[slot="x"]` selector unambiguously names a real slot,
+  no ambiguity to guard against). Wired through `ComponentCompilerMeta.htmlSlots` (names) + a
+  synthetic `@slot` docs-tag (docs), so `generate-doc-data.ts`'s existing `getDocsSlots` needed
+  zero changes. Reads from a nesting-*un*resolved parse of the file specifically for the pass-1
+  rule - postcss-nesting hoists a nested `[slot="x"] { ... }` rule out to a flat
+  `tag [slot="x"]` rule but doesn't reliably carry its leading doc comment along (confirmed
+  inconsistent, not just theoretical - reparsing without the plugin keeps comment adjacency
+  exactly as authored); it's also what lets pass 1 find a defining rule that has *only* nested
+  content and no declarations of its own, which postcss-nesting would otherwise delete outright
+  before pass 1 ever saw it.
+- `:where(tag, .fallback)`/`:is(tag, .fallback)` can also be the `@component` *defining* rule
+  itself - `/** @component */ :is(my-badge, .my-badge) { ... }` resolves the tag from inside the
+  pseudo, same as a bare `my-badge { ... }` would. The pseudo must be the *leading* compound's
+  own subject (same restriction a plain tag already had) and must resolve to exactly one
+  candidate tag - `:is(my-badge, my-other-badge)` (two real tags) warns as ambiguous rather than
+  guessing. This only resolves the tag name - explicit annotations still needed for
+  attributes/custom properties/slots declared directly on that rule (deliberately not extended
+  to attribute/custom-property auto-detection, and no support for `:where`/`:is`/`@scope` as an
+  *auxiliary* match against an already-established tag elsewhere in the file - tried both,
+  concluded not worth the added surface for a pattern that wasn't wanted).
+- Explicit annotations always win over auto-detected ones for the same name.
+
+**Integration points**: `generate-app-types.ts` (JSX types - one array-concat), `generate-doc-data.ts`
+(new `getCssOnlyDocsComponents`, full readme.md/usage parity with real components - not the
+filesystem-free `cmpMetaToDocsComponent` path, which stays reserved for the no-fs
+`transpileSync` case), `component-global-styles.ts`/`global-styles.ts` (new
+`@import "stencil-css-components"` virtual import, same mechanism as `stencil-component-globals`/
+`stencil-hydrate`), `docs/json/index.ts` and `docs/cem/index.ts` (new `cssOnly` flag,
+`JsonDocsStyle.syntax`/`.default` for `@property` passthrough). `docs.json`'s writer explicitly
+whitelists fields per-component rather than passing objects through - a real bug (the new
+`cssOnly` field was silently dropped) only caught by an end-to-end fixture build, not unit
+tests; fixed in `compiler/docs/json/index.ts`. New `Config.enableCssOnlyComponents` opt-out
+(default `true`).
+
+**e2e coverage**: extended (not duplicated into a new fixture) `test/build/type-tests` (JSX
+type-checking via `@ts-expect-error`), `test/build/global-style` (`@import` mechanism +
+hydrate-CSS exclusion proof + "never referenced in emitted JS" proof), and
+`test/build/docs-json` (docs.json/CEM golden-file output, including the readme.md lookup).
+
+**Explicitly deferred, not forgotten:**
+- ~~`@stencil/unplugin` integration~~ - **done, scoped to docs/CEM only.** New
+  `parseCssOnlyComponents` export from `@stencil/core/compiler`'s Node build (`css-components/parse-css-component.ts`,
+  mirrors `transpileSync`/`cmpMetaToDocsComponent`'s single-file shape) - confirmed zero new
+  dependency footprint for `@stencil/unplugin` itself (postcss et al. resolve through
+  `@stencil/core`'s own dependency tree, same as the compiler's other exports already do).
+  `plugin.ts`'s `scanDocs()` now walks `.css` files too (not gated by `include`, which by
+  default would exclude all of them) and registers discovered CSS-only components into the same
+  `docsRegistry` that backs `getStencilCEM()`, so Storybook's `setCustomElementsManifest()` sees
+  them like any real component; `handleHotUpdate` refreshes the registry live on `.css` edits
+  during a dev session, mirroring the existing `.tsx` live-docs-update path. Deliberately does
+  **not** touch `css.ts` / add any `@import "stencil-css-components"` handling - unplugin has no
+  precedent for that even for `stencil-component-globals`/`stencil-hydrate` (no `global-style` output
+  target concept exists there at all); an end user just imports their CSS-only component's file
+  through their bundler's native CSS handling like any other stylesheet. **Global-style handling
+  in unplugin more broadly is a separate, larger piece being picked up elsewhere** - noted here
+  so it isn't rediscovered as a surprise gap.
+- **unplugin virtual global-stylesheet imports** - scope is deliberately *not* recreating
+  Stencil's global-style pipeline in the bundler, just making the `stencil-*` imports mean
+  something there. Each import's CSS is written to `node_modules/.stencil/virtual-css/<serve|build>/`
+  (per command, so a dev server and a build in the same project don't clash) and the specifier
+  resolves to that file; the bundler then handles it like any CSS (partials, Sass, Less, modifiers,
+  minification). Routing: `resolveId` (esbuild; webpack via `css-loader`), a `resolve.alias` where
+  CSS `@import` resolution skips plugins (Vite, rspack). webpack/rspack read the files straight from
+  disk, so they're rewritten on every compile (`beforeCompile`); Vite rewrites in `buildStart`
+  (watch builds) and `handleHotUpdate` (dev HMR); esbuild via `load`. Ingredient caching is
+  mtime-validated, so watch rebuilds pick up changes without per-bundler invalidation. Replaced the
+  old `transform` rewrite of the consumer file, which only reached top-level `.css`. Also fixed:
+  `stencil-hydrate` hid CSS-only components forever; component globals were duplicated per plugin
+  instance in one process (e.g. Vite dev-server restart).
+  Verified with a local scratch matrix (10 placements x 5 bundlers, plus watch-rebuild and
+  multi-instance runs): Vite 10/10, webpack 10/10, rspack 9/10, esbuild 6/10, Rollup 0/10. Known
+  limits, all third-party preprocessor plugins resolving `@import` internally: esbuild's Sass/Less
+  plugins need the plain-CSS forms (`url()` / `(css)`), not bare imports; rspack can't match Less's
+  directory-prefixed `(css)` import from a partial (bare works); Rollup (no native CSS) +
+  `rollup-plugin-postcss`/`postcss-import` never asks `resolveId`. Not yet documented for users.
+  webpack/rspack watch mode (what Storybook's webpack builder runs): the generated stylesheets' modules
+  are tied to their ingredient files (`beforeLoaders` in webpack - `loader` discards deps and hasn't set
+  `resourcePath` yet; rspack only has `loader`) plus `src/` as a context dependency, and CSS-only
+  components are rescanned in `watchRun` (awaited, unlike `watchChange`; a file added to a watched dir is
+  reported as the dir). Verified with a Storybook-style dev-middleware + hot-middleware + style-loader
+  harness: ingredient edits and new CSS-only components hot-update the page with no full reload.
+  Component HMR under webpack/rspack: the `module.hot` snippet used to patch the prototype and only call
+  `connectedCallback()`, so live instances never re-rendered. Core's runtime now splits `hmrStandalone`'s
+  "apply the new class" half into `hmrApplyClass` (patch prototype, re-register styles, re-bind host
+  listeners, force re-render), reachable via an internal `s-hmr-apply` hook on the registered constructor;
+  the snippet hands it the re-executed class. Vite's `handleHotUpdate` doesn't fire for added files, so a
+  new CSS-only component is handled via `configureServer`'s watcher `add` event. Verified with scratch
+  browser harnesses (Vite dev server; webpack dev-middleware + hot-middleware + style-loader): ingredient
+  edits, a new CSS-only component and component render edits all hot-update with no full reload. rspack
+  HMR unverified - the harness's own control edit doesn't hot-update under rspack + hot-middleware. Each
+  ingredient edit costs one redundant follow-up compile (the regenerated files are themselves watched).
+  Note: Storybook 10 has no web-components webpack5 framework (`@storybook/web-components-webpack5` ends
+  at 8.6.x) - Vite is the only official Storybook builder for web components on the current major.
+- ~~`packages/dev-server` reload handling~~ - **not needed, confirmed by testing against a real
+  watcher.** A CSS-only component has no JS to register or bundle, so unlike a real component's
+  `.tsx` file, adding/removing/renaming one is *only* a CSS content change - it already rides
+  the ordinary `stylesUpdated`/`inlineStylesUpdated` HMR path with no dev-server changes at all.
+  (An earlier pass here added a `tagSetChanged` signal that force-triggered a full reload on tag
+  add/remove/rename, reasoning by false analogy to real components; reverted once actual testing
+  showed it was solving a problem that doesn't exist and made the dev experience worse - a
+  jarring reload where a smooth CSS swap already worked.)
+- ~~**Found in the process, real but out of scope for CSS-only components**: `buildGlobalStyleFromInput`'s
+  live-HMR push only fires for the legacy `config.globalStyle` string, not a `global-style` output
+  target's explicit `input`~~ - **fixed.** Turned out to be three layered bugs, not one, found by
+  driving a real dev-server + headless browser rather than trusting the payload the server sends:
+  1. The live-HMR push (`global-styles.ts`, `buildGlobalStyleFromInput`) only fired for the legacy
+     `config.globalStyle` path, exactly as first suspected.
+  2. Separately, `getExternalStylesUpdated`'s `<link>`-href-swap fallback (`build-hmr.ts`)
+     unconditionally no-op'd whenever there was no `www` output target - which is exactly the
+     shape `server/dev-preview.ts`'s auto-generated preview page uses, so that fallback couldn't
+     have covered it either.
+  3. Even where the push *did* fire (the legacy path, pre-fix), the visible page never updated.
+     Root cause: `hotModuleReplacement` deliberately forces `BUILD.constructableCSS = false`
+     (`app-data.ts`) so `inject: 'client'`/`'all'` global CSS lands as a real
+     `<style sty-id="sc-global">` tag inside every shadow root instead of an adoptedStyleSheet
+     (`shadow-root.ts`), so it stays HMR-patchable. But the dev-server's HMR traversal
+     (`hmr/style.ts`) recurses into shadow roots too, so it matched those per-shadow-root copies
+     first and never fell through to create/patch anything in `document.head` - the copies got
+     patched correctly, but a `body { ... }` rule duplicated inside a shadow root is inert, so the
+     real page never visibly changed. Confirmed with a MutationObserver + monkey-patched
+     `appendChild`/`createElement` in a real headless-Chromium session, not just by reading code.
+
+  Fix: a new, dedicated `globalStylesUpdated`/`HmrGlobalStyleUpdate` HMR channel, keyed by each
+  `global-style` output target's `fileName` (not the shared `sc-global` id), matched client-side
+  against the `<link>` that loads it and delivered as a `<style data-hmr-global="...">` inserted
+  immediately after that `<link>` - preserving cascade order when multiple `global-style` targets
+  exist, and working with zero network round-trip regardless of `www`/`inject` config. The
+  shadow-root `sc-global` copies are left as-is (legitimate, now correctly fed from the full
+  multi-target merge in `app-data-plugin.ts` instead of a single target's CSS). Verified end to
+  end against both `test/build/global-style` (new `input` pattern) and the legacy
+  `config.globalStyle` pattern with a real browser. Files: `stencil-private.ts`,
+  `stencil-public-compiler.ts`, `build-ctx.ts`, `build-hmr.ts`, `global-styles.ts`,
+  `app-data-plugin.ts` (core); `hmr/style.ts`, `hmr/window.ts`, `hmr/utils.ts`, `client/index.ts`,
+  `client/types.ts` (dev-server). Tests: `build/_test_/build-hmr.spec.ts`,
+  `style/_test_/global-styles.spec.ts`, `client/_test_/hmr.spec.ts`.
+
+  Two follow-on bugs found while testing multiple `global-style` outputs against
+  `server/dev-preview.ts` (the auto-generated component preview used when a directory has no
+  `*.html`), both fixed alongside the above:
+  - The preview's `<link>` order for multiple global stylesheets came from
+    `CompilerBuildResults.outputs`, which the in-memory FS groups by type and sorts
+    alphabetically - so a second `global-style` target (e.g. `global-2.css`) could render
+    *before* the first one regardless of declaration order, silently flipping cascade
+    precedence. Fixed by adding `CompilerBuildResults.globalStyleFiles`, an explicitly ordered
+    list built from `config.outputTargets` in `build-results.ts`, and pointing
+    `dev-preview.ts`'s `getGlobalCssUrls` at it instead.
+  - The live-patch `<style>` from the first fix above was inserted next to its `<link>` but
+    left that `<link>` enabled, so document order alone had to make the fresh override win the
+    cascade - which silently failed the moment the original stylesheet had an `!important`
+    rule (real repro: a second edit to a `background: ... !important` global stylesheet kept
+    showing the *first* edit's color, not the second, because the still-enabled link's
+    `!important` rule from its stale in-memory CSSOM beat the fresh non-`!important`... and
+    even a fresh `!important` override isn't guaranteed to out-rank an arbitrary stale rule by
+    position alone). Fixed by disabling the matching `<link>` (`link.disabled = true`) once its
+    override `<style>` is in place, in `hmr/style.ts`'s `hmrGlobalStyleLinks`. Verified live
+    with a two-target `!important` repro in a real browser.
+- ~~`packages/playground`~~ - **not needed, confirmed empirically.** `@stencil/core`'s own
+  ambient JSX types (`stencil-public-runtime.ts`) already declare
+  `interface IntrinsicElements extends LocalJSX.IntrinsicElements, JSXBase.IntrinsicElements {
+  [tagName: string]: any; }` - a catch-all that already accepts *any* undeclared hyphenated tag
+  with *any* props, with no type error, whether or not it's a known Stencil component. Verified
+  directly (not just read): added an undeclared `<totally-unknown-tag some-attr="x">` to
+  `test/build/type-tests/test.spec.tsx` and ran `tsc --noEmit` against the real generated
+  types - exit 0, no error - before removing the scratch check again. A CSS-only component's tag
+  was therefore never going to red-squiggle in the playground either, with or without any
+  wiring. An earlier pass here built a full regex-based tag scanner
+  (`findCssOnlyComponentTags`/`buildIntrinsicElementsDts` wiring) anyway, reasoning from the
+  premise that unknown tags error without checking it first - same mistake as the dev-server
+  `tagSetChanged` detour. Reverted in full (`utils.ts`, `stencil-playground.tsx`) once the
+  premise itself turned out to be false, not just the fix. If accurate typed autocomplete for
+  CSS-only components in the playground is wanted later, that's a real, separate, deliberately-
+  chosen feature to design - not something needed to avoid an error.
+- ~~Dev-server auto-preview (`server/dev-preview.ts`)~~ - **done.** `CompilerBuildResults` now
+  carries `cssOnlyComponents` (separate from `components`); the preview renders them with the
+  same description + `usage/*.md` snippet flow as real components, and `handlers.ts` treats a
+  directory as a preview directory if it has a `.tsx` file *or* directly holds a CSS-only
+  component's source (build results only fetched when the dir has a style file). Styling comes
+  from `@import "stencil-css-components"` if placed, otherwise auto-placement (see "Auto-placed
+  `stencil-*` CSS" above).
+- Compile-time tag-prefix/rename - `setTagTransformer()` is a runtime hook with no static-CSS
+  equivalent; no compile-time alternative designed yet.
+- A diagnostic for `@component` found nested inside `@media`/`@supports`/`@container` (v1 only
+  scans top-level rules) - should warn, currently silently ignored.
+- ~~native CSS `@scope (tag-name) { ... }` as an alternative defining construct~~ - **done.**
+  `@scope (my-card) to (...) { ... }` can now be the `@component` defining rule itself, same
+  resolution rules as a bare tag or `:is()`/`:where()` rule (scope root must resolve to exactly
+  one tag; `:is()`/`:where()`-wrapped scope roots also supported). Custom properties and direct
+  nested slots inside the scope body are auto-detected the same way. Enables the `to (...)` limit
+  clause as a light-DOM containment pattern (e.g. `@scope (my-card) to ([slot])` keeps the
+  component's own rules from bleeding into slotted content) without needing a shadow root.
+
+**Original "zero-JS custom element" framing reconsidered.** Typed, documented custom-element
+tags with zero JS is already achievable today via `@Component` + `@Prop({ reflect: true })` +
+`globalStyleUrl` - strictly more capable (progressive enhancement, one authoring syntax, full
+IDE support). Even the "zero JS ever" claim doesn't differentiate it: `globalStyleUrl` content
+is collected into the global stylesheet at build time independent of whether the component's
+JS is ever registered, so if a consumer never imports/registers those components, real runtime
+bytes are zero either way. (Measured for context: shared lazy-loader runtime is ~21.5KB raw /
+~8.3KB gzip; a trivial one-prop component's own entry chunk is ~179 bytes raw - too small for
+gzip to help, container overhead exceeds the saving. Neither number matters once the JS is
+simply never imported.) The one real difference left is zero-JS *by construction* (no `.tsx`,
+no entry chunk ever generated) vs. zero-JS *by discipline* (one careless barrel-import away
+from regressing) - a real but narrow guarantee, not a bundle-size win.
+
+**Re-targeted, not deleted - generalizing past custom elements.** Prompted by Lea Verou
+publicly asking why nothing generalizes Custom Elements Manifest to document
+non-custom-element "components" (`<button class="btn-primary">`, `<progress class="ring">`)
+the way CEM documents real custom elements - a genuine, unaddressed gap this feature's
+existing parsing/discovery machinery is positioned to fill, and a more differentiated pitch
+than the original (nothing else does this; the original reduces to "an alternate syntax for
+something `@Component` already does"). Reused as-is: `discover-css-components.ts`'s
+file-watching/incremental-cache mechanics, `parse-css-component.ts`'s JSDoc-over-CSS-rule
+convention and `@property`-at-rule handling, and the docs-absorption wiring in
+`generate-doc-data.ts` - none of this is custom-element-specific in practice.
+
+Confirmed NOT a small tweak, on inspection:
+- Two validation gates in `parse-css-component.ts` exist specifically to reject
+  non-custom-element selectors - `validateComponentTag` (requires a hyphenated name) and the
+  `nonTagParts.length > 0` rejection - both need relaxing on the *defining* rule to accept any
+  selector.
+- `docs/cem/index.ts` hardcodes `customElement: true` / a non-nullable `tagName: string` on
+  every emitted declaration - a `progress.ring` declaration can't honestly go through the
+  existing CEM path. Since CEM isn't a spec Stencil is bound to for its *other* docs outputs,
+  this is an opportunity to define a new manifest shape - possibly worth pursuing as an actual
+  community proposal given Lea Verou's standing here, rather than a bespoke Stencil-only
+  format - not yet designed.
+
+Confirmed mostly already there, on closer inspection:
+- Attribute/`data-`attribute-driven variants: the auto-detected-attribute pass
+  (`collectAutoDetectedAttributes`, pass 2 of `parseCssComponentFile`) already matches by
+  `selector.tag` with no `nonTagParts` gating, so `button[data-variant="primary"]`-style rules
+  already get absorbed once the defining-rule gate above is relaxed - and attributes are the
+  more standards-idiomatic hook for this than classes anyway.
+- A `.btn { &-primary { } }` / explicit `@variant` JSDoc marker for BEM-style nested-class
+  variants is new, scoped parsing work on top of the above, not a data-model rewrite.
+- JSX typing for native-element variants: no equivalent to a typed custom-element tag exists,
+  but `JSXBase`'s existing `class?: string | { [className: string]: boolean } | SignalRef<string>`
+  (`stencil-public-runtime.ts`) already supports an object-map form where each class is an
+  independent boolean key - a natural, already-idiomatic fit for typed variants (a plain
+  string-literal union can't usefully validate/autocomplete a space-separated multi-class
+  string once more than one variant class is active at once, which is the common case).
+  Codegen would extend the existing per-project JSX-augmentation pipeline
+  (`generate-app-types.ts`) to narrow known variant class names on
+  `JSXBase.IntrinsicElements['button']['class']`'s object-map key type, alongside the escape
+  hatch real usage needs. Not started.
+
+Not yet decided: require attributes only, `data-`attributes only (full standards compliance,
+since arbitrary custom attributes aren't spec-sanctioned outside `data-*`), or allow plain
+attributes with a lint/diagnostic nudge instead of a hard requirement.
+
+---
+
+### 🤖 `docs-agent-skill` Output Target (First pass shipped)
+
+A docs output target that emits an [Agent Skill](https://agentskills.io) (`SKILL.md` + frontmatter) describing a component library, so AI coding agents can consume it directly instead of just reading generated readmes. Agent Skills are a **vendor-neutral spec**, not a Claude-only thing - [vercel-labs/skills](https://github.com/vercel-labs/skills) lists 70+ supported agents (Claude Code, Cursor, Codex, Gemini CLI, GitHub Copilot, Windsurf, etc.), each reading from their own `<agent>/skills/` directory.
+
+**How it works:** reuses existing data end-to-end rather than adding a new extraction pipeline:
+- Per-component API + usage examples come from the existing `docs-json`/`generateDocData` pipeline and the existing pure `readme/markdown-*.ts` formatting functions (props/events/methods/slots/CSS custom properties/parts/usage) - reused as-is, not reimplemented.
+- New: project-level intro content from a `<srcDir>/usage/*.md` folder (mirrors the per-component `usage/` convention) surfaces as `JsonDocs.usage`, a new shared field on the docs data model (`packages/core/src/declarations/stencil-public-docs.ts`) populated in `generateDocData` (`packages/core/src/compiler/docs/generate-doc-data.ts`). `docs-json` inherits it automatically (object spread); CEM intentionally does not (no spec-conformant home for project-level text in the real Custom Elements Manifest schema).
+- Output structure is progressive disclosure: `dist/skill/SKILL.md` (frontmatter + intro + component index, stays small for agent triggering) + `dist/skill/components/<tag>.md` per component (full reference, loaded on demand).
+- `name` defaults from `config.fsNamespace` (not `config.namespace` - the latter gets PascalCased when it contains dashes, which collapses word boundaries once re-lowercased). `description` defaults from the first sentence of the project usage intro (heading-stripped, paragraph-bounded) if present, else a generated sentence from the component tag list.
+
+**Distribution is already solved externally:** the `npx skills add <source>` CLI (from the spec's ecosystem, see [skills.sh](https://skills.sh)) installs a `SKILL.md` from a git repo, a path within a repo, or a **local path** - a consumer can run `npx skills add node_modules/my-design-system` and it fans out to whatever agent they're actually using. No Stencil-side wizard/install plumbing was needed for this first pass.
+
+**New module:** `packages/core/src/compiler/docs/agent-skill/` (`frontmatter.ts`, `markdown-component.ts`, `output-agent-skill.ts`, `index.ts`). Wired through the standard docs output-target path (`stencil-public-compiler.ts`, `constants.ts`, `output-target.ts`, `validate-docs.ts`, `output-targets/output-docs.ts`), opt-in only like every other docs target. Golden-file e2e fixture at `test/build/docs-agent-skill/`; unit tests in `packages/core/src/compiler/docs/_test_/agent-skill*.spec.ts`.
+
+---
+
+### 🌍 `ssr-wasm` Output Target ✅ Complete
+
+Compiles the SSR script to a standalone `.wasm` binary via [Extism PDK](https://extism.org/) + QuickJS-ng, callable from any language with a WASM runtime (PHP, Java, Ruby, Go, Rust, etc.).
+
+**How it works:**
+- Bundles SSR script with rolldown (IIFE, ES2020 target for QuickJS-ng compat), no Node built-ins
+- Timer APIs polyfilled (QuickJS-ng doesn't provide `setTimeout` etc.)
+- Extism host exports: `renderToString()`, `setTagTransformer()`, `resetSsrDocData()` — data via `Host.inputString()`/`Host.outputString()`
+- `extism-js` CLI compiles `index.js` + `plugin.d.ts` → `index.wasm`; graceful warning if `extism-js` not installed
+- CI: Ubuntu, Node 22 + 24 (`test-ssr-wasm.yml`)
+
+### 🛢️ Eliminate Barrel Exports in `src/utils`
+- [ ] Use [barrel-breaker](https://github.com/nicolo-ribaudo/babel-plugin-transform-barrels) or similar tool
+- [ ] The `src/utils/index.ts` barrel causes bundling issues (e.g., `minimatch` leaking into server/runner bundle)
+- [ ] All imports should use direct paths
+
+### ⚠️ `*.sys` Patching (Assess)
+- [ ] 40+ files still use `.sys.` patterns for in-memory file system operations
+- [ ] Original plan: replace with TypeScript incremental APIs
+- [ ] No reference implementation exists - needs investigation if this is still the right approach
+- [ ] May be deferrable if not blocking other goals
+
+### 🧹 `CompilerSystem` Follow-ups
+- [ ] Remaining optional members, kept deliberately: `glob` / `resolveModuleId` are used by plugins (`@stencil/react-output-target`, `@stencil/sass`) — don't remove without checking the `@stencil/*` ecosystem. `events` / `watch*` are set lazily by node-sys `setupCompiler()` (per-compiler reset). `createWorkerController` is `null` in-memory.
+- [ ] `getRemoteModuleUrl`, `getLocalModulePath`, `compiler/sys/fetch/*` and `isRemoteUrl` branches are in-browser-compilation leftovers — remove with that goal.
+- [ ] `lazyRequire` still lists jest / puppeteer version ranges (integrated testing is gone); only `workbox-build` (pinned 4.3.1) is still used. Consider replacing with a plain dynamic import.
+- [x] Build cache (`.stencil/.build`) was never pruned (expiry relied on the unimplemented `sys.cacheStorage`). Now `Cache.commit()` removes files >1 week old, at most once a day via a `_last_prune.log` marker mtime.
+
+### 💧 SSR: Defer Child Hydration Until Its Rendering Parent Hydrates (Prototype landed, follow-ups pending)
+
+**Problem:** SSR serializes a component's rendered output but not the props its parent passed in (e.g. `<child disabled>` set as a property by the parent's render). A child only waits for its ancestor when that ancestor is already upgraded (`s-p` check in `runtime/connected-callback.ts`). With the lazy loader, the parent always renders first, so this is fine. In `standalone` builds, dependencies are defined first. The child then hydrates with default props, renders a wrong state (a flash plus an extra render), and is corrected only when the parent renders and re-sets the prop. #6912 (keep child host classes after hydration, `setAccessor` `getOwnHostClasses`) patched only one symptom; any other parent-passed prop, and derived `@State`/`aria-*`, still started out wrong. It was merged from main and then reverted on v5 in favour of this ordering fix.
+
+**Rejected: auto-reflecting props to attributes during SSR.** It only covers primitives. It adds attributes the author didn't reflect, so `[disabled]` selectors start matching and the attributes go stale after hydration. It also conflicts with the HTML-spec boolean semantics (`"false"` is truthy).
+
+**Prototype (landed in `connected-callback.ts`):** the standalone autoloader already pre-seeds `s-p`/`s-rc`/`s-pc` on un-upgraded ancestors (`generate-loader-module.ts`), so it already had the right ordering. The gap was manual `defineCustomElement` imports. Now, with `hydrateClientSide` on, the ancestor walk seeds those arrays on the nearest un-upgraded `s-id` host. This covers manual standalone defines and a child whose SSR host belongs to another lazy app that hasn't bootstrapped yet. The child's first render then queues in the host's `s-rc`, like the lazy build. The `test/ssr` "child hydrating before its parent" test asserts that the child's `componentWillLoad` sees the parent-passed prop. It fails without the change.
+
+- [x] Prototype in `connected-callback.ts`
+- [x] Tighten the `test/ssr` test to a single assertion (no `expect.poll`)
+- [ ] Decide the fallback when the SSR parent is never defined (not imported / excluded). Currently the child's render, `connectedCallback` and `componentOnReady` wait forever, and the SSR markup stays non-interactive. Before this change it rendered immediately with default props. This applies to lazy builds as well (a host no loader registers). Options: accept it (same as the autoloader today), `customElements.whenDefined(parentTag)` + timeout, or opt-out
+- [ ] Mixed Stencil runtimes: a host upgraded by a runtime whose `registerHost` overwrites (rather than preserves) `s-p`/`s-rc` would drop the queued child render. Check older runtimes / decide whether to care
+- [x] Revert #6912's `getOwnHostClasses` (`set-accessor.ts`), which the ordering makes redundant
+- [ ] Alternative if ordering proves insufficient: serialize prop state into hydration annotations keyed by `s-id` (not DOM attributes); bounded by the same limits `@PropSerialize` handles
+
+---
+
+## 🚀 Watch Mode Fast Path (Planned)
+
+### Problem
+Even single-file changes trigger full build pipeline (~500ms-1s).
+
+### Solution
+Leverage `transpileModule()` for a "fast path" in watch mode:
+
+1. **Add shared context** to `transpileModule` - reuse existing `Program`/`TypeChecker` from watch build
+2. **Change detection** - compare old vs new component metadata:
+   - API changed (props/events/methods)? → Full rebuild
+   - JSDoc changed + docs targets exist? → Regen docs only
+   - Neither? → Hot-swap module only
+3. **Non-component fast path** - plain `.ts` files skip Stencil transforms entirely
+
+### Expected Impact
+| Change Type | Current | With Fast Path |
+|-------------|---------|----------------|
+| Internal logic change | ~500ms-1s | **< 50ms** |
+| JSDoc change (with docs) | ~500ms-1s | **< 100ms** |
+| API change (new prop) | ~500ms-1s | ~500ms-1s (unchanged) |
+
+~80% of dev changes are internal logic → massive improvement for typical workflow.
+
+---
+
+## 🧙 CLI Wizard & Scaffolding (done)
+
+A ground-up redesign of Stencil's project init and code generation DX. Goals: single source of truth in this monorepo, pluggable via an open protocol, visually modern, no separate repo to maintain.
+
+### Command surface
+
+| Command | Description |
+|---------|-------------|
+| `stencil init` | New project wizard **or** add capabilities to existing project (context-aware) |
+| `stencil generate [name]` | Enhanced component/style scaffolding (existing command, upgraded) |
+| `npm create stencil` | Thin shim → delegates to `npx @stencil/cli@latest init` |
+
+`stencil init` detects context: if `stencil.config.ts` is already present it runs in "add capabilities" mode rather than scaffolding a new project from scratch. One entry point, no `stencil add` command needed.
+
+### New package: `@stencil/templates` (`packages/templates/`)
+
+Versioned lockstep with core/cli. Contains:
+
+```
+packages/templates/src/
+  project/
+    component-starter/        ← replaces stenciljs/component-starter GitHub repo
+      package.json
+      stencil.config.ts
+      tsconfig.json
+      src/components/my-component/
+        my-component.tsx
+        my-component.css
+  generate/
+    component.ts              ← template functions for stencil generate
+    style.ts
+    # No test templates - those live in @stencil/vitest / @stencil/playwright
+```
+
+**No template engine needed for project templates** - they are mostly static files, simple `str.replace()` for project name interpolation (same approach as `create-vite`, `create-next-app`). Generate templates are TypeScript functions (as they are today), just moved here.
+
+Custom/community project templates use `giget` via URL: `stencil init --template github:my-org/my-template`.
+
+### Plugin wizard protocol
+
+Any installed package can participate in `stencil init` and `stencil generate` by declaring a `stencil.wizard` path in its `package.json`:
+
+```json
+// @stencil/vitest/package.json
+{ "stencil": { "wizard": "./dist/wizard.js" } }
+```
+
+The wizard module exports a `StencilWizardPlugin` object:
+
+```ts
+// @stencil/vitest/src/wizard.ts
+import { confirm, multiselect, isCancel, cancel } from '@clack/prompts';
+import { addDependency } from 'nypm';
+import { writeFile, mkdir } from 'node:fs/promises';
+import { join } from 'node:path';
+
+export const wizard: StencilWizardPlugin = {
+  // Contributes to `stencil generate` — file templates offered per-component
+  generate: {
+    fileTemplates: [
+      {
+        label: 'Spec test (.spec.tsx)',
+        extension: 'spec.tsx',
+        template: (tagName, className) => `...vitest boilerplate for ${className}...`,
+      },
+    ],
+  },
+  // Contributes to `stencil init` — owns its entire setup wizard
+  init: {
+    id: 'vitest',
+    displayName: 'Vitest',
+    description: 'Unit + component testing',
+    async run({ rootDir, isNewProject }) {
+      // Full interactive wizard — own prompts, branching logic, file generation
+      const scope = await multiselect({
+        message: 'What kind of tests do you need?',
+        options: [
+          { value: 'unit',    label: 'Unit tests',      hint: 'pure functions, no DOM' },
+          { value: 'browser', label: 'Browser / component', hint: 'real DOM via Playwright' },
+        ],
+      });
+      if (isCancel(scope)) { cancel('Setup cancelled.'); process.exit(0); }
+
+      // Install peer deps based on answers
+      const deps = ['vitest'];
+      if (scope.includes('browser')) deps.push('@vitest/browser', 'playwright');
+      await addDependency(deps, { cwd: rootDir, dev: true });
+
+      // Generate vitest.config.ts tailored to answers
+      await writeFile(join(rootDir, 'vitest.config.ts'), generateVitestConfig(scope), 'utf8');
+
+      // Create test directories, example files, update package.json scripts, etc.
+    },
+  },
+}
+```
+
+**Key principle — the plugin IS the wizard for its own setup.** The CLI's only job is to install the top-level package and then call `run(context)`. Everything inside `run()` is the package's responsibility: prompting, installing peer deps, creating config files, writing example tests, updating `.gitignore`, adding package.json scripts. This matches the pattern used by `@nuxt/test-utils`.
+
+**`WizardContext` passed to `run()`:**
+```ts
+export interface WizardContext {
+  rootDir: string;      // absolute path to the project root
+  isNewProject: boolean; // true if stencil.config.ts did not previously exist
+}
+```
+
+**`WizardInitContribution` — the shape a plugin's `init` export must satisfy:**
+```ts
+export interface WizardInitContribution {
+  id: string;           // stable deduplication key
+  displayName: string;  // shown in the selection prompt
+  description: string;  // hint shown alongside displayName
+  run: (context: WizardContext) => Promise<void>;
+}
+```
+
+**Discovery:** at wizard runtime, the CLI scans installed packages for the `stencil.wizard` field and dynamically imports matching modules. No central registry. Whatever is installed participates.
+
+**Impact on `stencil generate`:**
+Any installed package that exports a `stencil.wizard` with a `generate` contribution automatically participates — no CLI changes needed. Style extensions and file templates are purely plugin-driven. If no plugins are installed, no extra prompts appear.
+
+### Dependency changes
+
+| Remove | Add |
+|--------|-----|
+| `prompts` | `@clack/prompts` |
+| `yauzl`, `node-fetch` (in create-stencil) | - |
+| - | `nypm` (package manager detection + install) |
+| - | `std-env` (CI/TTY detection - skip wizard in CI) |
+
+### `stencil init` — CLI flow
+
+`discoverPlugins` only finds packages that are *already installed*, so a fresh project gets no options. `task-init.ts` solves this with a two-phase flow:
+
+1. **Well-known list baked into the CLI** — just names + display info, zero behavior:
+   ```ts
+   const KNOWN_INTEGRATIONS = [
+     { package: '@stencil/vitest',     displayName: 'Vitest',     description: 'Unit testing' },
+     { package: '@stencil/playwright', displayName: 'Playwright', description: 'E2E testing' },
+     { package: '@stencil/sass',       displayName: 'Sass',       description: 'Sass/SCSS styles' },
+   ];
+   ```
+   User picks from this list. CLI installs the selected packages.
+
+2. **Re-discover after install** — `discoverPlugins` runs again. For each selected package that exposes a `stencil.wizard` with an `init` contribution, the CLI calls `plugin.init.run(context)`. The plugin owns everything from here: its own prompts, peer dep installs, config file generation, example tests, package.json script updates, etc.
+
+For **existing projects**, the CLI runs `discoverPlugins` immediately. Already-installed packages with `init.run` contributions appear in a "Configure existing integrations" group alongside the uninstalled KNOWN_INTEGRATIONS. Selecting one calls its `run()` — the plugin is responsible for detecting what's already set up and skipping or adapting accordingly.
+
+**Key property:** the CLI only knows *what to call* — not *what it does*. All setup logic stays in the packages. A change to how `@stencil/vitest` sets itself up is a `@stencil/vitest` release, not a CLI release. Community packages work identically — they just don't appear in the well-known list.
+
+**Type separation:** `WizardInitContribution` is the shape a plugin exports. `KnownIntegration` (just `package` + display info) lives in `task-init.ts` for the CLI-side list — the two concerns stay separate.
+
+---
+
+### What happens to `create-stencil`
+
+The separate repo is retired as an active package. `npm create stencil` continues to work because `create-stencil` on npm becomes a permanent thin shim:
+
+```js
+#!/usr/bin/env node
+import { spawnSync } from 'node:child_process'
+spawnSync('npx', ['@stencil/cli@latest', 'init', ...process.argv.slice(2)], { stdio: 'inherit' })
+```
+
+### File structure in `@stencil/cli`
+
+```
+packages/cli/src/
+  wizard/
+    types.ts              # StencilWizardPlugin, WizardContext interfaces
+    discover.ts           # scan node_modules for "stencil.wizard" field
+    clack.ts              # shared @clack/prompts helpers (cancel guard, etc.)
+    generate/
+      steps.ts            # generate wizard steps (style ext, test files)
+    init/
+      steps.ts            # init wizard steps (template, output targets, styling, testing)
+      apply.ts            # write files, update package.json, install deps
+  task-init.ts            # new: stencil init
+  task-generate.ts        # existing: upgraded to @clack/prompts + plugin-aware
+```
+
+### Implementation tasks
+
+- [x] Add `packages/templates/` — project template for `component-starter`, generate template functions
+- [x] `wizard/discover.ts` — scan `node_modules` for `stencil.wizard` field
+- [x] `task-generate.ts` — replace `prompts` with `@clack/prompts`, use discovered plugin templates
+- [x] `task-init.ts` — new project wizard (`@stencil/templates`, `nypm`, `std-env`)
+- [x] `task-init.ts` — existing project mode (install new + configure existing integrations)
+- [x] `wizard/splash.ts` — ASCII logo, TTY/NO_COLOR aware
+- [x] `packages/cli/test/` — e2e tests with real temp dir + fixture wizard plugin
+- [x] **Redesign `WizardInitContribution`** — replace static `configPatch`/`devDependencies` with `run(context: WizardContext) => Promise<void>`
+- [x] **Update `task-init.ts`** — call `plugin.init.run(context)` instead of `applyConfigPatches`
+- [x] **Remove `applyConfigPatches`** from `wizard/init/apply.ts` — no longer called by CLI; plugins use Node fs APIs directly
+- [x] **Update unit tests** — mock `run()` instead of `configPatch`; assert it was called with correct context
+- [x] **Update e2e fixture** — replace `configPatch.imports` with a real `run()` that writes to stencil.config.ts
+- [x] **`STENCIL_WIZARD_DEV` escape hatch** — `STENCIL_WIZARD_DEV=./path/to/wizard.js stencil init` injects a local wizard file into discovery without needing it in `node_modules`; dev-mode banner shown in CLI output
+- [ ] Retire `create-stencil` active development, publish permanent shim
+
+---
+
+## @stencil/unplugin — Universal Bundler Plugin
+
+Package at `packages/unplugin/`. 32 tests (8 browser via `pnpm test:browser`).
+
+### Design
+- `componentExport: 'customelement'` — component self-registers on import
+- `styleImportData: 'queryparams'` — CSS imports carry `?tag=my-cmp&encapsulation=shadow`
+- **JSX detection**: reads `tsconfig.json` for `jsx`/`jsxImportSource`; falls back to detecting `h` import → classic `jsx:react`; otherwise `jsx:react-jsx` + `jsxImportSource:@stencil/core`
+- **Filter**: `/\.tsx?$/` + fast `@Component` decorator check before paying `transpileSync` cost
+- **`enforce: 'pre'`** on Vite plugin so our transform runs before rolldown's built-in TSX handling
+
+### CSS pipeline
+- **Vite**: `resolveId` rewrites `./foo.css?tag=...` → `/abs/foo.css?inline&__stencil_tag=...&__stencil_enc=...`; Vite's own CSS pipeline (PostCSS/SCSS/lightningcss) runs; Stencil never touches it
+- **Non-Vite**: `resolveId` → `\0stencil-css:/abs/foo?tag=...&__ext=css` (dotless ext avoids `CSS_LANGS_RE` match); `load` reads raw CSS, applies `scopeCss` if scoped, returns `export default JSON.stringify(css)`. Users configure their CSS plugin to output strings (rollup-plugin-postcss `inject:false`)
+- `scopeCss` + `getScopeId` are now exported from `@stencil/core/compiler`
+
+### Base class inheritance (virtual module registry)
+
+Devs never manually extend `HTMLElement` — Stencil must inject it automatically, including for base classes that derived Stencil components extend.
+
+**Architecture:**
+1. `makeResolver` in `transform.ts` calls an `onBaseClass?(absPath, rawCode)` callback for every file resolved via `resolveImport`.
+2. `registerBaseClass` in `plugin.ts` caches each file via `transpileBaseClass(rawCode, absPath, { transformAsBaseClass: true })`.
+3. `resolveId` redirects imports of registered base classes to `\0stencil-base:<absPath>` virtual modules.
+4. `load` serves the cached injected code + `addWatchFile` for HMR.
+
+**Ordering:** `resolveId` for imports in transformed output fires *after* the `transform` hook — registry is already populated.
+
+**Two patterns handled:**
+- Classes with Stencil decorators (`@Prop`/`@State` etc.) → detected by `isStencilBaseClass` check
+- Plain classes (only lifecycle hooks, no decorators) → `transformAsBaseClass: true` flag forces `updateNativeBaseClass`
+
+**Core compiler additions:**
+- `TranspileOptions.transformAsBaseClass?: boolean` — new field passed through to `TransformOptions` and `nativeComponentTransform`
+- `updateNativeBaseClass()` in `native-component.ts` — adds `extends HTMLElement`, strips meta getters, injects `super()`, **preserves `export`** (unlike `updateNativeExtendedClass` which strips it in customelement mode)
+
+### HMR
+- **Vite**: `handleHotUpdate` sends `stencil:hmr` WS event; client calls `el['s-hmr'](version)` → `hmrStandalone` re-imports + patches
+- **webpack/rspack**: `module.hot || import.meta.webpackHot` + dispose/accept/data re-execution
+- **bun**: `import.meta.hot` + dispose/accept/data
+- `defineCustomElement` guards `customElements.define` with `customElements.get()` check for HMR re-import safety
+- Base class HMR: `addWatchFile(realPath)` in virtual module `load` hook → bundler invalidates on source change
+
+### Open / next tasks
+- [ ] Scoped CSS post-transform for Vite: needs a separate `enforce:'post'` plugin (putting it in `vite:{transform}` overwrites unplugin's main transform via `Object.assign`)
+- [ ] CSS HMR: when a `.css` file changes, trigger component re-render (currently only `.tsx` HMR is wired)
+- [ ] Test fixture for plain lifecycle-only base class (no decorators) to cover `transformAsBaseClass` path end-to-end
+- [ ] README / docs
+
+### Storybook integration (`@stencil/storybook-plugin` v1)
+
+Clean-break major branch (`@stencil/storybook-plugin`) targeting v5 + `@stencil/unplugin` only — drops `@stencil-community/unplugin-stencil` entirely.
+
+**Key changes:**
+- `preset.ts`: `unpluginStencil.vite({ docs: true })` + `stencilDocsPlugin()` (serves `getStencilCEM()` as `virtual:stencil-docs`)
+- `entry-preview-auto-docs.ts` (new): separate entry that imports `virtual:stencil-docs` and calls `setCustomElementsManifest()`; isolated from `entry-preview.ts` so `portable-stories.tsx` doesn't pull in the virtual module
+- `framework-api.ts`: switched from `JsonDocs` to `Package` (CEM); `isValidMetaData` checks for `modules` array
+- `docs/custom-elements.ts` + `docs/infer-type.ts`: full rewrite for CEM `ClassField`/`ClassMethod`/`CustomElement` shape; `parseLiteralValues()` replaces `prop.values`
+- `peerDependencies`: `@stencil/core ^5.0.0-alpha.0`; dropped community plugin dep
+
+**Core compiler change — CEM `tags` extension (`packages/core/src/compiler/docs/cem/index.ts`):**
+CEM has no spec field for arbitrary JSDoc tags (`@since`, `@see`, etc.). Added `tags?: Tag[]` as a Stencil-specific extension (same pattern as `cssStates`) on `CustomElementDeclaration`, `Attribute`, `CustomElementField`, `ClassMethod`, and `Event`. `toTags()` maps `docsTags`, skipping `@deprecated` (already handled by CEM's `deprecated: boolean | string` field).
+
+**Known limitation:** `typeLibrary` is unavailable in per-file `transpileSync` mode — complex cross-file type references won't resolve in CEM output.
+
+**Open tasks:**
+- [ ] Surface `tags` field in Storybook docs panel (render `@since`, `@see`, etc. from `CustomElement.tags` / `ClassField.tags`)
+- [ ] Tests for `parseLiteralValues()` and `inferSBType()` / `inferControlType()`
+- [ ] README / migration guide from community plugin
+
+---
+
+## Architecture Reference
+
+```
+packages/
+├── core/        @stencil/core (compiler + runtime)
+├── cli/         @stencil/cli
+├── templates/   @stencil/templates (project + generate templates, versioned lockstep)
+├── mock-doc/    @stencil/mock-doc
+├── unplugin/    @stencil/unplugin (universal bundler plugin — Vite/Rollup/webpack/rspack/bun)
+└── dev-server/  @stencil/dev-server (planned)
+```
+
+**Build:** tsdown + pnpm workspaces | **Module format:** Pure ESM | **Node floor:** 22 LTS
+
+### Key Decisions
+- Don't bundle TypeScript/terser/parse5 - use as normal dependencies
+- JS minifier: `oxc` (via rolldown) is now the default, `terser` remains available via `jsMinifier: 'terser'`. See New Features below.
+
+---
+
+## Build Commands
+
+```bash
+pnpm run build     # Build all packages
+pnpm run dev       # Watch mode
+```
+
+---
+
+## ⚡ Signals - "make default" consideration
+- [ ] Evaluate adoption/feedback
+- [ ] If stable and popular: flip `signalBacking` default to `true`, deprecate old Map path, remove in next major
+- [x] JSX prop types now accept `ReadonlySignal<T>` when `signalBacking` is on (stenciljs/core#6875) - `compiler/types/generate-component-types.ts`
+- [ ] Doc gap (stenciljs/core#6875): the JSX signal bypass only fires when the literal signal reference is the vdom child/attribute value (`h()`/`setAccessor()`'s `isSignalLike()` checks) - `.value` reads in `render()`, including implicit ones (`count % 2`, template literals), are untracked and will not re-render. Documented in `packages/core/src/signals/readme.md`; **stenciljs/site still needs the equivalent public docs update** - not done here, that repo isn't checked out locally.
+- [ ] Considered (not pursued): wrapping `instance.render()` in an `effect()` so any `.value` read during render is tracked, closing the gap above generally. Mechanically works (traced the exact call site in `update-component.ts`), but it's a third reactivity channel alongside the @Prop/@State→scheduleUpdate effects and the vdom bypass, reintroduces Solid-style fine-grained re-render that the bypass was built to avoid paying for, and has real edges (state written during render → signals-core cycle detection, double-scheduling with existing per-prop effects, the SSR async render path). Revisit only as a deliberate feature proposal, not as a fix for #6875.
+
+---
+
+## 💡 Post-v5 Ideas (Backlog)
+
+Not scoped for v5 — parking here so they're not lost.
+
+### Manifest/typing for built-in element variants (design-system-styled `<button>`, `<progress class="ring">`, etc.)
+Prompted by [Lea Verou's post](https://bsky.app/profile/lea.verou.me/post/3muckxg75rc22) asking whether anyone's generalizing Custom Elements Manifest to cover non-custom-element design system components — a `<button>` or styled `<progress>` documented the same way as a custom element, no runtime needed.
+
+Scoped down to: documentation with autocomplete as a bonus, not type-safety guarantees. Findings from discussion + a live spike:
+- **Author as a declarative source, not a real type.** e.g. `interface MyAnchor extends HTMLAnchorElement { className: 'my-thing' | 'my-other-thing' }` in a `.d.ts`-shaped file, parsed by the compiler via AST (same static-analysis pattern already used for `@Component` classes) — never imported/used as an actual variable type, since attributes like `data-variant` don't reflect real DOM properties (they'd live on `.dataset`).
+- **Attribute typing is basically free** — literal string unions on individual attributes already work with existing TS mechanisms (JSX intrinsic augmentation), no new infra needed.
+- **Class name typing needs the `KnownClass | (string & {})` escape-hatch pattern** (single known-literal union + a `string & {}` fallback so arbitrary classes still type-check). Verified via spike: this gives real, automatic autocomplete for a *single* class name.
+- **Multi-token (space-separated) class list completion doesn't hold up.** Tried both a hand-unrolled union (`` `${K} ${K}` | `${K} ${K} ${K}` ``) and a depth-capped recursive template literal type — TS expands the recursive form to the exact same flat materialized union under the hood (confirmed via the literal error message), so there's no representational win from recursion. Cost is combinatorial (N known classes → N² + N³ members for 2-3 slots; ~20 classes ≈ 8,400 members), and in practice VS Code's completion list gets noisier, not more useful, as the vocabulary grows. Also, completion only fires automatically for the first token — anything after a space needs a manual invoke. Not worth pursuing further without a fundamentally different mechanism (e.g. a real language-service/editor extension computing suggestions dynamically, Tailwind-CSS-IntelliSense-style, rather than encoding them in the type system).
+- **JSX intrinsic augmentation is global per compilation**, not scoped per design system. If multiple `.d.ts` sources each did their own `declare global` merge into e.g. `AnchorHTMLAttributes.className`, conflicting literal sets would hard-error (TS requires merged property redeclarations to match exactly). Fix: don't let source files merge directly — have the compiler collect all the interfaces project-wide and emit one generated augmentation with the unioned literals, same pattern already used for `components.d.ts`.
+- **Real ceiling, not a blocker to design around:** type checking only fires on literal strings — `className={clsx(...)}` or any computed value gets no validation, and that's most real-world JSX class usage. And two unrelated libraries independently choosing the same class name with different meaning is undetectable by this (or any) type-level scheme — that's inherent to CSS's global class namespace, not something this introduces.
+
+If picked up later: prototype the compiler-owned aggregation step first (the actual novel infra), treat single-token class completion as the ceiling for the class-name half, and don't re-attempt multi-token completion via the type system without a different approach in hand.
+
+---
+
+## Known Test Coverage Gaps
+- `validatePublicName` (`compiler/transformers/reserved-public-members.ts`) has no dedicated unit tests - only its event-name counterpart (`compat.suppressEventNameWarnings`, tested in `parse-events.spec.ts`) is covered.
+- `generate-types.ts`'s hand-written `.d.ts` template strings (`generateLoaderTypes`, `generateStandaloneApiTypes`) have no unit tests at all - nothing catches the type declarations drifting out of sync with what the corresponding JS entry actually exports (e.g. the `setAssetPath` gap fixed alongside this note). Not infra-blocked - a real end-to-end `compiler.build()` test (`devMode: false` to trigger types output) confirmed `dist/types/loader.d.ts` is produced and readable in the test FS; a proper test just hasn't been written yet.
+
+---
+
+## Build Commands
+
+```bash
+pnpm run build     # Build all packages
+pnpm run dev       # Watch mode
+```
+
+---
+
+*Last updated: 2026-09-30*

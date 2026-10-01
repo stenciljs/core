@@ -1,0 +1,53 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.layout {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100%;
+  position: relative;
+}
+
+.tabs {
+  display: flex;
+  overflow-x: auto;
+  background: #252526;
+  border-bottom: 1px solid #333;
+}
+
+.tab {
+  flex: 0 0 auto;
+  padding: 0.5rem 0.875rem;
+  border: 0;
+  border-right: 1px solid #333;
+  background: transparent;
+  color: #969696;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.tab.active {
+  background: #1e1e1e;
+  color: #d4d4d4;
+}
+
+.editor {
+  min-width: 0;
+  min-height: 0;
+}
+
+.loading {
+  position: absolute;
+  inset: 0;
+  top: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1e1e1e;
+  color: #969696;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+}

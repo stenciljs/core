@@ -1,0 +1,6 @@
+/* the virtual imports live in a partial, which Vite inlines itself */
+@import './partials/stencil.css';
+
+.user-rule {
+  color: rebeccapurple;
+}

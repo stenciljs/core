@@ -1,0 +1,9 @@
+:host {
+  display: block;
+  padding: 20px;
+  background: plum;
+}
+
+section {
+  padding: 10px;
+}

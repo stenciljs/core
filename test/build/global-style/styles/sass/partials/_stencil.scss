@@ -1,0 +1,4 @@
+// Plain-CSS imports survive Sass and are hoisted into the output for Stencil to resolve
+@import url('stencil-hydrate');
+@import url(stencil-component-globals);
+@import 'stencil-css-components' layer(cmps);

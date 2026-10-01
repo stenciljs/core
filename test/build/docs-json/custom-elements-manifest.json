@@ -1,0 +1,186 @@
+{
+  "schemaVersion": "2.1.0",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "src/components/css-only-badge/css-only-badge.css",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "css-only-badge",
+          "name": "CssOnlyBadge",
+          "description": "A CSS-only badge - no JS class, no shadow DOM, never registered via `customElements.define()`. Verifies docs-json/CEM output for this kind of component.",
+          "attributes": [
+            {
+              "name": "dismissible",
+              "description": "Whether the badge can be dismissed.",
+              "type": {
+                "text": "boolean"
+              },
+              "fieldName": "dismissible"
+            },
+            {
+              "name": "variant",
+              "type": {
+                "text": "\"danger\" | \"warning\" | (string & {})"
+              },
+              "fieldName": "variant"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "dismissible",
+              "description": "Whether the badge can be dismissed.",
+              "type": {
+                "text": "boolean"
+              },
+              "attribute": "dismissible"
+            },
+            {
+              "kind": "field",
+              "name": "variant",
+              "type": {
+                "text": "\"danger\" | \"warning\" | (string & {})"
+              },
+              "attribute": "variant"
+            }
+          ],
+          "slots": [
+            {
+              "name": "",
+              "description": "The badge's label."
+            },
+            {
+              "name": "icon-end",
+              "description": "Content shown after the label."
+            },
+            {
+              "name": "icon-start",
+              "description": "Content shown before the label - gazumps the inline comment below."
+            }
+          ],
+          "cssProperties": [
+            {
+              "name": "--badge-color",
+              "description": "The badge's text color."
+            },
+            {
+              "name": "--badge-padding",
+              "description": "Inner spacing."
+            },
+            {
+              "name": "--badge-radius",
+              "description": "Corner radius.",
+              "syntax": "<length>",
+              "default": "4px"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "CssOnlyBadge",
+          "declaration": {
+            "name": "CssOnlyBadge"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "css-only-badge",
+          "declaration": {
+            "name": "CssOnlyBadge"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/my-component/my-component.tsx",
+      "declarations": [
+        {
+          "kind": "class",
+          "customElement": true,
+          "tagName": "my-component",
+          "name": "MyComponent",
+          "members": [
+            {
+              "kind": "method",
+              "name": "onDidDismiss",
+              "description": "A comment, which should be included, I should think!",
+              "parameters": [
+                {
+                  "name": "arg",
+                  "type": {
+                    "text": "T",
+                    "references": [
+                      {
+                        "name": "Promise",
+                        "package": "global:"
+                      },
+                      {
+                        "name": "ImportedInterface",
+                        "module": "./imported-interface"
+                      },
+                      {
+                        "name": "T",
+                        "package": "global:"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "return": {
+                "type": {
+                  "text": "Promise<ImportedInterface<T>>",
+                  "references": [
+                    {
+                      "name": "Promise",
+                      "package": "global:"
+                    },
+                    {
+                      "name": "ImportedInterface",
+                      "module": "./imported-interface"
+                    },
+                    {
+                      "name": "T",
+                      "package": "global:"
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "cssProperties": [
+            {
+              "name": "--background",
+              "description": "the background color"
+            },
+            {
+              "name": "--background",
+              "description": "the background color"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "MyComponent",
+          "declaration": {
+            "name": "MyComponent"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "my-component",
+          "declaration": {
+            "name": "MyComponent"
+          }
+        }
+      ]
+    }
+  ]
+}

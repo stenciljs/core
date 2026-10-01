@@ -1,0 +1,11 @@
+{
+  "name": "@stencil-core-tests/build",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "test": "pnpm --filter \"@stencil-core-tests/build-*\" test"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

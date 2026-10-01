@@ -1,0 +1,8 @@
+<another-car-detail custom-hydrate-flag="">
+  <template shadowrootmode="open">
+    <style sty-id="sc-another-car-detail">
+      section{color:green}
+    </style>
+  </template>
+  <!---->
+</another-car-detail>

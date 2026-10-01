@@ -7,8 +7,6 @@
       "addWords": true
     }
   ],
-  "ignoreRegExpList": [
-    "/`[a-zA-Z-_., /*']+`/g"
-  ],
-  "ignorePaths": ["**/node_modules/**", "**/third-party/**", "./CHANGELOG.md"]
+  "ignoreRegExpList": ["/`[a-zA-Z-_., /*']+`/g"],
+  "ignorePaths": ["**/node_modules/**", "**/third-party/**", "./CHANGELOG.md", "./V5_PLANNING.md"]
 }

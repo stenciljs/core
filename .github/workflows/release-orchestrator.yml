@@ -41,7 +41,6 @@ on:
         default: main
         options:
           - main
-          - v3-maintenance
           - v5
 
 permissions:

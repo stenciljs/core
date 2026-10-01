@@ -1,0 +1,9 @@
+:host cmp-level-2 ::slotted(#test-element) {
+  color: blue;
+}
+:host cmp-level-2 cmp-level-3 {
+  padding: 32px;
+}
+:host cmp-level-2 cmp-level-3 #test-element {
+  padding: 24px;
+}

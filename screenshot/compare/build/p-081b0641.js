@@ -1,1 +1,0 @@
-function t(t,n,r){const s=o(t,n,r),c=localStorage.getItem(s);if("string"==typeof c){const t=parseInt(c,10);if(!isNaN(t))return t}return null}function n(t,n,r,s){const c=o(t,n,r);localStorage.setItem(c,String(s))}function o(t,n,o){return`screenshot_mismatch_${t}_${n}_${o}`}export{t as g,n as s}

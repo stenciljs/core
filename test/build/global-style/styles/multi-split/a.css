@@ -1,0 +1,5 @@
+@import url(stencil-component-globals);
+
+.a-rule {
+  color: red;
+}

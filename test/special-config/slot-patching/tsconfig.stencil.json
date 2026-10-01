@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "lib": ["dom", "esnext"],
+    "moduleResolution": "bundler",
+    "module": "esnext",
+    "target": "esnext",
+    "jsx": "react-jsx",
+    "jsxImportSource": "@stencil/core",
+    "rootDir": "./"
+  },
+  "include": ["src"],
+  "types": ["@stencil/vitest/globals"]
+}

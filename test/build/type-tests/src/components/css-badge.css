@@ -1,0 +1,16 @@
+/**
+ * @component
+ * A CSS-only badge, used to verify generated JSX types for a component with no backing
+ * JS class - literal-union attribute types (auto-detected) and explicit @attr types.
+ * @attr {boolean} dismissible - Whether the badge can be dismissed.
+ */
+css-badge {
+  color: red;
+}
+
+css-badge[variant='danger'] {
+  color: darkred;
+}
+css-badge[variant='warning'] {
+  color: orange;
+}
