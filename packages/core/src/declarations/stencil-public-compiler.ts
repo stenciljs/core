@@ -1044,7 +1044,7 @@ export interface SerializeDocumentOptions extends SsrDocumentOptions {
    * Note that this is "approximate", in that HTML may often not be able
    * to be split at an exact line width. Additionally, new lines created
    * is where HTML naturally already has whitespace, such as before an
-   * attribute or spaces between words. Defaults to `100`.
+   * attribute or spaces between words. Defaults to no wrapping (`100` when prerendering).
    */
   approximateLineWidth?: number;
   /**
@@ -1062,12 +1062,12 @@ export interface SerializeDocumentOptions extends SsrDocumentOptions {
   prettyHtml?: boolean;
   /**
    * Remove quotes from attribute values when possible.
-   * Defaults to `true`.
+   * Defaults to `false` (`true` when prerendering).
    */
   removeAttributeQuotes?: boolean;
   /**
    * Remove the `=""` from standardized `boolean` attributes,
-   * such as `hidden` or `checked`. Defaults to `true`.
+   * such as `hidden` or `checked`. Defaults to `false` (`true` when prerendering).
    */
   removeBooleanAttributeQuotes?: boolean;
   /**
@@ -1076,7 +1076,7 @@ export interface SerializeDocumentOptions extends SsrDocumentOptions {
    */
   removeEmptyAttributes?: boolean;
   /**
-   * Remove HTML comments. Defaults to `true`.
+   * Remove HTML comments. Defaults to `false` (`true` when prerendering).
    */
   removeHtmlComments?: boolean;
   /**
@@ -1184,7 +1184,7 @@ export interface CompilerSystem {
   name: 'node' | 'in-memory';
   version: string;
   events?: BuildEvents;
-  details?: SystemDetails;
+  details: SystemDetails;
   /**
    * Add a callback which will be ran when destroy() is called.
    */
@@ -1197,12 +1197,12 @@ export interface CompilerSystem {
    * SYNC! Always returns a boolean, does not throw.
    */
   accessSync(p: string): boolean;
-  applyGlobalPatch?(fromDir: string): Promise<void>;
   applyPrerenderGlobalPatch?(opts: { devServerHostUrl: string; window: any }): void;
-  cacheStorage?: CacheStorage;
-  // Optional: only provided by node-sys; not available in test/browser environments.
-  checkVersion?: (logger: Logger, currentVersion: string) => Promise<() => void>;
-  copy?(copyTasks: Required<CopyTask>[], srcDir: string): Promise<CopyResults>;
+  /**
+   * Check npm for a newer Stencil version. Resolves a function that logs the result.
+   */
+  checkVersion(logger: Logger, currentVersion: string): Promise<() => void>;
+  copy(copyTasks: Required<CopyTask>[], srcDir: string): Promise<CopyResults>;
   /**
    * Always returns a boolean if the files were copied or not. Does not throw.
    */
@@ -1233,7 +1233,7 @@ export interface CompilerSystem {
   /**
    * Each platform has a different way to dynamically import modules.
    */
-  dynamicImport?(p: string): Promise<any>;
+  dynamicImport(p: string): Promise<any>;
   /**
    * Creates the worker controller for the current system.
    *
@@ -1248,19 +1248,13 @@ export interface CompilerSystem {
    */
   exit(exitCode: number): Promise<void>;
   /**
-   * Optionally provide a fetch() function rather than using the built-in fetch().
-   * First arg is a url string or Request object (RequestInfo).
-   * Second arg is the RequestInit. Returns the Response object
-   */
-  fetch?(input: string | any, init?: any): Promise<any>;
-  /**
    * Generates a sha1 digest encoded as HEX
    */
-  generateContentHash?(content: string | any, length?: number): Promise<string>;
+  generateContentHash(content: string | any, length?: number): Promise<string>;
   /**
    * Generates a sha1 digest encoded as HEX from a file path
    */
-  generateFileHash?(filePath: string | any, length?: number): Promise<string>;
+  generateFileHash(filePath: string | any, length?: number): Promise<string>;
   /**
    * Get the current directory.
    */
@@ -1269,7 +1263,6 @@ export interface CompilerSystem {
    * The compiler's executing path.
    */
   getCompilerExecutingPath(): string;
-  getEnvironmentVar?(key: string): string;
   /**
    * Gets the absolute file path when for a dependency module.
    */
@@ -1299,11 +1292,7 @@ export interface CompilerSystem {
    * Normalize file system path.
    */
   normalizePath(p: string): string;
-  onProcessInterrupt?(cb: () => void): void;
-  parseYarnLockFile?: (content: string) => {
-    type: 'success' | 'merge' | 'conflict';
-    object: any;
-  };
+  onProcessInterrupt(cb: () => void): void;
   platformPath: PlatformPath;
   /**
    * All return paths are full normalized paths, not just the basenames. Always returns an array, does not throw.
@@ -1339,6 +1328,9 @@ export interface CompilerSystem {
    * Rename old path to new path. Does not throw.
    */
   rename(oldPath: string, newPath: string): Promise<CompilerSystemRenameResults>;
+  /**
+   * Assigned by the compiler. Used by plugins (e.g. `@stencil/sass`) to resolve `~` imports.
+   */
   resolveModuleId?(opts: ResolveModuleIdOptions): Promise<ResolveModuleIdResults>;
   resolvePath(p: string): string;
   /**
@@ -2098,7 +2090,7 @@ export interface OutputTargetCollection extends OutputTargetBaseNext {
    * When `true` this flag will transform aliased import paths defined in
    * a project's `tsconfig.json` to relative import paths in the compiled output.
    *
-   * Paths will be left in aliased format if `false` or `undefined`.
+   * Paths will be left in aliased format if `false`. Defaults to `true`.
    *
    * @example
    * // tsconfig.json
@@ -2210,11 +2202,11 @@ export interface OutputTargetGlobalStyle extends OutputTargetBaseNext {
    * Controls whether this global stylesheet is injected into component shadow DOMs
    * as a constructable stylesheet at runtime.
    *
-   * - `'none'` (default): Don't inject - stylesheet must be loaded externally (e.g., via `<link>`)
+   * - `'none'`: Don't inject - stylesheet must be loaded externally (e.g., via `<link>`)
    * - `'client'`: Inject only in client builds, not SSR (reduces SSR output size)
    * - `'all'`: Inject in both client and SSR builds
    *
-   * @default 'none'
+   * @default 'client' when the stylesheet comes from `globalStyle` (or an auto-detected `src/global.*`), 'none' when `input` is set
    */
   inject?: 'none' | 'client' | 'all';
 }
@@ -2435,7 +2427,7 @@ export interface OutputTargetDocsAgentSkill extends OutputTargetBase {
   /**
    * The skill's name, used in the `SKILL.md` frontmatter.
    *
-   * Defaults to a kebab-cased form of {@link Config.namespace}.
+   * Defaults to {@link Config.namespace}, lowercased, with anything other than letters and numbers replaced by `-`.
    */
   name?: string;
   /**
@@ -2582,8 +2574,10 @@ export interface OutputTargetBase {
    * This improves dev build times by not generating production-only artifacts.
    *
    * Defaults vary by output target type:
-   * - `loader-bundle`: `false` (always builds)
-   * - `standalone`: `true` (skips in dev)
+   * - `loader-bundle`: `true` (skips the npm distribution files; the browser bundle always builds)
+   * - `standalone`: `true` if `loader-bundle` is also configured, otherwise `false`
+   * - `types`, `collection`, `ssr-wasm`: `true` (skips in dev)
+   * - `assets`, `global-style`: `false` (always runs)
    * - `ssr`: `true` (skips in dev, unless `devServer.ssr` is enabled)
    * - `docs-*`: `true` (skips in dev)
    * - `custom`: `true` (skips in dev)
@@ -2823,11 +2817,6 @@ export interface Diagnostic {
   messageText: string;
   relFilePath?: string | undefined;
   type: string;
-}
-
-export interface CacheStorage {
-  get(key: string): Promise<any>;
-  set(key: string, value: any): Promise<void>;
 }
 
 export interface WorkerOptions {

@@ -17,7 +17,6 @@ import * as GenerateTask from '../task-generate';
 import * as HelpTask from '../task-help';
 import * as PrerenderTask from '../task-prerender';
 import * as ServeTask from '../task-serve';
-import * as TelemetryTask from '../task-telemetry';
 
 describe('run', () => {
   describe('run()', () => {
@@ -67,16 +66,7 @@ describe('run', () => {
         await run(cliInitOptions);
 
         expect(taskHelpSpy).toHaveBeenCalledTimes(1);
-        expect(taskHelpSpy).toHaveBeenCalledWith(
-          {
-            task: 'help',
-            args: [],
-            knownArgs: [],
-            unknownArgs: [],
-          },
-          mockLogger,
-          mockSystem,
-        );
+        expect(taskHelpSpy).toHaveBeenCalledWith(mockLogger, mockSystem);
 
         taskHelpSpy.mockRestore();
       });
@@ -91,16 +81,7 @@ describe('run', () => {
         await run(cliInitOptions);
 
         expect(taskHelpSpy).toHaveBeenCalledTimes(1);
-        expect(taskHelpSpy).toHaveBeenCalledWith(
-          {
-            task: 'help',
-            args: [],
-            knownArgs: [],
-            unknownArgs: [],
-          },
-          mockLogger,
-          mockSystem,
-        );
+        expect(taskHelpSpy).toHaveBeenCalledWith(mockLogger, mockSystem);
 
         taskHelpSpy.mockRestore();
       });
@@ -115,16 +96,7 @@ describe('run', () => {
         await run(cliInitOptions);
 
         expect(taskHelpSpy).toHaveBeenCalledTimes(1);
-        expect(taskHelpSpy).toHaveBeenCalledWith(
-          {
-            task: 'help',
-            args: [],
-            unknownArgs: [],
-            knownArgs: [],
-          },
-          mockLogger,
-          mockSystem,
-        );
+        expect(taskHelpSpy).toHaveBeenCalledWith(mockLogger, mockSystem);
 
         taskHelpSpy.mockRestore();
       });
@@ -141,7 +113,6 @@ describe('run', () => {
     let taskHelpSpy: MockInstance<typeof HelpTask.taskHelp>;
     let taskPrerenderSpy: MockInstance<typeof PrerenderTask.taskPrerender>;
     let taskServeSpy: MockInstance<typeof ServeTask.taskServe>;
-    let taskTelemetrySpy: MockInstance<typeof TelemetryTask.taskTelemetry>;
 
     beforeEach(() => {
       sys = mockCompilerSystem();
@@ -166,9 +137,6 @@ describe('run', () => {
 
       taskServeSpy = vi.spyOn(ServeTask, 'taskServe');
       taskServeSpy.mockResolvedValue();
-
-      taskTelemetrySpy = vi.spyOn(TelemetryTask, 'taskTelemetry');
-      taskTelemetrySpy.mockResolvedValue();
     });
 
     afterEach(() => {
@@ -178,7 +146,6 @@ describe('run', () => {
       taskHelpSpy.mockRestore();
       taskPrerenderSpy.mockRestore();
       taskServeSpy.mockRestore();
-      taskTelemetrySpy.mockRestore();
     });
 
     describe('default configuration', () => {
@@ -242,9 +209,7 @@ describe('run', () => {
       await runTask(coreCompiler, unvalidatedConfig, 'help', sys);
 
       expect(taskHelpSpy).toHaveBeenCalledTimes(1);
-      // taskHelp receives (flags, logger, sys)
-      expect(taskHelpSpy.mock.calls[0][0]).toHaveProperty('task', 'help');
-      expect(taskHelpSpy.mock.calls[0][2]).toBe(sys);
+      expect(taskHelpSpy.mock.calls[0][1]).toBe(sys);
     });
 
     it('calls the prerender task', async () => {
@@ -266,36 +231,21 @@ describe('run', () => {
       expect(taskServeSpy.mock.calls[0][1]).toHaveProperty('task', 'serve');
     });
 
-    describe('telemetry task', () => {
-      it('calls the telemetry task when a compiler system is present', async () => {
-        await runTask(coreCompiler, unvalidatedConfig, 'telemetry', sys);
-
-        expect(taskTelemetrySpy).toHaveBeenCalledTimes(1);
-        // taskTelemetry receives (flags, sys, logger)
-        expect(taskTelemetrySpy.mock.calls[0][0]).toHaveProperty('task', 'telemetry');
-        expect(taskTelemetrySpy.mock.calls[0][1]).toBe(sys);
-      });
-    });
-
     it('defaults to the help task for an unaccounted for task name', async () => {
       // info is a valid task name, but isn't used in the `switch` statement of `runTask`
       await runTask(coreCompiler, unvalidatedConfig, 'info', sys);
 
       expect(taskHelpSpy).toHaveBeenCalledTimes(1);
-      // taskHelp receives (flags, logger, sys)
-      expect(taskHelpSpy.mock.calls[0][0]).toHaveProperty('task', 'info');
-      expect(taskHelpSpy.mock.calls[0][2]).toBe(sys);
+      expect(taskHelpSpy.mock.calls[0][1]).toBe(sys);
     });
 
     it('defaults to the provided task if no flags exist on the provided config', async () => {
       unvalidatedConfig = mockConfig({ flags: undefined, sys });
 
-      await runTask(coreCompiler, unvalidatedConfig, 'help', sys);
+      await runTask(coreCompiler, unvalidatedConfig, 'serve', sys);
 
-      expect(taskHelpSpy).toHaveBeenCalledTimes(1);
-      // taskHelp receives (flags, logger, sys)
-      expect(taskHelpSpy.mock.calls[0][0]).toHaveProperty('task', 'help');
-      expect(taskHelpSpy.mock.calls[0][2]).toBe(sys);
+      expect(taskServeSpy).toHaveBeenCalledTimes(1);
+      expect(taskServeSpy.mock.calls[0][1]).toHaveProperty('task', 'serve');
     });
   });
 });

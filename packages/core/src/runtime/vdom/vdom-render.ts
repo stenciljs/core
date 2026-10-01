@@ -94,7 +94,6 @@ const wireTextSignal = (textNode: Node, textSig: SignalLike) => {
  * @returns the newly created node
  */
 const createElm = (oldParentVNode: d.VNode, newParentVNode: d.VNode, childIndex: number) => {
-  // tslint:disable-next-line: prefer-const
   const newVNode = newParentVNode.$children$[childIndex];
   let i = 0;
   let elm: d.RenderNode;
@@ -914,7 +913,6 @@ const carryContentWithRelocatedSlotRefs = () => {
  * @param elm a render node whose child nodes need to be relocated
  */
 const markSlotContentForRelocation = (elm: d.RenderNode) => {
-  // tslint:disable-next-line: prefer-const
   let node: d.RenderNode;
   let hostContentNodes: NodeList;
   let j;

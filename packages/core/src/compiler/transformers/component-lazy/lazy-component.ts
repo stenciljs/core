@@ -2,7 +2,6 @@ import ts from 'typescript';
 import type * as d from '@stencil/core';
 
 import { addStaticStylePropertyToClass } from '../add-static-style';
-import { transformHostData } from '../host-data-transform';
 import { addReactivePropHandlers } from '../reactive-handler-meta-transform';
 import { removeStaticMetaProperties } from '../remove-static-meta-properties';
 import { updateComponentClass } from '../update-component-class';
@@ -68,7 +67,6 @@ const updateLazyComponentMembers = (
   addReactivePropHandlers(classMembers, cmp, 'watchers');
   addReactivePropHandlers(classMembers, cmp, 'serializers');
   addReactivePropHandlers(classMembers, cmp, 'deserializers');
-  transformHostData(classMembers, moduleFile);
 
   if (transformOpts.style === 'static') {
     addStaticStylePropertyToClass(styleStatements, cmp, buildCtx);

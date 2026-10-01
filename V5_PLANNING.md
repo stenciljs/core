@@ -124,6 +124,9 @@ Modernize Stencil after 10 years: shed tech debt, embrace modern tooling, simpli
 - **`@stencil/core/compiler` no longer wildcard-exports `declarations/stencil-private.ts`.** That file mixes genuinely compiler-facing types with runtime-internal ones (`HostElement`, `HostRef`, `RenderNode`, `PlatformRuntime`, `VNodeProdData`, SSR/worker internals), and the old `export *` in `compiler/index.ts` leaked all of it onto the public API. Now only the subset actually consumed by `@stencil/cli`/`@stencil/dev-server`/`@stencil/unplugin` is re-exported by name: `ComponentCompilerMeta`, `ComponentCompilerTypeReferences`, `LazyBundlesRuntimeData`, `PackageJsonData`, `PrintLine`, `SsrResults`. If you need the public host-element type for `componentOnReady()`, use `HTMLStencilElement` from `@stencil/core/runtime` instead — it's the intentionally-narrow public counterpart to the internal `HostElement`.
 - **Default JS minifier changed from `terser` to `oxc`** when `minifyJs` is enabled. Functionally equivalent output, but oxc currently produces somewhat larger bundles than terser (see `jsMinifier` in New Features). Set `jsMinifier: 'terser'` to keep the previous minifier/output size.
 - **Boolean props follow the HTML spec: a `"false"` attribute value is `true`.** Presence means `true`, absence means `false`, for every component (previously only form-associated ones). `parsePropertyValue()` lost its `isFormAssociated` param; `attributeChangedCallback` warns in dev builds on `"false"`. Opt-out for string-boolean sources is an `@AttrDeserialize()`; see BREAKING_CHANGES.md.
+- **`hostData()` removed** (deprecated since Stencil One) — use `<Host>`. Now silently ignored; no build diagnostic.
+- **Telemetry removed** — `stencil telemetry` task and `~/.ionic/config.json` handling gone.
+- **`CompilerSystem` tightened** — removed `applyGlobalPatch`, `cacheStorage`, `fetch`, `getEnvironmentVar`, `parseYarnLockFile`; made `checkVersion`, `copy`, `details`, `dynamicImport`, `generateContentHash`, `generateFileHash`, `onProcessInterrupt` required.
 
 ---
 
@@ -543,6 +546,12 @@ Compiles the SSR script to a standalone `.wasm` binary via [Extism PDK](https://
 - [ ] Original plan: replace with TypeScript incremental APIs
 - [ ] No reference implementation exists - needs investigation if this is still the right approach
 - [ ] May be deferrable if not blocking other goals
+
+### 🧹 `CompilerSystem` Follow-ups
+- [ ] Remaining optional members, kept deliberately: `glob` / `resolveModuleId` are used by plugins (`@stencil/react-output-target`, `@stencil/sass`) — don't remove without checking the `@stencil/*` ecosystem. `events` / `watch*` are set lazily by node-sys `setupCompiler()` (per-compiler reset). `createWorkerController` is `null` in-memory.
+- [ ] `getRemoteModuleUrl`, `getLocalModulePath`, `compiler/sys/fetch/*` and `isRemoteUrl` branches are in-browser-compilation leftovers — remove with that goal.
+- [ ] `lazyRequire` still lists jest / puppeteer version ranges (integrated testing is gone); only `workbox-build` (pinned 4.3.1) is still used. Consider replacing with a plain dynamic import.
+- [x] Build cache (`.stencil/.build`) was never pruned (expiry relied on the unimplemented `sys.cacheStorage`). Now `Cache.commit()` removes files >1 week old, at most once a day via a `_last_prune.log` marker mtime.
 
 ### 💧 SSR: Defer Child Hydration Until Its Rendering Parent Hydrates (Prototype landed, follow-ups pending)
 

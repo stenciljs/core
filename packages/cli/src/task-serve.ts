@@ -16,10 +16,6 @@ export const taskServe = async (config: ValidatedConfig, flags: ConfigFlags) => 
   config.maxConcurrentWorkers = 1;
   config.devServer.root = isString(flags.root) ? flags.root : config.sys.getCurrentDirectory();
 
-  if (!config.sys.onProcessInterrupt) {
-    throw new Error(`Environment doesn't provide required function: onProcessInterrupt`);
-  }
-
   const devServer = await start(config.devServer, config.logger);
 
   console.log(`${config.logger.cyan('     Root:')} ${devServer.root}`);

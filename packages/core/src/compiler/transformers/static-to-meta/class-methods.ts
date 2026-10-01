@@ -5,8 +5,6 @@ export const parseClassMethods = (classMethods: string[], cmpMeta: d.ComponentCo
     return;
   }
 
-  const hasHostData = classMethods.includes('hostData');
-
   cmpMeta.hasAttributeChangedCallbackFn = classMethods.includes('attributeChangedCallback');
   cmpMeta.hasConnectedCallbackFn = classMethods.includes('connectedCallback');
   cmpMeta.hasDisconnectedCallbackFn = classMethods.includes('disconnectedCallback');
@@ -22,6 +20,5 @@ export const parseClassMethods = (classMethods: string[], cmpMeta: d.ComponentCo
     cmpMeta.hasComponentDidLoadFn ||
     cmpMeta.hasComponentWillUpdateFn ||
     cmpMeta.hasComponentDidUpdateFn;
-  cmpMeta.hasRenderFn = classMethods.includes('render') || hasHostData;
-  cmpMeta.hasVdomRender = cmpMeta.hasVdomRender || hasHostData;
+  cmpMeta.hasRenderFn = classMethods.includes('render');
 };

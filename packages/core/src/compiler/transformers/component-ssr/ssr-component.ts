@@ -3,7 +3,6 @@ import type * as d from '@stencil/core';
 
 import { updateLazyComponentConstructor } from '../component-lazy/lazy-constructor';
 import { addLazyElementGetter } from '../component-lazy/lazy-element-getter';
-import { transformHostData } from '../host-data-transform';
 import { addReactivePropHandlers } from '../reactive-handler-meta-transform';
 import { removeStaticMetaProperties } from '../remove-static-meta-properties';
 import { retrieveModifierLike } from '../transform-utils';
@@ -16,7 +15,6 @@ import { addHydrateRuntimeCmpMeta } from './ssr-runtime-cmp-meta';
  * - Updating the constructor to be lazy (only initialize when needed in the app factory)
  * - Adding a static getter for the lazy element (which is used in the app factory to determine which components are needed)
  * - Adding reactive property handlers for watchers, serializers, and deserializers (which are used in the app factory to set up reactive properties)
- * - Transforming the `hostData` method to be compatible with SSR
  *
  * @param classNode the class declaration to transform
  * @param moduleFile the module file containing the class declaration
@@ -54,7 +52,6 @@ const updateSsrHostComponentMembers = (
   addReactivePropHandlers(classMembers, cmp, 'serializers');
   addReactivePropHandlers(classMembers, cmp, 'deserializers');
   addHydrateRuntimeCmpMeta(classMembers, cmp, buildCtx);
-  transformHostData(classMembers, moduleFile);
 
   return classMembers;
 };

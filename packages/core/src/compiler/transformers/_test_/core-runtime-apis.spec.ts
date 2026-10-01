@@ -27,23 +27,23 @@ describe('addCoreRuntimeApi()', () => {
     expect(mockModule.coreRuntimeApis).toBeDefined();
     expect(mockModule.coreRuntimeApis).toHaveLength(0);
 
-    addCoreRuntimeApi(mockModule, RUNTIME_APIS.Host);
-    expect(mockModule.coreRuntimeApis).toEqual([RUNTIME_APIS.Host]);
+    addCoreRuntimeApi(mockModule, RUNTIME_APIS.getElement);
+    expect(mockModule.coreRuntimeApis).toEqual([RUNTIME_APIS.getElement]);
 
     addCoreRuntimeApi(mockModule, RUNTIME_APIS.createEvent);
-    expect(mockModule.coreRuntimeApis).toEqual([RUNTIME_APIS.Host, RUNTIME_APIS.createEvent]);
+    expect(mockModule.coreRuntimeApis).toEqual([RUNTIME_APIS.getElement, RUNTIME_APIS.createEvent]);
   });
 
   it("does not allow duplicate entries in a module's coreRuntimeApis", () => {
     expect(mockModule.coreRuntimeApis).toBeDefined();
     expect(mockModule.coreRuntimeApis).toHaveLength(0);
 
-    addCoreRuntimeApi(mockModule, RUNTIME_APIS.Host);
-    expect(mockModule.coreRuntimeApis).toEqual([RUNTIME_APIS.Host]);
+    addCoreRuntimeApi(mockModule, RUNTIME_APIS.getElement);
+    expect(mockModule.coreRuntimeApis).toEqual([RUNTIME_APIS.getElement]);
 
     // attempt to add the api again, doing so shall not create a duplicate entry
-    addCoreRuntimeApi(mockModule, RUNTIME_APIS.Host);
-    expect(mockModule.coreRuntimeApis).toEqual([RUNTIME_APIS.Host]);
+    addCoreRuntimeApi(mockModule, RUNTIME_APIS.getElement);
+    expect(mockModule.coreRuntimeApis).toEqual([RUNTIME_APIS.getElement]);
   });
 });
 
@@ -63,14 +63,14 @@ describe('addOutputTargetCoreRuntimeApi()', () => {
     expect(mockModule.outputTargetCoreRuntimeApis).toBeDefined();
     expect(Object.entries(mockModule.outputTargetCoreRuntimeApis)).toHaveLength(0);
 
-    addOutputTargetCoreRuntimeApi(mockModule, STANDALONE, RUNTIME_APIS.Host);
+    addOutputTargetCoreRuntimeApi(mockModule, STANDALONE, RUNTIME_APIS.getElement);
     expect(mockModule.outputTargetCoreRuntimeApis).toEqual({
-      [STANDALONE]: [RUNTIME_APIS.Host],
+      [STANDALONE]: [RUNTIME_APIS.getElement],
     });
 
     addOutputTargetCoreRuntimeApi(mockModule, STANDALONE, RUNTIME_APIS.createEvent);
     expect(mockModule.outputTargetCoreRuntimeApis).toEqual({
-      [STANDALONE]: [RUNTIME_APIS.Host, RUNTIME_APIS.createEvent],
+      [STANDALONE]: [RUNTIME_APIS.getElement, RUNTIME_APIS.createEvent],
     });
   });
 
@@ -78,15 +78,15 @@ describe('addOutputTargetCoreRuntimeApi()', () => {
     expect(mockModule.outputTargetCoreRuntimeApis).toBeDefined();
     expect(Object.entries(mockModule.outputTargetCoreRuntimeApis)).toHaveLength(0);
 
-    addOutputTargetCoreRuntimeApi(mockModule, STANDALONE, RUNTIME_APIS.Host);
+    addOutputTargetCoreRuntimeApi(mockModule, STANDALONE, RUNTIME_APIS.getElement);
     expect(mockModule.outputTargetCoreRuntimeApis).toEqual({
-      [STANDALONE]: [RUNTIME_APIS.Host],
+      [STANDALONE]: [RUNTIME_APIS.getElement],
     });
 
     // attempt to add the api again, doing so shall not create a duplicate entry
-    addOutputTargetCoreRuntimeApi(mockModule, STANDALONE, RUNTIME_APIS.Host);
+    addOutputTargetCoreRuntimeApi(mockModule, STANDALONE, RUNTIME_APIS.getElement);
     expect(mockModule.outputTargetCoreRuntimeApis).toEqual({
-      [STANDALONE]: [RUNTIME_APIS.Host],
+      [STANDALONE]: [RUNTIME_APIS.getElement],
     });
   });
 });

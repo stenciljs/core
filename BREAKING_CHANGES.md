@@ -30,6 +30,8 @@ Stencil recently had its 10th birthday - this release is a consolidation, organi
   - [JSX Types](#jsx-types)
   - [`extras` Renamed to `compat`](#extras-renamed-to-compat)
   - [Collection Importing / Re-bundling](#collection-importing--re-bundling)
+  - [`hostData()` Removed](#hostdata-removed)
+  - [Telemetry Removed](#telemetry-removed)
 - [Output Target Changes](#output-target-changes)
   - [Core Output Targets Renamed](#core-output-targets-renamed)
   - [`ssr` Output Target (formerly `dist-hydrate-script`)](#ssr-output-target-formerly-dist-hydrate-script)
@@ -45,6 +47,7 @@ Stencil recently had its 10th birthday - this release is a consolidation, organi
   - [`docs-readme` No Longer Auto-Injected](#docs-readme-no-longer-auto-injected)
 - [Compiler API](#compiler-api)
   - [`@stencil/core/compiler` No Longer Wildcard-Exports `stencil-private`](#stencilcorecompiler-no-longer-wildcard-exports-stencil-private)
+  - [`CompilerSystem` Interface Tightened](#compilersystem-interface-tightened)
 
 ### General Changes
 
@@ -260,6 +263,32 @@ To migrate, choose one of:
 1. Import the library as a documented side effect: `import '@ionic/core'`.
 2. Add the library to a new top-level `collections: string[]` config option in `stencil.config.ts`.
 
+#### `hostData()` Removed
+
+The `hostData()` component method, deprecated since Stencil One, is no longer supported and is silently ignored. Use `<Host>` in `render()` instead:
+
+```diff
+- hostData() {
+-   return { role: 'alert', class: { active: this.active } };
+- }
+- render() {
+-   return <slot />;
+- }
++ render() {
++   return (
++     <Host role="alert" class={{ active: this.active }}>
++       <slot />
++     </Host>
++   );
++ }
+```
+
+#### Telemetry Removed
+
+Stencil no longer collects anonymous usage telemetry. The `stencil telemetry` CLI task has been removed, and Stencil no longer reads or writes `~/.ionic/config.json`.
+
+To migrate, remove any `stencil telemetry on|off` invocations from scripts.
+
 ### Output Target Changes
 
 #### Core Output Targets Renamed
@@ -292,7 +321,7 @@ Beyond the rename covered above:
 - The output no longer writes a `package.json` file. Expose the SSR script via `exports` in your library's own `package.json` instead.
 - The default script is now ESM (`index.js`); CommonJS is opt-in via `cjs: true` and outputs as `index.cjs` (previously `hydrate.js`/`hydrate.cjs.js`).
 - The exported `hydrateDocument` function is renamed to `ssrDocument` (`hydrateDocument` remains exported, marked `@deprecated`).
-- Config options prefixed `*Hydrate` are renamed to `*Ssr`: `beforeHydrate`/`afterHydrate` → `beforeSsr`/`afterSsr` (the old names remain exported, marked `@deprecated`).
+- Options prefixed `*Hydrate` are renamed to `*Ssr`: `beforeHydrate`/`afterHydrate` → `beforeSsr`/`afterSsr`, and `clientHydrateAnnotations` → `clientSsrAnnotations`. The old hook names still work as `renderToString()`/`streamToString()` options (marked `@deprecated`), but not in `prerender.config.ts`, where `hydrateOptions` is also renamed to `prerenderOptions`.
 - To make the output runtime-agnostic (not just Node.js), `streamToString()`'s return type changed from Node.js `Readable` to the web-standard `ReadableStream<string>`, which works in Node 22+, Cloudflare Workers, Deno, Bun, and other WinterCG runtimes.
 
 #### `standalone`: `externalRuntime` Defaults to `false`
@@ -367,6 +396,13 @@ To migrate, add `{ type: 'docs-readme' }` to `outputTargets` in `stencil.config.
 `@stencil/core/compiler` previously re-exported everything from `declarations/stencil-private.ts` via `export *`, which mixed genuinely compiler-facing types with runtime-internal ones (`HostElement`, `HostRef`, `RenderNode`, `PlatformRuntime`, `VNodeProdData`, SSR/worker internals) onto the public API surface. Only the subset actually consumed downstream is now re-exported by name: `ComponentCompilerMeta`, `ComponentCompilerTypeReferences`, `LazyBundlesRuntimeData`, `PackageJsonData`, `PrintLine`, `SsrResults`.
 
 To migrate, if you were relying on the public host-element type for `componentOnReady()` or similar, use `HTMLStencilElement` from `@stencil/core/runtime` instead - it's the intentionally-narrow public counterpart to the internal `HostElement`.
+
+#### `CompilerSystem` Interface Tightened
+
+Only relevant if you implement a custom `CompilerSystem` (most projects use the one `@stencil/cli` creates).
+
+- Removed: `applyGlobalPatch`, `cacheStorage` (and the `CacheStorage` type), `fetch` (the global `fetch` is always used), `getEnvironmentVar`, `parseYarnLockFile`.
+- Now required: `checkVersion`, `copy`, `details`, `dynamicImport`, `generateContentHash`, `generateFileHash`, `onProcessInterrupt`.
 
 ## Stencil v4.0.0
 

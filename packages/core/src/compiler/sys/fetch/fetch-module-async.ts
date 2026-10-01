@@ -1,8 +1,7 @@
 import type * as d from '@stencil/core';
 
 import { InMemoryFileSystem } from '../in-memory-fs';
-import { httpFetch, known404Urls } from './fetch-utils';
-import { skipFilePathFetch, skipUrlFetch } from './fetch-utils';
+import { known404Urls, skipFilePathFetch, skipUrlFetch } from './fetch-utils';
 import { writeFetchSuccessAsync } from './write-fetch-success';
 
 export const fetchModuleAsync = async (
@@ -17,7 +16,7 @@ export const fetchModuleAsync = async (
   }
 
   try {
-    const rsp = await httpFetch(sys, url);
+    const rsp = await fetch(url);
     if (rsp) {
       if (rsp.ok) {
         const content = await rsp.clone().text();
