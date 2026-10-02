@@ -17,6 +17,7 @@ import {
   MockUListElement,
 } from './element';
 import { MockCustomEvent, MockEvent, MockFocusEvent, MockKeyboardEvent, MockMouseEvent } from './event';
+import { MockFile } from './file';
 import { MockHeaders } from './headers';
 import { MockDOMParser } from './parser';
 import { MockRequest, MockResponse } from './request-response';
@@ -163,6 +164,7 @@ const GLOBAL_CONSTRUCTORS: [string, any][] = [
   ['DocumentFragment', MockDocumentFragment],
   ['DOMParser', MockDOMParser],
   ['Event', MockEvent],
+  ['File', MockFile],
   ['FocusEvent', MockFocusEvent],
   ['Headers', MockHeaders],
   ['KeyboardEvent', MockKeyboardEvent],
