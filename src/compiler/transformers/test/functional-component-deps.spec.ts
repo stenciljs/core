@@ -112,6 +112,26 @@ describe('functional component dependencies', () => {
       expect(t.moduleFile.htmlTagNames).toContain('svg');
     });
 
+    it('should detect tags rendered by an arrow function property of a mixin class', () => {
+      const t = transpileModule(`
+        const ChildMixin = (Base) => {
+          class ChildMixinImpl extends Base {
+            renderChild = () => <child-cmp/>;
+          }
+          return ChildMixinImpl;
+        };
+
+        @Component({tag: 'cmp-a'})
+        export class CmpA extends Mixin(ChildMixin) {
+          render() {
+            return <div>{this.renderChild()}</div>
+          }
+        }
+      `);
+
+      expect(t.moduleFile.potentialCmpRefs).toEqual(['child-cmp']);
+    });
+
     it('should keep the tags of a component class off the module', () => {
       const t = transpileModule(`
         @Component({tag: 'cmp-a'})
