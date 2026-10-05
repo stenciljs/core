@@ -728,15 +728,21 @@ export const config: Config = {
       const editor = await openStencilConfig(CONFIG_PATH);
       editor.setProperty('generateExportMaps', 'true');
       await editor.save();
-      expect(savedText()).toBe(`export const config: Config = {\n  generateExportMaps: true,\n};\n`);
+      expect(savedText()).toBe(
+        `export const config: Config = {\n  generateExportMaps: true,\n};\n`,
+      );
     });
 
     it('replaces the value of an existing property', async () => {
-      mockConfig(`export const config: Config = { namespace: 'MyLib', generateExportMaps: false };\n`);
+      mockConfig(
+        `export const config: Config = { namespace: 'MyLib', generateExportMaps: false };\n`,
+      );
       const editor = await openStencilConfig(CONFIG_PATH);
       editor.setProperty('generateExportMaps', 'true');
       await editor.save();
-      expect(savedText()).toBe(`export const config: Config = { namespace: 'MyLib', generateExportMaps: true };\n`);
+      expect(savedText()).toBe(
+        `export const config: Config = { namespace: 'MyLib', generateExportMaps: true };\n`,
+      );
     });
   });
 

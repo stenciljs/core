@@ -230,9 +230,15 @@ describe('writeExportMaps', () => {
     writeExportMaps(config, compilerCtx, buildCtx);
 
     expect(execSyncMock).toHaveBeenCalledTimes(3);
-    expect(execSyncMock).toHaveBeenCalledWith(`npm pkg set "exports[./ssr][import]"="./dist/ssr/index.js"`);
-    expect(execSyncMock).toHaveBeenCalledWith(`npm pkg set "exports[./ssr][require]"="./dist/ssr/index.cjs"`);
-    expect(execSyncMock).toHaveBeenCalledWith(`npm pkg set "exports[./ssr][types]"="./dist/ssr/index.d.ts"`);
+    expect(execSyncMock).toHaveBeenCalledWith(
+      `npm pkg set "exports[./ssr][import]"="./dist/ssr/index.js"`,
+    );
+    expect(execSyncMock).toHaveBeenCalledWith(
+      `npm pkg set "exports[./ssr][require]"="./dist/ssr/index.cjs"`,
+    );
+    expect(execSyncMock).toHaveBeenCalledWith(
+      `npm pkg set "exports[./ssr][types]"="./dist/ssr/index.d.ts"`,
+    );
   });
 
   it('warns once and stops shelling out if the npm CLI is unavailable', () => {
