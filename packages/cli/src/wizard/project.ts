@@ -2,9 +2,27 @@ import { existsSync } from 'node:fs';
 import { readdir, readFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { detectPackageManager as detectFromProject } from 'nypm';
 import type { ValidatedConfig } from '@stencil/core/compiler';
+import type { PackageManagerName } from 'nypm';
 
 import type { ProjectConfig } from './types.js';
+
+const PACKAGE_MANAGERS: PackageManagerName[] = ['npm', 'pnpm', 'yarn', 'bun'];
+
+/**
+ * Resolve the package manager for `cwd`: the project's own `packageManager` field / lockfile
+ * wins, then whichever package manager launched this process, then npm.
+ * @param cwd The directory to detect from (parent directories are searched too).
+ * @returns The package manager name.
+ */
+export async function detectPackageManager(cwd: string): Promise<PackageManagerName> {
+  const fromProject = await detectFromProject(cwd, { ignoreArgv: true });
+  if (fromProject) return fromProject.name;
+  // e.g. `pnpm/10.12.1 npm/? node/v22.14.0 darwin arm64`
+  const invoker = process.env.npm_config_user_agent?.split('/')[0];
+  return PACKAGE_MANAGERS.find((name) => name === invoker) ?? 'npm';
+}
 
 /**
  * Extracts the stable, plugin-relevant fields from a fully-resolved compiler config.

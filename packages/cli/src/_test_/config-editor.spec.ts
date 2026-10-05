@@ -238,6 +238,48 @@ export const config: Config = {
         "    angularOutputTarget({\n      componentCorePackage: 'my-lib',\n    })",
       );
     });
+
+    it('breaks an inline array onto multiple lines when appending a multi-line expression', async () => {
+      mockConfig(`export const config: Config = {
+  namespace: 'MyLib',
+  outputTargets: [{ type: 'loader-bundle' }, { type: 'standalone' }],
+};
+`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      editor.addOutputTarget("reactOutputTarget({\n  outDir: '../react/src',\n})");
+      await editor.save();
+
+      expect(savedText()).toBe(`export const config: Config = {
+  namespace: 'MyLib',
+  outputTargets: [
+    { type: 'loader-bundle' },
+    { type: 'standalone' },
+    reactOutputTarget({
+      outDir: '../react/src',
+    }),
+  ],
+};
+`);
+    });
+
+    it('breaks an empty array onto multiple lines when appending a multi-line expression', async () => {
+      mockConfig(`export const config: Config = {
+  outputTargets: [],
+};
+`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      editor.addOutputTarget("reactOutputTarget({\n  outDir: '../react/src',\n})");
+      await editor.save();
+
+      expect(savedText()).toBe(`export const config: Config = {
+  outputTargets: [
+    reactOutputTarget({
+      outDir: '../react/src',
+    }),
+  ],
+};
+`);
+    });
   });
 
   // ---------------------------------------------------------------------------
@@ -637,6 +679,149 @@ export const config: Config = {
   // ---------------------------------------------------------------------------
   // save()
   // ---------------------------------------------------------------------------
+
+  describe('setProperty', () => {
+    it('adds the property after namespace in a multi-line config', async () => {
+      mockConfig(`export const config: Config = {
+  namespace: 'MyLib',
+  outputTargets: [],
+};
+`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      editor.setProperty('generateExportMaps', 'true');
+      await editor.save();
+      expect(savedText()).toBe(`export const config: Config = {
+  namespace: 'MyLib',
+  generateExportMaps: true,
+  outputTargets: [],
+};
+`);
+    });
+
+    it('adds the property after namespace in an inline config', async () => {
+      mockConfig(`export const config: Config = { namespace: 'MyLib', outputTargets: [] };\n`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      editor.setProperty('generateExportMaps', 'true');
+      await editor.save();
+      expect(savedText()).toBe(
+        `export const config: Config = { namespace: 'MyLib', generateExportMaps: true, outputTargets: [] };\n`,
+      );
+    });
+
+    it('appends after the last property when there is no namespace or trailing comma', async () => {
+      mockConfig(`export const config: Config = {
+  outputTargets: []
+};
+`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      editor.setProperty('generateExportMaps', 'true');
+      await editor.save();
+      expect(savedText()).toBe(`export const config: Config = {
+  outputTargets: [],
+  generateExportMaps: true
+};
+`);
+    });
+
+    it('adds the property to an empty config object', async () => {
+      mockConfig(`export const config: Config = {};\n`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      editor.setProperty('generateExportMaps', 'true');
+      await editor.save();
+      expect(savedText()).toBe(
+        `export const config: Config = {\n  generateExportMaps: true,\n};\n`,
+      );
+    });
+
+    it('replaces the value of an existing property', async () => {
+      mockConfig(
+        `export const config: Config = { namespace: 'MyLib', generateExportMaps: false };\n`,
+      );
+      const editor = await openStencilConfig(CONFIG_PATH);
+      editor.setProperty('generateExportMaps', 'true');
+      await editor.save();
+      expect(savedText()).toBe(
+        `export const config: Config = { namespace: 'MyLib', generateExportMaps: true };\n`,
+      );
+    });
+  });
+
+  describe('layout handling', () => {
+    it('targets the top-level array, not a same-named one nested earlier in the config', async () => {
+      mockConfig(`export const config: Config = {
+  namespace: 'MyLib',
+  rolldownConfig: { plugins: [inner()] },
+  plugins: [sass()],
+};
+`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      expect(editor.pluginsContains('inner(')).toBe(false);
+      editor.addPlugin('postcss()');
+      await editor.save();
+
+      expect(savedText()).toBe(`export const config: Config = {
+  namespace: 'MyLib',
+  rolldownConfig: { plugins: [inner()] },
+  plugins: [sass(), postcss()],
+};
+`);
+    });
+
+    it('creates the top-level array when only a nested same-named one exists', async () => {
+      mockConfig(`export const config: Config = {
+  namespace: 'MyLib',
+  rolldownConfig: { plugins: [inner()] },
+};
+`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      editor.addPlugin('sass()');
+      await editor.save();
+
+      expect(savedText()).toBe(`export const config: Config = {
+  namespace: 'MyLib',
+  rolldownConfig: { plugins: [inner()] },
+  plugins: [
+    sass(),
+  ],
+};
+`);
+    });
+
+    it('keeps the trailing comma style when appending to a multi-line array', async () => {
+      mockConfig(`export const config: Config = {
+  outputTargets: [
+    { type: 'loader-bundle' },
+  ],
+};
+`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      editor.addOutputTarget("{ type: 'standalone' }");
+      await editor.save();
+
+      expect(savedText()).toBe(`export const config: Config = {
+  outputTargets: [
+    { type: 'loader-bundle' },
+    { type: 'standalone' },
+  ],
+};
+`);
+    });
+
+    it('breaks an inline config object onto multiple lines when adding an array property', async () => {
+      mockConfig(`export const config: Config = { namespace: 'MyLib' };\n`);
+      const editor = await openStencilConfig(CONFIG_PATH);
+      editor.addOutputTarget("{ type: 'standalone' }");
+      await editor.save();
+
+      expect(savedText()).toBe(`export const config: Config = {
+  namespace: 'MyLib',
+  outputTargets: [
+    { type: 'standalone' },
+  ],
+};
+`);
+    });
+  });
 
   describe('save', () => {
     it('writes to the provided config path', async () => {

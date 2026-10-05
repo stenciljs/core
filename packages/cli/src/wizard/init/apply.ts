@@ -1,8 +1,9 @@
 import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises';
 import { join, dirname, relative } from 'node:path';
 import { getTemplatePath } from '@stencil/templates';
-import { detectPackageManager } from 'nypm';
 import type { PackageJsonFields } from '@stencil/templates';
+
+import { detectPackageManager } from '../project.js';
 
 /**
  * Copy component-starter template into rootDir, interpolating project name and namespace.
@@ -205,7 +206,7 @@ export async function writeIndexHtml(rootDir: string, content: string) {
   await writeIfAbsent(path, content);
 }
 
-function workspaceBuildScript(pm: string | undefined, coreName: string) {
+function workspaceBuildScript(pm: string, coreName: string) {
   switch (pm) {
     case 'pnpm':
       // pnpm's recursive commands are topologically ordered by default.
@@ -235,7 +236,7 @@ export async function scaffoldWorkspaceRoot(cwd: string, projectName: string, co
   await mkdir(join(cwd, 'packages'), { recursive: true });
 
   const pm = await detectPackageManager(cwd);
-  const usePnpmYaml = pm?.name === 'pnpm';
+  const usePnpmYaml = pm === 'pnpm';
 
   // Root package.json (workspace manifest - private, not published, no project deps)
   const pkgPath = join(cwd, 'package.json');
@@ -250,7 +251,7 @@ export async function scaffoldWorkspaceRoot(cwd: string, projectName: string, co
   pkg.version ??= '0.0.1';
   pkg.private = true;
   pkg.scripts = {
-    build: workspaceBuildScript(pm?.name, coreName),
+    build: workspaceBuildScript(pm, coreName),
     ...(pkg.scripts as Record<string, string> | undefined),
   };
   if (!usePnpmYaml) {

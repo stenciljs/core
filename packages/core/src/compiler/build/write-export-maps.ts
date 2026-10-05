@@ -4,6 +4,7 @@ import type * as d from '@stencil/core';
 import {
   buildWarn,
   isOutputTargetLoaderBundle,
+  isOutputTargetSsr,
   isOutputTargetStandalone,
   isOutputTargetTypes,
   join,
@@ -72,9 +73,16 @@ export const writeExportMaps = (
     generateLoaderExport(config, loaderBundle, types, npmPkgSet);
   }
 
-  // Generate per-component exports for standalone
+  // Generate the standalone runtime entry and per-component exports for standalone
   if (standalone) {
+    generateStandaloneExport(config, standalone, npmPkgSet);
     generateComponentExports(config, buildCtx, standalone, npmPkgSet);
+  }
+
+  // Generate the server-side rendering export if ssr exists
+  const ssr = config.outputTargets.find(isOutputTargetSsr);
+  if (ssr) {
+    generateSsrExport(config, ssr, npmPkgSet);
   }
 };
 
@@ -143,7 +151,9 @@ const generateRootExport = (
 
   // Always ensure types is set correctly (from the types output target)
   if (types?.dir) {
-    const typesFile = rootUsesEmptyLoaderIndex ? 'loader.d.ts' : 'index.d.ts';
+    // index.d.ts only exists when there's a src/index.ts - otherwise point at the entry
+    // types the primary output generates (loader-bundle > standalone, as above)
+    const typesFile = hasSrcIndex ? 'index.d.ts' : loaderBundle ? 'loader.d.ts' : 'standalone.d.ts';
     const typesPath = normalizePath(relative(config.rootDir, join(types.dir, typesFile)));
     npmPkgSet(`"exports[.][types]"="${typesPath}"`);
   }
@@ -238,6 +248,53 @@ const generateLoaderExport = (
     );
     npmPkgSet(`"exports[./loader][types]"="${typesPath}"`);
   }
+};
+
+/**
+ * Generate the standalone entry export `exports["./standalone"]`.
+ *
+ * Points at the standalone output's own `index.js`, so its runtime helpers
+ * (`setTagTransformer`, `setNonce`, ...) stay reachable when `loader-bundle` holds the
+ * root export. Framework wrappers built on `standalone` import from here.
+ *
+ * @param config The validated Stencil config
+ * @param standalone The standalone output target
+ * @param npmPkgSet Function used to run `npm pkg set`, tolerating an unavailable npm CLI
+ */
+const generateStandaloneExport = (
+  config: d.ValidatedConfig,
+  standalone: d.OutputTargetStandalone,
+  npmPkgSet: NpmPkgSet,
+): void => {
+  if (!standalone.dir) {
+    return;
+  }
+  const outDir = ensureRelativePrefix(normalizePath(relative(config.rootDir, standalone.dir)));
+  npmPkgSet(`"exports[./standalone][import]"="${outDir}/index.js"`);
+  npmPkgSet(`"exports[./standalone][types]"="${outDir}/index.d.ts"`);
+};
+
+/**
+ * Generate the server-side rendering export `exports["./ssr"]`.
+ *
+ * @param config The validated Stencil config
+ * @param ssr The ssr output target
+ * @param npmPkgSet Function used to run `npm pkg set`, tolerating an unavailable npm CLI
+ */
+const generateSsrExport = (
+  config: d.ValidatedConfig,
+  ssr: d.OutputTargetSsr,
+  npmPkgSet: NpmPkgSet,
+): void => {
+  if (!ssr.dir) {
+    return;
+  }
+  const outDir = ensureRelativePrefix(normalizePath(relative(config.rootDir, ssr.dir)));
+  npmPkgSet(`"exports[./ssr][import]"="${outDir}/index.js"`);
+  if (ssr.cjs) {
+    npmPkgSet(`"exports[./ssr][require]"="${outDir}/index.cjs"`);
+  }
+  npmPkgSet(`"exports[./ssr][types]"="${outDir}/index.d.ts"`);
 };
 
 /**

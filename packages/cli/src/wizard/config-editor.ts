@@ -3,30 +3,42 @@ import ts from 'typescript';
 
 import type { StencilConfigEditor } from './types';
 
+type ListLiteral = ts.ArrayLiteralExpression | ts.ObjectLiteralExpression;
+
 export async function openStencilConfig(configPath: string): Promise<StencilConfigEditor> {
-  const initial = await readFile(configPath, 'utf8');
-  let text = initial;
+  let text = await readFile(configPath, 'utf8');
 
   const parse = () => ts.createSourceFile(configPath, text, ts.ScriptTarget.Latest, true);
 
-  function findArray(sf: ts.SourceFile, propName: string): ts.ArrayLiteralExpression | undefined {
-    let found: ts.ArrayLiteralExpression | undefined;
-    const visit = (node: ts.Node) => {
-      if (
-        !found &&
-        ts.isPropertyAssignment(node) &&
-        ts.isIdentifier(node.name) &&
-        node.name.text === propName &&
-        ts.isArrayLiteralExpression(node.initializer)
-      ) {
-        found = node.initializer;
-      } else {
-        ts.forEachChild(node, visit);
-      }
-    };
-    visit(sf);
-    return found;
-  }
+  const nodeText = (node: ts.Node) => text.slice(node.getStart(), node.getEnd());
+
+  const splice = (start: number, end: number, replacement: string) => {
+    text = text.slice(0, start) + replacement + text.slice(end);
+  };
+
+  // Leading whitespace of the line containing `pos`.
+  const indentAt = (pos: number) => {
+    const lineStart = text.lastIndexOf('\n', pos - 1) + 1;
+    return text.slice(lineStart, pos).match(/^\s*/)?.[0] ?? '';
+  };
+
+  // Callers build multi-line expressions indented relative to their own start, with no idea
+  // what depth they'll be spliced in at - so every continuation line needs shifting too.
+  const reindent = (code: string, indent: string) => code.replace(/\n/g, `\n${indent}`);
+
+  const listItems = (list: ListLiteral): ts.NodeArray<ts.Node> =>
+    ts.isArrayLiteralExpression(list) ? list.elements : list.properties;
+
+  const isMultiLine = (list: ListLiteral) => {
+    const [first] = listItems(list);
+    return !!first && text.slice(list.getStart(), first.getStart()).includes('\n');
+  };
+
+  const findProp = (obj: ts.ObjectLiteralExpression, name: string) =>
+    obj.properties.find(
+      (p): p is ts.PropertyAssignment =>
+        ts.isPropertyAssignment(p) && ts.isIdentifier(p.name) && p.name.text === name,
+    );
 
   function findConfigObject(sf: ts.SourceFile): ts.ObjectLiteralExpression | undefined {
     // Try 1: variable named 'config' with object literal initializer
@@ -48,15 +60,9 @@ export async function openStencilConfig(configPath: string): Promise<StencilConf
     let found: ts.ObjectLiteralExpression | undefined;
     const visit = (node: ts.Node) => {
       if (found) return;
-      if (ts.isObjectLiteralExpression(node)) {
-        const hasNamespace = node.properties.some(
-          (p) =>
-            ts.isPropertyAssignment(p) && ts.isIdentifier(p.name) && p.name.text === 'namespace',
-        );
-        if (hasNamespace) {
-          found = node;
-          return;
-        }
+      if (ts.isObjectLiteralExpression(node) && findProp(node, 'namespace')) {
+        found = node;
+        return;
       }
       ts.forEachChild(node, visit);
     };
@@ -64,199 +70,201 @@ export async function openStencilConfig(configPath: string): Promise<StencilConf
     return found;
   }
 
-  function replaceInArray(
-    arr: ts.ArrayLiteralExpression,
-    substring: string,
-    expression: string,
-  ): boolean {
-    for (const element of arr.elements) {
-      if (text.slice(element.getStart(), element.getEnd()).includes(substring)) {
-        // Re-indent every line of `expression`, not just the first - see appendToArray.
-        const lineStart = text.lastIndexOf('\n', element.getStart()) + 1;
-        const indent = text.slice(lineStart, element.getStart()).match(/^\s+/)?.[0] ?? '';
-        const indentedExpression = indent ? expression.replace(/\n/g, `\n${indent}`) : expression;
-        text =
-          text.slice(0, element.getStart()) + indentedExpression + text.slice(element.getEnd());
-        return true;
-      }
-    }
-    return false;
+  function requireConfigObject() {
+    const configObj = findConfigObject(parse());
+    if (!configObj) throw new Error('Could not find Stencil config object in stencil.config.ts');
+    return configObj;
   }
 
-  function removeFromArray(arr: ts.ArrayLiteralExpression, substring: string): boolean {
-    const idx = arr.elements.findIndex((element) =>
-      text.slice(element.getStart(), element.getEnd()).includes(substring),
-    );
-    if (idx === -1) return false;
-
-    const element = arr.elements[idx];
-    const isMultiLine =
-      arr.elements.length > 0 &&
-      text.slice(arr.getStart(), arr.elements[0].getStart()).includes('\n');
-
-    if (isMultiLine) {
-      // Remove the whole line: from the preceding newline to the end of the trailing comma.
-      const lineStart = text.lastIndexOf('\n', element.getStart());
-      let end = element.getEnd();
-      const trailingComma = text.slice(end).match(/^\s*,/);
-      if (trailingComma) end += trailingComma[0].length;
-      text = text.slice(0, lineStart) + text.slice(end);
-    } else {
-      let start = element.getStart();
-      let end = element.getEnd();
-      if (idx < arr.elements.length - 1) {
-        // Not the last element — consume the trailing comma+space.
-        const trailingMatch = text.slice(end).match(/^,\s*/);
-        if (trailingMatch) end += trailingMatch[0].length;
-      } else if (idx > 0) {
-        // Last element (not the only one) — consume the preceding comma+space.
-        const precedingMatch = text.slice(0, start).match(/,\s*$/);
-        if (precedingMatch) start -= precedingMatch[0].length;
-      }
-      text = text.slice(0, start) + text.slice(end);
+  function findArray(propName: string) {
+    const sf = parse();
+    const configObj = findConfigObject(sf);
+    if (configObj) {
+      // Direct properties only - nested objects can have same-named arrays (e.g. `plugins`).
+      const init = findProp(configObj, propName)?.initializer;
+      return init && ts.isArrayLiteralExpression(init) ? init : undefined;
     }
 
-    return true;
+    let found: ts.ArrayLiteralExpression | undefined;
+    const visit = (node: ts.Node) => {
+      if (found) return;
+      if (
+        ts.isPropertyAssignment(node) &&
+        ts.isIdentifier(node.name) &&
+        node.name.text === propName &&
+        ts.isArrayLiteralExpression(node.initializer)
+      ) {
+        found = node.initializer;
+        return;
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(sf);
+    return found;
   }
 
-  function appendToArray(arr: ts.ArrayLiteralExpression, code: string): void {
-    if (arr.elements.length === 0) {
-      const insertPos = arr.getEnd() - 1; // before ]
-      text = text.slice(0, insertPos) + code + text.slice(insertPos);
+  /**
+   * Insert `code` as a new item of an array / object literal, matching the list's own layout
+   * (one item per line, or all on one line).
+   * @param list - The array or object literal to insert into.
+   * @param code - Source of the new item, indented relative to its own start.
+   * @param anchor - Item to insert after. Defaults to the last one.
+   */
+  function insertItem(list: ListLiteral, code: string, anchor?: ts.Node) {
+    const items = listItems(list);
+    const [open, close] = ts.isArrayLiteralExpression(list) ? '[]' : '{}';
+    const multiLine = isMultiLine(list);
+
+    // An inline list can't take a multi-line item without leaving its continuation lines
+    // dangling at the wrong depth, and an empty object reads badly inline - break those out
+    // to one item per line.
+    const breakOut =
+      !multiLine &&
+      (code.includes('\n') || (items.length === 0 && ts.isObjectLiteralExpression(list)));
+    if (breakOut) {
+      const baseIndent = indentAt(list.getStart());
+      const indent = baseIndent + '  ';
+      const lines = items.map(nodeText);
+      const at = anchor ? items.indexOf(anchor) + 1 : lines.length;
+      lines.splice(at, 0, reindent(code, indent));
+      splice(
+        list.getStart(),
+        list.getEnd(),
+        `${open}\n${indent}${lines.join(`,\n${indent}`)},\n${baseIndent}${close}`,
+      );
       return;
     }
 
-    const lastElem = arr.elements[arr.elements.length - 1];
-    let insertPos = lastElem.getEnd();
-    const trailingComma = text.slice(insertPos).match(/^\s*,/);
-    if (trailingComma) insertPos += trailingComma[0].length;
-    const separator = trailingComma ? '' : ',';
+    if (items.length === 0) {
+      splice(list.getEnd() - 1, list.getEnd() - 1, code);
+      return;
+    }
 
-    // Detect multi-line vs inline from the array opening bracket to its first element
-    const firstElemStart = arr.elements[0].getStart();
-    const isMultiLine = text.slice(arr.getStart(), firstElemStart).includes('\n');
+    anchor ??= items[items.length - 1];
+    let pos = anchor.getEnd();
+    const trailingComma = text.slice(pos).match(/^\s*,/);
+    if (trailingComma) pos += trailingComma[0].length;
+    // The anchor has a comma whenever more items follow it (or the file uses trailing commas),
+    // and then the new item needs one too.
+    const before = trailingComma ? '' : ',';
+    const after = trailingComma ? ',' : '';
 
-    if (isMultiLine) {
-      const lineStart = text.lastIndexOf('\n', firstElemStart) + 1;
-      const indent = text.slice(lineStart, firstElemStart).match(/^\s+/)?.[0] ?? '  ';
-      // Re-indent every line of `code`, not just the first - callers build multi-line
-      // expressions (e.g. `angularOutputTarget({\n  key: val,\n})`) indented relative to
-      // their own start, with no idea what depth they'll be spliced in at.
-      const indentedCode = code.replace(/\n/g, `\n${indent}`);
-      text = `${text.slice(0, insertPos)}${separator}\n${indent}${indentedCode}${text.slice(insertPos)}`;
+    if (multiLine) {
+      const indent = indentAt(items[0].getStart());
+      splice(pos, pos, `${before}\n${indent}${reindent(code, indent)}${after}`);
     } else {
-      text = `${text.slice(0, insertPos)}${separator} ${code}${text.slice(insertPos)}`;
+      splice(pos, pos, `${before} ${code}${after}`);
     }
   }
 
-  function addArrayProp(sf: ts.SourceFile, propName: string, code: string): void {
-    const configObj = findConfigObject(sf);
-    if (!configObj) throw new Error('Could not find Stencil config object in stencil.config.ts');
+  function removeItem(arr: ts.ArrayLiteralExpression, element: ts.Expression) {
+    const idx = arr.elements.indexOf(element);
+    let start = element.getStart();
+    let end = element.getEnd();
 
-    let propIndent = '  ';
-    if (configObj.properties.length > 0) {
-      const firstPropStart = configObj.properties[0].getStart();
-      const lineStart = text.lastIndexOf('\n', firstPropStart) + 1;
-      propIndent = text.slice(lineStart, firstPropStart).match(/^\s+/)?.[0] ?? '  ';
+    if (isMultiLine(arr)) {
+      // Remove the whole line: from the preceding newline to the end of the trailing comma.
+      start = text.lastIndexOf('\n', start);
+      end += text.slice(end).match(/^\s*,/)?.[0].length ?? 0;
+    } else if (idx < arr.elements.length - 1) {
+      // Not the last element — consume the trailing comma+space.
+      end += text.slice(end).match(/^,\s*/)?.[0].length ?? 0;
+    } else if (idx > 0) {
+      // Last element (not the only one) — consume the preceding comma+space.
+      start -= text.slice(0, start).match(/,\s*$/)?.[0].length ?? 0;
     }
-    const elemIndent = propIndent + '  ';
-    // Re-indent every line of `code`, not just the first - see appendToArray for why.
-    const indentedCode = code.replace(/\n/g, `\n${elemIndent}`);
-    const newProp = `${propName}: [\n${elemIndent}${indentedCode},\n${propIndent}]`;
-
-    const lastProp = configObj.properties[configObj.properties.length - 1];
-    if (lastProp) {
-      let insertPos = lastProp.getEnd();
-      const trailingComma = text.slice(insertPos).match(/^\s*,/);
-      const separator = trailingComma ? '' : ',';
-      if (trailingComma) insertPos += trailingComma[0].length;
-      text = `${text.slice(0, insertPos)}${separator}\n${propIndent}${newProp}${text.slice(insertPos)}`;
-    } else {
-      // Empty config object
-      const insertPos = configObj.getEnd() - 1; // before }
-      text = `${text.slice(0, insertPos)}\n${propIndent}${newProp},\n${text.slice(insertPos)}`;
-    }
+    splice(start, end, '');
   }
+
+  function hasImport(moduleSpecifier: string) {
+    return parse().statements.some(
+      (s) =>
+        ts.isImportDeclaration(s) &&
+        ts.isStringLiteral(s.moduleSpecifier) &&
+        s.moduleSpecifier.text === moduleSpecifier,
+    );
+  }
+
+  // contains / add / replace / remove for a top-level array property of the config.
+  function arrayProp(propName: string) {
+    const findElement = (arr: ts.ArrayLiteralExpression | undefined, substring: string) =>
+      arr?.elements.find((element) => nodeText(element).includes(substring));
+
+    return {
+      contains(substring: string) {
+        const arr = findArray(propName);
+        return arr ? nodeText(arr).includes(substring) : false;
+      },
+
+      add(expression: string) {
+        const arr = findArray(propName);
+        if (arr) {
+          insertItem(arr, expression);
+        } else {
+          insertItem(requireConfigObject(), `${propName}: [\n  ${reindent(expression, '  ')},\n]`);
+        }
+      },
+
+      replace(substring: string, expression: string) {
+        const element = findElement(findArray(propName), substring);
+        if (!element) return false;
+        splice(
+          element.getStart(),
+          element.getEnd(),
+          reindent(expression, indentAt(element.getStart())),
+        );
+        return true;
+      },
+
+      remove(substring: string) {
+        const arr = findArray(propName);
+        const element = findElement(arr, substring);
+        if (!arr || !element) return false;
+        removeItem(arr, element);
+        return true;
+      },
+    };
+  }
+
+  const outputTargets = arrayProp('outputTargets');
+  const plugins = arrayProp('plugins');
 
   return {
-    hasImport(moduleSpecifier) {
-      return parse().statements.some(
-        (s) =>
-          ts.isImportDeclaration(s) &&
-          ts.isStringLiteral(s.moduleSpecifier) &&
-          s.moduleSpecifier.text === moduleSpecifier,
-      );
-    },
+    hasImport,
 
     addImport(moduleSpecifier, namedImports) {
-      const sf = parse();
-      const alreadyPresent = sf.statements.some(
-        (s) =>
-          ts.isImportDeclaration(s) &&
-          ts.isStringLiteral(s.moduleSpecifier) &&
-          s.moduleSpecifier.text === moduleSpecifier,
-      );
-      if (alreadyPresent) return;
+      if (hasImport(moduleSpecifier)) return;
 
-      let insertPos = 0;
-      for (const s of sf.statements) {
-        if (ts.isImportDeclaration(s)) insertPos = s.getEnd();
-      }
-      const decl = `\nimport { ${namedImports.join(', ')} } from '${moduleSpecifier}';`;
-      text =
-        insertPos > 0
-          ? text.slice(0, insertPos) + decl + text.slice(insertPos)
-          : decl + '\n' + text;
-    },
-
-    outputTargetsContains(substring) {
-      const arr = findArray(parse(), 'outputTargets');
-      return arr ? text.slice(arr.getStart(), arr.getEnd()).includes(substring) : false;
-    },
-
-    addOutputTarget(expression) {
-      const sf = parse();
-      const arr = findArray(sf, 'outputTargets');
-      if (arr) {
-        appendToArray(arr, expression);
+      const lastImport = parse().statements.filter(ts.isImportDeclaration).pop();
+      const decl = `import { ${namedImports.join(', ')} } from '${moduleSpecifier}';`;
+      if (lastImport) {
+        splice(lastImport.getEnd(), lastImport.getEnd(), `\n${decl}`);
       } else {
-        addArrayProp(sf, 'outputTargets', expression);
+        text = `\n${decl}\n${text}`;
       }
     },
 
-    replaceOutputTarget(substring, expression) {
-      const arr = findArray(parse(), 'outputTargets');
-      return arr ? replaceInArray(arr, substring, expression) : false;
-    },
+    outputTargetsContains: outputTargets.contains,
+    addOutputTarget: outputTargets.add,
+    replaceOutputTarget: outputTargets.replace,
+    removeOutputTarget: outputTargets.remove,
 
-    removeOutputTarget(substring) {
-      const arr = findArray(parse(), 'outputTargets');
-      return arr ? removeFromArray(arr, substring) : false;
-    },
+    pluginsContains: plugins.contains,
+    addPlugin: plugins.add,
+    replacePlugin: plugins.replace,
+    removePlugin: plugins.remove,
 
-    pluginsContains(substring) {
-      const arr = findArray(parse(), 'plugins');
-      return arr ? text.slice(arr.getStart(), arr.getEnd()).includes(substring) : false;
-    },
+    setProperty(name, expression) {
+      const configObj = requireConfigObject();
 
-    addPlugin(expression) {
-      const sf = parse();
-      const arr = findArray(sf, 'plugins');
-      if (arr) {
-        appendToArray(arr, expression);
-      } else {
-        addArrayProp(sf, 'plugins', expression);
+      const existing = findProp(configObj, name);
+      if (existing) {
+        splice(existing.initializer.getStart(), existing.initializer.getEnd(), expression);
+        return;
       }
-    },
 
-    replacePlugin(substring, expression) {
-      const arr = findArray(parse(), 'plugins');
-      return arr ? replaceInArray(arr, substring, expression) : false;
-    },
-
-    removePlugin(substring) {
-      const arr = findArray(parse(), 'plugins');
-      return arr ? removeFromArray(arr, substring) : false;
+      // After `namespace` when there is one, otherwise last.
+      insertItem(configObj, `${name}: ${expression}`, findProp(configObj, 'namespace'));
     },
 
     async save() {

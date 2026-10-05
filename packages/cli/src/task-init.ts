@@ -42,6 +42,7 @@ import {
 } from './wizard/init/steps.js';
 import {
   defaultProjectConfig,
+  detectPackageManager,
   detectWorkspaceRoot,
   isExistingStencilProject,
   toProjectConfig,
@@ -86,16 +87,31 @@ function clearInheritedProductionEnv(): void {
   if (process.env.NODE_ENV === 'production') delete process.env.NODE_ENV;
 }
 
+const OUTPUT_TYPES: Record<OutputKey, string> = {
+  loader: 'loader-bundle',
+  standalone: 'standalone',
+  ssr: 'ssr',
+  'ssr-wasm': 'ssr-wasm',
+  www: 'www',
+};
+
 function outputKeysToTargets(keys: ReadonlyArray<OutputKey>): Array<{ type: string }> {
-  const map: Record<OutputKey, string> = {
-    loader: 'loader-bundle',
-    standalone: 'standalone',
-    ssr: 'ssr',
-    'ssr-wasm': 'ssr-wasm',
-    www: 'www',
-  };
   // Empty keys = zero-config default = loader-bundle
-  return keys.length > 0 ? keys.map((k) => ({ type: map[k] })) : [{ type: 'loader-bundle' }];
+  return keys.length > 0
+    ? keys.map((k) => ({ type: OUTPUT_TYPES[k] }))
+    : [{ type: 'loader-bundle' }];
+}
+
+/**
+ * Reads which outputs a config file declares.
+ * @param configPath Absolute path to the `stencil.config.ts`.
+ * @returns The output keys present in its `outputTargets` array.
+ */
+async function readConfigOutputKeys(configPath: string) {
+  const editor = await openStencilConfig(configPath);
+  return (Object.keys(OUTPUT_TYPES) as OutputKey[]).filter((key) =>
+    [`'`, `"`].some((q) => editor.outputTargetsContains(`type: ${q}${OUTPUT_TYPES[key]}${q}`)),
+  );
 }
 
 export async function taskInit(
@@ -144,10 +160,9 @@ export async function taskInit(
   const configSource =
     generateStencilConfig({ namespace, outputs, signals: features.signals, docs }) ??
     (needsStencilConfig(selectedIntegrations)
-      ? // outputs is [] here (generateStencilConfig returned null), so loader-bundle is the
-        // implicit default. Make it explicit so framework plugins can add alongside it without
-        // inadvertently replacing it - which would break the loader-bundle files in package.json.
-        `import { Config } from '@stencil/core';\n\nexport const config: Config = {\n  namespace: '${namespace}',\n  outputTargets: [{ type: 'loader-bundle' }],\n};\n`
+      ? // No outputTargets: plugins add their own, and the compiler defaults to loader-bundle
+        // if none do.
+        `import type { Config } from '@stencil/core';\n\nexport const config: Config = {\n  namespace: '${namespace}',\n};\n`
       : null);
 
   const summaryLines = [
@@ -168,6 +183,8 @@ export async function taskInit(
   // Phase 2: scaffold
 
   const coreDir = monorepo ? join(cwd, 'packages', coreName) : cwd;
+  // Resolved before scaffolding - a fresh project has no lockfile for nypm to detect from.
+  const pm = await detectPackageManager(cwd);
 
   const s1 = p.spinner();
   s1.start('Scaffolding project files');
@@ -189,7 +206,7 @@ export async function taskInit(
 
   const s2 = p.spinner();
   s2.start('Installing dependencies');
-  await nypm.installDependencies({ cwd, silent: true });
+  await nypm.installDependencies({ cwd, silent: true, packageManager: pm });
   s2.stop('Dependencies installed');
 
   await verifyInstalled(coreDir, ['@stencil/core']);
@@ -230,8 +247,10 @@ export async function taskInit(
     const projectConfig = resolvedValidated
       ? { ...toProjectConfig(resolvedValidated), rootDir: coreDir }
       : defaultProjectConfig(coreDir, { namespace });
+    let ranWizard = false;
     for (const d of discovered) {
       if (selectedPkgs.has(d.packageName) && d.plugin.init?.run) {
+        ranWizard = true;
         await d.plugin.init.run({
           isNewProject: true,
           prompts: p,
@@ -244,9 +263,14 @@ export async function taskInit(
         });
       }
     }
+
+    // Plugin wizards may have added output targets, changing which one package.json points at.
+    if (ranWizard && configSource) {
+      const finalOutputs = await readConfigOutputKeys(join(coreDir, 'stencil.config.ts'));
+      await applyPackageJsonFields(coreDir, generatePackageJsonFields(finalOutputs));
+    }
   }
 
-  const pm = (await nypm.detectPackageManager(cwd))?.name ?? 'npm';
   const devDir = monorepo ? `packages/${coreName}` : null;
   const devCmd = `${pm} run dev`;
   p.outro(
@@ -331,7 +355,7 @@ async function addCapabilities(cwd: string, strictConfig?: ValidatedConfig): Pro
     });
   }
 
-  p.outro('Done! Run pnpm run dev to continue.');
+  p.outro(`Done! Run ${await detectPackageManager(cwd)} run dev to continue.`);
 }
 
 // Strip npm scope, normalize separators, PascalCase the result.

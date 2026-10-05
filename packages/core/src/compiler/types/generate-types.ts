@@ -164,7 +164,8 @@ export declare function setAssetPath(path: string): string;
 
 /**
  * Generate standalone.d.ts file for the standalone output target.
- * This provides types for setNonce and setPlatformOptions.
+ * This provides types for setNonce and setPlatformOptions, and re-exports the component
+ * types (as loader.d.ts does) so they're reachable from a standalone-only package root.
  *
  * @param compilerCtx the current compiler context
  * @param typesDir the directory to write the standalone.d.ts file to
@@ -175,7 +176,8 @@ const generateStandaloneApiTypes = async (
   typesDir: string,
   hasAssets: boolean,
 ): Promise<void> => {
-  const standaloneDtsContent = `/**
+  const standaloneDtsContent = `export * from './components';
+/**
  * Used to specify a nonce value that corresponds with an application's CSP.
  * When set, the nonce will be added to all dynamically created script and style tags at runtime.
  * Alternatively, the nonce value can be set on a meta tag in the DOM head

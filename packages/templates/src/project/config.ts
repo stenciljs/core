@@ -28,10 +28,8 @@ export function generateStencilConfig(sel: ConfigSelections): string | null {
 
   const outputLines: string[] = [];
 
-  // Empty outputs = loader-bundle is the implicit default. Make it explicit here so that
-  // any plugins adding their own outputTargets don't inadvertently drop the loader-bundle.
-  if (sel.outputs.includes('loader') || sel.outputs.length === 0)
-    outputLines.push(`    { type: 'loader-bundle' },`);
+  // Empty outputs are left empty so plugins can add their own.
+  if (sel.outputs.includes('loader')) outputLines.push(`    { type: 'loader-bundle' },`);
   if (sel.outputs.includes('standalone')) outputLines.push(`    { type: 'standalone' },`);
   if (sel.outputs.includes('ssr')) outputLines.push(`    { type: 'ssr' },`);
   if (sel.outputs.includes('ssr-wasm')) outputLines.push(`    { type: 'ssr-wasm' },`);
