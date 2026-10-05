@@ -3,6 +3,7 @@ import ts from 'typescript';
 
 import type * as d from '../../declarations';
 import { ValidatedConfig } from '../../declarations';
+import { isNodeModulePath } from '../sys/resolve/resolve-utils';
 import { resolveAliasedSymbol, typeToString } from './transform-utils';
 
 /**
@@ -47,8 +48,7 @@ export function addToLibrary(
     // an alias of an array or another lib or package type resolves to a declaration outside the project
     const alias = symbol?.declarations?.find(ts.isTypeAliasDeclaration);
     const resolvedFile = getSymbolForType(type)?.declarations?.[0]?.getSourceFile();
-    const useAlias =
-      alias && resolvedFile && (resolvedFile.hasNoDefaultLib || resolvedFile.fileName.includes('/node_modules/'));
+    const useAlias = alias && resolvedFile && (resolvedFile.hasNoDefaultLib || isNodeModulePath(resolvedFile.fileName));
     const declaration = useAlias ? alias.getText() : getTypeDeclaration(checker, type);
 
     if (declaration !== '') {
