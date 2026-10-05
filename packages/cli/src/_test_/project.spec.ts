@@ -4,11 +4,13 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 vi.mock('node:fs', () => ({ existsSync: vi.fn().mockReturnValue(false) }));
 vi.mock('node:fs/promises', () => ({ readFile: vi.fn(), readdir: vi.fn() }));
 vi.mock('node:os', () => ({ homedir: vi.fn().mockReturnValue('/home/user') }));
+vi.mock('nypm', () => ({ detectPackageManager: vi.fn() }));
 
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
+import { detectPackageManager as nypmDetect } from 'nypm';
 
-import { detectWorkspaceRoot } from '../wizard/project';
+import { detectPackageManager, detectWorkspaceRoot } from '../wizard/project';
 
 function mockPkg(obj: Record<string, unknown> = {}) {
   vi.mocked(readFile).mockResolvedValue(JSON.stringify(obj) as never);
@@ -52,5 +54,36 @@ describe('detectWorkspaceRoot', () => {
   it('ignores package.json without workspaces field', async () => {
     mockPkg({ name: 'my-lib', dependencies: { '@stencil/core': '^5.0.0' } });
     expect(await detectWorkspaceRoot('/standalone-project')).toBeUndefined();
+  });
+});
+
+describe('detectPackageManager', () => {
+  beforeEach(() => {
+    vi.unstubAllEnvs();
+    vi.mocked(nypmDetect).mockResolvedValue(undefined);
+  });
+
+  it('prefers the lockfile / packageManager field over the invoking package manager', async () => {
+    vi.mocked(nypmDetect).mockResolvedValue({ name: 'yarn', command: 'yarn' });
+    vi.stubEnv('npm_config_user_agent', 'pnpm/10.12.1 npm/? node/v22.14.0 darwin arm64');
+    expect(await detectPackageManager('/project')).toBe('yarn');
+    expect(nypmDetect).toHaveBeenCalledWith('/project', { ignoreArgv: true });
+  });
+
+  it.each([
+    ['pnpm/10.12.1 npm/? node/v22.14.0 darwin arm64', 'pnpm'],
+    ['yarn/4.5.0 npm/? node/v22.14.0 darwin arm64', 'yarn'],
+    ['bun/1.2.0 npm/? node/v22.14.0 darwin arm64', 'bun'],
+    ['npm/10.9.2 node/v22.14.0 darwin arm64 workspaces/false', 'npm'],
+  ])('falls back to the invoking package manager (%s)', async (userAgent, expected) => {
+    vi.stubEnv('npm_config_user_agent', userAgent);
+    expect(await detectPackageManager('/project')).toBe(expected);
+  });
+
+  it('defaults to npm when the user agent is missing or unrecognised', async () => {
+    vi.stubEnv('npm_config_user_agent', '');
+    expect(await detectPackageManager('/project')).toBe('npm');
+    vi.stubEnv('npm_config_user_agent', 'deno/2.0.0');
+    expect(await detectPackageManager('/project')).toBe('npm');
   });
 });
