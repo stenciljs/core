@@ -41,6 +41,7 @@ vi.mock('@clack/prompts', () => ({
 
 vi.mock('../wizard/splash', () => ({ printSplash: vi.fn(), CLI_VERSION: '0.0.0-test' }));
 vi.mock('../wizard/discover', () => ({ discoverPlugins: vi.fn().mockResolvedValue([]) }));
+vi.mock('../wizard/config-editor', () => ({ openStencilConfig: vi.fn() }));
 vi.mock('../wizard/init/steps', () => ({
   KNOWN_INTEGRATIONS: [],
   promptProjectName: vi.fn().mockResolvedValue('my-lib'),
@@ -94,6 +95,7 @@ import { addDevDependency, detectPackageManager, installDependencies } from 'nyp
 import type { ValidatedConfig } from '@stencil/core/compiler';
 
 import { taskInit } from '../task-init';
+import { openStencilConfig } from '../wizard/config-editor';
 import { discoverPlugins } from '../wizard/discover';
 import {
   applyPackageJsonFields,
@@ -211,7 +213,11 @@ describe('taskInit', () => {
   it('scaffolds the template with derived namespace', async () => {
     await taskInit(mockCoreCompiler, mockStrictConfig);
     expect(vi.mocked(copyTemplate)).toHaveBeenCalledWith(CWD, 'my-lib', 'MyLib', '5.0.0-test');
-    expect(vi.mocked(installDependencies)).toHaveBeenCalledWith({ cwd: CWD, silent: true });
+    expect(vi.mocked(installDependencies)).toHaveBeenCalledWith({
+      cwd: CWD,
+      silent: true,
+      packageManager: 'npm',
+    });
     expect(clack.outro).toHaveBeenCalled();
   });
 
@@ -319,7 +325,7 @@ describe('taskInit', () => {
     );
     expect(vi.mocked(writeStencilConfig)).toHaveBeenCalledWith(
       CWD,
-      expect.stringContaining("{ type: 'loader-bundle' }"),
+      expect.not.stringContaining('outputTargets'),
     );
   });
 
@@ -408,6 +414,29 @@ describe('taskInit', () => {
         config: expect.objectContaining({ rootDir: CWD }),
       }),
     );
+  });
+
+  it('re-derives package.json fields from the config after plugin wizards run', async () => {
+    vi.mocked(promptIntegrations).mockResolvedValue([makeIntegration('@stencil/vitest')]);
+    vi.mocked(discoverPlugins).mockResolvedValue([makeDiscovered('@stencil/vitest')]);
+    vi.mocked(generateStencilConfig).mockReturnValue('config content');
+    const configText = `outputTargets: [{ type: 'standalone' }, { type: "ssr" }]`;
+    vi.mocked(openStencilConfig).mockResolvedValue({
+      outputTargetsContains: (substring: string) => configText.includes(substring),
+    } as never);
+
+    await taskInit(mockCoreCompiler, mockStrictConfig);
+
+    expect(vi.mocked(openStencilConfig)).toHaveBeenCalledWith(join(CWD, 'stencil.config.ts'));
+    expect(vi.mocked(generatePackageJsonFields)).toHaveBeenLastCalledWith(['standalone', 'ssr']);
+    expect(vi.mocked(applyPackageJsonFields)).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not re-derive package.json fields when no plugin wizard ran', async () => {
+    vi.mocked(generateStencilConfig).mockReturnValue('config content');
+    await taskInit(mockCoreCompiler, mockStrictConfig);
+    expect(vi.mocked(openStencilConfig)).not.toHaveBeenCalled();
+    expect(vi.mocked(applyPackageJsonFields)).toHaveBeenCalledTimes(1);
   });
 
   it('does not call run() on plugins with no init contribution', async () => {

@@ -184,6 +184,20 @@ export interface StencilConfigEditor {
    */
   removePlugin(substring: string): boolean;
 
+  /**
+   * Sets a top-level property on the config object to `expression`, replacing its
+   * value if the property already exists, or adding it (after `namespace`, when
+   * present) if it doesn't.
+   *
+   * @param name - The config property, e.g. `'generateExportMaps'`.
+   * @param expression - A TypeScript expression, inserted verbatim, e.g. `'true'`.
+   *
+   * @example
+   * editor.setProperty('generateExportMaps', 'true');
+   * // > generateExportMaps: true,
+   */
+  setProperty(name: string, expression: string): void;
+
   /** Write all accumulated edits back to disk. */
   save(): Promise<void>;
 }

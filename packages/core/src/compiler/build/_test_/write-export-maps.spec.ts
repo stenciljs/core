@@ -130,12 +130,12 @@ describe('writeExportMaps', () => {
 
     writeExportMaps(config, compilerCtx, buildCtx);
 
-    expect(execSyncMock).toHaveBeenCalledTimes(2);
+    expect(execSyncMock).toHaveBeenCalledTimes(4);
     expect(execSyncMock).toHaveBeenCalledWith(
       `npm pkg set "exports[.][import]"="./dist/components/index.js"`,
     );
     expect(execSyncMock).toHaveBeenCalledWith(
-      `npm pkg set "exports[.][types]"="./dist/types/index.d.ts"`,
+      `npm pkg set "exports[.][types]"="./dist/types/standalone.d.ts"`,
     );
   });
 
@@ -163,8 +163,14 @@ describe('writeExportMaps', () => {
 
     writeExportMaps(config, compilerCtx, buildCtx);
 
-    // 2 for root export (import + types) + 2 for component export
-    expect(execSyncMock).toHaveBeenCalledTimes(4);
+    // 2 for root export (import + types) + 2 for ./standalone + 2 for component export
+    expect(execSyncMock).toHaveBeenCalledTimes(6);
+    expect(execSyncMock).toHaveBeenCalledWith(
+      `npm pkg set "exports[./standalone][import]"="./dist/components/index.js"`,
+    );
+    expect(execSyncMock).toHaveBeenCalledWith(
+      `npm pkg set "exports[./standalone][types]"="./dist/components/index.d.ts"`,
+    );
     expect(execSyncMock).toHaveBeenCalledWith(
       `npm pkg set "exports[./my-component][import]"="./dist/components/my-component.js"`,
     );
@@ -202,7 +208,7 @@ describe('writeExportMaps', () => {
     writeExportMaps(config, compilerCtx, buildCtx);
 
     // 2 for root export (import + types) + 4 for component exports (2 each)
-    expect(execSyncMock).toHaveBeenCalledTimes(6);
+    expect(execSyncMock).toHaveBeenCalledTimes(8);
     expect(execSyncMock).toHaveBeenCalledWith(
       `npm pkg set "exports[./my-component][import]"="./dist/components/my-component.js"`,
     );
@@ -215,6 +221,18 @@ describe('writeExportMaps', () => {
     expect(execSyncMock).toHaveBeenCalledWith(
       `npm pkg set "exports[./my-other-component][types]"="./dist/components/my-other-component.d.ts"`,
     );
+  });
+
+  it('should generate the ssr export if the output target is present', () => {
+    config.rootDir = '/';
+    config.outputTargets.push({ type: 'ssr', dir: '/dist/ssr', cjs: true } as d.OutputTargetSsr);
+
+    writeExportMaps(config, compilerCtx, buildCtx);
+
+    expect(execSyncMock).toHaveBeenCalledTimes(3);
+    expect(execSyncMock).toHaveBeenCalledWith(`npm pkg set "exports[./ssr][import]"="./dist/ssr/index.js"`);
+    expect(execSyncMock).toHaveBeenCalledWith(`npm pkg set "exports[./ssr][require]"="./dist/ssr/index.cjs"`);
+    expect(execSyncMock).toHaveBeenCalledWith(`npm pkg set "exports[./ssr][types]"="./dist/ssr/index.d.ts"`);
   });
 
   it('warns once and stops shelling out if the npm CLI is unavailable', () => {

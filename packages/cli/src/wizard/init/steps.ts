@@ -122,6 +122,7 @@ export async function promptOutputs(): Promise<OutputKey[]> {
       },
       { value: 'www', label: 'WWW', hint: 'app mode with dev server and optional PWA support' },
     ],
+    initialValues: ['loader'],
     required: false,
   });
   cancelIfAborted(picks);
