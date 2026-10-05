@@ -70,6 +70,61 @@ describe('functional component dependencies', () => {
       // functionalComponentDeps should be initialized as an array
       expect(Array.isArray(t.moduleFile.functionalComponentDeps)).toBe(true);
     });
+
+    it('should detect tags rendered by a method of a mixin class', () => {
+      const t = transpileModule(`
+        const ChildMixin = (Base) => {
+          class ChildMixinImpl extends Base {
+            renderChild() {
+              return <child-cmp/>
+            }
+          }
+          return ChildMixinImpl;
+        };
+
+        @Component({tag: 'cmp-a'})
+        export class CmpA extends Mixin(ChildMixin) {
+          render() {
+            return <div>{this.renderChild()}</div>
+          }
+        }
+      `);
+
+      expect(t.moduleFile.potentialCmpRefs).toEqual(['child-cmp']);
+    });
+
+    it('should detect tags rendered by a method of a base class', () => {
+      const t = transpileModule(`
+        class Base {
+          renderIcon() {
+            return <svg viewBox="0 0 24 24"/>
+          }
+        }
+
+        @Component({tag: 'cmp-a'})
+        export class CmpA extends Base {
+          render() {
+            return <div>{this.renderIcon()}</div>
+          }
+        }
+      `);
+
+      expect(t.moduleFile.htmlTagNames).toContain('svg');
+    });
+
+    it('should keep the tags of a component class off the module', () => {
+      const t = transpileModule(`
+        @Component({tag: 'cmp-a'})
+        export class CmpA {
+          render() {
+            return <child-cmp/>
+          }
+        }
+      `);
+
+      expect(t.cmp.potentialCmpRefs).toEqual(['child-cmp']);
+      expect(t.moduleFile.potentialCmpRefs).toEqual([]);
+    });
   });
 
   describe('updateComponentBuildConditionals with functionalComponentDeps', () => {

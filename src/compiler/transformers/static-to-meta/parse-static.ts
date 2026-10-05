@@ -95,7 +95,10 @@ export const updateModule = (
       if (isExportableMixinClass(node)) {
         moduleFile.hasExportableMixins = true;
       }
-      return;
+      // A component collects its own JSX meta; any other class feeds the module so importers inherit it
+      if (getComponentTagName(node.members.filter(isStaticGetter)) != null) {
+        return;
+      }
     } else if (ts.isImportDeclaration(node)) {
       parseModuleImport(config, compilerCtx, buildCtx, moduleFile, srcDirPath, node, true);
       return;
