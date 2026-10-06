@@ -103,6 +103,12 @@ const readPackageJsonSource = async (config: d.ValidatedConfig, compilerCtx: d.C
   } catch {
     return undefined;
   }
+
+  // Generate the server-side rendering export if ssr exists
+  const ssr = config.outputTargets.find(isOutputTargetSsr);
+  if (ssr) {
+    generateSsrExport(config, ssr, npmPkgSet);
+  }
 };
 
 /**
