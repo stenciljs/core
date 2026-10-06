@@ -25,6 +25,9 @@ Generally, non-trivial changes should pass -
 - `pnpm typecheck`
 - `pnpm test`
 - `pnpm lint`
+- `pnpm format`
+- `pnpm spellcheck`
+- `pnpm knip`
 
 To run a specific unit test: `pnpm -F PACKAGE_NAME test TEST_NAME`
 
