@@ -11,12 +11,14 @@ export interface ConfigSelections {
   namespace: string;
   outputs: ReadonlyArray<OutputKey>;
   signals: boolean;
+  /** Write an `exports` map into `package.json` on each production build. */
+  exportMaps?: boolean;
   docs: ReadonlyArray<DocKey>;
 }
 
 /**
  * Returns stencil.config.ts source for the given selections, or null if zero-config
- * covers everything (outputs = [] | ['loader'], no signals, no docs).
+ * covers everything (outputs = [] | ['loader'], no signals, no export maps, no docs).
  *
  * @param sel - Wizard selections to encode into the config file.
  * @returns TypeScript source string, or null if no config file is needed.
@@ -24,7 +26,7 @@ export interface ConfigSelections {
 export function generateStencilConfig(sel: ConfigSelections): string | null {
   const hasLoader =
     sel.outputs.length === 0 || (sel.outputs.length === 1 && sel.outputs[0] === 'loader');
-  if (hasLoader && !sel.signals && sel.docs.length === 0) return null;
+  if (hasLoader && !sel.signals && !sel.exportMaps && sel.docs.length === 0) return null;
 
   const outputLines: string[] = [];
 
@@ -60,6 +62,10 @@ export function generateStencilConfig(sel: ConfigSelections): string | null {
 
   if (sel.signals) {
     parts.push(`  signalBacking: true,`);
+  }
+
+  if (sel.exportMaps) {
+    parts.push(`  generateExportMaps: true,`);
   }
 
   parts.push(`};`);

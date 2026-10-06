@@ -11,14 +11,25 @@ import type { ProjectConfig } from './types.js';
 const PACKAGE_MANAGERS: PackageManagerName[] = ['npm', 'pnpm', 'yarn', 'bun'];
 
 /**
- * Resolve the package manager for `cwd`: the project's own `packageManager` field / lockfile
- * wins, then whichever package manager launched this process, then npm.
- * @param cwd The directory to detect from (parent directories are searched too).
+ * Resolve the package manager for `cwd`: a `packageManager` field / lockfile in the project
+ * or its workspace wins, then whichever package manager launched this process, then npm.
+ * @param cwd The directory to detect from. Parent directories are searched up to, but not
+ *  including, the home directory - a lockfile there doesn't describe this project.
  * @returns The package manager name.
  */
 export async function detectPackageManager(cwd: string): Promise<PackageManagerName> {
-  const fromProject = await detectFromProject(cwd, { ignoreArgv: true });
-  if (fromProject) return fromProject.name;
+  const home = homedir();
+  let dir = cwd;
+  while (true) {
+    const fromProject = await detectFromProject(dir, {
+      ignoreArgv: true,
+      includeParentDirs: false,
+    });
+    if (fromProject) return fromProject.name;
+    const parent = dirname(dir);
+    if (parent === dir || parent === home) break;
+    dir = parent;
+  }
   // e.g. `pnpm/10.12.1 npm/? node/v22.14.0 darwin arm64`
   const invoker = process.env.npm_config_user_agent?.split('/')[0];
   return PACKAGE_MANAGERS.find((name) => name === invoker) ?? 'npm';
@@ -41,6 +52,7 @@ export function toProjectConfig(validated: ValidatedConfig) {
     globalStyle: validated.globalStyle,
     compat: validated.compat,
     signalBacking: validated.signalBacking,
+    generateExportMaps: validated.generateExportMaps,
   };
 }
 

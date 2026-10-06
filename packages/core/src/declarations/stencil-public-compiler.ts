@@ -105,8 +105,7 @@ export interface StencilConfig {
    * Will generate {@link https://nodejs.org/api/packages.html#packages_exports export map} entry points
    * for each component in the build when `true`.
    *
-   * Defaults to `true` for "no-config" projects (no `stencil.config.ts`/`.js` file), and `false`
-   * whenever a config file is present - set this explicitly to opt an existing project in or out.
+   * @default false
    */
   generateExportMaps?: boolean;
 

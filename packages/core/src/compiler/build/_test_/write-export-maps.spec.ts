@@ -1,6 +1,5 @@
-import { execSync } from 'child_process';
 import * as d from '@stencil/core';
-import { beforeEach, describe, expect, it, vi, afterEach, Mock } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import { mockValidatedConfig } from '../../../testing';
 import { mockBuildCtx, mockCompilerCtx } from '../../../testing/compiler';
@@ -8,268 +7,297 @@ import { join } from '../../../utils';
 import { stubComponentCompilerMeta } from '../../types/_tests_/ComponentCompilerMeta.stub';
 import { writeExportMaps } from '../write-export-maps';
 
-vi.mock('child_process', () => ({
-  execSync: vi.fn(),
-  execFile: vi.fn(),
-}));
-
 describe('writeExportMaps', () => {
   let config: d.ValidatedConfig;
   let compilerCtx: d.CompilerCtx;
   let buildCtx: d.BuildCtx;
-  const execSyncMock = execSync as Mock;
+
+  const loaderBundleTarget: d.OutputTargetLoaderBundle = {
+    type: 'loader-bundle',
+    dir: '/dist',
+    buildDir: '/dist',
+    copy: [],
+    empty: true,
+    cjs: true,
+    skipInDev: false,
+  };
+  const standaloneTarget: d.OutputTargetStandalone = {
+    type: 'standalone',
+    dir: '/dist/components',
+  };
+  const typesTarget: d.OutputTargetTypes = {
+    type: 'types',
+    dir: '/dist/types',
+    empty: true,
+    skipInDev: true,
+  };
+
+  const writePackageJson = (pkg: object | string) =>
+    compilerCtx.fs.writeFile(
+      config.packageJsonFilePath,
+      typeof pkg === 'string' ? pkg : JSON.stringify(pkg, null, 2) + '\n',
+    );
+
+  const readPackageJson = async () => await compilerCtx.fs.readFile(config.packageJsonFilePath);
+
+  const run = async (pkg: object | string = { name: 'my-lib' }) => {
+    await writePackageJson(pkg);
+    await writeExportMaps(config, compilerCtx, buildCtx);
+    return JSON.parse(await readPackageJson()).exports;
+  };
 
   beforeEach(() => {
-    config = mockValidatedConfig();
+    config = mockValidatedConfig({ rootDir: '/' });
+    config.packageJsonFilePath = '/package.json';
     compilerCtx = mockCompilerCtx(config);
     buildCtx = mockBuildCtx(config, compilerCtx);
   });
 
-  afterEach(() => {
-    vi.clearAllMocks();
+  it('should not touch package.json if there are no output targets', async () => {
+    expect(await run()).toBeUndefined();
   });
 
-  it('should not generate any exports if there are no output targets', () => {
-    writeExportMaps(config, compilerCtx, buildCtx);
-
-    expect(execSyncMock).toHaveBeenCalledTimes(0);
+  it('should not throw if there is no package.json', async () => {
+    config.outputTargets = [loaderBundleTarget, typesTarget];
+    await expect(writeExportMaps(config, compilerCtx, buildCtx)).resolves.toBeUndefined();
   });
 
-  it('should generate the default exports for the lazy build if present, without a src/index.ts', () => {
-    const loaderBundleTarget: d.OutputTargetLoaderBundle = {
-      type: 'loader-bundle',
-      dir: '/dist',
-      buildDir: '/dist',
-      copy: [],
-      empty: true,
-      cjs: true,
-      skipInDev: false,
-    };
-    const typesTarget: d.OutputTargetTypes = {
-      type: 'types',
-      dir: '/dist/types',
-      empty: true,
-      skipInDev: true,
-    };
+  it('should generate the default exports for the lazy build if present, without a src/index.ts', async () => {
     config.outputTargets = [loaderBundleTarget, typesTarget];
 
-    writeExportMaps(config, compilerCtx, buildCtx);
-
-    // 3 for root export + 3 for loader export
-    expect(execSyncMock).toHaveBeenCalledTimes(6);
     // Without src/index.ts, dist/index.js is just an empty auto-generated stub -
     // the root export falls back to the loader script itself, same as "./loader"
-    expect(execSyncMock).toHaveBeenCalledWith(
-      `npm pkg set "exports[.][import]"="./dist/esm/loader.js"`,
-    );
-    expect(execSyncMock).toHaveBeenCalledWith(
-      `npm pkg set "exports[.][require]"="./dist/cjs/loader.cjs"`,
-    );
-    expect(execSyncMock).toHaveBeenCalledWith(
-      `npm pkg set "exports[.][types]"="./dist/types/loader.d.ts"`,
-    );
-    // Loader export points directly to esm/loader.js
-    expect(execSyncMock).toHaveBeenCalledWith(
-      `npm pkg set "exports[./loader][import]"="./dist/esm/loader.js"`,
-    );
-    expect(execSyncMock).toHaveBeenCalledWith(
-      `npm pkg set "exports[./loader][require]"="./dist/cjs/loader.cjs"`,
-    );
-    expect(execSyncMock).toHaveBeenCalledWith(
-      `npm pkg set "exports[./loader][types]"="./dist/types/loader.d.ts"`,
-    );
+    const loaderEntry = {
+      types: './dist/types/loader.d.ts',
+      import: './dist/esm/loader.js',
+      require: './dist/cjs/loader.cjs',
+    };
+    expect(await run()).toEqual({ '.': loaderEntry, './loader': loaderEntry });
   });
 
   it('should generate an index.js root export for the lazy build when src/index.ts exists', async () => {
-    const loaderBundleTarget: d.OutputTargetLoaderBundle = {
-      type: 'loader-bundle',
-      dir: '/dist',
-      buildDir: '/dist',
-      copy: [],
-      empty: true,
-      cjs: true,
-      skipInDev: false,
-    };
-    const typesTarget: d.OutputTargetTypes = {
-      type: 'types',
-      dir: '/dist/types',
-      empty: true,
-      skipInDev: true,
-    };
     config.outputTargets = [loaderBundleTarget, typesTarget];
     await compilerCtx.fs.writeFile(
       join(config.srcDir, 'index.ts'),
       'export * from "./components";',
     );
 
-    writeExportMaps(config, compilerCtx, buildCtx);
-
-    expect(execSyncMock).toHaveBeenCalledWith(`npm pkg set "exports[.][import]"="./dist/index.js"`);
-    expect(execSyncMock).toHaveBeenCalledWith(
-      `npm pkg set "exports[.][require]"="./dist/index.cjs"`,
-    );
-    expect(execSyncMock).toHaveBeenCalledWith(
-      `npm pkg set "exports[.][types]"="./dist/types/index.d.ts"`,
-    );
+    expect((await run())['.']).toEqual({
+      types: './dist/types/index.d.ts',
+      import: './dist/index.js',
+      require: './dist/index.cjs',
+    });
   });
 
-  it('should generate the default exports for the custom elements build if present', () => {
-    const typesTarget: d.OutputTargetTypes = {
-      type: 'types',
-      dir: '/dist/types',
-      empty: true,
-      skipInDev: true,
-    };
-    config.outputTargets = [
-      {
-        type: 'standalone',
-        dir: '/dist/components',
+  it('should generate the default exports for the custom elements build if present', async () => {
+    config.outputTargets = [standaloneTarget, typesTarget];
+
+    expect(await run()).toEqual({
+      '.': { types: './dist/types/standalone.d.ts', import: './dist/components/index.js' },
+      './standalone': {
+        types: './dist/components/index.d.ts',
+        import: './dist/components/index.js',
       },
-      typesTarget,
-    ];
-
-    writeExportMaps(config, compilerCtx, buildCtx);
-
-    expect(execSyncMock).toHaveBeenCalledTimes(4);
-    expect(execSyncMock).toHaveBeenCalledWith(
-      `npm pkg set "exports[.][import]"="./dist/components/index.js"`,
-    );
-    expect(execSyncMock).toHaveBeenCalledWith(
-      `npm pkg set "exports[.][types]"="./dist/types/standalone.d.ts"`,
-    );
+    });
   });
 
-  it('should generate the custom elements exports if the output target is present', () => {
-    config.rootDir = '/';
-    config.outputTargets.push(
-      {
-        type: 'standalone',
-        dir: '/dist/components',
-      },
-      {
-        type: 'types',
-        dir: '/dist/types',
-        empty: true,
-        skipInDev: true,
-      },
-    );
-
+  it('should generate the custom elements exports for multiple components', async () => {
+    config.outputTargets = [standaloneTarget, typesTarget];
     buildCtx.components = [
-      stubComponentCompilerMeta({
-        tagName: 'my-component',
-        componentClassName: 'MyComponent',
-      }),
-    ];
-
-    writeExportMaps(config, compilerCtx, buildCtx);
-
-    // 2 for root export (import + types) + 2 for ./standalone + 2 for component export
-    expect(execSyncMock).toHaveBeenCalledTimes(6);
-    expect(execSyncMock).toHaveBeenCalledWith(
-      `npm pkg set "exports[./standalone][import]"="./dist/components/index.js"`,
-    );
-    expect(execSyncMock).toHaveBeenCalledWith(
-      `npm pkg set "exports[./standalone][types]"="./dist/components/index.d.ts"`,
-    );
-    expect(execSyncMock).toHaveBeenCalledWith(
-      `npm pkg set "exports[./my-component][import]"="./dist/components/my-component.js"`,
-    );
-    expect(execSyncMock).toHaveBeenCalledWith(
-      `npm pkg set "exports[./my-component][types]"="./dist/components/my-component.d.ts"`,
-    );
-  });
-
-  it('should generate the custom elements exports for multiple components', () => {
-    config.rootDir = '/';
-    config.outputTargets.push(
-      {
-        type: 'standalone',
-        dir: '/dist/components',
-      },
-      {
-        type: 'types',
-        dir: '/dist/types',
-        empty: true,
-        skipInDev: true,
-      },
-    );
-
-    buildCtx.components = [
-      stubComponentCompilerMeta({
-        tagName: 'my-component',
-        componentClassName: 'MyComponent',
-      }),
+      stubComponentCompilerMeta({ tagName: 'my-component', componentClassName: 'MyComponent' }),
       stubComponentCompilerMeta({
         tagName: 'my-other-component',
         componentClassName: 'MyOtherComponent',
       }),
     ];
 
-    writeExportMaps(config, compilerCtx, buildCtx);
+    const exportMap = await run();
 
-    // 2 for root export (import + types) + 4 for component exports (2 each)
-    expect(execSyncMock).toHaveBeenCalledTimes(8);
-    expect(execSyncMock).toHaveBeenCalledWith(
-      `npm pkg set "exports[./my-component][import]"="./dist/components/my-component.js"`,
-    );
-    expect(execSyncMock).toHaveBeenCalledWith(
-      `npm pkg set "exports[./my-component][types]"="./dist/components/my-component.d.ts"`,
-    );
-    expect(execSyncMock).toHaveBeenCalledWith(
-      `npm pkg set "exports[./my-other-component][import]"="./dist/components/my-other-component.js"`,
-    );
-    expect(execSyncMock).toHaveBeenCalledWith(
-      `npm pkg set "exports[./my-other-component][types]"="./dist/components/my-other-component.d.ts"`,
-    );
+    expect(exportMap['./my-component']).toEqual({
+      types: './dist/components/my-component.d.ts',
+      import: './dist/components/my-component.js',
+    });
+    expect(exportMap['./my-other-component']).toEqual({
+      types: './dist/components/my-other-component.d.ts',
+      import: './dist/components/my-other-component.js',
+    });
   });
 
-  it('should generate the ssr export if the output target is present', () => {
-    config.rootDir = '/';
-    config.outputTargets.push({ type: 'ssr', dir: '/dist/ssr', cjs: true } as d.OutputTargetSsr);
+  it('should generate the ssr export if the output target is present', async () => {
+    config.outputTargets = [{ type: 'ssr', dir: '/dist/ssr', cjs: true } as d.OutputTargetSsr];
 
-    writeExportMaps(config, compilerCtx, buildCtx);
-
-    expect(execSyncMock).toHaveBeenCalledTimes(3);
-    expect(execSyncMock).toHaveBeenCalledWith(
-      `npm pkg set "exports[./ssr][import]"="./dist/ssr/index.js"`,
-    );
-    expect(execSyncMock).toHaveBeenCalledWith(
-      `npm pkg set "exports[./ssr][require]"="./dist/ssr/index.cjs"`,
-    );
-    expect(execSyncMock).toHaveBeenCalledWith(
-      `npm pkg set "exports[./ssr][types]"="./dist/ssr/index.d.ts"`,
-    );
+    expect(await run()).toEqual({
+      './ssr': {
+        types: './dist/ssr/index.d.ts',
+        import: './dist/ssr/index.js',
+        require: './dist/ssr/index.cjs',
+      },
+    });
   });
 
-  it('warns once and stops shelling out if the npm CLI is unavailable', () => {
-    execSyncMock.mockImplementation(() => {
-      throw new Error('spawn npm ENOENT');
+  it('should write `types` before the other conditions', async () => {
+    config.outputTargets = [loaderBundleTarget, typesTarget];
+
+    const exportMap = await run({
+      exports: { './loader': { import: './old.js', node: './node.js', types: './old.d.ts' } },
     });
 
-    config.rootDir = '/';
-    config.outputTargets.push(
-      {
-        type: 'standalone',
-        dir: '/dist/components',
-      },
-      {
-        type: 'types',
-        dir: '/dist/types',
-        empty: true,
-        skipInDev: true,
-      },
-    );
-    buildCtx.components = [
-      stubComponentCompilerMeta({ tagName: 'my-component', componentClassName: 'MyComponent' }),
-    ];
+    expect(Object.keys(exportMap['./loader'])).toEqual(['types', 'import', 'require', 'node']);
+    expect(exportMap['./loader'].node).toBe('./node.js');
+  });
 
-    writeExportMaps(config, compilerCtx, buildCtx);
+  it('should remove an owned condition that is no longer generated', async () => {
+    config.outputTargets = [{ ...loaderBundleTarget, cjs: false }, typesTarget];
 
-    // only the first attempt (root export "import") should actually shell out;
-    // every subsequent call short-circuits once npm is known to be unavailable
-    expect(execSyncMock).toHaveBeenCalledTimes(1);
-    expect(buildCtx.diagnostics).toHaveLength(1);
-    expect(buildCtx.diagnostics[0].level).toBe('warn');
-    expect(buildCtx.diagnostics[0].messageText).toContain('npm');
+    const exportMap = await run({
+      exports: { './loader': { require: './dist/cjs/loader.cjs' } },
+    });
+
+    expect(exportMap['./loader'].require).toBeUndefined();
+  });
+
+  describe('root export', () => {
+    beforeEach(() => {
+      config.outputTargets = [loaderBundleTarget, typesTarget];
+    });
+
+    it('should keep `import` and `types` targets that exist', async () => {
+      await compilerCtx.fs.writeFile('/custom/entry.js', '');
+      await compilerCtx.fs.writeFile('/custom/entry.d.ts', '');
+
+      const exportMap = await run({
+        exports: { '.': { import: './custom/entry.js', types: './custom/entry.d.ts' } },
+      });
+
+      expect(exportMap['.']).toEqual({
+        types: './custom/entry.d.ts',
+        import: './custom/entry.js',
+      });
+    });
+
+    it('should replace `import` and `types` targets that do not exist', async () => {
+      const exportMap = await run({
+        exports: { '.': { import: './gone.js', types: './gone.d.ts' } },
+      });
+
+      expect(exportMap['.']).toEqual({
+        types: './dist/types/loader.d.ts',
+        import: './dist/esm/loader.js',
+        require: './dist/cjs/loader.cjs',
+      });
+    });
+
+    it('should keep a string target that exists', async () => {
+      await compilerCtx.fs.writeFile('/custom/entry.js', '');
+
+      expect((await run({ exports: './custom/entry.js' }))['.']).toBe('./custom/entry.js');
+    });
+
+    it('should keep nested conditions', async () => {
+      const nested = { types: './a.d.ts', default: './a.js' };
+
+      const exportMap = await run({ exports: { '.': { import: nested } } });
+
+      expect(exportMap['.'].import).toEqual(nested);
+    });
+
+    it('should treat a conditions-only `exports` as the root entry', async () => {
+      const exportMap = await run({ exports: { import: './gone.js', default: './fallback.js' } });
+
+      expect(exportMap['.']).toEqual({
+        types: './dist/types/loader.d.ts',
+        import: './dist/esm/loader.js',
+        require: './dist/cjs/loader.cjs',
+        default: './fallback.js',
+      });
+      expect(exportMap.import).toBeUndefined();
+    });
+  });
+
+  describe('stale component exports', () => {
+    beforeEach(() => {
+      config.outputTargets = [standaloneTarget, typesTarget];
+      buildCtx.components = [
+        stubComponentCompilerMeta({ tagName: 'my-component', componentClassName: 'MyComponent' }),
+      ];
+    });
+
+    it('should remove the entry of a component that no longer exists', async () => {
+      const exportMap = await run({
+        exports: {
+          './old-component': {
+            types: './dist/components/old-component.d.ts',
+            import: './dist/components/old-component.js',
+          },
+        },
+      });
+
+      expect(exportMap['./old-component']).toBeUndefined();
+      expect(exportMap['./my-component']).toBeDefined();
+    });
+
+    it('should leave entries it did not generate', async () => {
+      const authored = {
+        './package.json': './package.json',
+        './my-helpers': './dist/helpers/my-helpers.js',
+        './other-name': { import: './dist/components/old-component.js' },
+      };
+
+      expect(await run({ exports: authored })).toMatchObject(authored);
+    });
+  });
+
+  describe('assets', () => {
+    it('should generate a wildcard export for the assets dir', async () => {
+      config.outputTargets = [standaloneTarget, { type: 'assets', dir: '/dist/assets' }];
+
+      expect((await run())['./assets/*']).toBe('./dist/assets/*');
+    });
+
+    it('should generate an export for a global stylesheet outside the assets dir', async () => {
+      config.outputTargets = [
+        standaloneTarget,
+        { type: 'assets', dir: '/dist/assets' },
+        { type: 'global-style', dir: '/dist/assets', fileName: 'my-lib.css' },
+        { type: 'global-style', dir: '/dist/themes', fileName: 'dark.css' },
+      ];
+
+      const exportMap = await run();
+
+      expect(exportMap['./assets/dark.css']).toBe('./dist/themes/dark.css');
+      expect(exportMap['./assets/my-lib.css']).toBeUndefined();
+    });
+
+    it('should not generate assets exports without a distributable output', async () => {
+      config.outputTargets = [
+        { type: 'ssr', dir: '/dist/ssr' } as d.OutputTargetSsr,
+        { type: 'assets', dir: '/dist/assets' },
+      ];
+
+      expect((await run())['./assets/*']).toBeUndefined();
+    });
+  });
+
+  describe('formatting', () => {
+    beforeEach(() => {
+      config.outputTargets = [loaderBundleTarget, typesTarget];
+    });
+
+    it('should preserve indentation, key order and the trailing newline', async () => {
+      await run('{\n\t"name": "my-lib",\n\t"exports": {},\n\t"version": "1.0.0"\n}\n');
+
+      const output = await readPackageJson();
+      expect(output.startsWith('{\n\t"name": "my-lib",\n\t"exports": {\n\t\t".": {')).toBe(true);
+      expect(output.endsWith('\t"version": "1.0.0"\n}\n')).toBe(true);
+    });
+
+    it('should preserve CRLF line endings and a missing trailing newline', async () => {
+      await run('{\r\n  "name": "my-lib"\r\n}');
+
+      const output = await readPackageJson();
+      expect(output.startsWith('{\r\n  "name": "my-lib",\r\n  "exports": {\r\n')).toBe(true);
+      expect(output.replace(/\r\n/g, '')).not.toContain('\n');
+      expect(output.endsWith('}')).toBe(true);
+    });
   });
 });

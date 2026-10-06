@@ -142,6 +142,30 @@ describe('generateStencilConfig', () => {
     });
   });
 
+  describe('export maps', () => {
+    it('emits generateExportMaps and forces a config file', () => {
+      const result = generateStencilConfig({
+        namespace: 'MyLib',
+        outputs: ['loader'],
+        signals: false,
+        exportMaps: true,
+        docs: [],
+      });
+      expect(result).toContain(`  generateExportMaps: true,`);
+    });
+
+    it('omits generateExportMaps when not selected', () => {
+      const result = generateStencilConfig({
+        namespace: 'MyLib',
+        outputs: ['standalone'],
+        signals: false,
+        exportMaps: false,
+        docs: [],
+      });
+      expect(result).not.toContain('generateExportMaps');
+    });
+  });
+
   describe('docs', () => {
     it('includes CEM docs output target', () => {
       const result = generateStencilConfig({

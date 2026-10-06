@@ -1,4 +1,5 @@
 import { join } from 'node:path';
+import { mockValidatedConfig } from '@stencil/core/testing';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 vi.mock('node:fs', () => ({ existsSync: vi.fn().mockReturnValue(false) }));
@@ -10,7 +11,7 @@ import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { detectPackageManager as nypmDetect } from 'nypm';
 
-import { detectPackageManager, detectWorkspaceRoot } from '../wizard/project';
+import { detectPackageManager, detectWorkspaceRoot, toProjectConfig } from '../wizard/project';
 
 function mockPkg(obj: Record<string, unknown> = {}) {
   vi.mocked(readFile).mockResolvedValue(JSON.stringify(obj) as never);
@@ -67,7 +68,27 @@ describe('detectPackageManager', () => {
     vi.mocked(nypmDetect).mockResolvedValue({ name: 'yarn', command: 'yarn' });
     vi.stubEnv('npm_config_user_agent', 'pnpm/10.12.1 npm/? node/v22.14.0 darwin arm64');
     expect(await detectPackageManager('/project')).toBe('yarn');
-    expect(nypmDetect).toHaveBeenCalledWith('/project', { ignoreArgv: true });
+    expect(nypmDetect).toHaveBeenCalledWith('/project', {
+      ignoreArgv: true,
+      includeParentDirs: false,
+    });
+  });
+
+  it('finds a lockfile in a parent directory', async () => {
+    vi.mocked(nypmDetect).mockImplementation(async (dir) =>
+      dir === '/home/user/workspace' ? { name: 'pnpm', command: 'pnpm' } : undefined,
+    );
+    vi.stubEnv('npm_config_user_agent', 'npm/10.9.2 node/v22.14.0 darwin arm64');
+    expect(await detectPackageManager('/home/user/workspace/packages/core')).toBe('pnpm');
+  });
+
+  it('ignores a lockfile in the home directory', async () => {
+    vi.mocked(nypmDetect).mockImplementation(async (dir) =>
+      dir === '/home/user' ? { name: 'npm', command: 'npm' } : undefined,
+    );
+    vi.stubEnv('npm_config_user_agent', 'pnpm/10.12.1 npm/? node/v22.14.0 darwin arm64');
+    expect(await detectPackageManager('/home/user/projects/my-lib')).toBe('pnpm');
+    expect(nypmDetect).not.toHaveBeenCalledWith('/home/user', expect.anything());
   });
 
   it.each([
@@ -85,5 +106,12 @@ describe('detectPackageManager', () => {
     expect(await detectPackageManager('/project')).toBe('npm');
     vi.stubEnv('npm_config_user_agent', 'deno/2.0.0');
     expect(await detectPackageManager('/project')).toBe('npm');
+  });
+});
+
+describe('toProjectConfig', () => {
+  it.each([true, false])('exposes generateExportMaps: %s', (generateExportMaps) => {
+    const config = toProjectConfig(mockValidatedConfig({ generateExportMaps }));
+    expect(config.generateExportMaps).toBe(generateExportMaps);
   });
 });
