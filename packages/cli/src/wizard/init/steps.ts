@@ -131,6 +131,7 @@ export async function promptOutputs(): Promise<OutputKey[]> {
 
 export interface FeatureSelections {
   signals: boolean;
+  exportMaps: boolean;
   globalStyle: boolean;
   globalScript: boolean;
 }
@@ -143,6 +144,11 @@ export async function promptFeatures(): Promise<FeatureSelections> {
         value: 'signals',
         label: 'Signals',
         hint: 'signal-backed @Prop/@State for cross-framework reactive interop',
+      },
+      {
+        value: 'exportMaps',
+        label: 'Export maps',
+        hint: 'keep package.json "exports" in sync with your outputs and components on each build',
       },
       {
         value: 'globalStyle',
@@ -161,6 +167,7 @@ export async function promptFeatures(): Promise<FeatureSelections> {
   const set = new Set(picks as string[]);
   return {
     signals: set.has('signals'),
+    exportMaps: set.has('exportMaps'),
     globalStyle: set.has('globalStyle'),
     globalScript: set.has('globalScript'),
   };

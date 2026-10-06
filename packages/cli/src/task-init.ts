@@ -158,7 +158,13 @@ export async function taskInit(
   }
 
   const configSource =
-    generateStencilConfig({ namespace, outputs, signals: features.signals, docs }) ??
+    generateStencilConfig({
+      namespace,
+      outputs,
+      signals: features.signals,
+      exportMaps: features.exportMaps,
+      docs,
+    }) ??
     (needsStencilConfig(selectedIntegrations)
       ? // No outputTargets: plugins add their own, and the compiler defaults to loader-bundle
         // if none do.

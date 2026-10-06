@@ -24,6 +24,11 @@ export interface ProjectConfig {
   compat?: ConfigCompat;
   /** Enable signal-based reactivity backing (top-level in stencil.config.ts). */
   signalBacking?: boolean;
+  /**
+   * Whether the build writes an `exports` map into the project's `package.json`. When `true`,
+   * consumers can only import the paths that map lists (e.g. `<pkg>/ssr`, not `<pkg>/dist/ssr`).
+   */
+  generateExportMaps?: boolean;
 }
 
 /**

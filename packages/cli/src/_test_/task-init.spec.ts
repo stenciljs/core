@@ -48,7 +48,12 @@ vi.mock('../wizard/init/steps', () => ({
   promptOutputs: vi.fn().mockResolvedValue([]),
   promptFeatures: vi
     .fn()
-    .mockResolvedValue({ signals: false, globalStyle: false, globalScript: false }),
+    .mockResolvedValue({
+      signals: false,
+      exportMaps: false,
+      globalStyle: false,
+      globalScript: false,
+    }),
   promptDocs: vi.fn().mockResolvedValue([]),
   promptIntegrations: vi.fn().mockResolvedValue([]),
   promptAddCapabilities: vi.fn().mockResolvedValue({ toInstall: [], toConfigure: [] }),
@@ -179,6 +184,7 @@ describe('taskInit', () => {
     vi.mocked(promptOutputs).mockResolvedValue([]);
     vi.mocked(promptFeatures).mockResolvedValue({
       signals: false,
+      exportMaps: false,
       globalStyle: false,
       globalScript: false,
     });
@@ -285,6 +291,7 @@ describe('taskInit', () => {
     vi.mocked(promptOutputs).mockResolvedValue(['www']);
     vi.mocked(promptFeatures).mockResolvedValue({
       signals: false,
+      exportMaps: false,
       globalStyle: true,
       globalScript: false,
     });
@@ -296,6 +303,21 @@ describe('taskInit', () => {
       namespace: 'MyLib',
       globalStyle: true,
     });
+  });
+
+  it('passes the export maps selection through to generateStencilConfig', async () => {
+    vi.mocked(promptFeatures).mockResolvedValue({
+      signals: false,
+      exportMaps: true,
+      globalStyle: false,
+      globalScript: false,
+    });
+
+    await taskInit(mockCoreCompiler, mockStrictConfig);
+
+    expect(vi.mocked(generateStencilConfig)).toHaveBeenCalledWith(
+      expect.objectContaining({ exportMaps: true }),
+    );
   });
 
   it('applies package.json fields before writing stencil config', async () => {
