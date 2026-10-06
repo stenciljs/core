@@ -46,14 +46,12 @@ vi.mock('../wizard/init/steps', () => ({
   KNOWN_INTEGRATIONS: [],
   promptProjectName: vi.fn().mockResolvedValue('my-lib'),
   promptOutputs: vi.fn().mockResolvedValue([]),
-  promptFeatures: vi
-    .fn()
-    .mockResolvedValue({
-      signals: false,
-      exportMaps: false,
-      globalStyle: false,
-      globalScript: false,
-    }),
+  promptFeatures: vi.fn().mockResolvedValue({
+    signals: false,
+    exportMaps: false,
+    globalStyle: false,
+    globalScript: false,
+  }),
   promptDocs: vi.fn().mockResolvedValue([]),
   promptIntegrations: vi.fn().mockResolvedValue([]),
   promptAddCapabilities: vi.fn().mockResolvedValue({ toInstall: [], toConfigure: [] }),
