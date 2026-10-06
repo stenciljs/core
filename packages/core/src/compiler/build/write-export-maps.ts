@@ -1,323 +1,326 @@
-import { execSync } from 'child_process';
 import type * as d from '@stencil/core';
 
 import {
-  buildWarn,
+  isOutputTargetAssets,
+  isOutputTargetGlobalStyle,
   isOutputTargetLoaderBundle,
   isOutputTargetSsr,
   isOutputTargetStandalone,
   isOutputTargetTypes,
+  isString,
   join,
   normalizePath,
+  parsePackageJson,
   relative,
 } from '../../utils';
 
-/**
- * A function that runs `npm pkg set <cmd>`, tolerating an unusable `npm` CLI.
- * Once a call fails, all subsequent calls become no-ops for the rest of the build
- * (the CLI being unavailable isn't something that recovers mid-build).
- */
-type NpmPkgSet = (cmd: string) => void;
+/** The conditions Stencil owns on the entries it generates, in the order they're written. */
+type ExportConditions = { types?: string; import?: string; require?: string };
+
+type JsonObject = Record<string, unknown>;
+
+const OWNED_CONDITIONS = ['types', 'import', 'require'];
+
+const isJsonObject = (v: unknown): v is JsonObject =>
+  typeof v === 'object' && v !== null && !Array.isArray(v);
 
 /**
- * Create the shared {@link NpmPkgSet} used across a single `writeExportMaps` run.
- * @param buildCtx The build context to report a warning diagnostic on if `npm` can't be run
- * @returns A function that shells out to `npm pkg set`, swallowing failure after warning once
- */
-const createNpmPkgSet = (buildCtx: d.BuildCtx): NpmPkgSet => {
-  let npmAvailable = true;
-  return (cmd: string): void => {
-    if (!npmAvailable) {
-      return;
-    }
-    try {
-      execSync(`npm pkg set ${cmd}`);
-    } catch (e: any) {
-      npmAvailable = false;
-      const warn = buildWarn(buildCtx.diagnostics);
-      warn.messageText = `Unable to generate "exports" map in package.json: the "npm" CLI could not be run (${e.message ?? e}). Set "generateExportMaps: false" in your Stencil config to silence this warning.`;
-    }
-  };
-};
-
-/**
- * Create export map entry point definitions for the `package.json` file using the npm CLI.
+ * Write the `exports` map entry points into the project's `package.json`.
  *
- * In v5, this uses a "smart default" approach:
- * - Check if exports["."] already points to a valid output (loader-bundle or standalone)
- * - If valid, leave it alone (respect user customization)
- * - If missing or invalid, set a sensible default (loader-bundle > standalone priority)
- * - Always ensure types field is set correctly
- * - Generate per-component exports for standalone output
+ * - `exports["."]`: an `import` / `types` target that exists on disk is left alone
+ *   (respects user customization), otherwise a default is set (loader-bundle > standalone)
+ * - every other generated entry is owned by Stencil and rewritten on each build
+ * - per-component entries whose component no longer exists are removed
+ * - entries Stencil doesn't generate are left untouched
  *
  * @param config The validated Stencil config
- * @param compilerCtx The compiler context (used to detect a user-authored src/index.ts)
+ * @param compilerCtx The compiler context
  * @param buildCtx The build context containing the components to generate export maps for
  */
-export const writeExportMaps = (
+export const writeExportMaps = async (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
-): void => {
+): Promise<void> => {
   const loaderBundle = config.outputTargets.find(isOutputTargetLoaderBundle);
   const standalone = config.outputTargets.find(isOutputTargetStandalone);
-  const types = config.outputTargets.find(isOutputTargetTypes);
-  const npmPkgSet = createNpmPkgSet(buildCtx);
-
-  // Generate root export - use smart default approach
-  generateRootExport(config, compilerCtx, buildCtx, loaderBundle, standalone, types, npmPkgSet);
-
-  // Generate loader export if loader-bundle exists
-  // Points directly to esm/loader.js (no separate loader directory)
-  if (loaderBundle) {
-    generateLoaderExport(config, loaderBundle, types, npmPkgSet);
-  }
-
-  // Generate the standalone runtime entry and per-component exports for standalone
-  if (standalone) {
-    generateStandaloneExport(config, standalone, npmPkgSet);
-    generateComponentExports(config, buildCtx, standalone, npmPkgSet);
-  }
-
-  // Generate the server-side rendering export if ssr exists
   const ssr = config.outputTargets.find(isOutputTargetSsr);
-  if (ssr) {
-    generateSsrExport(config, ssr, npmPkgSet);
+  const types = config.outputTargets.find(isOutputTargetTypes);
+
+  if (!loaderBundle && !standalone && !ssr) {
+    return;
+  }
+
+  const source = await readPackageJsonSource(config, compilerCtx);
+  const pkg: unknown = source ? parsePackageJson(source, config.packageJsonFilePath).data : null;
+  if (!source || !isJsonObject(pkg)) {
+    return;
+  }
+
+  let exportMap = toExportMap(pkg.exports);
+
+  if (loaderBundle || standalone) {
+    const root = getRootExport(
+      config,
+      compilerCtx,
+      exportMap['.'],
+      loaderBundle,
+      standalone,
+      types,
+    );
+    // a new root entry goes first, by convention
+    exportMap = '.' in exportMap ? { ...exportMap, '.': root } : { '.': root, ...exportMap };
+  }
+
+  const generated = getGeneratedExports(config, buildCtx, loaderBundle, standalone, ssr, types);
+
+  if (standalone?.dir) {
+    removeStaleComponentExports(exportMap, generated, toRelativePath(config, standalone.dir));
+  }
+
+  for (const [key, entry] of Object.entries(generated)) {
+    exportMap[key] = isString(entry) ? entry : mergeConditions(exportMap[key], entry);
+  }
+
+  pkg.exports = exportMap;
+
+  const eol = source.includes('\r\n') ? '\r\n' : '\n';
+  const indent = /^([ \t]+)"/m.exec(source)?.[1] ?? 2;
+  let output = JSON.stringify(pkg, null, indent);
+  if (/\n\s*$/.test(source)) {
+    output += '\n';
+  }
+  output = output.replace(/\n/g, eol);
+
+  if (output !== source) {
+    await compilerCtx.fs.writeFile(config.packageJsonFilePath, output, { immediateWrite: true });
+  }
+};
+
+const readPackageJsonSource = async (config: d.ValidatedConfig, compilerCtx: d.CompilerCtx) => {
+  try {
+    return await compilerCtx.fs.readFile(config.packageJsonFilePath);
+  } catch {
+    return undefined;
   }
 };
 
 /**
- * Generate the root export `exports["."]`.
+ * Normalize a `package.json` `exports` value into its subpath-keyed form.
+ * @param current The current `exports` value
+ * @returns A new subpath-keyed `exports` object
+ */
+const toExportMap = (current: unknown): JsonObject => {
+  if (isString(current)) {
+    return { '.': current };
+  }
+  if (!isJsonObject(current)) {
+    return {};
+  }
+  // a conditions-only object is shorthand for the root entry
+  const keys = Object.keys(current);
+  return keys.length > 0 && keys.every((key) => !key.startsWith('.'))
+    ? { '.': current }
+    : { ...current };
+};
+
+/**
+ * Build an entry with Stencil's conditions first (`types` has to precede `import` / `require`
+ * to be picked up by TypeScript), followed by any other conditions already on the entry.
+ * @param current The entry's current value
+ * @param owned The conditions to set; any owned condition left out is removed
+ * @returns The merged entry
+ */
+const mergeConditions = (
+  current: unknown,
+  owned: Record<keyof ExportConditions, unknown> | ExportConditions,
+): JsonObject => {
+  const others = isJsonObject(current)
+    ? Object.entries(current).filter(([key]) => !OWNED_CONDITIONS.includes(key))
+    : [];
+  const { types, import: importPath, require: requirePath } = owned;
+  return Object.fromEntries([
+    ...Object.entries({ types, import: importPath, require: requirePath }).filter(
+      ([, value]) => value !== undefined,
+    ),
+    ...others,
+  ]);
+};
+
+/**
+ * Get the root export `exports["."]`.
  *
- * Uses smart default approach:
- * - Check if current root export points to a valid loader-bundle or standalone output
- * - If valid, leave it alone
- * - If missing or invalid, set default (loader-bundle > standalone priority)
  * @param config The validated Stencil config
- * @param compilerCtx The compiler context (used to detect a user-authored src/index.ts)
- * @param buildCtx The build context containing the components to generate export maps for
+ * @param compilerCtx The compiler context
+ * @param current The current root entry
  * @param loaderBundle The loader-bundle output target, if it exists
  * @param standalone The standalone output target, if it exists
  * @param types The types output target, if it exists
- * @param npmPkgSet Function used to run `npm pkg set`, tolerating an unavailable npm CLI
+ * @returns The root entry to write
  */
-const generateRootExport = (
+const getRootExport = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
-  buildCtx: d.BuildCtx,
+  current: unknown,
   loaderBundle: d.OutputTargetLoaderBundle | undefined,
   standalone: d.OutputTargetStandalone | undefined,
   types: d.OutputTargetTypes | undefined,
-  npmPkgSet: NpmPkgSet,
-): void => {
-  // No distributable outputs - nothing to do
-  if (!loaderBundle && !standalone) {
-    return;
+) => {
+  // a string target is only kept if it exists, nested conditions are always the author's own
+  const isUsable = (target: unknown) =>
+    isString(target) ? compilerCtx.fs.accessSync(join(config.rootDir, target)) : target != null;
+
+  if (isString(current) && isUsable(current)) {
+    return current;
   }
+  const existing = isJsonObject(current) ? current : {};
 
   // Without a src/index.ts, the loader-bundle's own index.js/index.d.ts are just an
   // empty auto-generated stub - the real entry point is the esm/loader.js it forwards to.
   const hasSrcIndex = compilerCtx.fs.accessSync(join(config.srcDir, 'index.ts'));
   const rootUsesEmptyLoaderIndex = !!loaderBundle && !hasSrcIndex;
 
-  // Check if the current root export already points to a valid output
-  const currentExports = buildCtx.packageJson?.exports as Record<string, unknown> | undefined;
-  const currentRootExport = currentExports?.['.'] as Record<string, string> | undefined;
-  const currentImport = currentRootExport?.import;
+  const conditions: Record<keyof ExportConditions, unknown> = {
+    types: existing.types,
+    import: existing.import,
+    require: existing.require,
+  };
 
-  // Determine if current import path is valid (points to loader-bundle or standalone)
-  const isValidRoot =
-    currentImport && isValidRootExport(config, currentImport, loaderBundle, standalone);
-
-  // Only set root export if missing or invalid
-  if (!isValidRoot) {
+  if (!isUsable(existing.import)) {
     // Priority: loader-bundle > standalone
     const primaryDir = loaderBundle?.dir ?? standalone?.dir;
     if (primaryDir) {
       const entryFile = rootUsesEmptyLoaderIndex ? join('esm', 'loader.js') : 'index.js';
-      const importPath = normalizePath(relative(config.rootDir, join(primaryDir, entryFile)));
-      npmPkgSet(`"exports[.][import]"="${importPath}"`);
+      conditions.import = toRelativePath(config, join(primaryDir, entryFile));
 
-      // Set CJS require path if loader-bundle has CJS enabled
       if (loaderBundle?.cjs) {
         const cjsEntryFile = rootUsesEmptyLoaderIndex ? join('cjs', 'loader.cjs') : 'index.cjs';
-        const requirePath = normalizePath(
-          relative(config.rootDir, join(loaderBundle.dir, cjsEntryFile)),
-        );
-        npmPkgSet(`"exports[.][require]"="${requirePath}"`);
+        conditions.require = toRelativePath(config, join(loaderBundle.dir, cjsEntryFile));
       }
     }
   }
 
-  // Always ensure types is set correctly (from the types output target)
-  if (types?.dir) {
+  if (types?.dir && !isUsable(existing.types)) {
     // index.d.ts only exists when there's a src/index.ts - otherwise point at the entry
     // types the primary output generates (loader-bundle > standalone, as above)
     const typesFile = hasSrcIndex ? 'index.d.ts' : loaderBundle ? 'loader.d.ts' : 'standalone.d.ts';
-    const typesPath = normalizePath(relative(config.rootDir, join(types.dir, typesFile)));
-    npmPkgSet(`"exports[.][types]"="${typesPath}"`);
+    conditions.types = toRelativePath(config, join(types.dir, typesFile));
   }
+
+  return mergeConditions(existing, conditions);
 };
 
 /**
- * Check if the current root export import path is valid
- * (points to either loader-bundle or standalone output).
- * @param config The validated Stencil config
- * @param currentImport The current import path from exports["."]
- * @param loaderBundle The loader-bundle output target, if it exists
- * @param standalone The standalone output target, if it exists
- * @returns True if the current import path points to a valid output, false otherwise
- */
-const isValidRootExport = (
-  config: d.ValidatedConfig,
-  currentImport: string,
-  loaderBundle: d.OutputTargetLoaderBundle | undefined,
-  standalone: d.OutputTargetStandalone | undefined,
-): boolean => {
-  const normalizedCurrent = normalizePath(currentImport);
-
-  // Check if it points to loader-bundle
-  if (loaderBundle?.dir) {
-    const loaderBundlePath = normalizePath(relative(config.rootDir, loaderBundle.dir));
-    if (normalizedCurrent.includes(loaderBundlePath)) {
-      return true;
-    }
-  }
-
-  // Check if it points to standalone
-  if (standalone?.dir) {
-    const standalonePath = normalizePath(relative(config.rootDir, standalone.dir));
-    if (normalizedCurrent.includes(standalonePath)) {
-      return true;
-    }
-  }
-
-  return false;
-};
-
-/**
- * Ensure a path has a relative prefix (./ or ../).
- * Handles cases where normalizePath/relative may or may not add the prefix.
- * @param path The path to ensure has a relative prefix
- * @returns The path with a relative prefix
- */
-const ensureRelativePrefix = (path: string): string => {
-  if (path.startsWith('./') || path.startsWith('../')) {
-    return path;
-  }
-  return './' + path;
-};
-
-/**
- * Generate the loader export `exports["./loader"]`.
+ * Get every non-root entry Stencil generates for the configured output targets.
  *
- * Points directly to the esm/loader.js file in the loader-bundle output.
- * No separate loader directory is generated - package.json exports handle the mapping.
- *
- * @param config The validated Stencil config
- * @param loaderBundle The loader-bundle output target
- * @param types The types output target, if it exists
- * @param npmPkgSet Function used to run `npm pkg set`, tolerating an unavailable npm CLI
- */
-const generateLoaderExport = (
-  config: d.ValidatedConfig,
-  loaderBundle: d.OutputTargetLoaderBundle,
-  types: d.OutputTargetTypes | undefined,
-  npmPkgSet: NpmPkgSet,
-): void => {
-  const esmDir = join(loaderBundle.dir, 'esm');
-  const esmLoaderPath = ensureRelativePrefix(
-    normalizePath(relative(config.rootDir, join(esmDir, 'loader.js'))),
-  );
-
-  npmPkgSet(`"exports[./loader][import]"="${esmLoaderPath}"`);
-
-  // Set CJS require path if CJS is enabled
-  if (loaderBundle.cjs) {
-    const cjsDir = join(loaderBundle.dir, 'cjs');
-    const cjsLoaderPath = ensureRelativePrefix(
-      normalizePath(relative(config.rootDir, join(cjsDir, 'loader.cjs'))),
-    );
-    npmPkgSet(`"exports[./loader][require]"="${cjsLoaderPath}"`);
-  }
-
-  // Types for the loader entry point
-  if (types?.dir) {
-    const typesPath = ensureRelativePrefix(
-      normalizePath(relative(config.rootDir, join(types.dir, 'loader.d.ts'))),
-    );
-    npmPkgSet(`"exports[./loader][types]"="${typesPath}"`);
-  }
-};
-
-/**
- * Generate the standalone entry export `exports["./standalone"]`.
- *
- * Points at the standalone output's own `index.js`, so its runtime helpers
- * (`setTagTransformer`, `setNonce`, ...) stay reachable when `loader-bundle` holds the
- * root export. Framework wrappers built on `standalone` import from here.
- *
- * @param config The validated Stencil config
- * @param standalone The standalone output target
- * @param npmPkgSet Function used to run `npm pkg set`, tolerating an unavailable npm CLI
- */
-const generateStandaloneExport = (
-  config: d.ValidatedConfig,
-  standalone: d.OutputTargetStandalone,
-  npmPkgSet: NpmPkgSet,
-): void => {
-  if (!standalone.dir) {
-    return;
-  }
-  const outDir = ensureRelativePrefix(normalizePath(relative(config.rootDir, standalone.dir)));
-  npmPkgSet(`"exports[./standalone][import]"="${outDir}/index.js"`);
-  npmPkgSet(`"exports[./standalone][types]"="${outDir}/index.d.ts"`);
-};
-
-/**
- * Generate the server-side rendering export `exports["./ssr"]`.
- *
- * @param config The validated Stencil config
- * @param ssr The ssr output target
- * @param npmPkgSet Function used to run `npm pkg set`, tolerating an unavailable npm CLI
- */
-const generateSsrExport = (
-  config: d.ValidatedConfig,
-  ssr: d.OutputTargetSsr,
-  npmPkgSet: NpmPkgSet,
-): void => {
-  if (!ssr.dir) {
-    return;
-  }
-  const outDir = ensureRelativePrefix(normalizePath(relative(config.rootDir, ssr.dir)));
-  npmPkgSet(`"exports[./ssr][import]"="${outDir}/index.js"`);
-  if (ssr.cjs) {
-    npmPkgSet(`"exports[./ssr][require]"="${outDir}/index.cjs"`);
-  }
-  npmPkgSet(`"exports[./ssr][types]"="${outDir}/index.d.ts"`);
-};
-
-/**
- * Generate per-component exports for standalone output.
- * Each component gets its own subpath export: `exports["./my-component"]`
  * @param config The validated Stencil config
  * @param buildCtx The build context containing the components to generate export maps for
- * @param standalone The standalone output target
- * @param npmPkgSet Function used to run `npm pkg set`, tolerating an unavailable npm CLI
+ * @param loaderBundle The loader-bundle output target, if it exists
+ * @param standalone The standalone output target, if it exists
+ * @param ssr The ssr output target, if it exists
+ * @param types The types output target, if it exists
+ * @returns The generated entries, keyed by subpath
  */
-const generateComponentExports = (
+const getGeneratedExports = (
   config: d.ValidatedConfig,
   buildCtx: d.BuildCtx,
-  standalone: d.OutputTargetStandalone,
-  npmPkgSet: NpmPkgSet,
-): void => {
-  let outDir = relative(config.rootDir, standalone.dir!);
-  if (!outDir.startsWith('.')) {
-    outDir = './' + outDir;
+  loaderBundle: d.OutputTargetLoaderBundle | undefined,
+  standalone: d.OutputTargetStandalone | undefined,
+  ssr: d.OutputTargetSsr | undefined,
+  types: d.OutputTargetTypes | undefined,
+) => {
+  const generated: Record<string, ExportConditions | string> = {};
+
+  // Points directly to esm/loader.js (no separate loader directory)
+  if (loaderBundle) {
+    generated['./loader'] = {
+      types: types?.dir ? toRelativePath(config, join(types.dir, 'loader.d.ts')) : undefined,
+      import: toRelativePath(config, join(loaderBundle.dir, 'esm', 'loader.js')),
+      require: loaderBundle.cjs
+        ? toRelativePath(config, join(loaderBundle.dir, 'cjs', 'loader.cjs'))
+        : undefined,
+    };
   }
 
-  buildCtx.components.forEach((cmp) => {
-    npmPkgSet(`"exports[./${cmp.tagName}][import]"="${outDir}/${cmp.tagName}.js"`);
-    npmPkgSet(`"exports[./${cmp.tagName}][types]"="${outDir}/${cmp.tagName}.d.ts"`);
-  });
+  if (standalone?.dir) {
+    const outDir = toRelativePath(config, standalone.dir);
+
+    // The standalone output's own index.js, so its runtime helpers (`setTagTransformer`,
+    // `setNonce`, ...) stay reachable when `loader-bundle` holds the root export.
+    generated['./standalone'] = { types: `${outDir}/index.d.ts`, import: `${outDir}/index.js` };
+
+    for (const cmp of buildCtx.components) {
+      generated[`./${cmp.tagName}`] = {
+        types: `${outDir}/${cmp.tagName}.d.ts`,
+        import: `${outDir}/${cmp.tagName}.js`,
+      };
+    }
+  }
+
+  if (ssr?.dir) {
+    const outDir = toRelativePath(config, ssr.dir);
+    generated['./ssr'] = {
+      types: `${outDir}/index.d.ts`,
+      import: `${outDir}/index.js`,
+      require: ssr.cjs ? `${outDir}/index.cjs` : undefined,
+    };
+  }
+
+  if (loaderBundle || standalone) {
+    const globalStyles = config.outputTargets.filter(isOutputTargetGlobalStyle);
+    const assetsDir = (config.outputTargets.find(isOutputTargetAssets) ?? globalStyles[0])?.dir;
+    if (assetsDir) {
+      generated['./assets/*'] = `${toRelativePath(config, assetsDir)}/*`;
+    }
+    // a global stylesheet written outside the assets dir isn't covered by the wildcard
+    for (const globalStyle of globalStyles) {
+      if (globalStyle.dir && globalStyle.fileName && globalStyle.dir !== assetsDir) {
+        generated[`./assets/${globalStyle.fileName}`] = toRelativePath(
+          config,
+          join(globalStyle.dir, globalStyle.fileName),
+        );
+      }
+    }
+  }
+
+  return generated;
+};
+
+/**
+ * Remove per-component entries Stencil generated for components that no longer exist.
+ * Only an entry in the exact shape Stencil writes (`./<tag>` → `<standalone dir>/<tag>.js`)
+ * is removed, so entries added by the author are left alone.
+ *
+ * @param exportMap The export map to remove entries from
+ * @param generated The entries generated by this build
+ * @param standaloneDir The standalone output directory, relative to the project root
+ */
+const removeStaleComponentExports = (
+  exportMap: JsonObject,
+  generated: Record<string, unknown>,
+  standaloneDir: string,
+) => {
+  for (const [key, entry] of Object.entries(exportMap)) {
+    const name = key.slice(2);
+    if (!key.startsWith('./') || !name.includes('-') || key in generated) {
+      continue;
+    }
+    const target = isJsonObject(entry) ? entry.import : entry;
+    if (target === `${standaloneDir}/${name}.js`) {
+      delete exportMap[key];
+    }
+  }
+};
+
+/**
+ * Get a path relative to the project root, in the `./`-prefixed form `exports` targets require.
+ * @param config The validated Stencil config
+ * @param path The absolute path
+ * @returns The relative path
+ */
+const toRelativePath = (config: d.ValidatedConfig, path: string) => {
+  const relativePath = normalizePath(relative(config.rootDir, path));
+  return relativePath.startsWith('./') || relativePath.startsWith('../')
+    ? relativePath
+    : './' + relativePath;
 };
