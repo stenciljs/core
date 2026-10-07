@@ -62,6 +62,7 @@ export const loadModule = (
     /* webpackInclude: /\.entry\.js$/ */
     /* webpackExclude: /\.system\.entry\.js$/ */
     /* webpackMode: "lazy" */
+    /* turbopackIgnore: true */
     `${MODULE_IMPORT_PREFIX}${bundleId}.entry.js${cacheBustParams ? '?' + cacheBustParams : ''}`
   ).then(
     (importedModule) => {
