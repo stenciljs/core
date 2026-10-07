@@ -59,10 +59,10 @@ export const loadModule = (
   /*!__STENCIL_STATIC_IMPORT_SWITCH__*/
   return import(
     /* @vite-ignore */
+    /* turbopackIgnore: true */
     /* webpackInclude: /\.entry\.js$/ */
     /* webpackExclude: /\.system\.entry\.js$/ */
     /* webpackMode: "lazy" */
-    /* turbopackIgnore: true */
     `${MODULE_IMPORT_PREFIX}${bundleId}.entry.js${cacheBustParams ? '?' + cacheBustParams : ''}`
   ).then(
     (importedModule) => {
