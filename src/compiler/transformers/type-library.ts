@@ -3,6 +3,7 @@ import ts from 'typescript';
 
 import type * as d from '../../declarations';
 import { ValidatedConfig } from '../../declarations';
+import { isNodeModulePath } from '../sys/resolve/resolve-utils';
 import { resolveAliasedSymbol, typeToString } from './transform-utils';
 
 /**
@@ -21,6 +22,7 @@ const TYPE_LIBRARY: d.JsonDocsTypeLibrary = {};
  * @param typeName the type's name
  * @param checker a {@link ts.TypeChecker} instance
  * @param pathToTypeModule the path to the home module of the type
+ * @param symbol the symbol the type was looked up by, if known
  * @returns the unique ID for the type in question
  */
 export function addToLibrary(
@@ -28,6 +30,7 @@ export function addToLibrary(
   typeName: string,
   checker: ts.TypeChecker,
   pathToTypeModule: string,
+  symbol?: ts.Symbol,
 ): string {
   pathToTypeModule = relative(process.cwd(), pathToTypeModule);
 
@@ -42,12 +45,16 @@ export function addToLibrary(
   const id = getTypeId(pathToTypeModule, typeName);
 
   if (!type.isTypeParameter() && !(id in TYPE_LIBRARY)) {
-    const declaration = getTypeDeclaration(checker, type);
+    // an alias of an array or another lib or package type resolves to a declaration outside the project
+    const alias = symbol?.declarations?.find(ts.isTypeAliasDeclaration);
+    const resolvedFile = getSymbolForType(type)?.declarations?.[0]?.getSourceFile();
+    const useAlias = alias && resolvedFile && (resolvedFile.hasNoDefaultLib || isNodeModulePath(resolvedFile.fileName));
+    const declaration = useAlias ? alias.getText() : getTypeDeclaration(checker, type);
 
     if (declaration !== '') {
       TYPE_LIBRARY[id] = {
         declaration,
-        docstring: getTypeDocstring(type, checker),
+        docstring: getTypeDocstring(type, checker, useAlias ? symbol : undefined),
         path: pathToTypeModule,
       };
     }
@@ -164,7 +171,13 @@ export function addFileToLibrary(config: ValidatedConfig, filePath: string): voi
   for (const node of exportedTypesInSourceFile(sourceFile)) {
     const type = checker.getTypeAtLocation(node);
     const typeName = node.name.getText();
-    addToLibrary(type, typeName, checker, normalizePath(node.getSourceFile().fileName, false));
+    addToLibrary(
+      type,
+      typeName,
+      checker,
+      normalizePath(node.getSourceFile().fileName, false),
+      checker.getSymbolAtLocation(node.name),
+    );
   }
 }
 
@@ -303,10 +316,11 @@ function getTypeDeclaration(checker: ts.TypeChecker, type: ts.Type): string {
  *
  * @param type the type in question
  * @param checker a {@link ts.TypeChecker} instance
+ * @param aliasSymbol the symbol of the alias the type was declared as, if any
  * @returns the type's docstring if present, else an empty string
  */
-function getTypeDocstring(type: ts.Type, checker: ts.TypeChecker): string {
-  const symbol = type?.symbol;
+function getTypeDocstring(type: ts.Type, checker: ts.TypeChecker, aliasSymbol?: ts.Symbol): string {
+  const symbol = aliasSymbol ?? type?.symbol;
 
   return symbol ? ts.displayPartsToString(symbol.getDocumentationComment(checker)) : '';
 }

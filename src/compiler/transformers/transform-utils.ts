@@ -714,7 +714,13 @@ const getTypeReferenceLocation = (
       }
 
       const typeSourceFile = enumOrClassDeclaration?.getSourceFile() ?? importHomeModule;
-      const id = addToLibrary(type, originalTypeName, checker, normalizePath(typeSourceFile.fileName, false));
+      const id = addToLibrary(
+        type,
+        originalTypeName,
+        checker,
+        normalizePath(typeSourceFile.fileName, false),
+        importedSymbol,
+      );
       return {
         location: 'import',
         path: localImportPath,
@@ -790,7 +796,14 @@ const getTypeReferenceLocation = (
   );
 
   if (localExport) {
-    const id = addToLibrary(type, typeName, checker, sourceFile.fileName);
+    const localDecl = findTypeWithName(sourceFile, typeName);
+    const id = addToLibrary(
+      type,
+      typeName,
+      checker,
+      sourceFile.fileName,
+      localDecl && checker.getSymbolAtLocation(localDecl.name),
+    );
 
     return {
       location: 'local',
@@ -840,6 +853,7 @@ const getTypeReferenceLocation = (
         originalTypeName,
         checker,
         normalizePath(declaration.getSourceFile().fileName, false),
+        importedSymbol,
       );
       return {
         location: 'import',
