@@ -7,7 +7,6 @@ import type {
   BuildEvents,
   BuildResultsComponentGraph,
   CompilerBuildResults,
-  CompilerSystem,
   Config,
   CopyResults,
   Diagnostic,
@@ -1325,36 +1324,6 @@ export interface Module {
   hasVdomText: boolean;
   hasVdomXlink: boolean;
   hasSignalsImport: boolean;
-}
-
-export interface Plugin {
-  name?: string;
-  pluginType?: string;
-  load?: (id: string, context: PluginCtx) => Promise<string> | string;
-  resolveId?: (importee: string, importer: string, context: PluginCtx) => Promise<string> | string;
-  transform?: (
-    sourceText: string,
-    id: string,
-    context: PluginCtx,
-  ) => Promise<PluginTransformResults> | PluginTransformResults;
-}
-
-export type PluginTransformResults = PluginTransformationDescriptor | string | null;
-
-interface PluginTransformationDescriptor {
-  code?: string;
-  map?: string;
-  id?: string;
-  diagnostics?: Diagnostic[];
-  dependencies?: string[];
-}
-
-export interface PluginCtx {
-  config: Config;
-  sys: CompilerSystem;
-  fs: InMemoryFileSystem;
-  cache: Cache;
-  diagnostics: Diagnostic[];
 }
 
 export interface PrerenderUrlResults {

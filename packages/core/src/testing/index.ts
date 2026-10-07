@@ -37,4 +37,4 @@ export {
   ReactiveControllerHost,
   getRenderingRef,
 } from '../runtime';
-export type { SpecPage } from '@stencil/core';
+export type { NewSpecPageOptions, SpecPage } from '@stencil/core';

@@ -14,6 +14,7 @@ export type {
   ComponentShouldUpdateChanges,
   ComponentWillLoad,
   ComponentWillUpdate,
+  ErrorHandler,
   EventEmitter,
   EventOptions,
   FunctionalComponent,
@@ -28,6 +29,8 @@ export type {
   RafCallback,
   ReactiveController,
   ReactiveControllerHostInterface,
+  ResolutionHandler,
+  TagTransformer,
   VNode,
   VNodeData,
 } from './declarations/stencil-public-runtime';

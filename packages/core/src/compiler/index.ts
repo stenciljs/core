@@ -35,14 +35,22 @@ export { validateConfig } from './config/validate-config';
 export { validateHydrated } from './config/validate-hydrated';
 export * from '../declarations/stencil-public-compiler';
 // Compiler-facing types that live in `stencil-private.ts` alongside runtime-internal
-// types (e.g. HostElement, HostRef). Only the subset actually consumed outside of
-// `@stencil/core` is re-exported here - the runtime internals are intentionally not public.
+// types (e.g. HostElement, HostRef). Only the subset consumers need to name is
+// re-exported here - the runtime internals are intentionally not public.
 export type {
+  BuildCtx,
+  CompilerCtx,
+  ComponentCompilerEvent,
+  ComponentCompilerListener,
   ComponentCompilerMeta,
+  ComponentCompilerMethod,
+  ComponentCompilerProperty,
+  ComponentCompilerState,
   ComponentCompilerTypeReferences,
   ComponentGlobalStyle,
   LazyBundlesRuntimeData,
   PackageJsonData,
+  PrerenderUrlResults,
   PrintLine,
   SsrResults,
 } from '../declarations/stencil-private';
