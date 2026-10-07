@@ -3,10 +3,10 @@ import type { InputOptions as RolldownInputOptions, Plugin as RolldownPlugin } f
 import type {
   BuildConditionals,
   BuildCtx,
+  Cache,
   CompilerCtx,
   ComponentCompilerMeta,
   InMemoryFileSystem,
-  Plugin,
   PrerenderUrlResults,
   PrintLine,
 } from './stencil-private';
@@ -3190,4 +3190,37 @@ export interface CliInitOptions {
   args: string[];
   logger: Logger;
   sys: CompilerSystem;
+}
+
+/**
+ * A Stencil `resolveId`/`load`/`transform` plugin, as accepted by {@link StencilConfig.plugins}.
+ */
+export interface Plugin {
+  name?: string;
+  pluginType?: string;
+  load?: (id: string, context: PluginCtx) => Promise<string> | string;
+  resolveId?: (importee: string, importer: string, context: PluginCtx) => Promise<string> | string;
+  transform?: (
+    sourceText: string,
+    id: string,
+    context: PluginCtx,
+  ) => Promise<PluginTransformResults> | PluginTransformResults;
+}
+
+export type PluginTransformResults = PluginTransformationDescriptor | string | null;
+
+interface PluginTransformationDescriptor {
+  code?: string;
+  map?: string;
+  id?: string;
+  diagnostics?: Diagnostic[];
+  dependencies?: string[];
+}
+
+export interface PluginCtx {
+  config: Config;
+  sys: CompilerSystem;
+  fs: InMemoryFileSystem;
+  cache: Cache;
+  diagnostics: Diagnostic[];
 }
