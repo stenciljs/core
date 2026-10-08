@@ -257,6 +257,14 @@ const getGeneratedExports = (
     }
   }
 
+  // Every component type (`Components`, `JSX`, `<Tag>CustomEvent`, the types event details
+  // reference) in one place, whichever output. Framework wrappers import their types from here.
+  if (types?.dir && (loaderBundle || standalone)) {
+    generated['./components'] = {
+      types: toRelativePath(config, join(types.dir, 'components.d.ts')),
+    };
+  }
+
   if (ssr?.dir) {
     const outDir = toRelativePath(config, ssr.dir);
     generated['./ssr'] = {

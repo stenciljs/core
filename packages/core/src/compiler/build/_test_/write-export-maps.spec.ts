@@ -72,7 +72,11 @@ describe('writeExportMaps', () => {
       import: './dist/esm/loader.js',
       require: './dist/cjs/loader.cjs',
     };
-    expect(await run()).toEqual({ '.': loaderEntry, './loader': loaderEntry });
+    expect(await run()).toEqual({
+      '.': loaderEntry,
+      './loader': loaderEntry,
+      './components': { types: './dist/types/components.d.ts' },
+    });
   });
 
   it('should generate an index.js root export for the lazy build when src/index.ts exists', async () => {
@@ -98,6 +102,7 @@ describe('writeExportMaps', () => {
         types: './dist/components/index.d.ts',
         import: './dist/components/index.js',
       },
+      './components': { types: './dist/types/components.d.ts' },
     });
   });
 
@@ -244,6 +249,28 @@ describe('writeExportMaps', () => {
       };
 
       expect(await run({ exports: authored })).toMatchObject(authored);
+    });
+  });
+
+  describe('component types', () => {
+    it('should generate a types-only export for components.d.ts', async () => {
+      config.outputTargets = [standaloneTarget, typesTarget];
+
+      expect((await run())['./components']).toEqual({ types: './dist/types/components.d.ts' });
+    });
+
+    it('should follow a custom types dir', async () => {
+      config.outputTargets = [loaderBundleTarget, { ...typesTarget, dir: '/build/typings' }];
+
+      expect((await run())['./components']).toEqual({ types: './build/typings/components.d.ts' });
+    });
+
+    it('should not generate it without a types output or a distributable output', async () => {
+      config.outputTargets = [standaloneTarget];
+      expect((await run())['./components']).toBeUndefined();
+
+      config.outputTargets = [{ type: 'ssr', dir: '/dist/ssr' } as d.OutputTargetSsr, typesTarget];
+      expect((await run())['./components']).toBeUndefined();
     });
   });
 
