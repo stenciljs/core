@@ -5,6 +5,58 @@ import type * as d from '../../declarations';
 import { initializeClientHydrate } from '../client-hydrate';
 
 describe('initializeClientHydrate', () => {
+  describe.each(['', 'named'])('nested shadow component in the "%s" slot', (slotName) => {
+    it.each(['child-first', 'parent-first'])('preserves light DOM order when hydrating %s', async (order) => {
+      @Component({ tag: 'cmp-a', shadow: true })
+      class CmpA {
+        render() {
+          return (
+            <main>
+              <slot />
+              <slot name="named" />
+            </main>
+          );
+        }
+      }
+
+      @Component({ tag: 'cmp-b', shadow: true })
+      class CmpB {
+        render() {
+          return <span>Child content</span>;
+        }
+      }
+
+      const server = await newSpecPage({
+        components: [CmpA, CmpB],
+        html: `<cmp-a><cmp-b slot="${slotName}"></cmp-b> trailing text</cmp-a>`,
+        hydrateServerSide: true,
+      });
+      const client = await newSpecPage({
+        components: [],
+        html: server.root.outerHTML,
+        hydrateClientSide: true,
+      });
+      const parent = client.body.querySelector('cmp-a');
+      const child = client.body.querySelector('cmp-b');
+      const hosts = order === 'child-first' ? [child, parent] : [parent, child];
+
+      for (const host of hosts) {
+        // A custom element attaches its shadow root when it is defined.
+        host.attachShadow({ mode: 'open' });
+        initializeClientHydrate(host, host.localName, host.getAttribute('s-id'), { $flags$: 0 });
+      }
+
+      expect(parent.childNodes).toHaveLength(2);
+      expect(parent.firstChild).toBe(child);
+      expect(parent.lastChild.nodeType).toBe(3);
+      expect(parent.lastChild.textContent).toBe(' trailing text');
+      expect(child.hasAttribute('c-id')).toBe(false);
+      expect(child.getAttribute('slot')).toBe(slotName);
+      expect(child.shadowRoot).toEqualHtml('<span>Child content</span>');
+      expect(parent.shadowRoot).toEqualHtml('<main><slot></slot><slot name="named"></slot></main>');
+    });
+  });
+
   it('functional', async () => {
     const Logo = () => (
       <svg>
