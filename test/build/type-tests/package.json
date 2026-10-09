@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "module": "dist/loader-bundle/index.js",
+  "module": "dist/loader-bundle/esm/loader.js",
   "types": "dist/types/loader.d.ts",
   "scripts": {
     "build": "stencil build",

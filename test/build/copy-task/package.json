@@ -12,12 +12,12 @@
     "dist/collection/"
   ],
   "type": "module",
-  "module": "dist/loader-bundle/index.js",
+  "module": "dist/loader-bundle/esm/loader.js",
   "types": "dist/types/loader.d.ts",
   "unpkg": "dist/loader-bundle/copytask/copytask.js",
   "exports": {
     ".": {
-      "import": "./dist/loader-bundle/index.js",
+      "import": "./dist/loader-bundle/esm/loader.js",
       "types": "./dist/types/components.d.ts"
     },
     "./loader": {

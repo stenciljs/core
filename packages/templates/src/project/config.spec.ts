@@ -259,7 +259,7 @@ describe('generatePackageJsonFields', () => {
   it('returns loader fields for empty outputs (zero-config default)', () => {
     expect(generatePackageJsonFields([])).toEqual({
       type: 'module',
-      module: './dist/loader-bundle/index.js',
+      module: './dist/loader-bundle/esm/loader.js',
       types: './dist/types/loader.d.ts',
     });
   });
@@ -267,7 +267,7 @@ describe('generatePackageJsonFields', () => {
   it('returns loader fields when loader is explicitly selected', () => {
     expect(generatePackageJsonFields(['loader'])).toEqual({
       type: 'module',
-      module: './dist/loader-bundle/index.js',
+      module: './dist/loader-bundle/esm/loader.js',
       types: './dist/types/loader.d.ts',
     });
   });
@@ -303,7 +303,7 @@ describe('generatePackageJsonFields', () => {
   it('loader wins over standalone when both are selected', () => {
     expect(generatePackageJsonFields(['loader', 'standalone'])).toEqual({
       type: 'module',
-      module: './dist/loader-bundle/index.js',
+      module: './dist/loader-bundle/esm/loader.js',
       types: './dist/types/loader.d.ts',
     });
   });
@@ -311,7 +311,7 @@ describe('generatePackageJsonFields', () => {
   it('loader wins over ssr when both are selected', () => {
     expect(generatePackageJsonFields(['loader', 'ssr'])).toEqual({
       type: 'module',
-      module: './dist/loader-bundle/index.js',
+      module: './dist/loader-bundle/esm/loader.js',
       types: './dist/types/loader.d.ts',
     });
   });
@@ -335,7 +335,7 @@ describe('generatePackageJsonFields', () => {
   it('loader wins when combined with www', () => {
     expect(generatePackageJsonFields(['loader', 'www'])).toEqual({
       type: 'module',
-      module: './dist/loader-bundle/index.js',
+      module: './dist/loader-bundle/esm/loader.js',
       types: './dist/types/loader.d.ts',
     });
   });

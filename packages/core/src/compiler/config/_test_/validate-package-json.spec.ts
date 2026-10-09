@@ -147,6 +147,30 @@ describe('validateBuildPackageJson', () => {
       expect(buildCtx.diagnostics.length).toBe(0);
     });
 
+    it('should warn when module points at the loader-bundle index without a src/index.ts', async () => {
+      config.outputTargets = [
+        {
+          type: 'loader-bundle',
+          dir: '/dist/loader-bundle',
+          buildDir: '/dist/loader-bundle',
+          copy: [],
+          empty: true,
+          cjs: false,
+          skipInDev: false,
+        },
+      ];
+      buildCtx.packageJson.module = './dist/loader-bundle/index.js';
+      compilerCtx.fs.accessSync = (p) => !p.endsWith('src/index.ts');
+
+      await validateBuildPackageJson(config, compilerCtx, buildCtx);
+
+      const moduleWarning = buildCtx.diagnostics.find((d) => d.messageText.includes('"module"'));
+      expect(moduleWarning).toBeDefined();
+      expect(moduleWarning!.level).toBe('warn');
+      expect(moduleWarning!.messageText).toContain('has no exports');
+      expect(moduleWarning!.messageText).toContain('./dist/loader-bundle/esm/loader.js');
+    });
+
     it('should not warn when module path matches recommended', async () => {
       config.outputTargets = [
         {
@@ -321,6 +345,28 @@ describe('validateBuildPackageJson', () => {
       expect(mainWarning).toBeDefined();
       expect(mainWarning!.level).toBe('warn');
       expect(mainWarning!.messageText).toContain('./dist/loader-bundle/index.cjs');
+    });
+
+    it('should recommend the CJS loader for main without a src/index.ts', async () => {
+      config.outputTargets = [
+        {
+          type: 'loader-bundle',
+          dir: '/dist/loader-bundle',
+          buildDir: '/dist/loader-bundle',
+          copy: [],
+          empty: true,
+          cjs: true,
+          skipInDev: false,
+        },
+      ];
+      delete buildCtx.packageJson.main;
+      compilerCtx.fs.accessSync = (p) => !p.endsWith('src/index.ts');
+
+      await validateBuildPackageJson(config, compilerCtx, buildCtx);
+
+      const mainWarning = buildCtx.diagnostics.find((d) => d.messageText.includes('"main"'));
+      expect(mainWarning).toBeDefined();
+      expect(mainWarning!.messageText).toContain('./dist/loader-bundle/cjs/loader.cjs');
     });
 
     it('should warn when main does not exist (CJS enabled)', async () => {

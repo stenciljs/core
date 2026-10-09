@@ -73,7 +73,7 @@ vi.mock('../wizard/init/apply', () => ({
 vi.mock('@stencil/templates', () => ({
   generatePackageJsonFields: vi.fn().mockReturnValue({
     type: 'module',
-    module: './dist/loader-bundle/index.js',
+    module: './dist/loader-bundle/esm/loader.js',
     types: './dist/types/loader.d.ts',
   }),
   generateStencilConfig: vi.fn().mockReturnValue(null),
@@ -239,7 +239,7 @@ describe('taskInit', () => {
   it('applies package.json fields derived from selected outputs', async () => {
     const fields = {
       type: 'module' as const,
-      module: './dist/loader-bundle/index.js',
+      module: './dist/loader-bundle/esm/loader.js',
       types: './dist/types/loader.d.ts',
     };
     vi.mocked(generatePackageJsonFields).mockReturnValue(fields);

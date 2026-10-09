@@ -192,6 +192,37 @@ describe('writeExportMaps', () => {
       });
     });
 
+    it('should replace an `import` target pointing at the empty loader-bundle index', async () => {
+      await compilerCtx.fs.writeFile('/dist/index.js', '');
+
+      const exportMap = await run({ exports: { '.': { import: './dist/index.js' } } });
+
+      expect(exportMap['.']).toEqual({
+        types: './dist/types/loader.d.ts',
+        import: './dist/esm/loader.js',
+        require: './dist/cjs/loader.cjs',
+      });
+    });
+
+    it('should replace a string target pointing at the empty loader-bundle index', async () => {
+      await compilerCtx.fs.writeFile('/dist/index.js', '');
+
+      expect((await run({ exports: './dist/index.js' }))['.']).toEqual({
+        types: './dist/types/loader.d.ts',
+        import: './dist/esm/loader.js',
+        require: './dist/cjs/loader.cjs',
+      });
+    });
+
+    it('should keep an `import` target pointing at the loader-bundle index when src/index.ts exists', async () => {
+      await compilerCtx.fs.writeFile('/dist/index.js', '');
+      await compilerCtx.fs.writeFile(join(config.srcDir, 'index.ts'), '');
+
+      const exportMap = await run({ exports: { '.': { import: './dist/index.js' } } });
+
+      expect(exportMap['.'].import).toBe('./dist/index.js');
+    });
+
     it('should keep a string target that exists', async () => {
       await compilerCtx.fs.writeFile('/custom/entry.js', '');
 

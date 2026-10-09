@@ -88,7 +88,7 @@ export function generatePackageJsonFields(outputs: ReadonlyArray<OutputKey>): Pa
   if (isDefault || has('loader')) {
     return {
       type: 'module',
-      module: './dist/loader-bundle/index.js',
+      module: './dist/loader-bundle/esm/loader.js',
       types: './dist/types/loader.d.ts',
     };
   }
