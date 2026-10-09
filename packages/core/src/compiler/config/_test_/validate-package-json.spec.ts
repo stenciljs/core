@@ -3,6 +3,7 @@ import type * as d from '@stencil/core';
 
 import { mockValidatedConfig } from '../../../testing';
 import { mockBuildCtx, mockCompilerCtx } from '../../../testing/compiler';
+import { join } from '../../../utils';
 import { stubComponentCompilerMeta } from '../../types/_tests_/ComponentCompilerMeta.stub';
 import { validateBuildPackageJson } from '../validate-package-json';
 
@@ -148,11 +149,12 @@ describe('validateBuildPackageJson', () => {
     });
 
     it('should warn when module points at the loader-bundle index without a src/index.ts', async () => {
+      const loaderBundleDir = join(config.rootDir, 'dist', 'loader-bundle');
       config.outputTargets = [
         {
           type: 'loader-bundle',
-          dir: '/dist/loader-bundle',
-          buildDir: '/dist/loader-bundle',
+          dir: loaderBundleDir,
+          buildDir: loaderBundleDir,
           copy: [],
           empty: true,
           cjs: false,
