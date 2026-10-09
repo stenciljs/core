@@ -47,7 +47,7 @@ describe('applyPackageJsonFields', () => {
 
     await applyPackageJsonFields('/project', {
       type: 'module',
-      module: './dist/loader-bundle/index.js',
+      module: './dist/loader-bundle/esm/loader.js',
       types: './dist/types/loader.d.ts',
     });
 
@@ -56,7 +56,7 @@ describe('applyPackageJsonFields', () => {
     expect(written).toMatchObject({
       name: 'my-lib',
       type: 'module',
-      module: './dist/loader-bundle/index.js',
+      module: './dist/loader-bundle/esm/loader.js',
       types: './dist/types/loader.d.ts',
     });
   });
@@ -85,12 +85,12 @@ describe('applyPackageJsonFields', () => {
 
     await applyPackageJsonFields('/project', {
       type: 'module',
-      module: './dist/loader-bundle/index.js',
+      module: './dist/loader-bundle/esm/loader.js',
       types: './dist/types/loader.d.ts',
     });
 
     const written = JSON.parse(vi.mocked(fsPromises.writeFile).mock.calls[0][1] as string);
-    expect(written.module).toBe('./dist/loader-bundle/index.js');
+    expect(written.module).toBe('./dist/loader-bundle/esm/loader.js');
     expect(written.types).toBe('./dist/types/loader.d.ts');
   });
 
@@ -99,7 +99,7 @@ describe('applyPackageJsonFields', () => {
 
     await applyPackageJsonFields('/project', {
       type: 'module',
-      module: './dist/loader-bundle/index.js',
+      module: './dist/loader-bundle/esm/loader.js',
       types: './dist/types/loader.d.ts',
     });
 
@@ -114,7 +114,7 @@ describe('applyPackageJsonFields', () => {
 
     await applyPackageJsonFields('/project', {
       type: 'module',
-      module: './dist/loader-bundle/index.js',
+      module: './dist/loader-bundle/esm/loader.js',
       types: './dist/types/loader.d.ts',
     });
 

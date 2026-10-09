@@ -5,7 +5,7 @@
   "description": "E2E test matrix for global styles: stencil-* virtual imports, auto-placement and preprocessors",
   "license": "MIT",
   "type": "module",
-  "module": "./dist/loader-bundle/index.js",
+  "module": "./dist/loader-bundle/esm/loader.js",
   "types": "./dist/types/loader.d.ts",
   "scripts": {
     "build": "rimraf ./dist && stencil build",

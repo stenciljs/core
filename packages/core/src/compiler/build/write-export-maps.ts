@@ -166,19 +166,26 @@ const getRootExport = (
   standalone: d.OutputTargetStandalone | undefined,
   types: d.OutputTargetTypes | undefined,
 ) => {
-  // a string target is only kept if it exists, nested conditions are always the author's own
-  const isUsable = (target: unknown) =>
-    isString(target) ? compilerCtx.fs.accessSync(join(config.rootDir, target)) : target != null;
+  // Without a src/index.ts, the loader-bundle's own index.js/index.d.ts are just an
+  // empty auto-generated stub - the real entry point is the esm/loader.js it forwards to.
+  const hasSrcIndex = compilerCtx.fs.accessSync(join(config.srcDir, 'index.ts'));
+  const emptyLoaderIndex = loaderBundle && !hasSrcIndex ? join(loaderBundle.dir, 'index.js') : null;
+  const rootUsesEmptyLoaderIndex = emptyLoaderIndex != null;
+
+  // a string target is only kept if it exists (and isn't the empty stub),
+  // nested conditions are always the author's own
+  const isUsable = (target: unknown) => {
+    if (!isString(target)) {
+      return target != null;
+    }
+    const path = join(config.rootDir, target);
+    return path !== emptyLoaderIndex && compilerCtx.fs.accessSync(path);
+  };
 
   if (isString(current) && isUsable(current)) {
     return current;
   }
   const existing = isJsonObject(current) ? current : {};
-
-  // Without a src/index.ts, the loader-bundle's own index.js/index.d.ts are just an
-  // empty auto-generated stub - the real entry point is the esm/loader.js it forwards to.
-  const hasSrcIndex = compilerCtx.fs.accessSync(join(config.srcDir, 'index.ts'));
-  const rootUsesEmptyLoaderIndex = !!loaderBundle && !hasSrcIndex;
 
   const conditions: Record<keyof ExportConditions, unknown> = {
     types: existing.types,

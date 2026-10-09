@@ -27,6 +27,11 @@ interface PackageJsonRecommendations {
    */
   moduleOptions: string[];
   /**
+   * The loader-bundle's `index.js`, when there's no `src/index.ts` for it to bundle
+   * (leaving it with no exports).
+   */
+  emptyLoaderIndex: string | null;
+  /**
    * Recommended values for the "types" field.
    * Contains paths based on configured output targets.
    */
@@ -74,11 +79,14 @@ const getPackageJsonRecommendations = (
 
   // loader-bundle provides an entry at its dir (e.g. dist/loader-bundle/index.js),
   // falling back to the loader script itself when there's no user index.ts to bundle
+  let emptyLoaderIndex: string | null = null;
   if (loaderBundle?.dir) {
-    const loaderEntry = hasSrcIndex
-      ? join(loaderBundle.dir, 'index.js')
-      : join(loaderBundle.dir, 'esm', 'loader.js');
+    const loaderIndex = join(loaderBundle.dir, 'index.js');
+    const loaderEntry = hasSrcIndex ? loaderIndex : join(loaderBundle.dir, 'esm', 'loader.js');
     moduleOptions.push(normalizePath(relative(config.rootDir, loaderEntry)));
+    if (!hasSrcIndex) {
+      emptyLoaderIndex = loaderIndex;
+    }
   }
 
   // standalone provides an entry at its dir (defaults to dist/standalone)
@@ -116,10 +124,13 @@ const getPackageJsonRecommendations = (
   let main: string | null = null;
   const hasCjsOutput = !!loaderBundle?.cjs;
   if (loaderBundle?.dir && loaderBundle.cjs) {
-    main = normalizePath(relative(config.rootDir, join(loaderBundle.dir, 'index.cjs')));
+    const cjsEntry = hasSrcIndex
+      ? join(loaderBundle.dir, 'index.cjs')
+      : join(loaderBundle.dir, 'cjs', 'loader.cjs');
+    main = normalizePath(relative(config.rootDir, cjsEntry));
   }
 
-  return { moduleOptions, typesOptions, main, hasCjsOutput };
+  return { moduleOptions, emptyLoaderIndex, typesOptions, main, hasCjsOutput };
 };
 
 /**
@@ -219,7 +230,13 @@ const validatePackageJson = (
 
   // Validate module field
   if (recommendations.moduleOptions.length > 0) {
-    validateModuleField(config, compilerCtx, buildCtx, recommendations.moduleOptions);
+    validateModuleField(
+      config,
+      compilerCtx,
+      buildCtx,
+      recommendations.moduleOptions,
+      recommendations.emptyLoaderIndex,
+    );
   }
 
   // Validate types field
@@ -265,12 +282,14 @@ const formatModuleOptions = (options: string[]): string => {
  * @param compilerCtx the current compiler context
  * @param buildCtx the context associated with the current build
  * @param moduleOptions the recommended module paths based on configured output targets
+ * @param emptyLoaderIndex the loader-bundle's `index.js`, when it has no exports
  */
 const validateModuleField = (
   config: d.ValidatedConfig,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
   moduleOptions: string[],
+  emptyLoaderIndex: string | null,
 ): void => {
   const currentModulePath = buildCtx.packageJson.module;
   const suggestion = formatModuleOptions(moduleOptions);
@@ -288,6 +307,16 @@ const validateModuleField = (
 
   // Check if the current module path exists
   const moduleFile = join(config.rootDir, currentModulePath);
+  if (moduleFile === emptyLoaderIndex) {
+    packageJsonWarn(
+      config,
+      compilerCtx,
+      buildCtx,
+      `package.json "module" property is set to "${currentModulePath}" which has no exports without a "src/index.ts". Consider setting it to: ${suggestion}`,
+      '"module"',
+    );
+    return;
+  }
   const moduleFileExists = compilerCtx.fs.accessSync(moduleFile);
 
   if (!moduleFileExists) {

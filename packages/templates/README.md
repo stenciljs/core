@@ -119,7 +119,7 @@ Returns the `module`, `types`, and `type` fields to merge into `package.json` fo
 import { generatePackageJsonFields } from '@stencil/templates';
 
 generatePackageJsonFields([]);             // loader-bundle (default)
-// { type: 'module', module: './dist/loader-bundle/index.js', types: './dist/types/loader.d.ts' }
+// { type: 'module', module: './dist/loader-bundle/esm/loader.js', types: './dist/types/loader.d.ts' }
 
 generatePackageJsonFields(['standalone']);
 // { type: 'module', module: './dist/standalone/index.js', types: './dist/types/standalone.d.ts' }
