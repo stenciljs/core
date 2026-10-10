@@ -9,7 +9,7 @@
  */
 import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
-import ts from 'typescript';
+import { ts } from '@stencil/core/compiler';
 import type { ComponentCompilerTypeReferences, JsonDocsComponent } from '@stencil/core/compiler';
 
 const TYPE_FORMAT_FLAGS =
