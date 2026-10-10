@@ -8,7 +8,4 @@ export default defineConfig({
   target: 'node22',
   dts: true,
   clean: true,
-  deps: {
-    neverBundle: ['vite'],
-  },
 });
