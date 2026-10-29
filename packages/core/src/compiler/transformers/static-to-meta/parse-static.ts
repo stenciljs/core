@@ -7,7 +7,7 @@ import { createModule, getModule } from '../../transpile/transpiled-module';
 import { getComponentTagName, isStaticGetter } from '../transform-utils';
 import { parseCallExpression } from './call-expression';
 import { parseStaticComponentMeta } from './component';
-import { parseModuleImport } from './import';
+import { parseModuleImport, parseModuleReExport } from './import';
 import { parseStringLiteral } from './string-literal';
 
 /**
@@ -123,6 +123,9 @@ export const updateModule = (
       return;
     } else if (ts.isImportDeclaration(node)) {
       parseModuleImport(config, compilerCtx, buildCtx, moduleFile, srcDirPath, node, true);
+      return;
+    } else if (ts.isExportDeclaration(node)) {
+      parseModuleReExport(moduleFile, srcDirPath, node);
       return;
     } else if (ts.isCallExpression(node)) {
       parseCallExpression(moduleFile, node, typeChecker);

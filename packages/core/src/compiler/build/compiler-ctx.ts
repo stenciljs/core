@@ -169,6 +169,7 @@ export const resetModuleLegacy = (moduleFile: d.Module) => {
   moduleFile.externalImports.length = 0;
   moduleFile.isCollectionDependency = false;
   moduleFile.localImports.length = 0;
+  moduleFile.functionalComponentDeps.length = 0;
   moduleFile.originalCollectionComponentPath = null;
   moduleFile.originalImports.length = 0;
 

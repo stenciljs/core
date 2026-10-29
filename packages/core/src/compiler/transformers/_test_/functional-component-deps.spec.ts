@@ -115,6 +115,37 @@ describe('functional component dependencies', () => {
       expect(cmp.htmlTagNames).toContain('div');
     });
 
+    it('should resolve a directory import to its index module', () => {
+      const moduleMap: d.ModuleMap = new Map();
+      moduleMap.set(
+        '/src/icons/index.ts',
+        mockModule({
+          sourceFilePath: '/src/icons/index.ts',
+          htmlTagNames: ['svg'],
+          localImports: [],
+          functionalComponentDeps: [],
+        }),
+      );
+      moduleMap.set(
+        '/src/components/my-icon.tsx',
+        mockModule({
+          sourceFilePath: '/src/components/my-icon.tsx',
+          htmlTagNames: [],
+          localImports: ['/src/icons'],
+          functionalComponentDeps: [],
+        }),
+      );
+      const cmp = stubComponentCompilerMeta({
+        tagName: 'my-icon',
+        sourceFilePath: '/src/components/my-icon.tsx',
+        htmlTagNames: [],
+      });
+
+      updateComponentBuildConditionals(moduleMap, [cmp]);
+
+      expect(cmp.htmlTagNames).toContain('svg');
+    });
+
     it('should follow nested functionalComponentDeps', () => {
       const moduleMap: d.ModuleMap = new Map();
 

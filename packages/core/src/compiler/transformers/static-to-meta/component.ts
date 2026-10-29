@@ -233,7 +233,7 @@ export const parseStaticComponentMeta = (
 
   const visitComponentChildNode = (node: ts.Node) => {
     if (ts.isCallExpression(node)) {
-      parseCallExpression(cmp, node, typeChecker);
+      parseCallExpression(cmp, node, typeChecker, moduleFile);
     } else if (ts.isStringLiteral(node)) {
       parseStringLiteral(cmp, node);
     }
