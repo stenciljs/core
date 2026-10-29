@@ -14,7 +14,7 @@ vi.mock('typescript', async (importOriginal) => {
       ...actual,
       getParsedCommandLineOfConfigFile: vi.fn().mockReturnValue({
         options: {
-          target: actual.ScriptTarget.ES2017,
+          target: actual.ScriptTarget.ES2022,
           module: actual.ModuleKind.ESNext,
         },
         fileNames: [],
