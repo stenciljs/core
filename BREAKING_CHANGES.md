@@ -47,6 +47,7 @@ Stencil recently had its 10th birthday - this release is a consolidation, organi
   - [`--prod` Flag and `devMode` Config Removed](#--prod-flag-and-devmode-config-removed)
   - [Ambient Asset Imports Require a `?stencil` Suffix](#ambient-asset-imports-require-a-stencil-suffix)
   - [`docs-readme` No Longer Auto-Injected](#docs-readme-no-longer-auto-injected)
+  - [Copy Task `ignore` Adds to the Defaults](#copy-task-ignore-adds-to-the-defaults)
 - [Compiler API](#compiler-api)
   - [`@stencil/core/compiler` No Longer Wildcard-Exports `stencil-private`](#stencilcorecompiler-no-longer-wildcard-exports-stencil-private)
   - [`CompilerSystem` Interface Tightened](#compilersystem-interface-tightened)
@@ -423,6 +424,16 @@ To migrate, nothing is needed if you set `file` explicitly. If you relied on the
 To migrate, set `skipInDev: false` on the docs output targets you want generated in dev builds, or run `stencil docs` (which now accepts `--watch`) alongside your dev build. Drop `--docs` from production build scripts - it was a no-op there.
 
 `stencil docs` itself now always generates every configured docs output target (regardless of `skipInDev`), exits non-zero when the build has errors, and warns when no docs output targets are configured.
+
+#### Copy Task `ignore` Adds to the Defaults
+
+A copy task's `ignore` patterns are now added to the built-in ignore list (`**/__mocks__/**`, `**/__fixtures__/**`, `**/dist/**`, `**/.{idea,git,cache,output,temp}/**`, `**/.ds_store`, `**/.gitignore`, `**/desktop.ini`, `**/thumbs.db`) instead of replacing it. In v4, setting `ignore: ['**/*.psd']` quietly re-enabled copying `__mocks__/`, `dist/` and the rest.
+
+Directory copies now apply the ignore list too. Previously only glob `src`s did, so e.g. the default `www` copy of `src/assets` shipped `.DS_Store`, `__mocks__/` and any nested `dist/` folder. Patterns match paths relative to the copied directory, and a file or directory named explicitly as `src` is always copied.
+
+To migrate, copy anything the defaults now exclude with its own task, e.g. `{ src: 'assets/vendor/dist', dest: 'assets/vendor/dist' }`.
+
+A copy from outside the `src` directory (e.g. `src: '../node_modules/lib/dist'`) without a `dest` is now a build error. It used to keep the `../` in the destination path and write outside the output directory. Set `dest`, e.g. `{ src: '../node_modules/lib/dist', dest: 'lib' }`.
 
 ### Compiler API
 

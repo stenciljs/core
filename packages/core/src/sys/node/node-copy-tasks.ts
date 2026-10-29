@@ -1,4 +1,5 @@
 import path from 'path';
+import picomatch from 'picomatch';
 import { glob } from 'tinyglobby';
 import type * as d from '@stencil/core';
 
@@ -40,7 +41,20 @@ export async function nodeCopyTasks(copyTasks: Required<d.CopyTask>[], srcDir: s
   };
 
   try {
-    copyTasks = flatOne(await Promise.all(copyTasks.map((task) => processGlobs(task, srcDir))));
+    copyTasks = flatOne(
+      await Promise.all(
+        copyTasks.map(async (task) => {
+          const fileTasks = await processGlobs(task, srcDir);
+          if (!fileTasks.some(escapesDest)) {
+            return fileTasks;
+          }
+          // reported even with `warn: false`, which only silences a missing `src`
+          const err = buildError(results.diagnostics);
+          err.messageText = `Copy task "${task.src}" would write outside its destination "${task.dest}". Set "dest" (without "keepDirStructure") when copying from outside the src directory.`;
+          return [];
+        }),
+      ),
+    );
 
     const allCopyTasks: d.CopyTask[] = [];
 
@@ -71,10 +85,13 @@ export async function nodeCopyTasks(copyTasks: Required<d.CopyTask>[], srcDir: s
   return results;
 }
 
+/** A per-file copy task, plus the destination directory it must stay inside. */
+type ResolvedCopyTask = Required<d.CopyTask> & { destRoot: string };
+
 async function processGlobs(
   copyTask: Required<d.CopyTask>,
   srcDir: string,
-): Promise<Required<d.CopyTask>[]> {
+): Promise<ResolvedCopyTask[]> {
   return isGlob(copyTask.src)
     ? await processGlobTask(copyTask, srcDir)
     : [
@@ -84,8 +101,21 @@ async function processGlobs(
           warn: copyTask.warn,
           ignore: copyTask.ignore,
           keepDirStructure: copyTask.keepDirStructure,
+          destRoot: copyTask.dest,
         },
       ];
+}
+
+/**
+ * Keeping the directory structure of a `src` outside `srcDir` (`../x`) would carry the `../`
+ * into the destination path.
+ *
+ * @param task a per-file copy task
+ * @returns `true` if the task would write outside its destination directory
+ */
+function escapesDest({ dest, destRoot }: ResolvedCopyTask) {
+  const rel = path.relative(destRoot, dest);
+  return rel.startsWith('..') || path.isAbsolute(rel);
 }
 
 function getSrcAbsPath(srcDir: string, src: string) {
@@ -98,7 +128,7 @@ function getSrcAbsPath(srcDir: string, src: string) {
 async function processGlobTask(
   copyTask: Required<d.CopyTask>,
   srcDir: string,
-): Promise<Required<d.CopyTask>[]> {
+): Promise<ResolvedCopyTask[]> {
   const files = await asyncGlob(copyTask.src, {
     cwd: srcDir,
     nodir: true,
@@ -111,7 +141,7 @@ function createGlobCopyTask(
   copyTask: Required<d.CopyTask>,
   srcDir: string,
   globRelPath: string,
-): Required<d.CopyTask> {
+): ResolvedCopyTask {
   const dest = path.join(
     copyTask.dest,
     copyTask.keepDirStructure ? globRelPath : path.basename(globRelPath),
@@ -122,13 +152,26 @@ function createGlobCopyTask(
     ignore: copyTask.ignore,
     warn: copyTask.warn,
     keepDirStructure: copyTask.keepDirStructure,
+    destRoot: copyTask.dest,
   };
 }
+
+/** A directory copy in progress: ignore patterns match paths relative to `root`. */
+interface DirectoryWalk {
+  root: string;
+  isIgnored: (relPath: string) => boolean;
+}
+
+const createDirectoryWalk = ({ src, ignore = [] }: d.CopyTask): DirectoryWalk => ({
+  root: src,
+  isIgnored: picomatch(ignore, { dot: true, nocase: true }),
+});
 
 async function processCopyTask(
   results: d.CopyResults,
   allCopyTasks: d.CopyTask[],
   copyTask: d.CopyTask,
+  walk?: DirectoryWalk,
 ) {
   try {
     copyTask.src = normalizePath(copyTask.src);
@@ -142,8 +185,14 @@ async function processCopyTask(
         results.dirPaths.push(copyTask.dest);
       }
 
-      await processCopyTaskDirectory(results, allCopyTasks, copyTask);
-    } else if (!shouldIgnore(copyTask)) {
+      await processCopyTaskDirectory(
+        results,
+        allCopyTasks,
+        copyTask,
+        walk ?? createDirectoryWalk(copyTask),
+      );
+    } else if (!walk || !walk.isIgnored(path.posix.relative(walk.root, copyTask.src))) {
+      // an explicitly named file (not found by walking a directory) is never ignored
       // this is a file we should copy
       if (!results.filePaths.includes(copyTask.dest)) {
         results.filePaths.push(copyTask.dest);
@@ -165,6 +214,7 @@ async function processCopyTaskDirectory(
   results: d.CopyResults,
   allCopyTasks: d.CopyTask[],
   copyTask: d.CopyTask,
+  walk: DirectoryWalk,
 ) {
   try {
     const dirItems = await readdir(copyTask.src);
@@ -177,7 +227,7 @@ async function processCopyTaskDirectory(
           warn: copyTask.warn,
         };
 
-        await processCopyTask(results, allCopyTasks, subCopyTask);
+        await processCopyTask(results, allCopyTasks, subCopyTask, walk);
       }),
     );
   } catch (e: any) {
@@ -219,11 +269,6 @@ function addMkDir(mkDirs: string[], destDir: string) {
 }
 
 const ROOT_DIR = normalizePath(path.resolve('/'));
-
-function shouldIgnore({ src, ignore = [] }: d.CopyTask) {
-  const filePath = src.trim().toLowerCase();
-  return ignore.some((ignoreFile) => filePath.endsWith(ignoreFile));
-}
 
 export function asyncGlob(
   pattern: string,
