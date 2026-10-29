@@ -11,11 +11,18 @@ export const stylesToMarkdown = (styles: d.JsonDocsStyle[]) => {
   content.push(`## CSS Custom Properties`);
   content.push(``);
 
+  // `syntax`/`default` only come from native `@property` registrations
+  const hasRegistrations = styles.some((s) => s.syntax || s.default);
+  const code = (text: string | undefined) => (text ? `\`${text}\`` : '');
+
   const table = new MarkdownTable();
-  table.addHeader(['Name', 'Description']);
+  table.addHeader(
+    hasRegistrations ? ['Name', 'Description', 'Syntax', 'Default'] : ['Name', 'Description'],
+  );
 
   styles.forEach((style) => {
-    table.addRow([`\`${style.name}\``, style.docs]);
+    const row = [code(style.name), style.docs];
+    table.addRow(hasRegistrations ? [...row, code(style.syntax), code(style.default)] : row);
   });
 
   content.push(...table.toMarkdown());

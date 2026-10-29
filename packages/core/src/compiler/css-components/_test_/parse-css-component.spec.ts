@@ -207,6 +207,123 @@ describe('parseCssComponentFile', () => {
     expect(defs[0].properties).toHaveLength(2);
   });
 
+  it('accepts `name - description`, `name: description` and `name description` in @prop/@cssprop', async () => {
+    const { defs } = await parseCssComponentFile(
+      '/src/my-badge.css',
+      `
+      /**
+       * @component
+       * @cssprop --badge-bg - Background color.
+       * @cssprop --badge-fg: Text color.
+       * @cssprop --badge-gap Spacing: between items.
+       * @cssprop --badge-radius
+       */
+      my-badge {}
+      `,
+    );
+    expect(defs[0].properties.map(({ name, docs }) => [name, docs])).toEqual([
+      ['--badge-bg', 'Background color.'],
+      ['--badge-fg', 'Text color.'],
+      ['--badge-gap', 'Spacing: between items.'],
+      ['--badge-radius', ''],
+    ]);
+  });
+
+  it('merges @property syntax / initial-value into a custom property documented elsewhere', async () => {
+    const { defs } = await parseCssComponentFile(
+      '/src/my-badge.css',
+      `
+      /**
+       * @component
+       * @cssprop --badge-radius: Corner radius.
+       */
+      my-badge {
+        /** Inner spacing. */
+        --badge-padding: 4px;
+      }
+
+      @property --badge-radius {
+        syntax: "<length>";
+        initial-value: 4px;
+        inherits: false;
+      }
+
+      /** Ignored - the in-rule comment already documents it. */
+      @property --badge-padding {
+        syntax: "<length>";
+        initial-value: 2px;
+        inherits: false;
+      }
+      `,
+    );
+    expect(defs[0].properties).toEqual([
+      {
+        name: '--badge-radius',
+        docs: 'Corner radius.',
+        source: 'explicit',
+        syntax: '<length>',
+        default: '4px',
+      },
+      {
+        name: '--badge-padding',
+        docs: 'Inner spacing.',
+        source: 'auto',
+        syntax: '<length>',
+        default: '2px',
+      },
+    ]);
+  });
+
+  it("uses a doc comment above an attribute-variant rule as that attribute's description", async () => {
+    const { defs } = await parseCssComponentFile(
+      '/src/my-badge.css',
+      `
+      /** @component */
+      my-badge {
+        /** Fully rounded corners. */
+        &[pill] {}
+        &[variant="info"] {}
+        /** Color scheme. */
+        &[variant="danger"] {}
+        /* Not a doc comment. */
+        &[size="sm"] {}
+        /** Belongs to a descendant. */
+        .inner[size="lg"] {}
+        /** Belongs to the descendant, not the component. */
+        & [data-x] {}
+      }
+
+      /** Disables interaction. */
+      my-badge[disabled] {}
+      `,
+    );
+    expect(defs[0].attributes.map(({ name, docs }) => [name, docs])).toEqual([
+      ['pill', 'Fully rounded corners.'],
+      ['variant', 'Color scheme.'],
+      ['size', ''],
+      ['disabled', 'Disables interaction.'],
+    ]);
+  });
+
+  it('does not let an attribute rule comment override an explicit @attr description', async () => {
+    const { defs } = await parseCssComponentFile(
+      '/src/my-badge.css',
+      `
+      /**
+       * @component
+       * @attr {boolean} pill - From the annotation.
+       */
+      my-badge {
+        /** From the rule. */
+        &[pill] {}
+      }
+      `,
+    );
+    expect(defs[0].attributes).toEqual([
+      { name: 'pill', type: 'boolean', docs: 'From the annotation.', source: 'explicit' },
+    ]);
+  });
+
   it('parses a native @property at-rule and applies it (as non-explicit) to the component in the same file', async () => {
     const { defs, diagnostics } = await parseCssComponentFile(
       '/src/my-badge.css',

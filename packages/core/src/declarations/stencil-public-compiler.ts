@@ -1819,7 +1819,9 @@ export interface CopyTask {
   /**
    * Additional glob patterns to exclude from the copy operation, merged with
    * the built-in defaults: `__mocks__`, `__fixtures__`, `dist`, hidden dirs,
-   * `.ds_store`, `.gitignore`, `desktop.ini`, `thumbs.db`.
+   * `.ds_store`, `.gitignore`, `desktop.ini`, `thumbs.db`. For a directory
+   * `src`, patterns match paths relative to that directory; an explicitly
+   * named `src` file is never ignored.
    */
   ignore?: string[];
   /**
