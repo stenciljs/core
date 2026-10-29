@@ -7,7 +7,7 @@
     "moduleResolution": "bundler",
     "module": "esnext",
     "rootDir": "./",
-    "target": "es2017",
+    "target": "es2022",
     "jsx": "react",
     "jsxFactory": "h",
     "jsxFragmentFactory": "Fragment"

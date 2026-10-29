@@ -142,6 +142,7 @@ To migrate:
 - Remove any imports of and calls to `applyPolyfills()` from your `loader-bundle` output.
 - Remove the `buildEs5` config option from `stencil.config.ts`.
 - Remove any of `extras.__deprecated__cssVarsShim`, `extras.__deprecated__dynamicImportShim`, `extras.__deprecated__safari10`, `extras.__deprecated__shadowDomShim` (already deprecated as of v4) from `stencil.config.ts`.
+- Set `tsconfig.json`'s `target` to `es2022` or later (v4 projects typically use `es2017`). Lower targets still build, with a warning.
 
 #### `scriptDataOpts` and Legacy `patchBrowser` Removed
 

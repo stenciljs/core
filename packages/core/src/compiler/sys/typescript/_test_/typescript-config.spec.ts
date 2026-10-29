@@ -97,5 +97,23 @@ describe('typescript-config', () => {
       const result = await tsConfig.validateTsConfig(config, mockSys);
       expect(result.watchOptions).toEqual({});
     });
+
+    it.each([
+      [ts.ScriptTarget.ES2017, true],
+      [ts.ScriptTarget.ES2021, true],
+      [ts.ScriptTarget.ES2022, false],
+      [ts.ScriptTarget.ESNext, false],
+      [undefined, false],
+    ])('target %s warns about the ES2022 floor: %s', async (target, warns) => {
+      getParsedCommandLineOfConfigFileMock.mockReturnValueOnce({
+        options: { target, module: ts.ModuleKind.ESNext },
+        fileNames: [],
+        errors: [],
+      });
+
+      const result = await tsConfig.validateTsConfig(config, mockSys);
+      const messages = result.diagnostics.map((d) => d.messageText);
+      expect(messages.some((m) => String(m).includes('“es2022” or higher'))).toBe(warns);
+    });
   });
 });

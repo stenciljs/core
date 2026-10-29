@@ -103,10 +103,10 @@ export const validateTsConfig = async (config: d.ValidatedConfig, sys: d.Compile
       if (results.options) {
         tsconfig.compilerOptions = results.options;
 
-        const target = tsconfig.compilerOptions.target ?? ts.ScriptTarget.ES2017;
-        if (target < ts.ScriptTarget.ES2017) {
+        const target = tsconfig.compilerOptions.target ?? ts.ScriptTarget.ES2022;
+        if (target < ts.ScriptTarget.ES2022) {
           const warn = buildWarn(tsconfig.diagnostics);
-          warn.messageText = `Stencil requires the tsconfig.json “target” setting to be “es2017” or higher. ES5 build output is no longer supported.`;
+          warn.messageText = `Stencil requires the tsconfig.json “target” setting to be “es2022” or higher, matching its supported browsers. Lower targets compile to larger, older syntax.`;
         }
 
         if (tsconfig.compilerOptions.module !== ts.ModuleKind.ESNext && !config._isTesting) {
