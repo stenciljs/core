@@ -62,3 +62,18 @@ export const parsePropertyAtRuleDescriptors = (node: postcss.AtRule): PropertyAt
   });
   return { syntax, initialValue };
 };
+
+/** `--name: docs`, `--name - docs` (as `@attr`/`@slot` use) or `--name docs`. */
+const CUSTOM_PROPERTY_TAG_RE = /^(--[\w-]+)\s*(?::|-(?=\s))?(.*)$/;
+
+/**
+ * @param text the text after a `@prop`/`@cssprop` tag
+ * @returns the custom property name and description, or `undefined` if `text` doesn't start
+ * with a custom property name
+ */
+export const parseCustomPropertyTag = (
+  text: string,
+): { name: string; docs: string } | undefined => {
+  const match = text.trim().match(CUSTOM_PROPERTY_TAG_RE);
+  return match ? { name: match[1], docs: match[2].trim() } : undefined;
+};

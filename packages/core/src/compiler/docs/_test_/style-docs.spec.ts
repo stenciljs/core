@@ -191,6 +191,24 @@ describe('style-docs', () => {
     },
   );
 
+  it('accepts `name - description`, `name: description` and `name description`', () => {
+    const styleText = `
+      /**
+       * @prop --bg - Background color.
+       * @prop --fg: Text color.
+       * @prop --gap Spacing: between items.
+       * @prop --radius
+       */
+    `;
+    parseStyleDocs(styleDocs, styleText);
+    expect(styleDocs.map(({ name, docs }) => [name, docs])).toEqual([
+      ['--bg', 'Background color.'],
+      ['--fg', 'Text color.'],
+      ['--gap', 'Spacing: between items.'],
+      ['--radius', ''],
+    ]);
+  });
+
   it('recognizes @cssprop as a synonym for @prop', () => {
     const styleText = `
       /**
@@ -412,7 +430,7 @@ describe('style-docs', () => {
       ]);
     });
 
-    it('an explicit @prop annotation wins over a native @property at-rule of the same name', () => {
+    it('merges syntax/default into an explicit @prop annotation of the same name, keeping its docs', () => {
       const styleText = `
         /**
          * @prop --my-radius: The documented radius
@@ -425,11 +443,17 @@ describe('style-docs', () => {
       `;
       parseStyleDocs(styleDocs, styleText);
       expect(styleDocs).toEqual([
-        { name: `--my-radius`, docs: `The documented radius`, annotation: 'prop' },
+        {
+          name: `--my-radius`,
+          docs: `The documented radius`,
+          annotation: 'prop',
+          syntax: `<length>`,
+          default: `4px`,
+        },
       ]);
     });
 
-    it('an auto-detected :host declaration wins over a native @property at-rule of the same name', () => {
+    it('merges syntax/default into an auto-detected :host declaration of the same name, keeping its docs', () => {
       const styleText = `
         :host {
           /** The :host description. */
@@ -448,6 +472,8 @@ describe('style-docs', () => {
           docs: `The :host description.`,
           annotation: 'prop',
           mode: undefined,
+          syntax: `<length>`,
+          default: `4px`,
         },
       ]);
     });

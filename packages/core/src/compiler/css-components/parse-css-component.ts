@@ -8,6 +8,7 @@ import {
   isJsDocComment,
   normalizeJsDocLines,
   normalizeJsDocText,
+  parseCustomPropertyTag,
   parsePropertyAtRuleDescriptors,
 } from '../docs/css-doc-comments';
 import { createCssOnlyComponentMeta } from './css-component-meta';
@@ -510,8 +511,6 @@ const parseJsDocBlock = (commentText: string): JsDocBlock => {
 };
 
 const ATTR_TAG_RE = /^\{([^}]*)\}\s*([\w-]+)(?:\s*-\s*(.*))?$/;
-/** `--name: docs`, `--name - docs` (as `@attr`/`@slot` use) or `--name docs`. */
-const PROP_TAG_RE = /^(--[\w-]+)\s*(?::|-(?=\s))?(.*)$/;
 const PROP_TAG_NAMES = new Set(['prop', 'cssprop', 'cssproperty']);
 const RESERVED_TAG_NAMES = new Set(['component', 'prop', 'cssprop', 'cssproperty', 'attr', 'slot']);
 
@@ -535,9 +534,9 @@ const buildDefFromJsDocBlock = (
       continue;
     }
     if (PROP_TAG_NAMES.has(tag.name)) {
-      const match = tag.text.match(PROP_TAG_RE);
-      if (match) {
-        properties.push({ name: match[1], docs: match[2].trim(), source: 'explicit' });
+      const prop = parseCustomPropertyTag(tag.text);
+      if (prop) {
+        properties.push({ ...prop, source: 'explicit' });
       }
       continue;
     }
