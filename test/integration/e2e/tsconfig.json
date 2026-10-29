@@ -19,7 +19,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "pretty": true,
-    "target": "es2017",
+    "target": "es2022",
     "useUnknownInCatchVariables": true,
     "rootDir": ".",
     "paths": {

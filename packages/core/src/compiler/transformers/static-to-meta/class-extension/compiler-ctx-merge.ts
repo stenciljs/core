@@ -23,8 +23,10 @@ import {
   findClassInJsModule,
   findClassWalk,
   findReExport,
+  findStarReExportSpecifiers,
   findStatementByName,
   matchesNamedDeclaration,
+  readJsSourceFile,
   reanchorInheritedTypeReferences,
   resolveModuleJsEntry,
   warnMixinFactoryClassNotFound,
@@ -81,7 +83,8 @@ function convertDiskSourceFileDecorators(
 /**
  * Resolves an `extends` target through a module specifier: resolves the
  * module, finds the named class/mixin-factory export, and adds it (and its
- * own ancestors) to `dependentClasses`. Follows one level of re-export (barrel file) when the
+ * own ancestors) to `dependentClasses`. Follows one level of re-export (barrel file, named or
+ * `export *`) when the
  * declaration isn't found directly in the resolved module.
  * @param compilerCtx the current compiler context
  * @param buildCtx the current build context
@@ -130,9 +133,15 @@ function resolveAndProcessExtendedClass(
   }
 
   // 1) resolve the module name to a file
-  let foundSource: ts.SourceFile = compilerCtx.moduleMap.get(
-    foundFile.resolvedModule.resolvedFileName,
-  )?.staticSourceFile;
+  const resolvedFileName = foundFile.resolvedModule.resolvedFileName;
+  let foundSource: ts.SourceFile = compilerCtx.moduleMap.get(resolvedFileName)?.staticSourceFile;
+
+  if (!foundSource && isJsFile(currentSource.fileName) && isJsFile(resolvedFileName)) {
+    // walking a package's collection JS (see `findInJsEntry`): its imports of sibling `.js`
+    // files are already compiled to static metadata, and a TS program won't load them
+    // without `allowJs`
+    foundSource = readJsSourceFile(buildCtx.config, resolvedFileName);
+  }
 
   if (!foundSource) {
     // Stencil only loads full-fledged component modules from node_modules collections,
@@ -157,7 +166,11 @@ function resolveAndProcessExtendedClass(
   // 2) get the exported declaration from the module
   const matchedStatement = findStatementByName(foundSource, className);
   if (!matchedStatement) {
-    const reExport = barrelHopsRemaining > 0 ? findReExport(foundSource, className) : undefined;
+    const reExport =
+      barrelHopsRemaining > 0
+        ? (findReExport(foundSource, className) ??
+          findStarReExportOf(buildCtx.config, compilerCtx, foundSource, className))
+        : undefined;
     if (reExport) {
       return resolveAndProcessExtendedClass(
         compilerCtx,
@@ -193,26 +206,34 @@ function resolveAndProcessExtendedClass(
   // JS-fallback below may hop into a different file
   let foundClassSource = foundSource;
 
-  if (!foundClassDeclaration && matchedStatement) {
+  // foundSource is a package's types entry - an ambient declaration has no body or metadata,
+  // so a class (or a mixin factory's class) has to be read from the package's JS entry instead.
+  const findInJsEntry = () => {
+    if (!isDtsFile(foundSource.fileName) || isLocalModule(originalModuleSpecifier)) {
+      return undefined;
+    }
+    const jsSource = resolveModuleJsEntry(
+      buildCtx.config,
+      compilerCtx,
+      originalModuleSpecifier,
+      originalContainingFile,
+    );
+    return jsSource && findClassInJsModule(buildCtx.config, compilerCtx, jsSource, className);
+  };
+
+  if (foundClassDeclaration) {
+    const foundInJs = findInJsEntry();
+    if (foundInJs) {
+      foundClassDeclaration = foundInJs.classNode;
+      foundClassSource = foundInJs.sourceFile;
+    }
+  } else if (matchedStatement) {
     // wrapped in a function (mixin factory) - try to find the class inside
     foundClassDeclaration = findClassWalk(matchedStatement);
     keepLooking = false;
 
-    if (
-      !foundClassDeclaration &&
-      isDtsFile(foundSource.fileName) &&
-      !isLocalModule(originalModuleSpecifier)
-    ) {
-      // foundSource is the package's types entry - an ambient declaration has no body, so a
-      // mixin factory's class can never live there. Fall back to its actual JS entry.
-      const jsSource = resolveModuleJsEntry(
-        buildCtx.config,
-        compilerCtx,
-        originalModuleSpecifier,
-        originalContainingFile,
-      );
-      const foundInJs =
-        jsSource && findClassInJsModule(buildCtx.config, compilerCtx, jsSource, className);
+    if (!foundClassDeclaration) {
+      const foundInJs = findInJsEntry();
       if (foundInJs) {
         foundClassDeclaration = foundInJs.classNode;
         foundClassSource = foundInJs.sourceFile;
@@ -249,6 +270,38 @@ function resolveAndProcessExtendedClass(
 
   return foundClassDeclaration;
 }
+
+/**
+ * Finds the first `export * from './x'` in `barrel` whose target declares `className` directly.
+ * @param config the current Stencil validated config
+ * @param compilerCtx the current compiler context
+ * @param barrel the source file to scan
+ * @param className the declaration name to look for
+ * @returns the re-export to follow, in `findReExport`'s shape, or `undefined`
+ */
+function findStarReExportOf(
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  barrel: ts.SourceFile,
+  className: string,
+) {
+  for (const moduleSpecifier of findStarReExportSpecifiers(barrel)) {
+    const resolved = tsResolveModuleName(config, compilerCtx, moduleSpecifier, barrel.fileName);
+    const fileName = resolved?.resolvedModule?.resolvedFileName;
+    if (!fileName) {
+      continue;
+    }
+    const target =
+      compilerCtx.moduleMap.get(fileName)?.staticSourceFile ??
+      (isJsFile(fileName) ? readJsSourceFile(config, fileName) : tsGetSourceFile(config, resolved));
+    if (target && findStatementByName(target, className)) {
+      return { moduleSpecifier, localName: className };
+    }
+  }
+  return undefined;
+}
+
+const isJsFile = (fileName: string) => /\.[cm]?js$/.test(fileName);
 
 // Maps a `.d.ts` declaration path to its compiled `.js` counterpart and looks
 // it up in the module map - needed since an external project's extended

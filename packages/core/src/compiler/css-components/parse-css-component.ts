@@ -8,6 +8,7 @@ import {
   isJsDocComment,
   normalizeJsDocLines,
   normalizeJsDocText,
+  parseCustomPropertyTag,
   parsePropertyAtRuleDescriptors,
 } from '../docs/css-doc-comments';
 import { createCssOnlyComponentMeta } from './css-component-meta';
@@ -70,6 +71,9 @@ export const parseCssComponentFile = async (
 
   const defs = new Map<string, CssOnlyComponentDef>();
   const rawNodes = rawRoot.nodes;
+  // Doc comments above attribute-variant rules, read from the un-flattened tree (nesting
+  // resolution moves `&[x]` rules away from their comments).
+  const attributeRuleDocs = new Map<CssOnlyComponentDef, Map<string, string>>();
 
   // Pass 1: find @component-marked top-level rules and establish one CssOnlyComponentDef per tag.
   for (let i = 0; i < rawNodes.length; i++) {
@@ -148,6 +152,11 @@ export const parseCssComponentFile = async (
 
     collectAutoDetectedCustomProperties(next, def);
     collectAutoDetectedSlots(next, def);
+    collectAttributeRuleDocs(
+      next,
+      (selector) => (selector.nonTagParts[0] === 'nesting' ? def : undefined),
+      attributeRuleDocs,
+    );
   }
 
   if (defs.size === 0) {
@@ -171,6 +180,15 @@ export const parseCssComponentFile = async (
         continue;
       }
       collectAutoDetectedAttributes(selector, def);
+    }
+  }
+
+  collectAttributeRuleDocs(rawRoot, (selector) => defs.get(selector.tag ?? ''), attributeRuleDocs);
+  for (const [def, docsByName] of attributeRuleDocs) {
+    for (const attr of def.attributes) {
+      if (attr.source === 'auto') {
+        attr.docs = docsByName.get(attr.name) ?? attr.docs;
+      }
     }
   }
 
@@ -207,8 +225,13 @@ export const parseCssComponentFile = async (
         : '';
 
     for (const def of defs.values()) {
-      if (def.properties.some((p) => p.name === propName)) {
-        continue; // explicit @prop/@cssprop annotation already wins
+      const existing = def.properties.find((p) => p.name === propName);
+      if (existing) {
+        // documented elsewhere - its docs win, but the registration still supplies type info
+        existing.docs ||= docs;
+        if (syntax) existing.syntax ??= syntax;
+        if (initialValue) existing.default ??= initialValue;
+        continue;
       }
       const prop: CssOnlyPropertyDoc = {
         name: propName,
@@ -372,6 +395,47 @@ const collectAutoDetectedAttributes = (selector: ParsedSelector, def: CssOnlyCom
   }
 };
 
+/**
+ * Record the JSDoc comment directly above each of `container`'s child rules as the description
+ * of the attributes in that rule's leading compound selector. The first documented rule for an
+ * attribute wins.
+ * @param container a container whose direct child rules to scan
+ * @param defFor the component a child rule's selector belongs to, if any
+ * @param out collected descriptions, per component, by attribute name
+ */
+const collectAttributeRuleDocs = (
+  container: postcss.Container,
+  defFor: (selector: ParsedSelector) => CssOnlyComponentDef | undefined,
+  out: Map<CssOnlyComponentDef, Map<string, string>>,
+) => {
+  for (const node of container.nodes) {
+    const prev = node.prev();
+    if (node.type !== 'rule' || prev?.type !== 'comment' || !isJsDocComment(prev.text)) {
+      continue;
+    }
+    let selectors: ParsedSelector[];
+    try {
+      selectors = parseSelectorList(node.selector);
+    } catch {
+      continue; // malformed selector - skip
+    }
+    const docs = normalizeJsDocText(prev.text);
+    for (const selector of selectors) {
+      const def = defFor(selector);
+      if (!def) {
+        continue;
+      }
+      const docsByName = out.get(def) ?? new Map<string, string>();
+      out.set(def, docsByName);
+      for (const attr of selector.attributes) {
+        if (!docsByName.has(attr.name)) {
+          docsByName.set(attr.name, docs);
+        }
+      }
+    }
+  }
+};
+
 const mergeLiteralUnion = (existingType: string, value: string): string => {
   const literal = JSON.stringify(value);
   const escapeHatch = ' | (string & {})';
@@ -470,11 +534,9 @@ const buildDefFromJsDocBlock = (
       continue;
     }
     if (PROP_TAG_NAMES.has(tag.name)) {
-      const colonIndex = tag.text.indexOf(':');
-      const name = (colonIndex === -1 ? tag.text : tag.text.slice(0, colonIndex)).trim();
-      const docs = colonIndex === -1 ? '' : tag.text.slice(colonIndex + 1).trim();
-      if (name.startsWith('--')) {
-        properties.push({ name, docs, source: 'explicit' });
+      const prop = parseCustomPropertyTag(tag.text);
+      if (prop) {
+        properties.push({ ...prop, source: 'explicit' });
       }
       continue;
     }

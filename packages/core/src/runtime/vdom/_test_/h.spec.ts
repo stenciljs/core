@@ -412,6 +412,27 @@ describe('h()', () => {
       ]);
     });
 
+    it('utils.forEach should expose text children as vtext', () => {
+      const output: d.ChildNode[] = [];
+      const FunctionalCmp: d.FunctionalComponent = (_nodeData, children, util) => {
+        util.forEach(children, (child) => output.push(child));
+        return null;
+      };
+      h(FunctionalCmp, null, 'hello', 42, h('span', null));
+      expect(output.map((c) => [c.vtag, c.vtext])).toEqual([
+        [null, 'hello'],
+        [null, '42'],
+        ['span', null],
+      ]);
+    });
+
+    it('utils.map should keep text children as text nodes', () => {
+      const FunctionalCmp = (_nodeData: any, children: d.VNode[], util: d.FunctionalUtilities) =>
+        util.map(children, (child) => child);
+      const vnode = h(FunctionalCmp, null, 'hello', h('span', null));
+      expect(vnode).toEqual([newVNode(null, 'hello'), newVNode('span', null)]);
+    });
+
     it('replaceAttributes should return the attributes for the node', () => {
       const FunctionalCmp = (_nodeData: any, children: d.VNode[], util: d.FunctionalUtilities) => {
         return util.map(children, (child) => {

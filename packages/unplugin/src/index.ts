@@ -1,14 +1,20 @@
 export { unpluginStencil, getStencilCEM, STENCIL_DOCS_ID } from './plugin.js';
 export type { StencilPluginOptions } from './options.js';
 
+import type { UnpluginInstance } from 'unplugin';
+
 import { unpluginStencil } from './plugin.js';
 import type { StencilPluginOptions } from './options.js';
 
-export const stencilVite = unpluginStencil.vite;
-export const stencilRollup = unpluginStencil.rollup;
-export const stencilWebpack = unpluginStencil.webpack;
-export const stencilEsbuild = unpluginStencil.esbuild;
-export const stencilRspack = unpluginStencil.rspack;
+// Annotated so the published types reference `unplugin`'s exports; inferred, they inline
+// bundler type names (e.g. `WebpackPluginInstance`) with no import.
+type StencilUnplugin = UnpluginInstance<StencilPluginOptions | undefined, boolean>;
+
+export const stencilVite: StencilUnplugin['vite'] = unpluginStencil.vite;
+export const stencilRollup: StencilUnplugin['rollup'] = unpluginStencil.rollup;
+export const stencilWebpack: StencilUnplugin['webpack'] = unpluginStencil.webpack;
+export const stencilEsbuild: StencilUnplugin['esbuild'] = unpluginStencil.esbuild;
+export const stencilRspack: StencilUnplugin['rspack'] = unpluginStencil.rspack;
 
 /**
  * Vite plugin that transpiles components for use with `newSpecPage()` from

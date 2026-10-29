@@ -198,6 +198,22 @@ export function findReExport(
 }
 
 /**
+ * @param sourceFile the (barrel) source file to scan
+ * @returns the module specifiers of its `export * from './x'` statements, in order
+ */
+export function findStarReExportSpecifiers(sourceFile: ts.SourceFile): string[] {
+  return sourceFile.statements.flatMap((stmt) =>
+    ts.isExportDeclaration(stmt) &&
+    !stmt.exportClause &&
+    !stmt.isTypeOnly &&
+    stmt.moduleSpecifier &&
+    ts.isStringLiteral(stmt.moduleSpecifier)
+      ? [stmt.moduleSpecifier.text]
+      : [],
+  );
+}
+
+/**
  * Finds `name`'s import in `sourceFile` and returns its module and origin name (before any `as`
  * aliasing; `'default'` for a default import).
  * @param sourceFile the source file to scan for a matching import
@@ -298,7 +314,10 @@ function pickJsCondition(entry: unknown): string | undefined {
  * @param filePath the absolute path of the JS file to read and parse
  * @returns the parsed source file, or `undefined` if it couldn't be read
  */
-function readJsSourceFile(config: d.ValidatedConfig, filePath: string): ts.SourceFile | undefined {
+export function readJsSourceFile(
+  config: d.ValidatedConfig,
+  filePath: string,
+): ts.SourceFile | undefined {
   try {
     const text = config.sys.readFileSync(filePath);
     if (typeof text !== 'string') {
@@ -397,28 +416,36 @@ export function findClassInJsModule(
   if (hopsRemaining <= 0) {
     return undefined;
   }
+  const readReExported = (moduleSpecifier: string) => {
+    const resolvedModule = tsResolveModuleName(
+      config,
+      compilerCtx,
+      moduleSpecifier,
+      source.fileName,
+    );
+    const resolvedFileName = resolvedModule?.resolvedModule?.resolvedFileName;
+    return resolvedFileName ? readJsSourceFile(config, resolvedFileName) : undefined;
+  };
+
   const reExport = findReExport(source, className);
-  if (!reExport) {
-    return undefined;
+  if (reExport) {
+    const nextSource = readReExported(reExport.moduleSpecifier);
+    return (
+      nextSource &&
+      findClassInJsModule(config, compilerCtx, nextSource, reExport.localName, hopsRemaining - 1)
+    );
   }
-  const resolvedModule = tsResolveModuleName(
-    config,
-    compilerCtx,
-    reExport.moduleSpecifier,
-    source.fileName,
-  );
-  const resolvedFileName = resolvedModule?.resolvedModule?.resolvedFileName;
-  const nextSource = resolvedFileName && readJsSourceFile(config, resolvedFileName);
-  if (!nextSource) {
-    return undefined;
+
+  for (const moduleSpecifier of findStarReExportSpecifiers(source)) {
+    const nextSource = readReExported(moduleSpecifier);
+    const found =
+      nextSource &&
+      findClassInJsModule(config, compilerCtx, nextSource, className, hopsRemaining - 1);
+    if (found) {
+      return found;
+    }
   }
-  return findClassInJsModule(
-    config,
-    compilerCtx,
-    nextSource,
-    reExport.localName,
-    hopsRemaining - 1,
-  );
+  return undefined;
 }
 
 export type DeDupeMember =

@@ -28,11 +28,11 @@ A CSS-only badge - no JS class, no shadow DOM, never registered via `customEleme
 
 ## CSS Custom Properties
 
-| Name              | Description             |
-| ----------------- | ----------------------- |
-| `--badge-color`   | The badge's text color. |
-| `--badge-padding` | Inner spacing.          |
-| `--badge-radius`  | Corner radius.          |
+| Name              | Description             | Syntax     | Default |
+| ----------------- | ----------------------- | ---------- | ------- |
+| `--badge-color`   | The badge's text color. |            |         |
+| `--badge-padding` | Inner spacing.          |            |         |
+| `--badge-radius`  | Corner radius.          | `<length>` | `4px`   |
 
 
 ----------------------------------------------

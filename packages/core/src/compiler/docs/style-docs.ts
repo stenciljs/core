@@ -4,6 +4,7 @@ import type * as d from '@stencil/core';
 import {
   isJsDocComment,
   normalizeJsDocText,
+  parseCustomPropertyTag,
   parsePropertyAtRuleDescriptors,
 } from './css-doc-comments';
 
@@ -18,7 +19,8 @@ import {
  * 2. A doc-commented `--foo: value;` declaration inside the component's "root" rule - `:host`
  *    for `shadow`/`scoped` encapsulation, or the component's own tag selector for `none`.
  * 3. A native `@property --foo { ... }` at-rule, with the `syntax`/`initial-value` descriptors
- *    surfaced as `syntax`/`default`. Not scoped - `@property` is a global registration.
+ *    surfaced as `syntax`/`default`. Not scoped - `@property` is a global registration. For a
+ *    property already documented by 1 or 2, it still supplies `syntax`/`default`.
  *
  * @param styleDocs the array to hold formatted CSS docstrings
  * @param styleText the CSS text we're working with
@@ -122,7 +124,7 @@ function parseScopedAndNativeStyleDocs(
 
   root.walkAtRules('property', (node) => {
     const propName = node.params.trim();
-    if (!propName.startsWith('--') || hasName(propName)) {
+    if (!propName.startsWith('--')) {
       return;
     }
 
@@ -132,6 +134,15 @@ function parseScopedAndNativeStyleDocs(
       prev && prev.type === 'comment' && isJsDocComment(prev.text)
         ? normalizeJsDocText(prev.text)
         : '';
+
+    const existing = styleDocs.find((styleDoc) => styleDoc.name === propName);
+    if (existing) {
+      // documented elsewhere - its docs win, but the registration still supplies type info
+      existing.docs ||= docs;
+      if (syntax) existing.syntax ??= syntax;
+      if (initialValue) existing.default ??= initialValue;
+      return;
+    }
 
     styleDocs.push({
       name: propName,
@@ -176,19 +187,12 @@ function parseCssComment(styleDocs: d.StyleDoc[], comment: string, mode: string 
   const docs = comment.split(CSS_PROP_ANNOTATION_RE);
 
   docs.forEach((d) => {
-    const cssDocument = d.trim();
-
-    if (!cssDocument.startsWith(`--`)) {
+    const prop = parseCustomPropertyTag(d);
+    if (!prop) {
       return;
     }
 
-    const splt = cssDocument.split(`:`);
-    const styleDoc: d.StyleDoc = {
-      name: splt[0].trim(),
-      docs: (splt.shift() && splt.join(`:`)).trim(),
-      annotation: 'prop',
-      mode,
-    };
+    const styleDoc: d.StyleDoc = { ...prop, annotation: 'prop', mode };
 
     if (!styleDocs.some((c) => c.name === styleDoc.name && c.annotation === 'prop')) {
       styleDocs.push(styleDoc);

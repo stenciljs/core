@@ -5,7 +5,7 @@ import type * as d from '@stencil/core';
 import { getModuleLegacy, resetModuleLegacy } from '../../build/compiler-ctx';
 import { parseCallExpression } from './call-expression';
 import { parseStaticComponentMeta } from './component';
-import { parseModuleImport } from './import';
+import { parseModuleImport, parseModuleReExport } from './import';
 import { parseStringLiteral } from './string-literal';
 
 export const convertStaticToMeta = (
@@ -40,6 +40,8 @@ export const convertStaticToMeta = (
           node,
           !transformOpts.isolatedModules,
         );
+      } else if (ts.isExportDeclaration(node)) {
+        parseModuleReExport(moduleFile, dirPath, node);
       } else if (ts.isCallExpression(node)) {
         parseCallExpression(moduleFile, node, typeChecker);
       } else if (ts.isStringLiteral(node)) {

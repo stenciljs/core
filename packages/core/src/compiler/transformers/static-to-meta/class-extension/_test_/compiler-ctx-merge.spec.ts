@@ -142,6 +142,57 @@ describe('mergeExtendedClassMeta', () => {
       expect(buildCtx.diagnostics).toHaveLength(0);
     });
 
+    it('resolves an extends target reached through an `export *` barrel, without warning', async () => {
+      const { compilerCtx, buildCtx } = setup();
+
+      await writeModule(
+        compilerCtx,
+        '/src/components/shared/input/other.ts',
+        `export class Other {}`,
+      );
+      await writeModule(
+        compilerCtx,
+        '/src/components/shared/input/base-input.ts',
+        `export class BaseInput {
+          disabled;
+          static get properties() {
+            return { disabled: { attribute: 'disabled', type: 'boolean', reflect: false, mutable: false } };
+          }
+        }`,
+      );
+      await writeModule(
+        compilerCtx,
+        '/src/components/shared/input/index.ts',
+        `export * from './other';\nexport * from './base-input';`,
+      );
+
+      const cmpFileName = '/src/components/data-entry/checkbox/checkbox.tsx';
+      const cmpSource = ts.createSourceFile(
+        cmpFileName,
+        `import { BaseInput } from '../../shared/input/index';
+        export class Checkbox extends BaseInput {
+          static get is() { return 'my-checkbox'; }
+        }`,
+        ts.ScriptTarget.ESNext,
+        true,
+      );
+      const cmpModule = mockModule({ sourceFilePath: cmpFileName, staticSourceFile: cmpSource });
+      const cmpClass = cmpSource.statements.find(ts.isClassDeclaration)!;
+
+      const result = mergeExtendedClassMeta(
+        compilerCtx,
+        undefined as unknown as ts.TypeChecker,
+        buildCtx,
+        cmpClass,
+        cmpClass.members.filter(isStaticGetter),
+        cmpModule,
+      );
+
+      expect(result.doesExtend).toBe(true);
+      expect(result.properties.map((p) => p.name)).toEqual(['disabled']);
+      expect(buildCtx.diagnostics).toHaveLength(0);
+    });
+
     it('does not follow a second hop through a barrel-of-a-barrel, and warns instead', async () => {
       const { compilerCtx, buildCtx } = setup();
 

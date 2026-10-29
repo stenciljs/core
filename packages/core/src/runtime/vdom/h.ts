@@ -173,17 +173,23 @@ const vdomFnUtils: d.FunctionalUtilities = {
  * Convert a {@link d.VNode} to a {@link d.ChildNode} in order to present a
  * friendlier public interface (hence, 'convertToPublic').
  *
- * @param node the virtual DOM node to convert
+ * Functional components receive primitive children unwrapped, so those
+ * become text-only child nodes.
+ *
+ * @param node the virtual DOM node (or primitive child) to convert
  * @returns a converted child node
  */
-const convertToPublic = (node: d.VNode): d.ChildNode => ({
-  vattrs: node.$attrs$,
-  vchildren: node.$children$,
-  vkey: node.$key$,
-  vname: node.$name$,
-  vtag: node.$tag$,
-  vtext: node.$text$,
-});
+const convertToPublic = (node: d.VNode | string | number): d.ChildNode =>
+  typeof node !== 'object'
+    ? { vtag: null, vtext: String(node) }
+    : {
+        vattrs: node.$attrs$,
+        vchildren: node.$children$,
+        vkey: node.$key$,
+        vname: node.$name$,
+        vtag: node.$tag$,
+        vtext: node.$text$,
+      };
 
 /**
  * Convert a {@link d.ChildNode} back to an equivalent {@link d.VNode} in
@@ -209,11 +215,11 @@ const convertToPrivate = (node: d.ChildNode): d.VNode => {
     return h(node.vtag, vnodeData, ...(node.vchildren || []));
   }
 
-  const vnode = newVNode(node.vtag as any, node.vtext);
-  vnode.$attrs$ = node.vattrs;
-  vnode.$children$ = node.vchildren;
-  vnode.$key$ = node.vkey;
-  vnode.$name$ = node.vname;
+  const vnode = newVNode((node.vtag ?? null) as any, node.vtext);
+  vnode.$attrs$ = node.vattrs ?? null;
+  vnode.$children$ = node.vchildren ?? null;
+  vnode.$key$ = node.vkey ?? null;
+  vnode.$name$ = node.vname ?? null;
   return vnode;
 };
 

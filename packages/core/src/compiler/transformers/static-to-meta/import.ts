@@ -15,7 +15,7 @@ export const parseModuleImport = (
   resolveCollections: boolean,
 ) => {
   if (importNode.moduleSpecifier && ts.isStringLiteral(importNode.moduleSpecifier)) {
-    let importPath = importNode.moduleSpecifier.text;
+    const importPath = importNode.moduleSpecifier.text;
 
     if (!moduleFile.originalImports.includes(importPath)) {
       moduleFile.originalImports.push(importPath);
@@ -25,21 +25,9 @@ export const parseModuleImport = (
       moduleFile.hasSignalsImport = true;
     }
 
-    if (isAbsolute(importPath)) {
-      // absolute import
-      importPath = normalizePath(importPath);
-      moduleFile.localImports.push(importPath);
-    } else if (importPath.startsWith('.')) {
-      // relative import
-      //
-      // `dirPath` is always an already-normalized, Stencil-absolute path (derived
-      // from a source file's own fileName), so `join` is used here instead of
-      // `resolve` - `resolve` falls through to native path.resolve() when given an
-      // "absolute" path with no drive letter (as our normalized paths are on
-      // Windows), which fills in process.cwd()'s real drive letter and corrupts
-      // the path. `join` never touches process.cwd().
-      importPath = normalizePath(join(dirPath, importPath));
-      moduleFile.localImports.push(importPath);
+    const localPath = resolveLocalImportPath(dirPath, importPath);
+    if (localPath) {
+      moduleFile.localImports.push(localPath);
     } else {
       // node resolve side effect import
       addExternalImport(
@@ -54,4 +42,41 @@ export const parseModuleImport = (
       );
     }
   }
+};
+
+/**
+ * Record a local `export … from './x'` re-export as a local import, so build conditionals
+ * propagate through barrel files. Bare-specifier re-exports are left alone.
+ *
+ * @param moduleFile the module containing the re-export
+ * @param dirPath the module's (normalized) directory
+ * @param exportNode the export declaration
+ */
+export const parseModuleReExport = (
+  moduleFile: d.Module,
+  dirPath: string,
+  exportNode: ts.ExportDeclaration,
+) => {
+  if (exportNode.moduleSpecifier && ts.isStringLiteral(exportNode.moduleSpecifier)) {
+    const localPath = resolveLocalImportPath(dirPath, exportNode.moduleSpecifier.text);
+    if (localPath && !moduleFile.localImports.includes(localPath)) {
+      moduleFile.localImports.push(localPath);
+    }
+  }
+};
+
+const resolveLocalImportPath = (dirPath: string, importPath: string) => {
+  if (isAbsolute(importPath)) {
+    return normalizePath(importPath);
+  }
+  if (importPath.startsWith('.')) {
+    // `dirPath` is always an already-normalized, Stencil-absolute path (derived
+    // from a source file's own fileName), so `join` is used here instead of
+    // `resolve` - `resolve` falls through to native path.resolve() when given an
+    // "absolute" path with no drive letter (as our normalized paths are on
+    // Windows), which fills in process.cwd()'s real drive letter and corrupts
+    // the path. `join` never touches process.cwd().
+    return normalizePath(join(dirPath, importPath));
+  }
+  return undefined;
 };

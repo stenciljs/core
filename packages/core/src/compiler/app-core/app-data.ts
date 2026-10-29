@@ -128,17 +128,13 @@ export const updateComponentBuildConditionals = (
   });
 };
 
+/** Extension-less local imports may name a file or a directory's `index` file. */
+const MODULE_PATH_SUFFIXES = ['', '.tsx', '.ts', '.js', '/index.tsx', '/index.ts', '/index.js'];
+
 const getModuleImports = (moduleMap: ModuleMap, filePath: string, importedModules: Module[]) => {
-  let moduleFile = moduleMap.get(filePath);
-  if (moduleFile == null) {
-    moduleFile = moduleMap.get(filePath + '.tsx');
-    if (moduleFile == null) {
-      moduleFile = moduleMap.get(filePath + '.ts');
-      if (moduleFile == null) {
-        moduleFile = moduleMap.get(filePath + '.js');
-      }
-    }
-  }
+  const moduleFile = MODULE_PATH_SUFFIXES.map((suffix) => moduleMap.get(filePath + suffix)).find(
+    (m) => m != null,
+  );
 
   if (
     moduleFile != null &&

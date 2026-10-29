@@ -9,7 +9,7 @@
     "moduleResolution": "bundler",
     "module": "esnext",
     "rootDir": "./",
-    "target": "es2017",
+    "target": "es2022",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "jsx": "react-jsx",
