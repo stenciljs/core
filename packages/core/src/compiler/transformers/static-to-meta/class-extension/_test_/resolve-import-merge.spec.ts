@@ -878,6 +878,52 @@ describe('mergeExtendedClassMetaWithResolveImport', () => {
       expect(buildCtx.diagnostics).toHaveLength(0);
     });
 
+    it('resolves a Mixin(...) argument reached through an `export *` barrel', () => {
+      const cmpFileName = '/src/components/checkbox.tsx';
+      const cmpSource = ts.createSourceFile(
+        cmpFileName,
+        `import { Mixin } from '@stencil/core';
+        import { FocusMixin } from './mixins';
+        export class Checkbox extends Mixin(FocusMixin) {
+          static get is() { return 'my-checkbox'; }
+        }`,
+        ts.ScriptTarget.ESNext,
+        true,
+      );
+      const cmpClass = cmpSource.statements.find(ts.isClassDeclaration)!;
+
+      const files: Record<string, string> = {
+        './mixins': `export * from './other';\nexport * from './focus-mixin';`,
+        './other': `export const Other = 1;`,
+        './focus-mixin': `
+          import { Prop } from '@stencil/core';
+          export const FocusMixin = (Base) => {
+            class FocusMixinClass extends Base {
+              @Prop() isFocused: boolean;
+            }
+            return FocusMixinClass;
+          };
+        `,
+      };
+      const buildCtx = mockBuildCtx();
+
+      const result = mergeExtendedClassMetaWithResolveImport(
+        cmpClass,
+        cmpClass.members.filter(isStaticGetter),
+        cmpSource,
+        (specifier) =>
+          files[specifier]
+            ? { code: files[specifier], path: `/src/components/${specifier.slice(2)}.ts` }
+            : null,
+        config,
+        buildCtx,
+      );
+
+      expect(result.doesExtend).toBe(true);
+      expect(result.properties.map((p) => p.name)).toEqual(['isFocused']);
+      expect(buildCtx.diagnostics).toHaveLength(0);
+    });
+
     it('does not follow a second hop through a barrel-of-a-barrel, and warns when buildCtx is supplied', () => {
       const cmpFileName = '/src/components/checkbox.tsx';
       const cmpSource = ts.createSourceFile(

@@ -3,7 +3,13 @@ import { describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { reanchorInheritedTypeReferences } from '..';
-import { findClassWalk, findImportOrigin, findReExport, findStatementByName } from '../shared';
+import {
+  findClassWalk,
+  findImportOrigin,
+  findReExport,
+  findStarReExportSpecifiers,
+  findStatementByName,
+} from '../shared';
 
 describe('reanchorInheritedTypeReferences', () => {
   const CMP_PATH = '/src/components/data-entry/checkbox/checkbox.tsx';
@@ -492,5 +498,22 @@ describe('findImportOrigin', () => {
     const sf = parse(`import { BaseInput } from './chunk.js';`);
 
     expect(findImportOrigin(sf, 'DoesNotExist')).toBeUndefined();
+  });
+});
+
+describe('findStarReExportSpecifiers', () => {
+  const parse = (code: string) =>
+    ts.createSourceFile('barrel.ts', code, ts.ScriptTarget.ESNext, true);
+
+  it('lists `export * from` specifiers in order, skipping namespace, type-only and named re-exports', () => {
+    const sf = parse(`
+      export * from './a';
+      export * as ns from './b';
+      export type * from './c';
+      export { X } from './d';
+      export * from './e';
+    `);
+
+    expect(findStarReExportSpecifiers(sf)).toEqual(['./a', './e']);
   });
 });

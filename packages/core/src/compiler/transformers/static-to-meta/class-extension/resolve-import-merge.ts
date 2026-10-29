@@ -16,6 +16,7 @@ import {
   findClassWalk,
   findImportOrigin,
   findReExport,
+  findStarReExportSpecifiers,
   findStatementByName,
   reanchorInheritedTypeReferences,
   warnMixinFactoryClassNotFound,
@@ -168,7 +169,7 @@ type AncestorEntry = {
 
 /**
  * Looks for `name` as a direct top-level declaration in `sf`; if not found, follows one level of
- * re-export (barrel file) via `resolveImport` - matching `compiler-ctx-merge.ts`'s equivalent
+ * re-export (barrel file, named or `export *`) via `resolveImport` - matching `compiler-ctx-merge.ts`'s equivalent
  * one-hop fallback (see `findReExport` in `shared.ts` for why it's capped at one hop).
  *
  * @param sf the source file to search
@@ -193,25 +194,31 @@ function findDeclarationOrReExport(
   const direct = findStatementByName(sf, name);
   if (direct) return { statement: direct, sourceFile: sf, path };
 
+  const findIn = (moduleSpecifier: string, localName: string) => {
+    const resolved = resolveImport(moduleSpecifier, path);
+    if (!resolved) return undefined;
+
+    const { code, path: resolvedPath } = resolved;
+    const isTs = resolvedPath.endsWith('.tsx') || resolvedPath.endsWith('.ts');
+    const reExportSf = ts.createSourceFile(
+      resolvedPath,
+      code,
+      ts.ScriptTarget.ESNext,
+      true,
+      isTs ? ts.ScriptKind.TSX : ts.ScriptKind.JS,
+    );
+    const statement = findStatementByName(reExportSf, localName);
+    return statement && { statement, sourceFile: reExportSf, path: resolvedPath };
+  };
+
   const reExport = findReExport(sf, name);
-  if (!reExport) return undefined;
+  if (reExport) return findIn(reExport.moduleSpecifier, reExport.localName);
 
-  const resolved = resolveImport(reExport.moduleSpecifier, path);
-  if (!resolved) return undefined;
-
-  const { code, path: resolvedPath } = resolved;
-  const isTs = resolvedPath.endsWith('.tsx') || resolvedPath.endsWith('.ts');
-  const reExportSf = ts.createSourceFile(
-    resolvedPath,
-    code,
-    ts.ScriptTarget.ESNext,
-    true,
-    isTs ? ts.ScriptKind.TSX : ts.ScriptKind.JS,
-  );
-  const statement = findStatementByName(reExportSf, reExport.localName);
-  if (!statement) return undefined;
-
-  return { statement, sourceFile: reExportSf, path: resolvedPath };
+  for (const moduleSpecifier of findStarReExportSpecifiers(sf)) {
+    const found = findIn(moduleSpecifier, name);
+    if (found) return found;
+  }
+  return undefined;
 }
 
 /**
