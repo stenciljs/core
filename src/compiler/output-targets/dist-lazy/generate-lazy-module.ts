@@ -86,18 +86,36 @@ export const generateLazyModules = async (
   );
 
   await Promise.all(
-    results
-      .filter((r): r is d.RollupAssetResult => r.type === 'asset')
-      .map((r: d.RollupAssetResult) => {
-        return Promise.all(
-          destinations.map((dest) => {
-            return compilerCtx.fs.writeFile(join(dest, r.fileName), r.content);
-          }),
-        );
-      }),
+    getAssetsToWrite(results).map((r: d.RollupAssetResult) => {
+      return Promise.all(
+        destinations.map((dest) => {
+          return compilerCtx.fs.writeFile(join(dest, r.fileName), r.content);
+        }),
+      );
+    }),
   );
 
   return bundleModules;
+};
+
+/**
+ * Get the Rollup assets that should be written as-is to the output directories.
+ *
+ * Rollup emits each chunk's source map as a separate `<chunk>.map` asset. Those maps describe the
+ * chunk before Stencil optimizes and minifies it, and Stencil already writes the correct map for each
+ * chunk alongside the transformed code. Writing the Rollup asset as well would overwrite that map
+ * (assets are written after chunks), leaving minified chunks with source maps for unminified code.
+ *
+ * @param results the Rollup results for an output target
+ * @returns the asset results, excluding source maps for chunks that Stencil writes itself
+ */
+export const getAssetsToWrite = (results: d.RollupResult[]): d.RollupAssetResult[] => {
+  const chunkSourceMapFileNames = new Set(
+    results.filter((r): r is d.RollupChunkResult => r.type === 'chunk').map((r) => `${r.fileName}.map`),
+  );
+  return results.filter(
+    (r): r is d.RollupAssetResult => r.type === 'asset' && !chunkSourceMapFileNames.has(r.fileName),
+  );
 };
 
 /**
