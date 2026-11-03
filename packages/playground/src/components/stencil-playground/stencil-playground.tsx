@@ -73,6 +73,13 @@ export class StencilPlayground {
   /** The list of files in the playground. */
   @Prop({ mutable: true }) files: PlaygroundFile[] = DEFAULT_FILES;
 
+  /**
+   * `auto` puts the editor and preview side by side, and stacks them when the playground is
+   * narrower than 640px. `stacked` always puts the preview under the editor, and sizes the
+   * editor to fit its code.
+   */
+  @Prop({ reflect: true }) layout: 'auto' | 'stacked' = 'auto';
+
   @State() activeFileName: string = this.files[0]?.name ?? '';
   // Bundled so the editor never sees one update without the other - see `EditorFilesState`.
   @State() editorFilesState: EditorFilesState = {

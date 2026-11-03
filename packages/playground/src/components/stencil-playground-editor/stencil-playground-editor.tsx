@@ -61,6 +61,8 @@ const configureTypescriptDefaults = (monacoModule: typeof import('../../monaco-s
     esModuleInterop: true,
     skipLibCheck: true,
   });
+  // Syncs every TS model when the worker starts - see syncWorkerModels for the models created after.
+  typescriptDefaults.setEagerModelSync(true);
 
   // Virtual paths matching what TS's classic Node resolution looks for, and what these files'
   // own relative imports expect (jsx-runtime.d.ts -> stencil-public-runtime.d.ts,
@@ -195,6 +197,7 @@ export class StencilPlaygroundEditor {
 
   private instanceId = nextInstanceId++;
   private container?: HTMLDivElement;
+  private tabs?: HTMLDivElement;
   private monaco?: typeof import('monaco-editor/editor/editor.api.js');
   private typescriptDefaults?: typeof import('../../monaco-setup').typescriptDefaults;
   private getTypeScriptWorker?: typeof import('../../monaco-setup').getTypeScriptWorker;
@@ -245,6 +248,8 @@ export class StencilPlaygroundEditor {
   // Monaco's TS worker only mirrors the models a request names (by default, just the one open in
   // the editor), so an import of a file whose tab was never opened reports "Cannot find module".
   // Naming every TS/JS model once syncs them all, and the worker keeps them in sync from then on.
+  // This rejects until Monaco has set up its TS mode - eager model sync (configureTypescriptDefaults)
+  // covers the models that exist by the time the worker starts; this covers the ones created later.
   private async syncWorkerModels() {
     const uris = [...this.models.values()]
       .filter((m) => m.getLanguageId() === 'typescript' || m.getLanguageId() === 'javascript')
@@ -331,7 +336,13 @@ export class StencilPlaygroundEditor {
       fontSize: 13,
       tabSize: 2,
       theme: 'vs-dark',
+      // Off so the content height (see updateContentHeight) is just the code - with it on, Monaco
+      // pads the content by a viewport's height, which would grow an auto-sized editor forever.
+      scrollBeyondLastLine: false,
+      // Lets the page scroll on past an editor that has nothing (left) to scroll itself.
+      scrollbar: { alwaysConsumeMouseWheel: false },
     });
+    this.editor.onDidContentSizeChange(() => this.updateContentHeight());
     // Monaco registers the hover contribution with `BeforeFirstInteraction` (lazy) instantiation,
     // which never actually fires here - forcing it via getContribution() (same effect as Monaco's
     // own lazy-init path) is what makes mouse-hover/keybindings work at all.
@@ -343,7 +354,16 @@ export class StencilPlaygroundEditor {
     this.showActiveModel();
     this.updateMarkers();
     this.updateJsxTypes();
+    this.updateContentHeight();
     this.editorReady.emit();
+  }
+
+  // The height that fits the active file without scrolling, tabs included - read by
+  // stencil-playground.css to size the editor in the stacked layout.
+  private updateContentHeight() {
+    if (!this.editor) return;
+    const height = (this.tabs?.offsetHeight ?? 0) + this.editor.getContentHeight();
+    this.el.style.setProperty('--_stencil-playground-editor-content-height', `${height}px`);
   }
 
   disconnectedCallback() {
@@ -357,7 +377,7 @@ export class StencilPlaygroundEditor {
   render() {
     return (
       <div class='layout'>
-        <div class='tabs' role='tablist'>
+        <div class='tabs' role='tablist' ref={(el) => (this.tabs = el)}>
           {this.filesState.files.map((f) => (
             <button
               type='button'

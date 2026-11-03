@@ -1,6 +1,12 @@
+/**
+ * @prop --stencil-playground-height: Minimum height of the side-by-side layout. Default `400px`.
+ * @prop --stencil-playground-columns: `grid-template-columns` of the side-by-side layout (editor, then preview). Default `minmax(320px, 1fr) minmax(320px, 1fr)`.
+ * @prop --stencil-playground-editor-height: Editor height in the stacked layout. Default: fits the active file, up to `--stencil-playground-editor-max-height`.
+ * @prop --stencil-playground-editor-max-height: Largest height the stacked editor grows to when fitting its file. Default `480px`.
+ * @prop --stencil-playground-preview-height: Preview height in the stacked layout. Default `200px`.
+ */
 :host {
   display: block;
-  min-height: 400px;
   border: 1px solid #333;
   border-radius: 6px;
   container-type: inline-size;
@@ -11,11 +17,10 @@
   display: grid;
   /* Explicit `320px` floor, not bare `1fr` (which defaults to `minmax(auto, 1fr)`): the `auto`
      part tracks each column's content min-width regardless of `min-width: 0` on the items, and
-     Monaco's DOM has a real min-content width that would otherwise dictate an uneven split.
-     Below 640px (2 * 320px) this is overridden entirely - see the container query. */
-  grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr);
+     Monaco's DOM has a real min-content width that would otherwise dictate an uneven split. */
+  grid-template-columns: var(--stencil-playground-columns, minmax(320px, 1fr) minmax(320px, 1fr));
   grid-template-rows: 1fr auto auto;
-  min-height: inherit;
+  min-height: var(--stencil-playground-height, 400px);
   border-radius: inherit;
 }
 
@@ -23,6 +28,11 @@ stencil-playground-editor,
 stencil-playground-preview {
   min-width: 0;
   min-height: 0;
+}
+
+stencil-playground-preview {
+  box-sizing: border-box;
+  border-left: 1px solid #333;
 }
 
 .diagnostics,
@@ -46,23 +56,52 @@ stencil-playground-preview {
   color: #f5cfa3;
 }
 
-/* Below 640px, the columns can no longer both stay at their 320px floor - stack the preview
-   underneath the editor instead of letting them keep shrinking past it. */
-@container (max-width: 640px) {
-  :host {
-    height: auto;
-  }
+/* The stacked layout: the preview under the editor, the editor sized to fit its file
+   (`--_stencil-playground-editor-content-height` is set by stencil-playground-editor).
+   Written out twice - for `layout="stacked"`, and for `auto` below 640px, where the columns can
+   no longer both stay at their 320px floor. A container query can't match the host's attribute. */
+:host([layout='stacked']) .layout {
+  grid-template-columns: 1fr;
+  grid-template-rows: auto;
+  min-height: 0;
+}
 
+:host([layout='stacked']) stencil-playground-editor {
+  height: var(
+    --stencil-playground-editor-height,
+    min(
+      var(--_stencil-playground-editor-content-height, 300px),
+      var(--stencil-playground-editor-max-height, 480px)
+    )
+  );
+}
+
+:host([layout='stacked']) stencil-playground-preview {
+  height: var(--stencil-playground-preview-height, 200px);
+  border-left: 0;
+  border-top: 1px solid #333;
+}
+
+@container (max-width: 640px) {
   .layout {
     grid-template-columns: 1fr;
     grid-template-rows: auto;
+    min-height: 0;
   }
 
   stencil-playground-editor {
-    height: 300px;
+    height: var(
+      --stencil-playground-editor-height,
+      min(
+        var(--_stencil-playground-editor-content-height, 300px),
+        var(--stencil-playground-editor-max-height, 480px)
+      )
+    );
   }
 
   stencil-playground-preview {
-    height: 200px;
+    height: var(--stencil-playground-preview-height, 200px);
+    border-left: 0;
+    border-top: 1px solid #333;
   }
 }
