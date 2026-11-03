@@ -197,3 +197,4 @@ combinators
 cssproperty
 reentrancy
 macrotask
+minmax
