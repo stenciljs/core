@@ -58,13 +58,7 @@ export const setValue = (
         cmpMeta.$attrsToReflect$ &&
         cmpMeta.$serializers$?.[propName]
       ) {
-        applySerializers(
-          hostRef,
-          cmpMeta,
-          propName,
-          parsed,
-          instance,
-        );
+        applySerializers(hostRef, cmpMeta, propName, parsed, instance);
       }
       // @preact/signals-core uses === so NaN !== NaN always triggers effects;
       // match the legacy path's NaN-equality semantics explicitly.

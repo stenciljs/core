@@ -43,6 +43,7 @@ export const disposeAllSignalAttrs = (elm: Node) => {
  * @param newValue the new value for the attribute
  * @param isSvg whether we're in an svg context or not
  * @param flags bitflags for Vdom variables
+ * @param fromPropUpdate whether this attribute update was triggered with the value of an updated reflected prop
  * @param initialRender whether this is the first render of the VDom
  */
 export const setAccessor = (
