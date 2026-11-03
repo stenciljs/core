@@ -692,7 +692,7 @@ describe('attribute', () => {
     it('should remove old attribute when new prop value is complex with no serializer', async () => {
       @Component({ tag: 'cmp-a' })
       class Cmp {
-        @Prop({ reflect: true }) anyProp = "initial value";
+        @Prop({ reflect: true }) anyProp = 'initial value';
       }
 
       const { root, rootInstance, waitForChanges } = await newSpecPage({
@@ -700,7 +700,7 @@ describe('attribute', () => {
         html: `<cmp-a></cmp-a>`,
       });
 
-      expect(root.getAttribute('any-prop')).toBe("initial value");
+      expect(root.getAttribute('any-prop')).toBe('initial value');
 
       root.anyProp = { id: 1 };
       await waitForChanges();
