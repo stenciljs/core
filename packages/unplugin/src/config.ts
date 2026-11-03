@@ -96,6 +96,24 @@ function extractSubset(c: Record<string, unknown>): StencilConfigSubset {
 }
 
 /**
+ * Whether the bundler is running under a test runner. Mirrors core's `_isTesting` check
+ * (`validate-config.ts`), which the transpile path never reaches, so `Build.isTesting` can
+ * be set through the build overrides instead.
+ *
+ * @param env the environment to check
+ * @returns `true` under Vitest, Playwright, or `NODE_ENV=test`
+ */
+export function isTestEnvironment(env: NodeJS.ProcessEnv = process.env): boolean {
+  return !!(
+    env.VITEST ||
+    env.PLAYWRIGHT_TEST ||
+    env.TEST_WORKER_INDEX ||
+    env.TEST_PARALLEL_INDEX ||
+    env.NODE_ENV === 'test'
+  );
+}
+
+/**
  * Convert a {@link StencilConfigSubset} to a {@link BuildOverrides} object.
  * The caller is responsible for merging this with any explicit
  * `transpileOptions.buildOverrides` (which should take precedence).

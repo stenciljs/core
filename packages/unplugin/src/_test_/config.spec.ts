@@ -3,11 +3,24 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-import { loadStencilConfig, stencilConfigToOverrides } from '../config.js';
+import { isTestEnvironment, loadStencilConfig, stencilConfigToOverrides } from '../config.js';
 
 // ---------------------------------------------------------------------------
 // stencilConfigToOverrides — pure function, no I/O
 // ---------------------------------------------------------------------------
+
+describe('isTestEnvironment', () => {
+  it('detects Vitest, Playwright and NODE_ENV=test', () => {
+    expect(isTestEnvironment({ VITEST: 'true' })).toBe(true);
+    expect(isTestEnvironment({ PLAYWRIGHT_TEST: '1' })).toBe(true);
+    expect(isTestEnvironment({ NODE_ENV: 'test' })).toBe(true);
+  });
+
+  it('is false otherwise', () => {
+    expect(isTestEnvironment({})).toBe(false);
+    expect(isTestEnvironment({ NODE_ENV: 'production' })).toBe(false);
+  });
+});
 
 describe('stencilConfigToOverrides', () => {
   it('returns empty overrides for an empty config', () => {

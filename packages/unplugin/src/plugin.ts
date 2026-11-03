@@ -50,7 +50,7 @@ import type { BuildOverrides, ComponentTypesConfig, HydratedFlag } from '@stenci
 import type { ModuleNode, ViteDevServer } from 'vite';
 
 import { writeComponentTypes } from './component-types.js';
-import { loadStencilConfig, stencilConfigToOverrides } from './config.js';
+import { isTestEnvironment, loadStencilConfig, stencilConfigToOverrides } from './config.js';
 import { getRealCssPath, isStencilCss, loadStencilCss, resolveStencilCss } from './css.js';
 import {
   createVirtualGlobalCss,
@@ -249,6 +249,7 @@ export const unpluginStencil = createUnplugin(
           }
         : (options.stencilConfig ?? {});
       configOverrides = stencilConfigToOverrides(merged);
+      if (isTestEnvironment()) configOverrides.isTesting = true;
       hydratedFlag = validateHydrated({ hydratedFlag: merged.hydratedFlag });
       typesConfig = {
         srcDir: resolve(projectRoot, merged.srcDir ?? 'src'),
