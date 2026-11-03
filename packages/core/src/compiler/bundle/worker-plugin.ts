@@ -362,8 +362,24 @@ let callbackIds = 0;
 const pending = new Map();
 const callbacks = new Map();
 
+const constructWorker = (workerPath, workerName) => {
+  try {
+    return new Worker(workerPath, {name:workerName});
+  } catch (e) {
+    // Worker() rejects a cross-origin URL (e.g. a library loaded from a CDN) - bootstrap it
+    // from a same-origin Blob instead
+    const blob = new Blob(['importScripts(' + JSON.stringify(workerPath) + ')'], { type: 'text/javascript' });
+    const url = URL.createObjectURL(blob);
+    try {
+      return new Worker(url, {name:workerName});
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+};
+
 export const createWorker = (workerPath, workerName, workerMsgId) => {
-  const worker = new Worker(workerPath, {name:workerName});
+  const worker = constructWorker(workerPath, workerName);
 
   worker.addEventListener('message', ({data}) => {
     if (data) {
