@@ -3105,6 +3105,8 @@ export interface TranspileOptions {
  * scanning or runtime environment detection.
  */
 type BuildOverrideKeys =
+  | 'isDev'
+  | 'isTesting'
   | 'hotModuleReplacement'
   | 'signalBacking'
   | 'vdomSignals'
