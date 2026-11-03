@@ -197,6 +197,7 @@ export class StencilPlaygroundEditor {
   private container?: HTMLDivElement;
   private monaco?: typeof import('monaco-editor/editor/editor.api.js');
   private typescriptDefaults?: typeof import('../../monaco-setup').typescriptDefaults;
+  private getTypeScriptWorker?: typeof import('../../monaco-setup').getTypeScriptWorker;
   private editor?: MonacoEditorNS.IStandaloneCodeEditor;
   private models = new Map<string, MonacoEditorNS.ITextModel>();
   private modelListeners = new Map<string, IDisposable>();
@@ -237,6 +238,23 @@ export class StencilPlaygroundEditor {
           this.fileChange.emit({ name: file.name, content: model.getValue() });
         }),
       );
+    }
+    this.syncWorkerModels();
+  }
+
+  // Monaco's TS worker only mirrors the models a request names (by default, just the one open in
+  // the editor), so an import of a file whose tab was never opened reports "Cannot find module".
+  // Naming every TS/JS model once syncs them all, and the worker keeps them in sync from then on.
+  private async syncWorkerModels() {
+    const uris = [...this.models.values()]
+      .filter((m) => m.getLanguageId() === 'typescript' || m.getLanguageId() === 'javascript')
+      .map((m) => m.uri);
+    if (!this.getTypeScriptWorker || uris.length === 0) return;
+    try {
+      const getWorker = await this.getTypeScriptWorker();
+      await getWorker(...uris);
+    } catch {
+      // Language service unavailable - imports between files just keep their squiggles.
     }
   }
 
@@ -305,6 +323,7 @@ export class StencilPlaygroundEditor {
     configureTypescriptDefaults(monacoModule);
     this.monaco = monacoModule.monaco;
     this.typescriptDefaults = monacoModule.typescriptDefaults;
+    this.getTypeScriptWorker = monacoModule.getTypeScriptWorker;
     this.monacoLoaded = true;
     this.editor = this.monaco.editor.create(this.container!, {
       automaticLayout: true,
