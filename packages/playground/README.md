@@ -47,6 +47,22 @@ Each file in `files` is `{ name: string; content: string }`. `.tsx`/`.ts` files 
 | `stencil.config.ts` | A subset of `Config` is read: `tsCompilerOptions`, `signalBacking`, `globalScript`, `globalStyle`, and `global-style` output targets and more |
 | `global.css` / `global.ts` / `global.js` | Picked up automatically by convention if not set via config, matching the real compiler |
 
+### Layout
+
+By default (`layout="auto"`) the editor and preview sit side by side, and stack once the playground is narrower than 640px. Set `layout="stacked"` to always put the preview under the editor. When stacked, the editor grows to fit its code, so short examples stay short.
+
+```html
+<stencil-playground layout="stacked" style="--stencil-playground-preview-height: 120px"></stencil-playground>
+```
+
+| CSS custom property | Applies to | Default |
+|---|---|---|
+| `--stencil-playground-height` | Side by side: minimum height | `400px` |
+| `--stencil-playground-columns` | Side by side: `grid-template-columns` (editor, preview) | `minmax(320px, 1fr) minmax(320px, 1fr)` |
+| `--stencil-playground-editor-height` | Stacked: editor height | fits the active file |
+| `--stencil-playground-editor-max-height` | Stacked: tallest a fitted editor grows | `480px` |
+| `--stencil-playground-preview-height` | Stacked: preview height | `200px` |
+
 ### Cross-file imports
 
 Playground files can import each other by relative specifier `./my-component` and `styleUrl`s. See the component's [usage examples](./src/components/stencil-playground/usage/index.md).

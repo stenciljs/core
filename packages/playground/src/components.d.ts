@@ -19,6 +19,11 @@ export namespace Components {
           * @default [   {     name: 'my-component.tsx',     content: `import { Component } from '@stencil/core';  @Component({ tag: 'my-component' }) export class MyComponent {   render() {     return <div>Hello from Stencil!</div>;   } } `,   }, ]
          */
         "files": PlaygroundFile[];
+        /**
+          * `auto` puts the editor and preview side by side, and stacks them when the playground is narrower than 640px. `stacked` always puts the preview under the editor, and sizes the editor to fit its code.
+          * @default 'auto'
+         */
+        "layout": 'auto' | 'stacked';
     }
     interface StencilPlaygroundEditor {
         /**
@@ -105,6 +110,11 @@ declare namespace LocalJSX {
           * @default [   {     name: 'my-component.tsx',     content: `import { Component } from '@stencil/core';  @Component({ tag: 'my-component' }) export class MyComponent {   render() {     return <div>Hello from Stencil!</div>;   } } `,   }, ]
          */
         "files"?: PlaygroundFile[];
+        /**
+          * `auto` puts the editor and preview side by side, and stacks them when the playground is narrower than 640px. `stacked` always puts the preview under the editor, and sizes the editor to fit its code.
+          * @default 'auto'
+         */
+        "layout"?: 'auto' | 'stacked';
     }
     interface StencilPlaygroundEditor {
         /**
@@ -131,12 +141,15 @@ declare namespace LocalJSX {
         "onPreviewResult"?: (event: StencilPlaygroundPreviewCustomEvent<PreviewResult>) => void;
     }
 
+    interface StencilPlaygroundAttributes {
+        "layout": 'auto' | 'stacked';
+    }
     interface StencilPlaygroundEditorAttributes {
         "jsxTypesDts": string;
     }
 
     interface IntrinsicElements {
-        "stencil-playground": StencilPlayground;
+        "stencil-playground": Omit<StencilPlayground, keyof StencilPlaygroundAttributes> & { [K in keyof StencilPlayground & keyof StencilPlaygroundAttributes]?: StencilPlayground[K] } & { [K in keyof StencilPlayground & keyof StencilPlaygroundAttributes as `attr:${K}`]?: StencilPlaygroundAttributes[K] } & { [K in keyof StencilPlayground & keyof StencilPlaygroundAttributes as `prop:${K}`]?: StencilPlayground[K] };
         "stencil-playground-editor": Omit<StencilPlaygroundEditor, keyof StencilPlaygroundEditorAttributes> & { [K in keyof StencilPlaygroundEditor & keyof StencilPlaygroundEditorAttributes]?: StencilPlaygroundEditor[K] } & { [K in keyof StencilPlaygroundEditor & keyof StencilPlaygroundEditorAttributes as `attr:${K}`]?: StencilPlaygroundEditorAttributes[K] } & { [K in keyof StencilPlaygroundEditor & keyof StencilPlaygroundEditorAttributes as `prop:${K}`]?: StencilPlaygroundEditor[K] };
         "stencil-playground-preview": StencilPlaygroundPreview;
     }

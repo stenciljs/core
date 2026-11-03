@@ -9,13 +9,21 @@ interface PreviewResult {
   message?: string;
 }
 
-const mount = async (page: Page, files?: PlaygroundFile[]): Promise<PreviewResult> => {
+const mount = async (
+  page: Page,
+  files?: PlaygroundFile[],
+  attrs: Record<string, string> = {},
+): Promise<PreviewResult> => {
   const previewResult = await page.spyOnEvent('previewResult');
-  await page.evaluate((mountFiles) => {
-    const el = document.createElement('stencil-playground');
-    if (mountFiles) (el as HTMLElement & { files: PlaygroundFile[] }).files = mountFiles;
-    document.body.appendChild(el);
-  }, files);
+  await page.evaluate(
+    ({ mountFiles, mountAttrs }) => {
+      const el = document.createElement('stencil-playground');
+      for (const [name, value] of Object.entries(mountAttrs)) el.setAttribute(name, value);
+      if (mountFiles) (el as HTMLElement & { files: PlaygroundFile[] }).files = mountFiles;
+      document.body.appendChild(el);
+    },
+    { mountFiles: files, mountAttrs: attrs },
+  );
   const ev = await previewResult.next();
   return ev.detail;
 };
@@ -565,5 +573,124 @@ export const config: Config = {
     expect(result).toEqual({ ok: true, message: undefined });
     await expect.poll(async () => (await previewCssRules(page)).cssText).toContain('marker-one');
     expect((await previewCssRules(page)).cssText).toContain('marker-two');
+  });
+
+  test('resolves editor imports of files whose tab was never opened, in every playground on the page', async ({
+    page,
+  }) => {
+    // The deliberate type error is the one squiggle each editor should show - waiting for it
+    // proves the language service has run, so a missing second squiggle means the import resolved.
+    const files: PlaygroundFile[] = [
+      {
+        name: 'my-component.tsx',
+        content: `import { Component } from '@stencil/core';
+import { greeting } from './greeting';
+
+const typeError: number = 'not a number';
+
+@Component({ tag: 'my-component' })
+export class MyComponent {
+  render() {
+    return <div>{greeting}</div>;
+  }
+}
+`,
+      },
+      { name: 'greeting.ts', content: `export const greeting = 'Hello';` },
+    ];
+    const squiggles = (index: number) =>
+      page.locator('stencil-playground').nth(index).locator('.squiggly-error');
+
+    await mount(page, files);
+    await expect(squiggles(0)).toHaveCount(1);
+    // A second playground's models are created after the TS worker has already started.
+    await mount(page, files);
+    await expect(squiggles(1)).toHaveCount(1);
+    await page.waitForTimeout(1000);
+    await expect(squiggles(0)).toHaveCount(1);
+    await expect(squiggles(1)).toHaveCount(1);
+  });
+
+  test.describe('layout', () => {
+    const SHORT_FILE: PlaygroundFile = {
+      name: 'my-component.tsx',
+      content: `import { Component } from '@stencil/core';
+
+@Component({ tag: 'my-component' })
+export class MyComponent {
+  render() {
+    return <div>Hi</div>;
+  }
+}
+`,
+    };
+    const LONG_FILE: PlaygroundFile = {
+      ...SHORT_FILE,
+      content: SHORT_FILE.content + '\n'.repeat(80) + '// end\n',
+    };
+
+    const boxes = async (page: Page) => {
+      const editor = await page.locator('stencil-playground-editor').boundingBox();
+      const preview = await page.locator('stencil-playground-preview').boundingBox();
+      return { editor: editor!, preview: preview! };
+    };
+    const editorHeight = async (page: Page) => (await boxes(page)).editor.height;
+    // Monaco loads after the first preview result, so the fitted height lands a little later.
+    const monacoLoaded = (page: Page) => expect(page.locator('.monaco-editor')).toBeVisible();
+
+    test('auto puts the preview beside the editor, at least --stencil-playground-height tall', async ({
+      page,
+    }) => {
+      await mount(page, [SHORT_FILE], { style: '--stencil-playground-height: 450px' });
+      const { editor, preview } = await boxes(page);
+      expect(preview.x).toBeGreaterThanOrEqual(editor.x + editor.width - 1);
+      expect(Math.round(editor.height)).toBe(450);
+    });
+
+    test('--stencil-playground-columns sets the side-by-side split', async ({ page }) => {
+      await mount(page, [SHORT_FILE], { style: '--stencil-playground-columns: 3fr 1fr; width: 800px' });
+      const { editor, preview } = await boxes(page);
+      expect(editor.width / preview.width).toBeCloseTo(3, 1);
+    });
+
+    test('stacked puts the preview under the editor, and fits the editor to a short file', async ({
+      page,
+    }) => {
+      await mount(page, [SHORT_FILE], { layout: 'stacked' });
+      await monacoLoaded(page);
+      await expect.poll(() => editorHeight(page)).toBeLessThan(250);
+      const { editor, preview } = await boxes(page);
+      expect(preview.y).toBeGreaterThanOrEqual(editor.y + editor.height - 1);
+      expect(preview.width).toBeCloseTo(editor.width, 0);
+      expect(Math.round(preview.height)).toBe(200);
+    });
+
+    test('stacked caps a fitted editor at --stencil-playground-editor-max-height', async ({
+      page,
+    }) => {
+      await mount(page, [LONG_FILE], {
+        layout: 'stacked',
+        style: '--stencil-playground-editor-max-height: 360px',
+      });
+      await monacoLoaded(page);
+      await expect.poll(async () => Math.round(await editorHeight(page))).toBe(360);
+    });
+
+    test('stacked honors explicit editor and preview heights', async ({ page }) => {
+      await mount(page, [SHORT_FILE], {
+        layout: 'stacked',
+        style: '--stencil-playground-editor-height: 260px; --stencil-playground-preview-height: 120px',
+      });
+      await monacoLoaded(page);
+      const { editor, preview } = await boxes(page);
+      expect(Math.round(editor.height)).toBe(260);
+      expect(Math.round(preview.height)).toBe(120);
+    });
+
+    test('auto stacks when the playground is narrower than 640px', async ({ page }) => {
+      await mount(page, [SHORT_FILE], { style: 'width: 500px' });
+      const { editor, preview } = await boxes(page);
+      expect(preview.y).toBeGreaterThanOrEqual(editor.y + editor.height - 1);
+    });
   });
 });
