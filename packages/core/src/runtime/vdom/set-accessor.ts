@@ -52,6 +52,7 @@ export const setAccessor = (
   newValue: any,
   isSvg: boolean,
   flags: number,
+  fromPropUpdate: boolean,
   initialRender?: boolean,
 ) => {
   if (oldValue === newValue) {
@@ -69,7 +70,7 @@ export const setAccessor = (
       memberName,
       effect(() => {
         const curVal = newValue.value;
-        setAccessor(elm, memberName, prevVal, curVal, isSvg, flags);
+        setAccessor(elm, memberName, prevVal, curVal, isSvg, flags, fromPropUpdate);
         prevVal = curVal;
       }),
     );
@@ -282,7 +283,7 @@ export const setAccessor = (
               elm.setAttribute(memberName, n);
             }
           }
-        } else if ((elm as any)[memberName] !== newValue) {
+        } else if (!fromPropUpdate) {
           (elm as any)[memberName] = newValue;
         }
       } catch {
