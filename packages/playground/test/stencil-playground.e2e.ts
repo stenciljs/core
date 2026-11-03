@@ -648,7 +648,9 @@ export class MyComponent {
     });
 
     test('--stencil-playground-columns sets the side-by-side split', async ({ page }) => {
-      await mount(page, [SHORT_FILE], { style: '--stencil-playground-columns: 3fr 1fr; width: 800px' });
+      await mount(page, [SHORT_FILE], {
+        style: '--stencil-playground-columns: 3fr 1fr; width: 800px',
+      });
       const { editor, preview } = await boxes(page);
       expect(editor.width / preview.width).toBeCloseTo(3, 1);
     });
@@ -679,7 +681,8 @@ export class MyComponent {
     test('stacked honors explicit editor and preview heights', async ({ page }) => {
       await mount(page, [SHORT_FILE], {
         layout: 'stacked',
-        style: '--stencil-playground-editor-height: 260px; --stencil-playground-preview-height: 120px',
+        style:
+          '--stencil-playground-editor-height: 260px; --stencil-playground-preview-height: 120px',
       });
       await monacoLoaded(page);
       const { editor, preview } = await boxes(page);
