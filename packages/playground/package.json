@@ -1,6 +1,6 @@
 {
   "name": "@stencil/playground",
-  "version": "5.0.0-beta.27",
+  "version": "5.0.0-beta.28",
   "description": "In-browser live playground for writing and previewing Stencil components",
   "homepage": "https://stenciljs.com/",
   "license": "MIT",
