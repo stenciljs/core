@@ -13,40 +13,44 @@ export const generateSystem = async (
   buildCtx: d.BuildCtx,
   rollupBuild: RollupBuild,
   outputTargets: d.OutputTargetDistLazy[],
-): Promise<d.UpdatedLazyBuildCtx> => {
-  const systemOutputs = outputTargets.filter((o) => !!o.systemDir);
+): Promise<d.UpdatedLazyBuildCtx[]> => {
+  const systemOutputs = outputTargets.filter((o) => !!o.systemDir && typeof o.systemDir === 'string');
 
-  if (systemOutputs.length > 0) {
-    const esmOpts: OutputOptions = {
-      banner: generatePreamble(config),
-      format: 'system',
-      entryFileNames: config.hashFileNames ? 'p-[hash].system.js' : '[name].system.js',
-      chunkFileNames: config.hashFileNames ? 'p-[hash].system.js' : '[name]-[hash].system.js',
-      assetFileNames: config.hashFileNames ? 'p-[hash][extname]' : '[name]-[hash][extname]',
-      sourcemap: config.sourceMap,
-      plugins: [lazyBundleIdPlugin(buildCtx, config, config.hashFileNames, '.system', true)],
-    };
-    const results = await generateRollupOutput(rollupBuild, esmOpts, config, buildCtx.entryModules);
-    if (results != null) {
-      const destinations = systemOutputs
-        .map((o) => o.esmDir)
-        .filter((esmDir): esmDir is string => typeof esmDir === 'string');
-      buildCtx.systemComponentBundle = await generateLazyModules(
-        config,
-        compilerCtx,
-        buildCtx,
-        outputTargets[0].type,
-        destinations,
-        results,
-        'es5',
-        true,
-      );
+  return Promise.all(
+    systemOutputs.map(async (systemOutput) => {
+      const esmOpts: OutputOptions = {
+        banner: generatePreamble(config),
+        format: 'system',
+        entryFileNames: config.hashFileNames ? 'p-[hash].system.entry.js' : '[name].system.entry.js',
+        chunkFileNames: config.hashFileNames ? 'p-[hash].system.js' : '[name]-[hash].system.js',
+        assetFileNames: config.hashFileNames ? 'p-[hash][extname]' : '[name]-[hash][extname]',
+        sourcemap: config.sourceMap,
+        dir: systemOutput.systemDir,
+        plugins: [lazyBundleIdPlugin(config, true)],
+      };
 
-      await generateSystemLoaders(config, compilerCtx, results, systemOutputs);
-    }
-  }
+      const results = await generateRollupOutput(rollupBuild, esmOpts, config, buildCtx.entryModules);
 
-  return { name: 'system', buildCtx };
+      if (results != null) {
+        buildCtx.systemComponentBundle = await generateLazyModules(
+          config,
+          compilerCtx,
+          buildCtx,
+          systemOutput.type,
+          systemOutput.systemDir,
+          results,
+          'es5',
+          true,
+        );
+
+        await generateSystemLoaders(config, compilerCtx, results, systemOutputs);
+
+        return { name: 'system', buildCtx };
+      }
+
+      return null;
+    }),
+  );
 };
 
 const generateSystemLoaders = (

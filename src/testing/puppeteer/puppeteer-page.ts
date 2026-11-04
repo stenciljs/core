@@ -133,6 +133,7 @@ export async function newE2EPage(opts: NewE2EPageOptions = {}): Promise<E2EPage>
       }
       consoleMessage(ev);
     });
+    // @ts-ignore
     page.on('pageerror', (err: Error) => {
       diagnostics.push({
         type: 'pageerror',

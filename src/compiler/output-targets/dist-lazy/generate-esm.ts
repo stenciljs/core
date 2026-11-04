@@ -13,58 +13,82 @@ export const generateEsm = async (
   buildCtx: d.BuildCtx,
   rollupBuild: RollupBuild,
   outputTargets: d.OutputTargetDistLazy[],
-): Promise<d.UpdatedLazyBuildCtx> => {
-  const esmEs5Outputs = config.buildEs5 ? outputTargets.filter((o) => !!o.esmEs5Dir && !o.isBrowserBuild) : [];
-  const esmOutputs = outputTargets.filter((o) => !!o.esmDir && !o.isBrowserBuild);
-  if (esmOutputs.length + esmEs5Outputs.length > 0) {
-    const esmOpts: OutputOptions = {
-      banner: generatePreamble(config),
-      format: 'es',
-      entryFileNames: '[name].js',
-      assetFileNames: '[name]-[hash][extname]',
-      sourcemap: config.sourceMap,
-      plugins: [lazyBundleIdPlugin(buildCtx, config, false, '')],
-    };
-    const outputTargetType = esmOutputs[0].type;
-    const output = await generateRollupOutput(rollupBuild, esmOpts, config, buildCtx.entryModules);
+): Promise<d.UpdatedLazyBuildCtx[]> => {
+  const esmEs5Outputs = config.buildEs5
+    ? outputTargets.filter((o) => !!o.esmEs5Dir && !o.isBrowserBuild && typeof o.esmEs5Dir === 'string')
+    : [];
+  const esmOutputs = outputTargets.filter((o) => !!o.esmDir && !o.isBrowserBuild && typeof o.esmDir === 'string');
 
-    if (output != null) {
-      const es2017destinations = esmOutputs
-        .map((o) => o.esmDir)
-        .filter((esmDir): esmDir is string => typeof esmDir === 'string');
-      buildCtx.esmComponentBundle = await generateLazyModules(
-        config,
-        compilerCtx,
-        buildCtx,
-        outputTargetType,
-        es2017destinations,
-        output,
-        'es2017',
-        false,
-      );
+  return Promise.all([
+    ...esmOutputs.map(async (esmOutput) => {
+      const esmOpts: OutputOptions = {
+        banner: generatePreamble(config),
+        format: 'es',
+        entryFileNames: '[name].entry.js',
+        assetFileNames: '[name]-[hash][extname]',
+        sourcemap: config.sourceMap,
+        dir: esmOutput.esmDir,
+        plugins: [lazyBundleIdPlugin(config)],
+      };
 
-      const es5destinations = esmEs5Outputs
-        .map((o) => o.esmEs5Dir)
-        .filter((esmEs5Dir): esmEs5Dir is string => typeof esmEs5Dir === 'string');
-      buildCtx.es5ComponentBundle = await generateLazyModules(
-        config,
-        compilerCtx,
-        buildCtx,
-        outputTargetType,
-        es5destinations,
-        output,
-        'es5',
-        false,
-      );
+      const output = await generateRollupOutput(rollupBuild, esmOpts, config, buildCtx.entryModules);
 
-      if (config.buildEs5) {
-        await copyPolyfills(config, compilerCtx, esmOutputs);
+      if (output != null) {
+        buildCtx.esmComponentBundle = await generateLazyModules(
+          config,
+          compilerCtx,
+          buildCtx,
+          esmOutput.type,
+          esmOutput.esmDir,
+          output,
+          'es2017',
+          false,
+        );
+
+        await generateShortcuts(config, compilerCtx, outputTargets, output);
+
+        return { name: 'esm' as const, buildCtx };
       }
-      await generateShortcuts(config, compilerCtx, outputTargets, output);
-    }
-  }
 
-  return { name: 'esm', buildCtx };
+      return null;
+    }),
+    ...esmEs5Outputs.map(async (esmEs5Output) => {
+      const esmOpts: OutputOptions = {
+        banner: generatePreamble(config),
+        format: 'es',
+        entryFileNames: '[name].entry.js',
+        assetFileNames: '[name]-[hash][extname]',
+        sourcemap: config.sourceMap,
+        dir: esmEs5Output.esmEs5Dir,
+        plugins: [lazyBundleIdPlugin(config)],
+      };
+
+      const output = await generateRollupOutput(rollupBuild, esmOpts, config, buildCtx.entryModules);
+
+      if (output != null) {
+        buildCtx.es5ComponentBundle = await generateLazyModules(
+          config,
+          compilerCtx,
+          buildCtx,
+          esmEs5Output.type,
+          esmEs5Output.esmEs5Dir,
+          output,
+          'es5',
+          false,
+        );
+
+        if (config.buildEs5) {
+          await copyPolyfills(config, compilerCtx, esmOutputs);
+        }
+
+        await generateShortcuts(config, compilerCtx, outputTargets, output);
+
+        return { name: 'es5' as const, buildCtx };
+      }
+
+      return null;
+    }),
+  ]);
 };
 
 /**

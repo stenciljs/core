@@ -71,13 +71,3 @@ export const getInlineSourceMappingUrlLinker = (sourceMapContents: string): stri
   // allowed base64 character is encoded (because it is a disallowed RFC-3986 character)
   return `${JS_SOURCE_MAPPING_URL_LINKER}data:application/json;charset=utf-8;base64,${mapBase64}`;
 };
-
-/**
- * Generates a string used to link generated code with the original source, to be placed at the end of the generated
- * code. This function prepends a newline to the string.
- * @param url the url of the source map
- * @returns a linker string, of the format {@link JS_SOURCE_MAPPING_URL_LINKER}=<url>.map, prepended with a newline
- */
-export const getSourceMappingUrlForEndOfFile = (url: string): string => {
-  return `\n${getSourceMappingUrlLinker(url)}.map`;
-};

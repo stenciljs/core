@@ -224,7 +224,7 @@ export interface RollupResults {
 }
 
 export interface UpdatedLazyBuildCtx {
-  name: 'esm-browser' | 'esm' | 'cjs' | 'system';
+  name: 'esm-browser' | 'esm' | 'cjs' | 'system' | 'es5';
   buildCtx: BuildCtx;
 }
 

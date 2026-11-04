@@ -2,7 +2,6 @@ import {
   catchError,
   dashToPascalCase,
   generatePreamble,
-  getSourceMappingUrlForEndOfFile,
   hasError,
   isBoolean,
   isOutputTargetDistCustomElements,
@@ -131,6 +130,7 @@ export const bundleCustomElements = async (
         sourcemap: config.sourceMap,
         chunkFileNames: outputTarget.externalRuntime || !config.hashFileNames ? '[name].js' : 'p-[hash].js',
         entryFileNames: '[name].js',
+        dir: outputTarget.dir,
         hoistTransitiveImports: false,
       });
 
@@ -161,13 +161,14 @@ export const bundleCustomElements = async (
             minify,
             sourceMap,
           });
+
           buildCtx.diagnostics.push(...optimizeResults.diagnostics);
           if (!hasError(optimizeResults.diagnostics) && typeof optimizeResults.output === 'string') {
             code = optimizeResults.output;
           }
           if (optimizeResults.sourceMap) {
             sourceMap = optimizeResults.sourceMap;
-            code = code + getSourceMappingUrlForEndOfFile(bundle.fileName);
+
             await compilerCtx.fs.writeFile(join(outputTargetDir, bundle.fileName + '.map'), JSON.stringify(sourceMap), {
               outputTargetType: outputTarget.type,
             });

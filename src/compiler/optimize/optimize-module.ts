@@ -147,10 +147,11 @@ export const getTerserOptions = (
     sourceMap: config.sourceMap,
   };
 
+  opts.format.comments = PRESERVED_COMMENTS;
+
   if (sourceTarget === 'es5') {
     opts.ecma = opts.format.ecma = 5;
     opts.compress = false;
-    opts.format.comments = PRESERVED_COMMENTS;
     opts.mangle = {
       properties: getTerserManglePropertiesConfig(),
     };
@@ -244,7 +245,7 @@ export const prepareModule = async (
       },
       reportDiagnostics: false,
     });
-    results.output = tsResults.outputText;
+    results.output = tsResults.outputText.replace(/\/\/# sourceMappingURL=module.js.map/, '');
 
     if (tsResults.sourceMapText) {
       // need to merge sourcemaps at this point

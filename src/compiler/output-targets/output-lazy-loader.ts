@@ -30,7 +30,7 @@ const generateLoader = async (
   const polyfillsEntryPoint = join(es2017Dir, 'polyfills/index.js');
   const polyfillsExport = `export * from '${relative(loaderPath, polyfillsEntryPoint)}';`;
 
-  const es5EntryPoint = join(es5Dir, 'loader.js');
+  const es5EntryPoint = join(es5Dir, 'loader.entry.js');
   const indexContent = filterAndJoin([
     generatePreamble(config),
     es5HtmlElement,
@@ -38,14 +38,14 @@ const generateLoader = async (
     `export * from '${relative(loaderPath, es5EntryPoint)}';`,
   ]);
 
-  const es2017EntryPoint = join(es2017Dir, 'loader.js');
+  const es2017EntryPoint = join(es2017Dir, 'loader.entry.js');
   const indexES2017Content = filterAndJoin([
     generatePreamble(config),
     config.buildEs5 ? polyfillsExport : null,
     `export * from '${relative(loaderPath, es2017EntryPoint)}';`,
   ]);
 
-  const cjsEntryPoint = join(cjsDir, 'loader.cjs.js');
+  const cjsEntryPoint = join(cjsDir, 'loader.cjs.entry.js');
   const indexCjsContent = filterAndJoin([
     generatePreamble(config),
     `module.exports = require('${relative(loaderPath, cjsEntryPoint)}');`,
