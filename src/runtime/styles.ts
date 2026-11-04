@@ -84,8 +84,11 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
         styleContainerNode.querySelector(`[${HYDRATED_STYLE_ID}="${scopeId}"]`);
 
       if (existingStyleElm) {
-        // Update existing style element (for hydration or HMR)
-        existingStyleElm.textContent = style;
+        // Reuse the server sheet; only HMR needs new text
+        if (BUILD.hotModuleReplacement) {
+          existingStyleElm.textContent = style;
+        }
+        appliedStyles.add(scopeId);
       } else if (!appliedStyles.has(scopeId)) {
         styleElm = win.document.createElement('style');
         styleElm.textContent = style;
@@ -96,12 +99,7 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
           styleElm.setAttribute('nonce', nonce);
         }
 
-        if (
-          (BUILD.hydrateServerSide || BUILD.hotModuleReplacement) &&
-          (cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation ||
-            cmpMeta.$flags$ & CMP_FLAGS.shadowNeedsScopedCss ||
-            cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation)
-        ) {
+        if (BUILD.hydrateServerSide || BUILD.hotModuleReplacement) {
           styleElm.setAttribute(HYDRATED_STYLE_ID, scopeId);
         }
 
