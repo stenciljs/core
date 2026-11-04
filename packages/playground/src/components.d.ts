@@ -4,16 +4,20 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/runtime";
-import { PlaygroundFile } from "./utils";
+import { PlaygroundEditorTheme, PlaygroundFile } from "./utils";
 import { EditorFilesState } from "./components/stencil-playground-editor/stencil-playground-editor";
 import { Diagnostic } from "@stencil/core/compiler/browser";
 import { PreviewInput, PreviewResult } from "./components/stencil-playground-preview/stencil-playground-preview";
-export { PlaygroundFile } from "./utils";
+export { PlaygroundEditorTheme, PlaygroundFile } from "./utils";
 export { EditorFilesState } from "./components/stencil-playground-editor/stencil-playground-editor";
 export { Diagnostic } from "@stencil/core/compiler/browser";
 export { PreviewInput, PreviewResult } from "./components/stencil-playground-preview/stencil-playground-preview";
 export namespace Components {
     interface StencilPlayground {
+        /**
+          * A Monaco theme for the editor (Monaco's `IStandaloneThemeData` shape). Defaults to Monaco's `vs-dark`. Monaco has one theme per page, so the last playground to set one wins.
+         */
+        "editorTheme"?: PlaygroundEditorTheme;
         /**
           * The list of files in the playground.
           * @default [   {     name: 'my-component.tsx',     content: `import { Component } from '@stencil/core';  @Component({ tag: 'my-component' }) export class MyComponent {   render() {     return <div>Hello from Stencil!</div>;   } } `,   }, ]
@@ -38,6 +42,10 @@ export namespace Components {
           * @default ''
          */
         "jsxTypesDts": string;
+        /**
+          * See `stencil-playground`'s `editorTheme`.
+         */
+        "theme"?: PlaygroundEditorTheme;
     }
     interface StencilPlaygroundPreview {
         /**
@@ -106,6 +114,10 @@ declare global {
 declare namespace LocalJSX {
     interface StencilPlayground {
         /**
+          * A Monaco theme for the editor (Monaco's `IStandaloneThemeData` shape). Defaults to Monaco's `vs-dark`. Monaco has one theme per page, so the last playground to set one wins.
+         */
+        "editorTheme"?: PlaygroundEditorTheme;
+        /**
           * The list of files in the playground.
           * @default [   {     name: 'my-component.tsx',     content: `import { Component } from '@stencil/core';  @Component({ tag: 'my-component' }) export class MyComponent {   render() {     return <div>Hello from Stencil!</div>;   } } `,   }, ]
          */
@@ -132,6 +144,10 @@ declare namespace LocalJSX {
         "onActiveFileChange"?: (event: StencilPlaygroundEditorCustomEvent<string>) => void;
         "onEditorReady"?: (event: StencilPlaygroundEditorCustomEvent<void>) => void;
         "onFileChange"?: (event: StencilPlaygroundEditorCustomEvent<{ name: string; content: string }>) => void;
+        /**
+          * See `stencil-playground`'s `editorTheme`.
+         */
+        "theme"?: PlaygroundEditorTheme;
     }
     interface StencilPlaygroundPreview {
         /**

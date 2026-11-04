@@ -638,6 +638,25 @@ export class MyComponent {
     await expect.poll(() => previewFlag(page, 'submitted')).toBe(true);
   });
 
+  test('applies an editorTheme and the editor font custom properties', async ({ page }) => {
+    await page.evaluate(() => {
+      const el = document.createElement('stencil-playground') as HTMLElement & {
+        editorTheme: unknown;
+      };
+      el.style.setProperty('--stencil-playground-editor-font-size', '17px');
+      el.editorTheme = {
+        base: 'vs-dark',
+        inherit: true,
+        rules: [],
+        colors: { 'editor.background': '#102030' },
+      };
+      document.body.appendChild(el);
+    });
+    const editor = page.locator('.monaco-editor-background').first();
+    await expect(editor).toHaveCSS('background-color', 'rgb(16, 32, 48)');
+    await expect(page.locator('.view-lines').first()).toHaveCSS('font-size', '17px');
+  });
+
   test.describe('layout', () => {
     const SHORT_FILE: PlaygroundFile = {
       name: 'my-component.tsx',

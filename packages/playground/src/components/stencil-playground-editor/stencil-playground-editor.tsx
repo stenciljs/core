@@ -17,7 +17,7 @@ import type {
   MarkerSeverity,
 } from 'monaco-editor/editor/editor.api.js';
 
-import type { PlaygroundFile } from '../../utils';
+import type { PlaygroundEditorTheme, PlaygroundFile } from '../../utils';
 
 export interface EditorFilesState {
   files: PlaygroundFile[];
@@ -28,6 +28,8 @@ export interface EditorFilesState {
 // dynamic imports.
 let monacoModulePromise: Promise<typeof import('../../monaco-setup')> | undefined;
 const loadMonaco = () => (monacoModulePromise ??= import('../../monaco-setup'));
+
+const CUSTOM_THEME_NAME = 'stencil-playground-custom';
 
 // typescriptDefaults is a page-wide singleton (one TS service for every instance) - configure once.
 let typescriptDefaultsConfigured = false;
@@ -185,6 +187,9 @@ export class StencilPlaygroundEditor {
   /* JSX IntrinsicElements types for components defined in the project - see buildIntrinsicElementsDts */
   @Prop() jsxTypesDts = '';
 
+  /** See `stencil-playground`'s `editorTheme`. */
+  @Prop() theme?: PlaygroundEditorTheme;
+
   /* Fired when the file content changes */
   @Event() fileChange!: EventEmitter<{ name: string; content: string }>;
   /* Fired when the active file changes */
@@ -305,6 +310,19 @@ export class StencilPlaygroundEditor {
     this.typescriptDefaults?.addExtraLib(this.jsxTypesDts, 'file:///component-types.d.ts');
   }
 
+  private applyTheme() {
+    if (!this.monaco) return;
+    if (this.theme) {
+      this.monaco.editor.defineTheme(CUSTOM_THEME_NAME, this.theme as MonacoEditorNS.IStandaloneThemeData);
+    }
+    this.monaco.editor.setTheme(this.theme ? CUSTOM_THEME_NAME : 'vs-dark');
+  }
+
+  @Watch('theme')
+  onThemeChange() {
+    this.applyTheme();
+  }
+
   @Watch('jsxTypesDts')
   onJsxTypesDtsChange() {
     this.updateJsxTypes();
@@ -330,18 +348,37 @@ export class StencilPlaygroundEditor {
     this.typescriptDefaults = monacoModule.typescriptDefaults;
     this.getTypeScriptWorker = monacoModule.getTypeScriptWorker;
     this.monacoLoaded = true;
+    const hostStyle = getComputedStyle(this.el);
+    const cssValue = (name: string) => hostStyle.getPropertyValue(name).trim();
     this.editor = this.monaco.editor.create(this.container!, {
       automaticLayout: true,
       minimap: { enabled: false },
-      fontSize: 13,
+      // Typography from the host's custom properties (they inherit through the shadow root) -
+      // Monaco takes these as options, not CSS.
+      fontFamily: cssValue('--stencil-playground-editor-font-family') || undefined,
+      fontSize: parseFloat(cssValue('--stencil-playground-editor-font-size')) || 13,
+      lineHeight: parseFloat(cssValue('--stencil-playground-editor-line-height')) || 0,
+      padding: {
+        top: parseFloat(cssValue('--stencil-playground-editor-padding')) || 0,
+        bottom: parseFloat(cssValue('--stencil-playground-editor-padding')) || 0,
+      },
       tabSize: 2,
       theme: 'vs-dark',
+      // Positions popups (hover, suggestions) with `position: fixed`, so the host's
+      // `overflow: clip` (for its rounded corners) doesn't cut them off at the edges.
+      fixedOverflowWidgets: true,
+      // the cursor's mark in the overview ruler means nothing in a snippet a few lines long
+      hideCursorInOverviewRuler: true,
       // Off so the content height (see updateContentHeight) is just the code - with it on, Monaco
       // pads the content by a viewport's height, which would grow an auto-sized editor forever.
       scrollBeyondLastLine: false,
       // Lets the page scroll on past an editor that has nothing (left) to scroll itself.
       scrollbar: { alwaysConsumeMouseWheel: false },
     });
+    this.applyTheme();
+    // A web font (e.g. via --stencil-playground-editor-font-family) may still be loading - Monaco
+    // measures glyph widths once, so measure again when it arrives.
+    document.fonts?.ready.then(() => this.monaco?.editor.remeasureFonts());
     this.editor.onDidContentSizeChange(() => this.updateContentHeight());
     // Monaco registers the hover contribution with `BeforeFirstInteraction` (lazy) instantiation,
     // which never actually fires here - forcing it via getContribution() (same effect as Monaco's

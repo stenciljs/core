@@ -4,11 +4,27 @@
  * @prop --stencil-playground-editor-height: Editor height in the stacked layout. Default: fits the active file, up to `--stencil-playground-editor-max-height`.
  * @prop --stencil-playground-editor-max-height: Largest height the stacked editor grows to when fitting its file. Default `480px`.
  * @prop --stencil-playground-preview-height: Preview height in the stacked layout. Default `200px`.
+ * @prop --stencil-playground-background: Background behind the editor while it loads. Default `#1e1e1e`.
+ * @prop --stencil-playground-divider-color: Line between the editor and the preview, and under the tabs. Default `#333`.
+ * @prop --stencil-playground-tabs-background: Background of the file tabs bar. Default `#252526`.
+ * @prop --stencil-playground-tab-color: Text color of an inactive file tab. Default `#969696`.
+ * @prop --stencil-playground-tab-active-background: Background of the active file tab. Default `#1e1e1e`.
+ * @prop --stencil-playground-tab-active-color: Text color of the active file tab. Default `#d4d4d4`.
+ * @prop --stencil-playground-tab-divider-color: Line between file tabs. Default: `--stencil-playground-divider-color`.
+ * @prop --stencil-playground-tab-font: `font` shorthand for the file tabs. Default `0.8rem ui-monospace, 'SF Mono', Menlo, Consolas, monospace`.
+ * @prop --stencil-playground-editor-font-family: Editor font family. Default: Monaco's.
+ * @prop --stencil-playground-editor-font-size: Editor font size, in px. Default `13px`.
+ * @prop --stencil-playground-editor-line-height: Editor line height: px, or a multiple of the font size when below 8. Default: Monaco's.
+ * @prop --stencil-playground-editor-padding: Space above the first and below the last line of code, in px. Default `0`.
+ * @prop --stencil-playground-preview-background: Background of the preview. Default `#fff`.
  */
 :host {
   display: block;
   border: 1px solid #333;
   border-radius: 6px;
+  /* clips the children to the inner rounded border, so square iframe/editor corners don't poke out */
+  overflow: clip;
+  background: var(--stencil-playground-background, #1e1e1e);
   container-type: inline-size;
   min-width: 320px;
 }
@@ -32,7 +48,7 @@ stencil-playground-preview {
 
 stencil-playground-preview {
   box-sizing: border-box;
-  border-left: 1px solid #333;
+  border-left: 1px solid var(--stencil-playground-divider-color, #333);
 }
 
 .diagnostics,
@@ -79,7 +95,7 @@ stencil-playground-preview {
 :host([layout='stacked']) stencil-playground-preview {
   height: var(--stencil-playground-preview-height, 200px);
   border-left: 0;
-  border-top: 1px solid #333;
+  border-top: 1px solid var(--stencil-playground-divider-color, #333);
 }
 
 @container (max-width: 640px) {
@@ -102,6 +118,6 @@ stencil-playground-preview {
   stencil-playground-preview {
     height: var(--stencil-playground-preview-height, 200px);
     border-left: 0;
-    border-top: 1px solid #333;
+    border-top: 1px solid var(--stencil-playground-divider-color, #333);
   }
 }
