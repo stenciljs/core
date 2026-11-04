@@ -25,7 +25,14 @@
     var(--stencil-playground-tab-divider-color, var(--stencil-playground-divider-color, #333));
   background: transparent;
   color: var(--stencil-playground-tab-color, #969696);
-  font: var(--stencil-playground-tab-font, 0.8rem ui-monospace, 'SF Mono', Menlo, Consolas, monospace);
+  font: var(
+    --stencil-playground-tab-font,
+    0.8rem ui-monospace,
+    'SF Mono',
+    Menlo,
+    Consolas,
+    monospace
+  );
   cursor: pointer;
 }
 

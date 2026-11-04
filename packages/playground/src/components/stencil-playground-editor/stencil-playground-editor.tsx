@@ -313,7 +313,10 @@ export class StencilPlaygroundEditor {
   private applyTheme() {
     if (!this.monaco) return;
     if (this.theme) {
-      this.monaco.editor.defineTheme(CUSTOM_THEME_NAME, this.theme as MonacoEditorNS.IStandaloneThemeData);
+      this.monaco.editor.defineTheme(
+        CUSTOM_THEME_NAME,
+        this.theme as MonacoEditorNS.IStandaloneThemeData,
+      );
     }
     this.monaco.editor.setTheme(this.theme ? CUSTOM_THEME_NAME : 'vs-dark');
   }
