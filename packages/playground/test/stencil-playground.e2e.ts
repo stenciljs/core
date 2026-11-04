@@ -632,7 +632,9 @@ export class MyCmp {
       await expect
         .poll(() => previewFrame(page)?.locator('my-cmp p').count() ?? 0)
         .toBeGreaterThan(0);
-      return previewFrame(page).locator('my-cmp').evaluate((el) => getComputedStyle(el).color);
+      return previewFrame(page)
+        .locator('my-cmp')
+        .evaluate((el) => getComputedStyle(el).color);
     };
     const config = (inject?: string) => ({
       name: 'stencil.config.ts',
@@ -646,7 +648,7 @@ export class MyCmp {
       expect(await hostColor(page)).toBe('rgb(1, 2, 3)');
     });
 
-    test("leaves an explicit global-style target out of shadow roots unless it sets inject", async ({
+    test('leaves an explicit global-style target out of shadow roots unless it sets inject', async ({
       page,
     }) => {
       await mount(page, [SHADOW_CMP, GLOBAL_CSS('theme.css'), config()]);

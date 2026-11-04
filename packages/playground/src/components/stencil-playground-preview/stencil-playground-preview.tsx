@@ -278,8 +278,7 @@ export class StencilPlaygroundPreview {
       globalScriptPath,
       globalStylePaths,
       injectedGlobalStyles,
-    } =
-      this.input;
+    } = this.input;
     if (files.length === 0) return;
 
     const { imports, moduleUrls } = buildImportMap(files);
