@@ -8,6 +8,7 @@ import { parseStaticEvents } from '../events';
 import { parseStaticListeners } from '../listeners';
 import { parseStaticMethods } from '../methods';
 import { parseStaticProps } from '../props';
+import { parseStaticSerializers } from '../serializers';
 import { parseStaticStates } from '../states';
 import { parseStaticWatchers } from '../watchers';
 import { extractInheritedMetaFromClass } from './extract-inherited-meta';
@@ -352,6 +353,9 @@ type AncestorMeta = {
   events: d.ComponentCompilerEvent[];
   listeners: d.ComponentCompilerListener[];
   watchers: d.ComponentCompilerChangeHandler[];
+  // absent from the `extractInheritedMetaFromClass` fallback, which doesn't read these decorators
+  serializers?: d.ComponentCompilerChangeHandler[];
+  deserializers?: d.ComponentCompilerChangeHandler[];
   methodNames: string[];
 };
 
@@ -385,7 +389,16 @@ function extractAncestorMeta(
     (m) =>
       ts.isGetAccessorDeclaration(m) &&
       ts.isIdentifier(m.name) &&
-      ['properties', 'states', 'events', 'listeners', 'watchers', 'methods'].includes(m.name.text),
+      [
+        'properties',
+        'states',
+        'events',
+        'listeners',
+        'watchers',
+        'serializers',
+        'deserializers',
+        'methods',
+      ].includes(m.name.text),
   );
 
   if (!hasUsableStaticMembers && className) {
@@ -445,6 +458,8 @@ function extractAncestorMeta(
     ),
     listeners: parseStaticListeners(resolvedStaticMembers) ?? [],
     watchers: parseStaticWatchers(resolvedStaticMembers) ?? [],
+    serializers: parseStaticSerializers(resolvedStaticMembers, 'serializers') ?? [],
+    deserializers: parseStaticSerializers(resolvedStaticMembers, 'deserializers') ?? [],
     methodNames: resolvedClassNode.members
       .filter(ts.isMethodDeclaration)
       .map((m) => (ts.isIdentifier(m.name) ? m.name.text : ''))
@@ -488,8 +503,8 @@ export function mergeExtendedClassMetaWithResolveImport(
     .filter(ts.isMethodDeclaration)
     .map((m) => (ts.isIdentifier(m.name) ? m.name.text : ''))
     .filter(Boolean);
-  const serializers: d.ComponentCompilerChangeHandler[] = [];
-  const deserializers: d.ComponentCompilerChangeHandler[] = [];
+  let serializers = parseStaticSerializers(staticMembers, 'serializers');
+  let deserializers = parseStaticSerializers(staticMembers, 'deserializers');
 
   const ancestors: AncestorEntry[] = [];
   resolveAncestors(
@@ -520,6 +535,11 @@ export function mergeExtendedClassMetaWithResolveImport(
     events = [...deDupeMembers(parentMeta.events, events), ...events];
     listeners = [...deDupeMembers(parentMeta.listeners, listeners), ...listeners];
     watchers = [...deDupeMembers(parentMeta.watchers, watchers), ...watchers];
+    serializers = [...deDupeMembers(parentMeta.serializers ?? [], serializers), ...serializers];
+    deserializers = [
+      ...deDupeMembers(parentMeta.deserializers ?? [], deserializers),
+      ...deserializers,
+    ];
     classMethods = [...classMethods, ...parentMeta.methodNames];
   });
 
