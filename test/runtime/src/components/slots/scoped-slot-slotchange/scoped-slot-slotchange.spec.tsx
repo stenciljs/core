@@ -11,17 +11,45 @@ describe('scoped-slot-slotchange', () => {
     const slotChangeEle = document.querySelector('scoped-slot-slotchange') as any;
     expect(slotChangeEle).toBeDefined();
     expect(slotChangeEle.slotEventCatch).toBeDefined();
-    expect(slotChangeEle.slotEventCatch).toHaveLength(0);
+    // the initial content fires slotchange once, as it does for a native slot
+    await waitForChanges();
+    expect(slotChangeEle.slotEventCatch).toHaveLength(1);
+    expect(slotChangeEle.slotEventCatch[0].assignedNodes[0].outerHTML).toMatch(
+      '<p class="sc-scoped-slot-slotchange-wrap">Initial slotted content</p>',
+    );
 
     document
       .querySelector('scoped-slot-slotchange-wrap')!
       .setAttribute('swap-slot-content', 'true');
     await waitForChanges();
-    expect(slotChangeEle.slotEventCatch).toHaveLength(1);
-    expect(slotChangeEle.slotEventCatch[0].event.type).toBe('slotchange');
-    expect(slotChangeEle.slotEventCatch[0].assignedNodes[0].outerHTML).toMatch(
+    expect(slotChangeEle.slotEventCatch).toHaveLength(2);
+    expect(slotChangeEle.slotEventCatch[1].event.type).toBe('slotchange');
+    expect(slotChangeEle.slotEventCatch[1].assignedNodes[0].outerHTML).toMatch(
       '<div class="sc-scoped-slot-slotchange-wrap">Swapped slotted content</div>',
     );
+  });
+
+  it('checks that removing slotted content fires slotchange events', async () => {
+    const { waitForChanges } = await render(
+      <scoped-slot-slotchange>
+        <p id='a'>First</p>
+        <p id='b'>Second</p>
+      </scoped-slot-slotchange>,
+    );
+    await waitForExist('scoped-slot-slotchange.hydrated');
+    const slotChangeEle = document.querySelector('scoped-slot-slotchange') as any;
+    await waitForChanges();
+    expect(slotChangeEle.slotEventCatch).toHaveLength(1);
+
+    slotChangeEle.removeChild(slotChangeEle.querySelector('#a'));
+    await waitForChanges();
+    expect(slotChangeEle.slotEventCatch).toHaveLength(2);
+    expect(slotChangeEle.slotEventCatch[1].assignedNodes).toHaveLength(1);
+
+    slotChangeEle.querySelector('#b').remove();
+    await waitForChanges();
+    expect(slotChangeEle.slotEventCatch).toHaveLength(3);
+    expect(slotChangeEle.slotEventCatch[2].assignedNodes).toHaveLength(0);
   });
 
   it('checks that external, browser content changes fire slotchange events', async () => {

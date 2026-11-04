@@ -2,7 +2,7 @@ import { Component, h, Host } from '@stencil/core';
 import { expect, describe, it, beforeEach } from '@stencil/vitest';
 
 import { newSpecPage, SpecPage } from '../../testing';
-import { applyLightDomPatches, patchSlottedNode } from '../dom-extras';
+import { applyLightDomPatches, patchSlottedNode, patchSsrSlottedNode } from '../dom-extras';
 
 describe('dom-extras - patches for non-shadow dom methods and accessors', () => {
   let specPage: SpecPage;
@@ -103,7 +103,7 @@ describe('dom-extras - patches for non-shadow dom methods and accessors', () => 
   });
 
   it('patches nextSibling / previousSibling accessors of slotted nodes', async () => {
-    specPage.root.childNodes.forEach((node: Node) => patchSlottedNode(node));
+    specPage.root.childNodes.forEach((node: Node) => patchSsrSlottedNode(node));
     expect(nodeOrEleContent(specPage.root.firstChild)).toBe('Some default slot, slotted text');
     expect(nodeOrEleContent(specPage.root.firstChild.nextSibling)).toBe(
       '<span>a default slot, slotted element</span>',
@@ -133,7 +133,7 @@ describe('dom-extras - patches for non-shadow dom methods and accessors', () => 
   });
 
   it('patches nextElementSibling / previousElementSibling accessors of slotted nodes', async () => {
-    specPage.root.childNodes.forEach((node: Node) => patchSlottedNode(node));
+    specPage.root.childNodes.forEach((node: Node) => patchSsrSlottedNode(node));
     expect(nodeOrEleContent(specPage.root.children[0].nextElementSibling)).toBe(
       '<div slot="second-slot"> a second slot, slotted element <span>nested element in the second slot<span></span></span></div>',
     );
@@ -143,7 +143,7 @@ describe('dom-extras - patches for non-shadow dom methods and accessors', () => 
   });
 
   it('patches parentNode of slotted nodes', async () => {
-    specPage.root.childNodes.forEach((node: Node) => patchSlottedNode(node));
+    specPage.root.childNodes.forEach((node: Node) => patchSsrSlottedNode(node));
     expect((specPage.root.children[0].parentNode as HTMLElement).tagName).toBe('CMP-A');
     expect((specPage.root.children[1].parentNode as HTMLElement).tagName).toBe('CMP-A');
     expect((specPage.root.childNodes[0].parentNode as HTMLElement).tagName).toBe('CMP-A');
@@ -155,7 +155,7 @@ describe('dom-extras - patches for non-shadow dom methods and accessors', () => 
   });
 
   it('returns null (not undefined) for out-of-bounds siblings/children', async () => {
-    specPage.root.childNodes.forEach((node: Node) => patchSlottedNode(node));
+    specPage.root.childNodes.forEach((node: Node) => patchSsrSlottedNode(node));
 
     const firstSlottedNode = specPage.root.childNodes[0];
     expect(firstSlottedNode.previousSibling).toBeNull();

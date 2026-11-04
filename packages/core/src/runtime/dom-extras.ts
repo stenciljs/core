@@ -1,6 +1,8 @@
 import { BUILD } from 'virtual:app-data';
+import { plt } from 'virtual:platform';
 import type * as d from '@stencil/core';
 
+import { PLATFORM_FLAGS } from './runtime-constants';
 import {
   addSlotRelocateNode,
   dispatchSlotChangeEvent,
@@ -98,6 +100,7 @@ export const patchSlotAppendChild = (HostElementPrototype: any) => {
     const { slotName, slotNode } = findSlotFromSlottedNode(newChild, this);
     if (slotNode) {
       addSlotRelocateNode(newChild, slotNode);
+      patchSlottedNode(newChild);
 
       const slotChildNodes = getSlotChildSiblings(slotNode, slotName);
       const appendAfter = slotChildNodes[slotChildNodes.length - 1];
@@ -134,7 +137,9 @@ export const patchSlotRemoveChild = (ElementPrototype: any) => {
       const childNodes = (this as any).__childNodes || this.childNodes;
       const slotNode = getHostSlotNodes(childNodes, this.tagName, toRemove['s-sn']);
       if (slotNode && toRemove.isConnected) {
-        toRemove.remove();
+        removeSlottedNode(toRemove);
+        // one entry at most: `getHostSlotNodes` stops at the first slot with this name
+        if (slotNode[0]) dispatchSlotChangeEvent(slotNode[0]);
         // Check if there is fallback content that should be displayed if that
         // was the last node in the slot
         updateFallbackSlotVisibility(this);
@@ -167,6 +172,7 @@ export const patchSlotPrepend = (HostElementPrototype: HTMLElement) => {
       const slotNode = getHostSlotNodes(childNodes, this.tagName, slotName)[0];
       if (slotNode) {
         addSlotRelocateNode(newChild, slotNode, true);
+        patchSlottedNode(newChild);
         const slotChildNodes = getSlotChildSiblings(slotNode, slotName);
         const appendAfter = slotChildNodes[0];
 
@@ -291,6 +297,7 @@ export const patchInsertBefore = (HostElementPrototype: HTMLElement) => {
           if (slotName === currentChild['s-sn']) {
             // current child ('slot before' node) is 'in' the same slot
             addSlotRelocateNode(newChild, slotNode);
+            patchSlottedNode(newChild);
 
             const parent = internalCall(currentChild, 'parentNode') as d.RenderNode;
             internalCall(parent, 'insertBefore')(newChild, currentChild);
@@ -403,10 +410,22 @@ export const patchChildSlotNodes = (elm: HTMLElement) => {
 /// SLOTTED NODES ///
 
 /**
- * Patches sibling accessors of a 'slotted' node within a non-shadow component.
- * Meaning whilst stepping through a non-shadow element's nodes, only the mock 'lightDOM' nodes are returned.
- * Especially relevant when rendering components via SSR... Frameworks will often try to reconcile their
- * VDOM with the real DOM by stepping through nodes with 'nextSibling' et al.
+ * Patches a node slotted into a non-shadow component so it behaves as it would in a native slot:
+ * - `parentNode` returns the host element
+ * - `remove()` fires `slotchange` on the node's slot
+ *
+ * @param node the slotted node to be patched
+ */
+export const patchSlottedNode = (node: Node) => {
+  patchParentNode(node);
+  patchSlottedRemove(node);
+};
+
+/**
+ * Patches a slotted node from SSR markup: everything {@link patchSlottedNode} does, plus its
+ * sibling accessors, so whilst stepping through a non-shadow element's nodes only the mock
+ * 'lightDOM' nodes are returned. Frameworks hydrating SSR output often reconcile their VDOM with
+ * the real DOM by stepping through nodes with 'nextSibling' et al.
  * - `nextSibling`
  * - `nextElementSibling`
  * - `previousSibling`
@@ -414,12 +433,12 @@ export const patchChildSlotNodes = (elm: HTMLElement) => {
  *
  * @param node the slotted node to be patched
  */
-export const patchSlottedNode = (node: Node) => {
+export const patchSsrSlottedNode = (node: Node) => {
   if (!node || (node as any).__nextSibling !== undefined || !globalThis.Node) return;
 
   patchNextSibling(node);
   patchPreviousSibling(node);
-  patchParentNode(node);
+  patchSlottedNode(node);
 
   if (node.nodeType === Node.ELEMENT_NODE) {
     patchNextElementSibling(node as Element);
@@ -514,11 +533,47 @@ const patchPreviousElementSibling = (element: Element) => {
 };
 
 /**
+ * Detaches a slotted node from where it physically sits in the component's rendered DOM, through
+ * the unpatched accessors. Not via `remove()`: mock-doc's `remove()` calls
+ * `parentNode.removeChild()`, and a slotted node's patched `parentNode` is the host, whose patched
+ * `removeChild()` would come straight back here.
+ *
+ * @param node the slotted node to detach
+ */
+const removeSlottedNode = (node: d.RenderNode) => {
+  const parent = internalCall(node, 'parentNode') as d.RenderNode | null;
+  if (parent) internalCall(parent, 'removeChild')(node);
+};
+
+/**
+ * Patches `remove()` on a node slotted into a non-shadow component, so that removing it fires
+ * `slotchange` on its slot (and updates fallback content), as removing a node from a native slot
+ * does. Stencil's own node moves, while `isTmpDisconnected` is set, don't fire it.
+ *
+ * @param node the slotted node to patch
+ */
+const patchSlottedRemove = (node: Node) => {
+  const child = node as d.PatchedSlotNode & ChildNode;
+  if (!child || (child as any).__remove || typeof child.remove !== 'function') return;
+  (child as any).__remove = child.remove;
+
+  child.remove = function (this: d.PatchedSlotNode) {
+    const host = this['s-ol']?.parentElement;
+    const { slotNode } = findSlotFromSlottedNode(this);
+    removeSlottedNode(this as d.RenderNode);
+    if (slotNode && !(plt.$flags$ & PLATFORM_FLAGS.isTmpDisconnected)) {
+      dispatchSlotChangeEvent(slotNode);
+      updateFallbackSlotVisibility(host);
+    }
+  };
+};
+
+/**
  * Patches the `parentNode` accessor of a non-shadow slotted node
  *
  * @param node the slotted node to be patched
  */
-export const patchParentNode = (node: Node) => {
+const patchParentNode = (node: Node) => {
   if (!node || (node as any).__parentNode) return;
 
   patchHostOriginalAccessor('parentNode', node);

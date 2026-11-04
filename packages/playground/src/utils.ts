@@ -3,6 +3,18 @@ export interface PlaygroundFile {
   content: string;
 }
 
+/**
+ * A Monaco editor theme - the same shape as Monaco's `editor.IStandaloneThemeData`, declared here so
+ * the playground's public types don't depend on Monaco's. See
+ * https://microsoft.github.io/monaco-editor/typedoc/interfaces/editor.IStandaloneThemeData.html
+ */
+export interface PlaygroundEditorTheme {
+  base: 'vs' | 'vs-dark' | 'hc-black' | 'hc-light';
+  inherit: boolean;
+  rules: { token: string; foreground?: string; background?: string; fontStyle?: string }[];
+  colors: Record<string, string>;
+}
+
 /** A compiled project file, keyed by its bare-specifier virtual path - the same flat `name`
  * it has in `PlaygroundFile`. */
 export interface CompiledFile {

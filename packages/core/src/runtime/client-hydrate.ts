@@ -3,7 +3,7 @@ import { getHostRef, plt, transformTag, win } from 'virtual:platform';
 import type * as d from '@stencil/core';
 
 import { CMP_FLAGS } from '../utils/constants';
-import { internalCall, patchSlottedNode } from './dom-extras';
+import { internalCall, patchSsrSlottedNode } from './dom-extras';
 import { getShadowRoot } from './element';
 import { createTime } from './profile';
 import {
@@ -249,8 +249,8 @@ export const initializeClientHydrate = (
           BUILD.slotChildNodes ||
           (BUILD.patchAll && hostRef.$cmpMeta$.$flags$ & CMP_FLAGS.patchAll)
         ) {
-          // patch this node for accessors like `nextSibling` (et al)
-          patchSlottedNode(siNode);
+          // patch this node for accessors like `nextSibling` (et al), and `remove()`
+          patchSsrSlottedNode(siNode);
         }
       }
       // Empty text nodes are never accounted on the server (they don't get a comment node, or a positional id)

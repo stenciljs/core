@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { transpile, transpileSync } from '../transpile';
 
@@ -146,5 +146,59 @@ describe('transpileSync() - componentExport', () => {
   it('leaves a `module` export unproxied when `proxy` is null', () => {
     const { code } = transpileCmp('export', { componentExport: 'module', proxy: null });
     expect(code).not.toContain('proxyCustomElement');
+  });
+});
+
+describe('transpileSync() - @Method() return type', () => {
+  // The check is skipped under a test runner (`_isTesting`, read from these env vars), so clear
+  // them to transpile the way a bundler plugin outside a test run does.
+  beforeEach(() => {
+    vi.stubEnv('VITEST', '');
+    vi.stubEnv('NODE_ENV', 'production');
+  });
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  const transpileMethod = (method: string) =>
+    transpileSync(
+      `import { Component, Method } from '@stencil/core';
+      @Component({ tag: 'my-cmp' })
+      export class MyCmp {
+        ${method}
+      }`,
+      { file: '/my-cmp.tsx', componentExport: 'customelement' },
+    );
+
+  it('accepts an async method without a return type annotation', () => {
+    expect(transpileMethod('@Method() async open() {}').diagnostics).toEqual([]);
+    expect(transpileMethod('@Method() async count() { return 42; }').diagnostics).toEqual([]);
+  });
+
+  it('still warns about a method that is not async', () => {
+    const { diagnostics } = transpileMethod('@Method() open() {}');
+    expect(diagnostics).toHaveLength(1);
+    expect(diagnostics[0].messageText).toContain('must return a Promise');
+  });
+});
+
+describe('transpileSync() - serializers with resolveImport', () => {
+  it('keeps @PropSerialize() / @AttrDeserialize() metadata', () => {
+    const { code } = transpileSync(
+      `import { AttrDeserialize, Component, Prop, PropSerialize } from '@stencil/core';
+      @Component({ tag: 'my-cmp' })
+      export class MyCmp {
+        @Prop() items: string[] = [];
+        @PropSerialize('items')
+        serializeItems(value: string[]) { return JSON.stringify(value); }
+        @AttrDeserialize('items')
+        deserializeItems(value: string) { return JSON.parse(value); }
+      }`,
+      { file: '/my-cmp.tsx', componentExport: 'customelement', resolveImport: () => null },
+    );
+    expect(code).toContain('static get serializers()');
+    expect(code).toContain('"serializeItems": 0');
+    expect(code).toContain('static get deserializers()');
+    expect(code).toContain('"deserializeItems": 0');
   });
 });

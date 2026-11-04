@@ -171,9 +171,21 @@ describe('scoped', () => {
         html: '<my-node-with-slot-changes><span>Test content</span></my-node-with-slot-changes>',
       });
 
+      // the initial content fires slotchange once, as it does for a native slot
+      await page.waitForChanges();
       const monitorText = page.root.textContent;
       expect(monitorText).toContain('Slot Change Monitor:');
-      expect(monitorText).toContain('Changes detected: 0');
+      expect(monitorText).toContain('Changes detected: 1');
+    });
+
+    it('fires slotchange once for initial content, however many nodes the slot receives', async () => {
+      const page = await newSpecPage({
+        components: [MyNodeWithSlotChanges],
+        html: '<my-node-with-slot-changes><span>a</span><span>b</span>c</my-node-with-slot-changes>',
+      });
+      await page.waitForChanges();
+
+      expect((page.rootInstance as MyNodeWithSlotChanges).slotChangeCount).toBe(1);
     });
 
     it('has the correct onSlotchange handler attached', async () => {
@@ -198,7 +210,7 @@ describe('scoped', () => {
     it('triggers slotchange handler when slot content changes', async () => {
       const page = await newSpecPage({
         components: [MyNodeWithSlotChanges],
-        html: '<my-node-with-slot-changes><span>Initial content</span></my-node-with-slot-changes>',
+        html: '<my-node-with-slot-changes></my-node-with-slot-changes>',
       });
 
       const component = page.rootInstance as MyNodeWithSlotChanges;
@@ -256,7 +268,7 @@ describe('scoped', () => {
     it('slotchange handler can be called multiple times', async () => {
       const page = await newSpecPage({
         components: [MyNodeWithSlotChanges],
-        html: '<my-node-with-slot-changes><div>Test content</div></my-node-with-slot-changes>',
+        html: '<my-node-with-slot-changes></my-node-with-slot-changes>',
       });
 
       const component = page.rootInstance as MyNodeWithSlotChanges;

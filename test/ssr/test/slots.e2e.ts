@@ -151,6 +151,31 @@ test.describe('slot handling', () => {
   });
 
   test.describe('sibling accessors', () => {
+    test('fires slotchange when hydrated slotted content is removed', async ({ page }) => {
+      const { html } = await renderToString(
+        `<hydrated-slotchange>
+           <p id="a">First</p>
+           <p id="b">Second</p>
+         </hydrated-slotchange>`,
+      );
+      await page.setContent(html || '');
+      await page.waitForSelector('hydrated-slotchange[custom-hydrate-flag]');
+
+      const slotchanges = () =>
+        page.evaluate(() => (document.querySelector('hydrated-slotchange') as any).slotchanges);
+      const before = (await slotchanges()).length;
+
+      await page.evaluate(() => {
+        const host = document.querySelector('hydrated-slotchange')!;
+        host.removeChild(host.querySelector('#a')!);
+      });
+      await expect.poll(async () => (await slotchanges()).slice(before)).toEqual([1]);
+
+      await page.evaluate(() => document.querySelector('hydrated-slotchange #b')!.remove());
+      await expect.poll(async () => (await slotchanges()).slice(before)).toEqual([1, 0]);
+      expect(await page.locator('hydrated-slotchange p').count()).toBe(0);
+    });
+
     test('steps through only "lightDOM" nodes', async ({ page }) => {
       const { html } = await renderToString(
         `<hydrated-sibling-accessors>

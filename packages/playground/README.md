@@ -63,6 +63,38 @@ By default (`layout="auto"`) the editor and preview sit side by side, and stack 
 | `--stencil-playground-editor-max-height` | Stacked: tallest a fitted editor grows | `480px` |
 | `--stencil-playground-preview-height` | Stacked: preview height | `200px` |
 
+### Theming
+
+The editor uses Monaco's `vs-dark` theme by default. To restyle it, set `editorTheme` to a [Monaco theme](https://microsoft.github.io/monaco-editor/typedoc/interfaces/editor.IStandaloneThemeData.html) (`base`, `inherit`, `rules`, `colors`). Monaco has one theme per page, so the last playground to set one wins.
+
+```js
+playground.editorTheme = {
+  base: 'vs-dark',
+  inherit: true,
+  rules: [{ token: 'keyword', foreground: '569CD6' }],
+  colors: { 'editor.background': '#0a1220' },
+};
+```
+
+Style the frame (`border`, `border-radius`, `box-shadow`) on the `stencil-playground` element itself, and the rest with these custom properties:
+
+| CSS custom property | Default |
+|---|---|
+| `--stencil-playground-background` (behind the editor while it loads) | `#1e1e1e` |
+| `--stencil-playground-divider-color` (between editor and preview, and under the tabs) | `#333` |
+| `--stencil-playground-tabs-background` | `#252526` |
+| `--stencil-playground-tab-color` / `--stencil-playground-tab-active-color` | `#969696` / `#d4d4d4` |
+| `--stencil-playground-tab-active-background` | `#1e1e1e` |
+| `--stencil-playground-tab-divider-color` (between tabs) | `--stencil-playground-divider-color` |
+| `--stencil-playground-tab-font` (`font` shorthand) | `0.8rem` monospace |
+| `--stencil-playground-editor-font-family` | Monaco's |
+| `--stencil-playground-editor-font-size` (px) | `13px` |
+| `--stencil-playground-editor-line-height` (px, or a multiple of the font size below 8) | Monaco's |
+| `--stencil-playground-editor-padding` (above the first and below the last line, px) | `0` |
+| `--stencil-playground-preview-background` | `#fff` |
+
+The editor reads its font and padding properties when it's created.
+
 ### Cross-file imports
 
 Playground files can import each other by relative specifier `./my-component` and `styleUrl`s. See the component's [usage examples](./src/components/stencil-playground/usage/index.md).

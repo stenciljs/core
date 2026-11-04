@@ -9,6 +9,7 @@ import {
   resolveProjectImport,
   resolveStencilImports,
   type CompiledFile,
+  type PlaygroundEditorTheme,
   type PlaygroundFile,
 } from '../../utils';
 import type { EditorFilesState } from '../stencil-playground-editor/stencil-playground-editor';
@@ -79,6 +80,12 @@ export class StencilPlayground {
    * editor to fit its code.
    */
   @Prop({ reflect: true }) layout: 'auto' | 'stacked' = 'auto';
+
+  /**
+   * A Monaco theme for the editor (Monaco's `IStandaloneThemeData` shape). Defaults to Monaco's
+   * `vs-dark`. Monaco has one theme per page, so the last playground to set one wins.
+   */
+  @Prop() editorTheme?: PlaygroundEditorTheme;
 
   @State() activeFileName: string = this.files[0]?.name ?? '';
   // Bundled so the editor never sees one update without the other - see `EditorFilesState`.
@@ -423,6 +430,7 @@ export class StencilPlayground {
           filesState={this.editorFilesState}
           diagnostics={this.diagnostics}
           jsxTypesDts={this.jsxTypesDts}
+          theme={this.editorTheme}
           onFileChange={this.onFileChange}
           onActiveFileChange={this.onActiveFileChange}
         />

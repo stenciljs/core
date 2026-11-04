@@ -69,6 +69,13 @@ export namespace Components {
     }
     interface HydratedSiblingAccessors {
     }
+    interface HydratedSlotchange {
+        /**
+          * The number of assigned elements at each `slotchange`.
+          * @default []
+         */
+        "slotchanges": number[];
+    }
     interface MyCmp {
         /**
           * bar prop
@@ -341,6 +348,12 @@ declare global {
         prototype: HTMLHydratedSiblingAccessorsElement;
         new (): HTMLHydratedSiblingAccessorsElement;
     };
+    interface HTMLHydratedSlotchangeElement extends Components.HydratedSlotchange, HTMLStencilElement {
+    }
+    var HTMLHydratedSlotchangeElement: {
+        prototype: HTMLHydratedSlotchangeElement;
+        new (): HTMLHydratedSlotchangeElement;
+    };
     interface HTMLMyCmpElement extends Components.MyCmp, HTMLStencilElement {
     }
     var HTMLMyCmpElement: {
@@ -582,6 +595,7 @@ declare global {
         "complex-properties": HTMLComplexPropertiesElement;
         "dsd-listen-cmp": HTMLDsdListenCmpElement;
         "hydrated-sibling-accessors": HTMLHydratedSiblingAccessorsElement;
+        "hydrated-slotchange": HTMLHydratedSlotchangeElement;
         "my-cmp": HTMLMyCmpElement;
         "my-jsx-cmp": HTMLMyJsxCmpElement;
         "nested-child-cmp": HTMLNestedChildCmpElement;
@@ -681,6 +695,13 @@ declare namespace LocalJSX {
     interface DsdListenCmp {
     }
     interface HydratedSiblingAccessors {
+    }
+    interface HydratedSlotchange {
+        /**
+          * The number of assigned elements at each `slotchange`.
+          * @default []
+         */
+        "slotchanges"?: number[];
     }
     interface MyCmp {
         /**
@@ -929,6 +950,7 @@ declare namespace LocalJSX {
         "complex-properties": Omit<ComplexProperties, keyof ComplexPropertiesAttributes> & { [K in keyof ComplexProperties & keyof ComplexPropertiesAttributes]?: ComplexProperties[K] } & { [K in keyof ComplexProperties & keyof ComplexPropertiesAttributes as `attr:${K}`]?: ComplexPropertiesAttributes[K] } & { [K in keyof ComplexProperties & keyof ComplexPropertiesAttributes as `prop:${K}`]?: ComplexProperties[K] };
         "dsd-listen-cmp": DsdListenCmp;
         "hydrated-sibling-accessors": HydratedSiblingAccessors;
+        "hydrated-slotchange": HydratedSlotchange;
         "my-cmp": Omit<MyCmp, keyof MyCmpAttributes> & { [K in keyof MyCmp & keyof MyCmpAttributes]?: MyCmp[K] } & { [K in keyof MyCmp & keyof MyCmpAttributes as `attr:${K}`]?: MyCmpAttributes[K] } & { [K in keyof MyCmp & keyof MyCmpAttributes as `prop:${K}`]?: MyCmp[K] };
         "my-jsx-cmp": Omit<MyJsxCmp, keyof MyJsxCmpAttributes> & { [K in keyof MyJsxCmp & keyof MyJsxCmpAttributes]?: MyJsxCmp[K] } & { [K in keyof MyJsxCmp & keyof MyJsxCmpAttributes as `attr:${K}`]?: MyJsxCmpAttributes[K] } & { [K in keyof MyJsxCmp & keyof MyJsxCmpAttributes as `prop:${K}`]?: MyJsxCmp[K] };
         "nested-child-cmp": NestedChildCmp;
@@ -985,6 +1007,7 @@ declare module "@stencil/core" {
             "complex-properties": LocalJSX.IntrinsicElements["complex-properties"] & JSXBase.HTMLAttributes<HTMLComplexPropertiesElement>;
             "dsd-listen-cmp": LocalJSX.IntrinsicElements["dsd-listen-cmp"] & JSXBase.HTMLAttributes<HTMLDsdListenCmpElement>;
             "hydrated-sibling-accessors": LocalJSX.IntrinsicElements["hydrated-sibling-accessors"] & JSXBase.HTMLAttributes<HTMLHydratedSiblingAccessorsElement>;
+            "hydrated-slotchange": LocalJSX.IntrinsicElements["hydrated-slotchange"] & JSXBase.HTMLAttributes<HTMLHydratedSlotchangeElement>;
             "my-cmp": LocalJSX.IntrinsicElements["my-cmp"] & JSXBase.HTMLAttributes<HTMLMyCmpElement>;
             "my-jsx-cmp": LocalJSX.IntrinsicElements["my-jsx-cmp"] & JSXBase.HTMLAttributes<HTMLMyJsxCmpElement>;
             "nested-child-cmp": LocalJSX.IntrinsicElements["nested-child-cmp"] & JSXBase.HTMLAttributes<HTMLNestedChildCmpElement>;

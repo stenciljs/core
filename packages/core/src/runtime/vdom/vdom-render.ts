@@ -7,12 +7,12 @@
  * Modified for Stencil's renderer and slot projection
  */
 import { BUILD } from 'virtual:app-data';
-import { consoleDevError, getHostRef, plt, win } from 'virtual:platform';
+import { consoleDevError, getHostRef, nextTick, plt, win } from 'virtual:platform';
 import type * as d from '@stencil/core';
 
 import { CMP_FLAGS, NODE_TYPES, SVG_NS } from '../../utils/constants';
 import { isDef } from '../../utils/helpers';
-import { patchParentNode } from '../dom-extras';
+import { patchSlottedNode } from '../dom-extras';
 import { getShadowRoot } from '../element';
 import { getHostRegistry } from '../registry';
 import { NODE_TYPE, PLATFORM_FLAGS, VNODE_FLAGS } from '../runtime-constants';
@@ -44,6 +44,8 @@ let isSvgMode = false;
  * These ensure that ref callbacks are called in the correct order:
  * first all removal callbacks (with null), then all attachment callbacks (with elements).
  */
+// emulated slots that received content during a first render - see `renderVdom`
+const initialSlotChanges = new Set<d.RenderNode>();
 const refCallbacksToRemove: Array<() => void> = [];
 const refCallbacksToAttach: Array<() => void> = [];
 
@@ -1103,14 +1105,18 @@ export const insertBefore = (
         // we don't need to patch this node if it's nested in a shadow root
         parent.getRootNode().nodeType !== NODE_TYPES.DOCUMENT_FRAGMENT_NODE
       ) {
-        patchParentNode(newNode);
+        patchSlottedNode(newNode);
       }
       // potentially use the patched insertBefore method. This will correctly slot the new node
       parent.insertBefore(newNode, reference);
 
-      // if we find a corresponding slot node, dispatch a slotchange event now
+      // if we find a corresponding slot node, dispatch a slotchange event now - or, on a first
+      // render, once per slot after relocation (see `renderVdom`)
       const { slotNode } = findSlotFromSlottedNode(newNode);
-      if (slotNode && !isInitialLoad) dispatchSlotChangeEvent(slotNode);
+      if (slotNode) {
+        if (isInitialLoad) initialSlotChanges.add(slotNode);
+        else dispatchSlotChangeEvent(slotNode);
+      }
 
       return newNode;
     }
@@ -1449,6 +1455,14 @@ render() {
 
     // always reset
     relocateNodes.length = 0;
+
+    // A native slot fires `slotchange` for its initial content too: asynchronously, and once per
+    // slot however many nodes it received. Do the same for each emulated slot filled above.
+    if (initialSlotChanges.size) {
+      const slotNodes = [...initialSlotChanges];
+      initialSlotChanges.clear();
+      nextTick(() => slotNodes.forEach(dispatchSlotChangeEvent));
+    }
   }
 
   // Hide any elements that were projected through, but don't have a slot to go to.

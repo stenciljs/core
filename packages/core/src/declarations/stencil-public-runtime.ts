@@ -2351,6 +2351,12 @@ export interface JSXAttributes<T = globalThis.Element> {
   ref?: (elm?: T) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   children?: any;
+  // Explicit binding, bypassing the attribute-or-property heuristic (see `setAccessor`):
+  // `attr:name` always sets the attribute, `prop:name` always sets the property.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: `attr:${string}`]: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: `prop:${string}`]: any;
 }
 
 export interface CustomElementsDefineOptions {
