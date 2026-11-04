@@ -13,6 +13,22 @@ describe('testing function and class components', () => {
     expect(page.root).toEqualHtml(`<div>Hello World</div>`);
   });
 
+  it('can construct a File after rendering a spec page', async () => {
+    const MyFunctionalComponent = () => <div>Hello World</div>;
+    await newSpecPage({
+      components: [MyFunctionalComponent],
+      template: () => <MyFunctionalComponent></MyFunctionalComponent>,
+    });
+
+    const file = new File(['whatever'], 'myFile.png', {
+      type: 'image/png',
+    });
+
+    expect(file.name).toBe('myFile.png');
+    expect(file.type).toBe('image/png');
+    expect(file.size).toBe(8);
+  });
+
   it('can render a single functional component with props', async () => {
     const MyFunctionalComponent = (props: { foo: 'bar' }) => <div>{props.foo}</div>;
     const page: SpecPage = await newSpecPage({

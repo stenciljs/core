@@ -28,6 +28,21 @@ describe('global', () => {
     expect(Response).toBeDefined();
   });
 
+  it('File', () => {
+    expect(File).toBeDefined();
+    expect(window.File).toBeDefined();
+
+    const file = new File(['whatever'], 'myFile.png', {
+      lastModified: 123,
+      type: 'image/png',
+    });
+
+    expect(file.name).toBe('myFile.png');
+    expect(file.type).toBe('image/png');
+    expect(file.lastModified).toBe(123);
+    expect(file.size).toBe(8);
+  });
+
   it('Parse', () => {
     expect(DOMParser).toBeDefined();
   });
