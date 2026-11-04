@@ -56,6 +56,43 @@ describe('style', () => {
     );
   });
 
+  it('re-attaches a removed style element when the component is rendered again', async () => {
+    @Component({
+      tag: 'cmp-a',
+      styles: `
+        cmp-a {
+          color: red;
+        }
+      `,
+    })
+    class CmpA {
+      render() {
+        return `innertext`;
+      }
+    }
+
+    const page = await newSpecPage({
+      components: [CmpA],
+      html: `<cmp-a></cmp-a>`,
+      attachStyles: true,
+    });
+
+    const findCmpStyle = () =>
+      Array.from(page.doc.head.querySelectorAll('style')).find((styleElm) => styleElm.textContent?.includes('color: red'));
+
+    const initialStyleElm = findCmpStyle();
+    expect(initialStyleElm).toBeDefined();
+
+    initialStyleElm!.remove();
+    expect(findCmpStyle()).toBeUndefined();
+
+    await page.setContent(`<cmp-a></cmp-a>`);
+
+    const reattachedStyleElm = findCmpStyle();
+    expect(reattachedStyleElm).toBeDefined();
+    expect(reattachedStyleElm!.isConnected).toBe(true);
+  });
+
   describe('mode', () => {
     it('md mode', async () => {
       setMode(() => 'md');
