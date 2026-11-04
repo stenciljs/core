@@ -611,6 +611,33 @@ export class MyComponent {
     await expect(squiggles(1)).toHaveCount(1);
   });
 
+  test('lets a <form> in the preview submit', async ({ page }) => {
+    await mount(page, [
+      {
+        name: 'my-component.tsx',
+        content: `import { Component } from '@stencil/core';
+
+@Component({ tag: 'my-component' })
+export class MyComponent {
+  render() {
+    return <button id="submit">Submit</button>;
+  }
+}
+`,
+      },
+      {
+        name: 'index.html',
+        content: `<script type="module" src="./my-component.tsx"></script>
+<form onsubmit="event.preventDefault(); window.submitted = true;">
+  <my-component></my-component>
+</form>
+`,
+      },
+    ]);
+    await previewFrame(page).locator('#submit').click();
+    await expect.poll(() => previewFlag(page, 'submitted')).toBe(true);
+  });
+
   test.describe('layout', () => {
     const SHORT_FILE: PlaygroundFile = {
       name: 'my-component.tsx',

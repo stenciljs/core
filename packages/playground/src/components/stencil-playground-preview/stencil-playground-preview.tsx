@@ -297,9 +297,15 @@ export class StencilPlaygroundPreview {
     this.update();
   }
 
+  // `allow-forms` so a <form> in the preview validates and fires `submit` - without it the browser
+  // drops form submission entirely, which breaks any form-associated component demo.
   render() {
     return (
-      <iframe ref={(el) => (this.iframe = el!)} sandbox='allow-scripts' title='Component preview' />
+      <iframe
+        ref={(el) => (this.iframe = el!)}
+        sandbox='allow-scripts allow-forms'
+        title='Component preview'
+      />
     );
   }
 }
