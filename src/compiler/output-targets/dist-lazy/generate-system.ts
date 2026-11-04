@@ -16,40 +16,41 @@ export const generateSystem = async (
 ): Promise<d.UpdatedLazyBuildCtx[]> => {
   const systemOutputs = outputTargets.filter((o) => !!o.systemDir && typeof o.systemDir === 'string');
 
-  return Promise.all(systemOutputs.map(async (systemOutput) => {
-    const esmOpts: OutputOptions = {
-      banner: generatePreamble(config),
-      format: 'system',
-      entryFileNames: config.hashFileNames ? 'p-[hash].system.js' : '[name].system.js',
-      chunkFileNames: config.hashFileNames ? 'p-[hash].system.js' : '[name]-[hash].system.js',
-      assetFileNames: config.hashFileNames ? 'p-[hash][extname]' : '[name]-[hash][extname]',
-      sourcemap: config.sourceMap,
-      dir: systemOutput.systemDir,
-      plugins: [lazyBundleIdPlugin(config, true)],
-    };
+  return Promise.all(
+    systemOutputs.map(async (systemOutput) => {
+      const esmOpts: OutputOptions = {
+        banner: generatePreamble(config),
+        format: 'system',
+        entryFileNames: config.hashFileNames ? 'p-[hash].system.entry.js' : '[name].system.entry.js',
+        chunkFileNames: config.hashFileNames ? 'p-[hash].system.js' : '[name]-[hash].system.js',
+        assetFileNames: config.hashFileNames ? 'p-[hash][extname]' : '[name]-[hash][extname]',
+        sourcemap: config.sourceMap,
+        dir: systemOutput.systemDir,
+        plugins: [lazyBundleIdPlugin(config, true)],
+      };
 
-    const results = await generateRollupOutput(rollupBuild, esmOpts, config, buildCtx.entryModules);
+      const results = await generateRollupOutput(rollupBuild, esmOpts, config, buildCtx.entryModules);
 
-    if (results != null) {
-      buildCtx.systemComponentBundle = await generateLazyModules(
-        config,
-        compilerCtx,
-        buildCtx,
-        systemOutput.type,
-        systemOutput.systemDir,
-        results,
-        'es5',
-        true,
-      );
+      if (results != null) {
+        buildCtx.systemComponentBundle = await generateLazyModules(
+          config,
+          compilerCtx,
+          buildCtx,
+          systemOutput.type,
+          systemOutput.systemDir,
+          results,
+          'es5',
+          true,
+        );
 
-      await generateSystemLoaders(config, compilerCtx, results, systemOutputs);
+        await generateSystemLoaders(config, compilerCtx, results, systemOutputs);
 
-      return { name: 'system', buildCtx };
-    }
+        return { name: 'system', buildCtx };
+      }
 
-    return null;
-  }));
-
+      return null;
+    }),
+  );
 };
 
 const generateSystemLoaders = (

@@ -15,43 +15,45 @@ export const generateCjs = async (
 ): Promise<d.UpdatedLazyBuildCtx[]> => {
   const cjsOutputs = outputTargets.filter((o) => !!o.cjsDir && typeof o.cjsDir === 'string');
 
-  return Promise.all(cjsOutputs.map(async (cjsOutput) => {
-    const esmOpts: OutputOptions = {
-      banner: generatePreamble(config),
-      format: 'cjs',
-      entryFileNames: '[name].cjs.js',
-      assetFileNames: '[name]-[hash][extname]',
-      sourcemap: config.sourceMap,
-      dir: cjsOutput.cjsDir,
-      plugins: [lazyBundleIdPlugin(config)],
-    };
+  return Promise.all(
+    cjsOutputs.map(async (cjsOutput) => {
+      const esmOpts: OutputOptions = {
+        banner: generatePreamble(config),
+        format: 'cjs',
+        entryFileNames: '[name].cjs.entry.js',
+        assetFileNames: '[name]-[hash][extname]',
+        sourcemap: config.sourceMap,
+        dir: cjsOutput.cjsDir,
+        plugins: [lazyBundleIdPlugin(config)],
+      };
 
-    if (!!config.extras.experimentalImportInjection || !!config.extras.enableImportInjection) {
-      esmOpts.interop = 'auto';
-      esmOpts.dynamicImportInCjs = false;
-    }
+      if (!!config.extras.experimentalImportInjection || !!config.extras.enableImportInjection) {
+        esmOpts.interop = 'auto';
+        esmOpts.dynamicImportInCjs = false;
+      }
 
-    const results = await generateRollupOutput(rollupBuild, esmOpts, config, buildCtx.entryModules);
+      const results = await generateRollupOutput(rollupBuild, esmOpts, config, buildCtx.entryModules);
 
-    if (results != null) {
-      buildCtx.commonJsComponentBundle = await generateLazyModules(
-        config,
-        compilerCtx,
-        buildCtx,
-        cjsOutput.type,
-        cjsOutput.cjsDir,
-        results,
-        'es2017',
-        false,
-      );
+      if (results != null) {
+        buildCtx.commonJsComponentBundle = await generateLazyModules(
+          config,
+          compilerCtx,
+          buildCtx,
+          cjsOutput.type,
+          cjsOutput.cjsDir,
+          results,
+          'es2017',
+          false,
+        );
 
-      await generateShortcuts(compilerCtx, results, cjsOutputs);
+        await generateShortcuts(compilerCtx, results, cjsOutputs);
 
-      return { name: 'cjs', buildCtx };
-    }
+        return { name: 'cjs', buildCtx };
+      }
 
-    return null;
-  }));
+      return null;
+    }),
+  );
 };
 
 const generateShortcuts = (

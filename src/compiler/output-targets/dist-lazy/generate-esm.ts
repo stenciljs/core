@@ -24,7 +24,7 @@ export const generateEsm = async (
       const esmOpts: OutputOptions = {
         banner: generatePreamble(config),
         format: 'es',
-        entryFileNames: '[name].js',
+        entryFileNames: '[name].entry.js',
         assetFileNames: '[name]-[hash][extname]',
         sourcemap: config.sourceMap,
         dir: esmOutput.esmDir,
@@ -56,7 +56,7 @@ export const generateEsm = async (
       const esmOpts: OutputOptions = {
         banner: generatePreamble(config),
         format: 'es',
-        entryFileNames: '[name].js',
+        entryFileNames: '[name].entry.js',
         assetFileNames: '[name]-[hash][extname]',
         sourcemap: config.sourceMap,
         dir: esmEs5Output.esmEs5Dir,

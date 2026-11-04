@@ -15,6 +15,7 @@ import {
 } from '../../bundle/entry-alias-ids';
 import { generateComponentBundles } from '../../entries/component-bundles';
 import { generateModuleGraph } from '../../entries/component-graph';
+import { addTagTransform } from '../../transformers/add-tag-transform';
 import { lazyComponentTransform } from '../../transformers/component-lazy/transform-lazy-component';
 import { removeCollectionImports } from '../../transformers/remove-collection-imports';
 import { rewriteAliasedSourceFileImportPaths } from '../../transformers/rewrite-aliased-paths';
@@ -24,7 +25,6 @@ import { generateEsm } from './generate-esm';
 import { generateEsmBrowser } from './generate-esm-browser';
 import { generateSystem } from './generate-system';
 import { getLazyBuildConditionals } from './lazy-build-conditionals';
-import { addTagTransform } from '../../transformers/add-tag-transform';
 
 export const outputLazy = async (
   config: d.ValidatedConfig,
@@ -73,21 +73,24 @@ export const outputLazy = async (
         generateCjs(config, compilerCtx, buildCtx, rollupBuild, outputTargets),
       ]);
 
-      results.flat().filter(Boolean).forEach((result) => {
-        if (result.name === 'cjs') {
-          buildCtx.commonJsComponentBundle = result.buildCtx.commonJsComponentBundle;
-        } else if (result.name === 'system') {
-          buildCtx.systemComponentBundle = result.buildCtx.systemComponentBundle;
-        } else if (result.name === 'es5') {
-          buildCtx.es5ComponentBundle = result.buildCtx.es5ComponentBundle;
-        } else if (result.name === 'esm') {
-          buildCtx.esmComponentBundle = result.buildCtx.esmComponentBundle;
-        } else if (result.name === 'esm-browser') {
-          buildCtx.esmBrowserComponentBundle = result.buildCtx.esmBrowserComponentBundle;
-          buildCtx.buildResults = result.buildCtx.buildResults;
-          buildCtx.components = result.buildCtx.components;
-        }
-      });
+      results
+        .flat()
+        .filter(Boolean)
+        .forEach((result) => {
+          if (result.name === 'cjs') {
+            buildCtx.commonJsComponentBundle = result.buildCtx.commonJsComponentBundle;
+          } else if (result.name === 'system') {
+            buildCtx.systemComponentBundle = result.buildCtx.systemComponentBundle;
+          } else if (result.name === 'es5') {
+            buildCtx.es5ComponentBundle = result.buildCtx.es5ComponentBundle;
+          } else if (result.name === 'esm') {
+            buildCtx.esmComponentBundle = result.buildCtx.esmComponentBundle;
+          } else if (result.name === 'esm-browser') {
+            buildCtx.esmBrowserComponentBundle = result.buildCtx.esmBrowserComponentBundle;
+            buildCtx.buildResults = result.buildCtx.buildResults;
+            buildCtx.components = result.buildCtx.components;
+          }
+        });
 
       if (buildCtx.esmBrowserComponentBundle != null) {
         buildCtx.componentGraph = generateModuleGraph(buildCtx.components, buildCtx.esmBrowserComponentBundle);
@@ -106,6 +109,7 @@ export const outputLazy = async (
  #
  * @param config the Stencil configuration associated with the current build
  * @param compilerCtx the current compiler context
+ * @param buildCtx
  * @returns a collection of transformations that should be applied to the source code, intended for the `before` part
  * of the pipeline
  */
@@ -171,7 +175,7 @@ function generateEntryModules(config: d.ValidatedConfig, buildCtx: d.BuildCtx): 
 function createEntryModule(cmps: d.ComponentCompilerMeta[]): d.EntryModule {
   // generate a unique entry key based on the components within this entry module
   cmps = sortBy(cmps, (c) => c.tagName);
-  const entryKey = cmps.map((c) => c.tagName).join('.') + '.entry';
+  const entryKey = cmps.map((c) => c.tagName).join('.');
 
   return {
     cmps,
