@@ -759,7 +759,8 @@ export interface DevServerConfig extends StencilDevServerConfig {
    * reloading updates.
    */
   excludeHmr?: string[];
-  historyApiFallback?: HistoryApiFallback;
+  /** Serve `index` for page requests that match no file (single-page app routes). `null` turns it off. */
+  historyApiFallback?: HistoryApiFallback | null;
   openBrowser?: boolean;
   prerenderConfig?: string;
   protocol?: 'http' | 'https';

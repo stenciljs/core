@@ -49,7 +49,7 @@ export namespace Components {
     }
     interface StencilPlaygroundPreview {
         /**
-          * @default {     files: [],     indexHtml: null,     vdomSignals: false,     signalBacking: false,     globalScriptPath: null,     globalStylePaths: [],   }
+          * @default {     files: [],     indexHtml: null,     vdomSignals: false,     signalBacking: false,     globalScriptPath: null,     globalStylePaths: [],     injectedGlobalStyles: '',   }
          */
         "input": PreviewInput;
     }
@@ -151,7 +151,7 @@ declare namespace LocalJSX {
     }
     interface StencilPlaygroundPreview {
         /**
-          * @default {     files: [],     indexHtml: null,     vdomSignals: false,     signalBacking: false,     globalScriptPath: null,     globalStylePaths: [],   }
+          * @default {     files: [],     indexHtml: null,     vdomSignals: false,     signalBacking: false,     globalScriptPath: null,     globalStylePaths: [],     injectedGlobalStyles: '',   }
          */
         "input"?: PreviewInput;
         "onPreviewResult"?: (event: StencilPlaygroundPreviewCustomEvent<PreviewResult>) => void;

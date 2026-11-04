@@ -60,7 +60,7 @@ interface PlaygroundConfig {
   signalBacking?: boolean;
   globalScript?: string;
   globalStyle?: string;
-  outputTargets?: Array<{ type?: string; input?: string }>;
+  outputTargets?: Array<{ type?: string; input?: string; inject?: string }>;
 }
 
 @Component({
@@ -101,6 +101,7 @@ export class StencilPlayground {
     signalBacking: false,
     globalScriptPath: null,
     globalStylePaths: [],
+    injectedGlobalStyles: '',
   };
   @State() diagnostics: Diagnostic[] = [];
   @State() previewError: string | null = null;
@@ -192,7 +193,7 @@ export class StencilPlayground {
     signalBacking: boolean;
     globalScript?: string;
     globalStyle?: string;
-    outputTargets?: Array<{ type?: string; input?: string }>;
+    outputTargets?: Array<{ type?: string; input?: string; inject?: string }>;
     diagnostics: Diagnostic[];
   }> {
     // Omits `buildOverrides`: it makes the compiler prepend an `@stencil/core/app-data` import,
@@ -265,7 +266,7 @@ export class StencilPlayground {
     let signalBacking = false;
     let globalScriptName: string | undefined;
     let globalStyleName: string | undefined;
-    let globalStyleOutputTargets: string[] = [];
+    let globalStyleOutputTargets: Array<{ input: string; inject?: string }> = [];
     if (configFile) {
       const config = await this.loadConfigOverrides(configFile, sys, transpileSync);
       if (token !== this.compileToken) return;
@@ -275,7 +276,7 @@ export class StencilPlayground {
       globalStyleName = config.globalStyle?.replace(/^\.\//, '');
       globalStyleOutputTargets = (config.outputTargets ?? [])
         .filter((t) => t?.type === 'global-style' && typeof t.input === 'string')
-        .map((t) => t.input!.replace(/^\.\//, ''));
+        .map((t) => ({ input: t.input!.replace(/^\.\//, ''), inject: t.inject }));
       diagnostics.push(...config.diagnostics);
     }
 
@@ -284,10 +285,19 @@ export class StencilPlayground {
     // multiple targets are supported, each compiled and injected independently.
     let globalStyleNames =
       globalStyleOutputTargets.length > 0
-        ? [...new Set(globalStyleOutputTargets)]
+        ? [...new Set(globalStyleOutputTargets.map((t) => t.input))]
         : globalStyleName
           ? [globalStyleName]
           : [];
+    // Which of them also go into every shadow root, as the real build's `inject` option decides
+    // (validate-global-style.ts): an explicit target only with `inject: 'client'` or `'all'`; the
+    // legacy `globalStyle` and the auto-detected `global.css` default to `'client'`.
+    const isInjected = (name: string) =>
+      globalStyleOutputTargets.length > 0
+        ? globalStyleOutputTargets.some(
+            (t) => t.input === name && (t.inject === 'client' || t.inject === 'all'),
+          )
+        : true;
 
     // Auto-detect by convention when nothing is explicitly configured, same as the real
     // compiler's `src/global.*` check in validate-config.ts - flattened, since the playground has
@@ -381,6 +391,7 @@ export class StencilPlayground {
     // Unlike a component's `styleUrl` (scoped via a `?tag=...` query, see cssRequests above), a
     // global stylesheet has no tag to scope against - transpiled as-is, it's ordinary unscoped CSS.
     const globalStylePaths: string[] = [];
+    const injectedGlobalStyles: string[] = [];
     for (const name of globalStyleNames) {
       const globalStyleFile = sourceFiles.find((f) => f.name === name);
       if (!globalStyleFile) continue;
@@ -399,6 +410,7 @@ export class StencilPlayground {
       if (result.diagnostics.length === 0) {
         compiled.push({ virtualPath: name, code: result.code, componentTags: [] });
         globalStylePaths.push(name);
+        if (isInjected(name)) injectedGlobalStyles.push(content);
       }
     }
     const globalScriptPath =
@@ -416,6 +428,7 @@ export class StencilPlayground {
         signalBacking,
         globalScriptPath,
         globalStylePaths,
+        injectedGlobalStyles: injectedGlobalStyles.join('\n'),
       };
     }
     this.jsxTypesDts = buildIntrinsicElementsDts(
