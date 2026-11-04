@@ -391,6 +391,24 @@ export const defineCustomElements = (opts) => {
         expect(bundleOptions.inputs['my-custom-loader']).toBe('\0loader');
       });
 
+      it('exports the platform setters, and maps tags when start() runs, so setters called before start() apply', () => {
+        buildCtx.components = [stubComponentCompilerMeta()];
+        const outputTarget = config.outputTargets[0] as OutputTargetStandalone;
+        outputTarget.autoLoader = { fileName: 'loader', autoStart: false };
+
+        const bundleOptions = getBundleOptions(config, buildCtx, compilerCtx, outputTarget);
+        addStandaloneInputs(config, buildCtx, bundleOptions, outputTarget);
+
+        const loaderContent = bundleOptions.loader['\0loader'];
+        expect(loaderContent).toContain(
+          `export { setNonce, setRegistry, setTagTransformer, setPlatformOptions } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';`,
+        );
+        const startBody = loaderContent.slice(loaderContent.indexOf('export function start('));
+        expect(startBody).toContain(
+          'lookup = Object.fromEntries(tags.map(t => [transformTag(t), t]));',
+        );
+      });
+
       it('exports setAssetPath from the loader module so it is usable via a bundler, not just a CDN <script> tag', () => {
         const component = stubComponentCompilerMeta({
           assetsDirs: [

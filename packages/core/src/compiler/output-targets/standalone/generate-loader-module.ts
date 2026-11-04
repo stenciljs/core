@@ -40,6 +40,9 @@ export const generateLoaderModule = (
 
   return /* js */ `
 import { transformTag, getRegistry } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';
+// The same platform setters as the output's index.js. With \`autoStart: false\`, call them before
+// start() - e.g. setRegistry() for a scoped registry - without importing every component.
+export { setNonce, setRegistry, setTagTransformer, setPlatformOptions } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';
 ${assetPathImport}${assetPathInit}
 
 /**
@@ -49,9 +52,9 @@ const tags = [${tagsList}];
 
 /**
  * Maps transformed tag names to original tag names.
- * Built at runtime to account for any tag transformers set via setTagTransformer().
+ * Built in start(), so it accounts for a tag transformer set via setTagTransformer() before then.
  */
-const lookup = Object.fromEntries(tags.map(t => [transformTag(t), t]));
+let lookup = {};
 
 /**
  * Set of tags that have already been loaded/registered.
@@ -200,6 +203,7 @@ ${switchCases}
 export function start(root = document.body) {
   // Capture registry once so all lazy loads in this session use the same one
   reg = getRegistry();
+  lookup = Object.fromEntries(tags.map(t => [transformTag(t), t]));
 
   // Disconnect any existing observer
   if (observer) {
