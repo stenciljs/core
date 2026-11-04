@@ -79,7 +79,12 @@ const parseMethodDecorator = (
     ts.SignatureKind.Call,
   );
 
-  if (!config._isTesting) {
+  // An `async` method always returns a Promise. Checked from the syntax as well as the type:
+  // `transpileSync()`'s single-file program has no lib.d.ts, so there the checker can't resolve
+  // `Promise` and an async method's return type isn't recognized as one.
+  const isAsync = !!method.modifiers?.some((m) => m.kind === ts.SyntaxKind.AsyncKeyword);
+
+  if (!config._isTesting && !isAsync) {
     if (returnString === 'void') {
       const warn = buildWarn(diagnostics);
       warn.header = '@Method requires async';
