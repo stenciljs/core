@@ -1,5 +1,6 @@
 import { normalizePath } from '@utils';
 import postcss from 'postcss';
+// @ts-expect-error - including `@types` for postcss-safe-parser breaks Stencil's type build
 import postcssSafeParser from 'postcss-safe-parser';
 import postcssSelectorParser from 'postcss-selector-parser';
 import ts from 'typescript';
