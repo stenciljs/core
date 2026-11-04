@@ -69,7 +69,7 @@ export const optimizeModule = async (
 
   if (opts.sourceTarget === 'es5' || opts.minify) {
     minifyOpts = getTerserOptions(config, opts.sourceTarget, isDebug);
-    if (config.sourceMap) {
+    if (config.sourceMapJs) {
       minifyOpts.sourceMap = {
         content:
           // We need to loosely check for a source map definition
@@ -144,7 +144,7 @@ export const getTerserOptions = (
     ie8: false,
     safari10: false,
     format: {},
-    sourceMap: config.sourceMap,
+    sourceMap: config.sourceMapJs,
   };
 
   if (sourceTarget === 'es5') {

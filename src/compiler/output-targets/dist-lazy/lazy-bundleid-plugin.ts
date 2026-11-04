@@ -43,7 +43,7 @@ export const lazyBundleIdPlugin = (
 
       // For browser builds, loader entries are skipped by writeLazyEntry
       // So we need to delete their sourcemaps to avoid orphaned files
-      if (isBrowserBuild && config.sourceMap) {
+      if (isBrowserBuild && config.sourceMapJs) {
         for (const [key, file] of files) {
           if (file.type === 'chunk' && file.isEntry && file.name === 'loader') {
             const mapFileName = key + '.map';
@@ -64,7 +64,7 @@ export const lazyBundleIdPlugin = (
         map.set(file.fileName, newFileName);
 
         // If we're renaming the file, mark the old sourcemap for deletion
-        if (file.fileName !== newFileName && config.sourceMap) {
+        if (file.fileName !== newFileName && config.sourceMapJs) {
           const oldMapFileName = file.fileName + '.map';
           if (bundle[oldMapFileName]) {
             filesToDelete.push(oldMapFileName);
@@ -99,7 +99,7 @@ export const lazyBundleIdPlugin = (
         });
         file.code = magicString.toString();
 
-        if (config.sourceMap && file.map) {
+        if (config.sourceMapJs && file.map) {
           // Update the file name in the existing sourcemap,
           // preserving the original mappings
           file.map.file = newFileName;

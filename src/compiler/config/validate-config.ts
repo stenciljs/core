@@ -117,6 +117,7 @@ export const validateConfig = (
   }
 
   const hashFileNames = config.hashFileNames ?? !devMode;
+  const sourceMap = validateSourceMap(config.sourceMap, devMode);
 
   const validatedConfig: ValidatedConfig = {
     devServer: {}, // assign `devServer` before spreading `config`, in the event 'devServer' is not a key on `config`
@@ -135,8 +136,7 @@ export const validateConfig = (
     minifyJs: config.minifyJs ?? !devMode,
     outputTargets: config.outputTargets ?? [],
     rollupConfig: validateRollupConfig(config),
-    sourceMap:
-      config.sourceMap === true || (devMode && (config.sourceMap === 'dev' || typeof config.sourceMap === 'undefined')),
+    ...sourceMap,
     sys: config.sys ?? bootstrapConfig.sys ?? createNodeSys({ logger }),
     testing: config.testing ?? {},
     docs: validateDocs(config, logger),
@@ -297,5 +297,22 @@ export const validateConfig = (
   return {
     config: validatedConfig,
     diagnostics,
+  };
+};
+
+const validateSourceMap = (sourceMap: UnvalidatedConfig['sourceMap'], devMode: boolean) => {
+  if (sourceMap != null && typeof sourceMap === 'object') {
+    return {
+      sourceMap,
+      sourceMapCss: sourceMap.css === true,
+      sourceMapJs: sourceMap.js === true,
+    };
+  }
+
+  const enabled = sourceMap === true || (devMode && (sourceMap === 'dev' || sourceMap == null));
+  return {
+    sourceMap: enabled,
+    sourceMapCss: false,
+    sourceMapJs: enabled,
   };
 };

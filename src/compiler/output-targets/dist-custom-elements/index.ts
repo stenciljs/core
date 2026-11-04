@@ -52,7 +52,7 @@ export const outputCustomElements = async (
     return;
   }
 
-  const bundlingEventMessage = `generate custom elements${config.sourceMap ? ' + source maps' : ''}`;
+  const bundlingEventMessage = `generate custom elements${config.sourceMapJs ? ' + source maps' : ''}`;
   const timespan = buildCtx.createTimeSpan(`${bundlingEventMessage} started`);
 
   await Promise.all(outputTargets.map((target) => bundleCustomElements(config, compilerCtx, buildCtx, target)));
@@ -128,7 +128,7 @@ export const bundleCustomElements = async (
       const rollupOutput = await build.generate({
         banner: generatePreamble(config),
         format: 'esm',
-        sourcemap: config.sourceMap,
+        sourcemap: config.sourceMapJs,
         chunkFileNames: outputTarget.externalRuntime || !config.hashFileNames ? '[name].js' : 'p-[hash].js',
         entryFileNames: '[name].js',
         hoistTransitiveImports: false,
@@ -348,6 +348,7 @@ const getCustomBeforeTransformers = (
     proxy: null,
     style: 'static',
     styleImportData: 'queryparams',
+    sourceMapCss: config.sourceMapCss,
   };
   const customBeforeTransformers = [
     addDefineCustomElementFunctions(compilerCtx, components, outputTarget),

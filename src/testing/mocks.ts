@@ -47,6 +47,8 @@ export function mockValidatedConfig(overrides: Partial<d.ValidatedConfig> = {}):
     packageJsonFilePath: path.join(rootDir, 'package.json'),
     rootDir,
     sourceMap: true,
+    sourceMapCss: false,
+    sourceMapJs: true,
     srcDir: '/src',
     srcIndexHtml: 'src/index.html',
     suppressReservedPublicNameWarnings: false,

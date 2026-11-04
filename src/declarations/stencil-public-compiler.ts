@@ -135,12 +135,12 @@ export interface StencilConfig {
   plugins?: any[];
 
   /**
-   * Generate js source map files for all bundles.
-   * Set to `true` to always generate source maps, `false` to never generate source maps.
-   * Set to `'dev'` to only generate source maps when the `--dev` flag is passed.
+   * Generate source maps for generated JavaScript and CSS. Legacy boolean and
+   * `'dev'` values retain JavaScript behavior; use an object to enable CSS maps
+   * independently.
    * Defaults to `'dev'`.
    */
-  sourceMap?: boolean | 'dev';
+  sourceMap?: SourceMapOption;
 
   /**
    * The srcDir config specifies the directory which should contain the source typescript files
@@ -496,6 +496,8 @@ export type ConfigExtras = ConfigExtrasBase &
   (ConfigExtrasSlotFixes<true, true> | ConfigExtrasSlotFixes<false, boolean>);
 
 export interface Config extends StencilConfig {
+  sourceMapCss?: boolean;
+  sourceMapJs?: boolean;
   buildAppCore?: boolean;
   buildDocs?: boolean;
   configPath?: string;
@@ -513,6 +515,13 @@ export interface Config extends StencilConfig {
   _isValidated?: boolean;
   _isTesting?: boolean;
 }
+
+export interface SourceMapOptions {
+  css?: boolean;
+  js?: boolean;
+}
+
+export type SourceMapOption = boolean | 'dev' | SourceMapOptions;
 
 /**
  * A 'loose' type useful for wrapping an incomplete / possible malformed
@@ -598,7 +607,9 @@ type StrictConfigFields = keyof Pick<
  * validations have occurred at runtime.
  */
 export type ValidatedConfig = RequireFields<Config, StrictConfigFields> & {
-  sourceMap: boolean;
+  sourceMap: boolean | SourceMapOptions;
+  sourceMapCss: boolean;
+  sourceMapJs: boolean;
 };
 
 export interface HydratedFlag {
@@ -1573,7 +1584,8 @@ export interface HotModuleReplacement {
 export interface HmrStyleUpdate {
   styleId: string;
   styleTag: string;
-  styleText: string;
+  styleText: string | string[];
+  styleSourceMap?: string | string[];
 }
 
 export type BuildOnEventRemove = () => boolean;
@@ -2963,6 +2975,7 @@ export interface OptimizeCssInput {
   autoprefixer?: boolean | null | AutoprefixerOptions;
   minify?: boolean;
   sourceMap?: boolean;
+  map?: any;
   resolveUrl?: (url: string) => Promise<string> | string;
 }
 
@@ -2983,6 +2996,7 @@ export type AutoprefixerOptions = Object;
 export interface OptimizeCssOutput {
   output: string;
   diagnostics: Diagnostic[];
+  map?: any;
 }
 
 export interface OptimizeJsInput {
@@ -3228,6 +3242,7 @@ export interface TransformOptions {
   proxy: 'defineproperty' | null;
   style: 'static' | null;
   styleImportData: 'queryparams' | null;
+  sourceMapCss?: boolean;
   target?: string;
 }
 

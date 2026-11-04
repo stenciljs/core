@@ -1,17 +1,19 @@
 import { catchError, createJsVarName, DEFAULT_STYLE_MODE, hasError, isString, normalizePath, resolve } from '@utils';
 import { scopeCss } from '@utils/shadow-css';
 import MagicString from 'magic-string';
+import sourceMapMerge from 'merge-source-map';
 import path from 'path';
 
 import type * as d from '../../declarations';
+import { STENCIL_CORE_ID } from '../bundle/entry-alias-ids';
 import { parseStyleDocs } from '../docs/style-docs';
+import { createCssSourceMap } from '../optimize/minify-css';
 import { optimizeCss } from '../optimize/optimize-css';
+import { TRANSFORM_TAG } from '../transformers/core-runtime-apis';
 import { serializeImportPath } from '../transformers/stencil-import-path';
+import { addTagTransformToCssString } from '../transformers/transform-utils';
 import { getScopeId } from './scope-css';
 import { stripCssComments } from './style-utils';
-import { addTagTransformToCssString } from '../transformers/transform-utils';
-import { TRANSFORM_TAG } from '../transformers/core-runtime-apis';
-import { STENCIL_CORE_ID } from '../bundle/entry-alias-ids';
 
 /**
  * A regular expression for matching CSS import statements
@@ -68,7 +70,8 @@ export const transformCssToEsm = async (input: d.TransformCssToEsmInput): Promis
     autoprefixer: input.autoprefixer,
     input: results.styleText,
     filePath: input.file,
-    minify: true,
+    map: results.styleMap,
+    minify: input.minify !== false,
     sourceMap: input.sourceMap,
   });
 
@@ -77,6 +80,7 @@ export const transformCssToEsm = async (input: d.TransformCssToEsmInput): Promis
     return results;
   }
   results.styleText = optimizeResults.output;
+  results.styleMap = optimizeResults.map;
 
   return generateTransformCssToEsm(input, results);
 };
@@ -121,6 +125,7 @@ const transformCssToEsmModule = (input: d.TransformCssToEsmInput): d.TransformCs
       results.styleText = scopeCss(results.styleText, scopeId, false);
     }
 
+    // Production bundle transforms resolve CSS imports before this function. Keep this fallback for the public transpile API.
     const cssImports = getCssToEsmImports(varNames, results.styleText, input.file, input.mode);
     cssImports.forEach((cssImport) => {
       // remove the original css @imports
@@ -148,6 +153,14 @@ const transformCssToEsmModule = (input: d.TransformCssToEsmInput): d.TransformCs
     catchError(results.diagnostics, e);
   }
 
+  if (input.sourceMap) {
+    results.styleMap = createCssSourceMap(input.input, results.styleText, input.file || 'input.css');
+    const previousMap = parseSourceMap(input.map);
+    if (previousMap) {
+      results.styleMap = mergeSourceMaps(previousMap, results.styleMap);
+    }
+  }
+
   return results;
 };
 
@@ -164,6 +177,7 @@ const generateTransformCssToEsm = (
   results: d.TransformCssToEsmOutput,
 ): d.TransformCssToEsmOutput => {
   const s = new MagicString('');
+  results.styleSourceMap = results.styleMap ? sourceMapToDataUrl(results.styleMap) : undefined;
 
   // Escape backslashes first so the escape sequences added below are not
   // re-escaped afterwards. Escaping backslashes last would turn the
@@ -175,9 +189,9 @@ const generateTransformCssToEsm = (
   // inside a template literal (backticks and dollar-brace).
   results.styleText = results.styleText
     .replace(/\\/g, '\\\\')
-    .replace(/\n/g, ' ')
-    .replace(/\r/g, ' ')
-    .replace(/\t/g, ' ')
+    .replace(/\n/g, input.sourceMap ? '\n' : ' ')
+    .replace(/\r/g, input.sourceMap ? '\r' : ' ')
+    .replace(/\t/g, input.sourceMap ? '\t' : ' ')
     .replace(/\u000c/g, '\\\\f')
     .replace(/\u0008/g, '\\\\b')
     .replace(/\u000b/g, '\\\\v')
@@ -189,10 +203,12 @@ const generateTransformCssToEsm = (
     results.styleText = addTagTransformToCssString(results.styleText, input.tags);
   }
 
-  // Strip CSS comments before embedding in template literal
-  // This includes /** */ and /*! */ comments (Sass loud comments)
-  // Note: Style docs have already been parsed in transformCssToEsmModule
-  results.styleText = stripCssComments(results.styleText);
+  if (!input.sourceMap) {
+    // Strip CSS comments before embedding in template literal
+    // This includes /** */ and /*! */ comments (Sass loud comments)
+    // Note: Style docs have already been parsed in transformCssToEsmModule
+    results.styleText = stripCssComments(results.styleText);
+  }
 
   if (input.module === 'cjs') {
     // CommonJS
@@ -203,14 +219,11 @@ const generateTransformCssToEsm = (
       s.append(`const ${cssImport.varName} = require('${cssImport.importPath}');\n`);
     });
 
-    s.append(`const ${results.defaultVarName} = () => `);
-
-    results.imports.forEach((cssImport) => {
-      s.append(`${cssImport.varName} + `);
-    });
-
-    s.append(`\`${results.styleText}\`;\n`);
+    appendStyleFactory(s, results);
     s.append(`module.exports = ${results.defaultVarName};`);
+    if (input.sourceMap) {
+      s.append(`\nmodule.exports.sourceMap = ${JSON.stringify(results.styleSourceMap) ?? 'undefined'};`);
+    }
   } else {
     // ESM
     if (input.addTagTransformers) {
@@ -220,18 +233,42 @@ const generateTransformCssToEsm = (
       s.append(`import ${cssImport.varName} from '${cssImport.importPath}';\n`);
     });
 
-    s.append(`const ${results.defaultVarName} = () => `);
-
-    results.imports.forEach((cssImport) => {
-      s.append(`${cssImport.varName} + `);
-    });
-
-    s.append(`\`${results.styleText}\`;\n`);
+    appendStyleFactory(s, results);
     s.append(`export default ${results.defaultVarName};`);
+    if (input.sourceMap) {
+      s.append(`\nexport const sourceMap = ${JSON.stringify(results.styleSourceMap) ?? 'undefined'};`);
+    }
   }
 
   results.output = s.toString();
   return results;
+};
+
+const appendStyleFactory = (output: MagicString, results: d.TransformCssToEsmOutput) => {
+  output.append(`const ${results.defaultVarName} = () => `);
+  results.imports.forEach((cssImport) => {
+    output.append(`${cssImport.varName} + `);
+  });
+  output.append(`\`${results.styleText}\`;\n`);
+};
+
+const sourceMapToDataUrl = (sourceMap: d.SourceMap) =>
+  `data:application/json;charset=utf-8;base64,${Buffer.from(JSON.stringify(sourceMap)).toString('base64')}`;
+
+const parseSourceMap = (map?: d.SourceMap | string) => {
+  if (typeof map === 'string') {
+    try {
+      return JSON.parse(map) as d.SourceMap;
+    } catch (e) {
+      return undefined;
+    }
+  }
+  return map;
+};
+
+const mergeSourceMaps = (previousMap: d.SourceMap, nextMap: d.SourceMap) => {
+  // The package maps generated positions in `nextMap` through the original positions in `previousMap`.
+  return sourceMapMerge(previousMap, nextMap) as d.SourceMap;
 };
 
 /**

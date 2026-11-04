@@ -33,8 +33,8 @@ export const getTsOptionsToExtend = (config: d.ValidatedConfig): ts.CompilerOpti
         : ts.ModuleResolutionKind.NodeJs,
     noEmitOnError: config.tsCompilerOptions?.noEmitOnError || false,
     outDir: config.cacheDir || config.sys.tmpDirSync(),
-    sourceMap: config.sourceMap,
-    inlineSources: config.sourceMap,
+    sourceMap: config.sourceMapJs,
+    inlineSources: config.sourceMapJs,
   };
   return tsOptions;
 };

@@ -59,7 +59,7 @@ describe('stencil config - sourceMap option', () => {
     const { config: validatedConfig } = validateConfig(userConfig, {});
     expect(validatedConfig.sourceMap).toBe(true);
 
-    mockTsConfigParser(validatedConfig.sourceMap);
+    mockTsConfigParser(validatedConfig.sourceMapJs);
     const testConfig = getLoadConfigForTests({ config: userConfig });
     const loadConfigResults = await loadConfig(testConfig);
 
@@ -73,7 +73,7 @@ describe('stencil config - sourceMap option', () => {
     const { config: validatedConfig } = validateConfig(userConfig, {});
     expect(validatedConfig.sourceMap).toBe(false);
 
-    mockTsConfigParser(validatedConfig.sourceMap);
+    mockTsConfigParser(validatedConfig.sourceMapJs);
     const testConfig = getLoadConfigForTests({ config: userConfig });
     const loadConfigResults = await loadConfig(testConfig);
 
@@ -87,7 +87,7 @@ describe('stencil config - sourceMap option', () => {
     const { config: validatedConfig } = validateConfig(userConfig, {});
     expect(validatedConfig.sourceMap).toBe(false);
 
-    mockTsConfigParser(validatedConfig.sourceMap);
+    mockTsConfigParser(validatedConfig.sourceMapJs);
     const testConfig = getLoadConfigForTests({ config: userConfig });
     const loadConfigResults = await loadConfig(testConfig);
 
@@ -101,7 +101,7 @@ describe('stencil config - sourceMap option', () => {
     const { config: validatedConfig } = validateConfig(userConfig, {});
     expect(validatedConfig.sourceMap).toBe(true);
 
-    mockTsConfigParser(validatedConfig.sourceMap);
+    mockTsConfigParser(validatedConfig.sourceMapJs);
     const testConfig = getLoadConfigForTests({ config: userConfig });
     const loadConfigResults = await loadConfig(testConfig);
 
@@ -115,7 +115,7 @@ describe('stencil config - sourceMap option', () => {
     const { config: validatedConfig } = validateConfig(userConfig, {});
     expect(validatedConfig.sourceMap).toBe(true);
 
-    mockTsConfigParser(validatedConfig.sourceMap);
+    mockTsConfigParser(validatedConfig.sourceMapJs);
     const testConfig = getLoadConfigForTests({ config: userConfig });
     const loadConfigResults = await loadConfig(testConfig);
 
@@ -129,12 +129,39 @@ describe('stencil config - sourceMap option', () => {
     const { config: validatedConfig } = validateConfig(userConfig, {});
     expect(validatedConfig.sourceMap).toBe(false);
 
-    mockTsConfigParser(validatedConfig.sourceMap);
+    mockTsConfigParser(validatedConfig.sourceMapJs);
     const testConfig = getLoadConfigForTests({ config: userConfig });
     const loadConfigResults = await loadConfig(testConfig);
 
     const { sourceMap, inlineSources } = loadConfigResults.config.tsCompilerOptions;
     expect(sourceMap).toBe(false);
     expect(inlineSources).toBe(false);
+  });
+
+  it('enables only CSS source maps when configured with css', () => {
+    const userConfig: d.UnvalidatedConfig = { sourceMap: { css: true }, devMode: false };
+    const { config: validatedConfig } = validateConfig(userConfig, {});
+
+    expect(validatedConfig.sourceMap).toEqual({ css: true });
+    expect(validatedConfig.sourceMapCss).toBe(true);
+    expect(validatedConfig.sourceMapJs).toBe(false);
+  });
+
+  it('enables only JavaScript source maps when configured with js', () => {
+    const userConfig: d.UnvalidatedConfig = { sourceMap: { js: true }, devMode: false };
+    const { config: validatedConfig } = validateConfig(userConfig, {});
+
+    expect(validatedConfig.sourceMap).toEqual({ js: true });
+    expect(validatedConfig.sourceMapCss).toBe(false);
+    expect(validatedConfig.sourceMapJs).toBe(true);
+  });
+
+  it('keeps legacy boolean source maps enabled for JavaScript only', () => {
+    const userConfig: d.UnvalidatedConfig = { sourceMap: true, devMode: false };
+    const { config: validatedConfig } = validateConfig(userConfig, {});
+
+    expect(validatedConfig.sourceMap).toBe(true);
+    expect(validatedConfig.sourceMapCss).toBe(false);
+    expect(validatedConfig.sourceMapJs).toBe(true);
   });
 });

@@ -23,7 +23,7 @@ export const generateSystem = async (
       entryFileNames: config.hashFileNames ? 'p-[hash].system.js' : '[name].system.js',
       chunkFileNames: config.hashFileNames ? 'p-[hash].system.js' : '[name]-[hash].system.js',
       assetFileNames: config.hashFileNames ? 'p-[hash][extname]' : '[name]-[hash][extname]',
-      sourcemap: config.sourceMap,
+      sourcemap: config.sourceMapJs,
       plugins: [lazyBundleIdPlugin(buildCtx, config, config.hashFileNames, '.system', true)],
     };
     const results = await generateRollupOutput(rollupBuild, esmOpts, config, buildCtx.entryModules);

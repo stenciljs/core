@@ -36,11 +36,26 @@ export const hmrInlineStyles = (elm: Element, versionId: string, stylesUpdatedDa
 
 const hmrStyleElement = (elm: Element, versionId: string, stylesUpdated: HmrStyleUpdate) => {
   const styleId = elm.getAttribute('sty-id');
-  if (styleId === stylesUpdated.styleId && stylesUpdated.styleText) {
+  const styleIndex = Number(elm.getAttribute('data-style-index') || 0);
+  const styleText = Array.isArray(stylesUpdated.styleText)
+    ? stylesUpdated.styleText[styleIndex]
+    : stylesUpdated.styleText;
+  const sourceMap = Array.isArray(stylesUpdated.styleSourceMap)
+    ? stylesUpdated.styleSourceMap[styleIndex]
+    : stylesUpdated.styleSourceMap;
+  if (styleId === stylesUpdated.styleId && styleText != null) {
     // if we made it this far then it's a match!
     // update the new style text
-    elm.innerHTML = stylesUpdated.styleText.replace(/\\n/g, '\n');
+    elm.innerHTML = appendStyleSourceMap(styleText.replace(/\\n/g, '\n'), sourceMap);
     // TODO(STENCIL-958): determine if we need to set this attribute
     elm.setAttribute('data-hmr', versionId);
   }
+};
+
+const appendStyleSourceMap = (styleText: string, sourceMap?: string) => {
+  const withoutSourceMap = styleText.replace(/\s*\/\*[#@]\s*sourceMappingURL=[^*]*\*\/\s*$/i, '');
+  if (!sourceMap) {
+    return withoutSourceMap;
+  }
+  return `${withoutSourceMap}\n/*# sourceMappingURL=${sourceMap} */`;
 };

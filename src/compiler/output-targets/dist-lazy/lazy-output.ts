@@ -36,7 +36,7 @@ export const outputLazy = async (
     return;
   }
 
-  const bundleEventMessage = `generate lazy${config.sourceMap ? ' + source maps' : ''}`;
+  const bundleEventMessage = `generate lazy${config.sourceMapJs ? ' + source maps' : ''}`;
   const timespan = buildCtx.createTimeSpan(`${bundleEventMessage} started`);
 
   try {
@@ -121,6 +121,7 @@ const getCustomBeforeTransformers = (
     proxy: null,
     style: 'static',
     styleImportData: 'queryparams',
+    sourceMapCss: config.sourceMapCss,
   };
   const customBeforeTransformers = [updateStencilCoreImports(transformOpts.coreImportPath)];
 

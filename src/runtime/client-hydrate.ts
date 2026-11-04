@@ -120,10 +120,12 @@ export const initializeClientHydrate = (
           cmpMeta.$cmpMeta$,
           BUILD.mode ? childRenderNode.$elm$.getAttribute('s-mode') : undefined,
         );
-        const styleSheet = win.document.querySelector(`style[sty-id="${scopeId}"]`);
+        const styleSheets = win.document.querySelectorAll(`style[sty-id="${scopeId}"]`);
 
-        if (styleSheet) {
-          shadowRootNodes.unshift(styleSheet.cloneNode(true) as d.RenderNode);
+        if (styleSheets.length) {
+          shadowRootNodes.unshift(
+            ...Array.from(styleSheets, (styleSheet) => styleSheet.cloneNode(true) as d.RenderNode),
+          );
         }
       }
     }

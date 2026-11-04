@@ -19,11 +19,32 @@ import { parseImportPath } from '../transformers/stencil-import-path';
  * }
  * ```
  *
- * Whenever one of the files change, we can propagate a correct concatenated
- * version of all styles to the browser by setting `buildCtx.stylesUpdated`.
+ * Whenever one of the files changes, we can propagate the complete ordered
+ * style list and its matching source maps to the browser via `buildCtx.stylesUpdated`.
  */
-type ComponentStyleMap = Map<string, string>;
+type ComponentStyle = {
+  styleText: string;
+  styleSourceMap?: string;
+};
+type ComponentStyleMap = Map<string, ComponentStyle>;
 const allCmpStyles = new Map<string, ComponentStyleMap>();
+
+const getComponentStyleEntries = (
+  cmpStyles: ComponentStyleMap | undefined,
+  externalStyles: d.ExternalStyleCompiler[] | undefined,
+  fallbackStyle: ComponentStyle,
+): Array<ComponentStyle | undefined> => {
+  if (!cmpStyles) {
+    return [fallbackStyle];
+  }
+  if (!externalStyles) {
+    return [...cmpStyles.values()];
+  }
+
+  return externalStyles.map((externalStyle) => {
+    return cmpStyles.get(externalStyle.originalComponentPath) || cmpStyles.get(externalStyle.absolutePath);
+  });
+};
 
 /**
  * A Rollup plugin which bundles up some transformation of CSS imports as well
@@ -128,7 +149,8 @@ export const extTransformsPlugin = (
           addTagTransformers: !!buildCtx.config.extras.additionalTagTransformers,
           encapsulation: data.encapsulation,
           mode: data.mode,
-          sourceMap: config.sourceMap,
+          sourceMap: config.sourceMapCss,
+          map: pluginTransforms.map,
           minify: config.minifyCss,
           autoprefixer: config.autoprefixCss,
           docs: config.buildDocs,
@@ -138,7 +160,10 @@ export const extTransformsPlugin = (
          * persist component styles for transformed stylesheet
          */
         if (cmpStyles) {
-          cmpStyles.set(filePath, cssTransformResults.styleText);
+          cmpStyles.set(filePath, {
+            styleText: cssTransformResults.styleText,
+            styleSourceMap: cssTransformResults.styleSourceMap,
+          });
         }
 
         // Set style docs
@@ -170,35 +195,27 @@ export const extTransformsPlugin = (
         if (!hasUpdatedStyle && data.tag && data.mode) {
           const externalStyles = cmp?.styles?.[0]?.externalStyles;
 
-          /**
-           * if component has external styles, use a list to keep the order to which
-           * styles are applied.
-           */
-          const styleText = cmpStyles
-            ? externalStyles
-              ? /**
-                 * attempt to find the original `filePath` key through `originalComponentPath`
-                 * and `absolutePath` as path can differ based on how Stencil is installed
-                 * e.g. through `npm link` or `npm install`
-                 */
-                externalStyles
-                  .map((es) => cmpStyles.get(es.originalComponentPath) || cmpStyles.get(es.absolutePath))
-                  .join('\n')
-              : /**
-                 * if `externalStyles` is not defined, then created the style text in the
-                 * order of which the styles were compiled.
-                 */
-                [...cmpStyles.values()].join('\n')
-            : /**
-               * if `cmpStyles` is not defined, then use the style text from the transform
-               * as it is not connected to a component.
-               */
-              cssTransformResults.styleText;
+          const styleEntries = getComponentStyleEntries(cmpStyles, externalStyles, {
+            styleText: cssTransformResults.styleText,
+            styleSourceMap: cssTransformResults.styleSourceMap,
+          });
+          const separateStyles = config.sourceMapCss && styleEntries.length > 1;
+          const styleText = separateStyles
+            ? styleEntries.map((entry) => entry?.styleText || '')
+            : styleEntries.map((entry) => entry?.styleText || '').join('\n');
+          const styleSourceMap = !config.sourceMapCss
+            ? undefined
+            : styleEntries.length === 1
+              ? styleEntries[0]?.styleSourceMap
+              : styleEntries.every((entry) => entry?.styleSourceMap != null)
+                ? styleEntries.map((entry) => entry.styleSourceMap!)
+                : undefined;
 
           buildCtx.stylesUpdated.push({
             styleTag: data.tag,
             styleMode: data.mode,
             styleText,
+            styleSourceMap,
           });
         }
 

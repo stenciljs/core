@@ -12,6 +12,7 @@ jest.mock('@utils/shadow-css', () => {
 
 import { mockBuildCtx } from '@stencil/core/testing';
 import ts from 'typescript';
+
 import type * as d from '../../../declarations';
 import {
   addStaticStyleGetterWithinClass,
@@ -114,6 +115,44 @@ describe('add-static-style', () => {
       const output = printer.printNode(ts.EmitHint.Unspecified, getter, sourceFile);
       expect(output).toContain('static get style()');
       expect(output).toContain('md: MyComponentMdStyle0');
+    });
+
+    it('should expose a CSS source map getter for external style URLs', () => {
+      const classMembers: ts.ClassElement[] = [];
+      (buildCtx.config as any).sourceMapCss = true;
+      mockComponent.styles = [
+        {
+          modeName: 'md',
+          externalStyles: [{ absolutePath: '/path/to/style.css' }],
+        } as d.StyleCompiler,
+      ];
+
+      addStaticStyleGetterWithinClass(classMembers, mockComponent, buildCtx);
+
+      const output = classMembers
+        .map((member) => printer.printNode(ts.EmitHint.Unspecified, member, sourceFile))
+        .join('\n');
+      expect(output).toContain('static get sourceMap()');
+      expect(output).toContain('MyComponentMdStyleSourceMap0');
+    });
+
+    it('should expose one source map per external style URL', () => {
+      const classMembers: ts.ClassElement[] = [];
+      (buildCtx.config as any).sourceMapCss = true;
+      mockComponent.styles = [
+        {
+          modeName: 'md',
+          externalStyles: [{ absolutePath: '/path/to/style1.css' }, { absolutePath: '/path/to/style2.css' }],
+        } as d.StyleCompiler,
+      ];
+
+      addStaticStyleGetterWithinClass(classMembers, mockComponent, buildCtx);
+
+      const output = classMembers
+        .map((member) => printer.printNode(ts.EmitHint.Unspecified, member, sourceFile))
+        .join('\n');
+      expect(output).toContain('md: [MyComponentMdStyleSourceMap0, MyComponentMdStyleSourceMap1]');
+      expect(output).not.toContain('length:');
     });
 
     it('should add static style getter for direct style identifier', () => {
@@ -336,21 +375,20 @@ describe('add-static-style', () => {
       expect(ts.isCallExpression(result)).toBe(true);
     });
 
-    it('should create binary expression for multiple external styles', () => {
+    it('should create an array for two external styles', () => {
       const style: d.StyleCompiler = {
         modeName: 'md',
         externalStyles: [{ absolutePath: '/path/to/style1.css' }, { absolutePath: '/path/to/style2.css' }],
       } as d.StyleCompiler;
 
-      const result = createStyleIdentifier(mockComponent, style);
+      const result = createStyleIdentifier(mockComponent, style, { separateStyles: true });
 
       expect(style.styleIdentifier).toBe('MyComponentMdStyle');
-      // MyComponentMdStyle0() + MyComponentMdStyle1()
-      expect(ts.isBinaryExpression(result)).toBe(true);
+      expect(ts.isArrayLiteralExpression(result)).toBe(true);
 
       // Check actual output
       const output = printer.printNode(ts.EmitHint.Unspecified, result, sourceFile);
-      expect(output).toBe('MyComponentMdStyle0() + MyComponentMdStyle1()');
+      expect(output).toBe('[MyComponentMdStyle0(), MyComponentMdStyle1()]');
     });
 
     it('should handle component with dashes in tag name', () => {
@@ -379,7 +417,7 @@ describe('add-static-style', () => {
       expect(ts.isCallExpression(result)).toBe(true);
     });
 
-    it('should handle multiple external styles with complex binary expression', () => {
+    it('should create an array for three external styles', () => {
       const style: d.StyleCompiler = {
         modeName: 'ios',
         externalStyles: [
@@ -389,30 +427,14 @@ describe('add-static-style', () => {
         ],
       } as d.StyleCompiler;
 
-      const result = createStyleIdentifier(mockComponent, style);
+      const result = createStyleIdentifier(mockComponent, style, { separateStyles: true });
 
       expect(style.styleIdentifier).toBe('MyComponentIosStyle');
-      // MyComponentIosStyle0() + MyComponentIosStyle1() + MyComponentIosStyle2()
-      expect(ts.isBinaryExpression(result)).toBe(true);
-
-      let binaryExpr = result as ts.BinaryExpression;
-      expect(binaryExpr.operatorToken.kind).toBe(ts.SyntaxKind.PlusToken);
-      // Check that the right side is also a binary expression (nested)
-      let rightBinary = binaryExpr.right;
-      // If rightBinary is a CallExpression, check if its callee is a ParenthesizedExpression wrapping a BinaryExpression
-      if (ts.isCallExpression(rightBinary)) {
-        const callExpr = rightBinary;
-        if (ts.isParenthesizedExpression(callExpr.expression)) {
-          const inner = callExpr.expression.expression;
-          if (ts.isBinaryExpression(inner)) {
-            rightBinary = inner;
-          }
-        }
-      }
+      expect(ts.isArrayLiteralExpression(result)).toBe(true);
 
       // Check actual output
       const output = printer.printNode(ts.EmitHint.Unspecified, result, sourceFile);
-      expect(output).toBe('MyComponentIosStyle0() + (MyComponentIosStyle1() + MyComponentIosStyle2())');
+      expect(output).toBe('[MyComponentIosStyle0(), MyComponentIosStyle1(), MyComponentIosStyle2()]');
     });
   });
 

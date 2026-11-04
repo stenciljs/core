@@ -41,7 +41,7 @@ export const outputCollection = async (
   const collectionModuleFiles = changedModuleFiles.filter(
     (mod) => config.devMode || !mod.cmps.some((cmp) => shouldExcludeComponent(cmp.tagName, config.excludeComponents)),
   );
-  const bundlingEventMessage = `generate collections${config.sourceMap ? ' + source maps' : ''}`;
+  const bundlingEventMessage = `generate collections${config.sourceMapJs ? ' + source maps' : ''}`;
   const timespan = buildCtx.createTimeSpan(`${bundlingEventMessage} started`, true);
   try {
     await Promise.all(

@@ -4,7 +4,7 @@ import ts from 'typescript';
 
 import type * as d from '../../../declarations';
 import { getScopeId } from '../../style/scope-css';
-import { createStyleIdentifier } from '../add-static-style';
+import { createStyleIdentifier, createStyleSourceMapLiteral } from '../add-static-style';
 import { addTagTransformToCssTsAST, createStaticGetter } from '../transform-utils';
 
 export const addNativeStaticStyle = (
@@ -48,7 +48,7 @@ const addMultipleModeStyleGetter = (
       // import generated from @Component() styleUrls option
       // import myTagIosStyle from './import-path.css';
       // static get style() { return { "ios": myTagIosStyle }; }
-      const styleUrlIdentifier = createStyleIdentifier(cmp, style);
+      const styleUrlIdentifier = createStyleIdentifier(cmp, style, { separateStyles: buildCtx.config.sourceMapCss });
       const propUrlIdentifier = ts.factory.createPropertyAssignment(style.modeName, styleUrlIdentifier);
       styleModes.push(propUrlIdentifier);
     } else if (typeof style.styleIdentifier === 'string') {
@@ -64,6 +64,10 @@ const addMultipleModeStyleGetter = (
   const styleObj = ts.factory.createObjectLiteralExpression(styleModes, true);
 
   classMembers.push(createStaticGetter('style', styleObj));
+  const sourceMapLiteral = createStyleSourceMapLiteral(cmp, buildCtx);
+  if (sourceMapLiteral) {
+    classMembers.push(createStaticGetter('sourceMap', sourceMapLiteral));
+  }
 };
 
 const addSingleStyleGetter = (
@@ -83,18 +87,30 @@ const addSingleStyleGetter = (
     // static get style() { return "string"; }
     const styleLiteral = createStyleLiteral(cmp, style, buildCtx);
     classMembers.push(createStaticGetter('style', styleLiteral));
+    const sourceMapLiteral = createStyleSourceMapLiteral(cmp, buildCtx);
+    if (sourceMapLiteral) {
+      classMembers.push(createStaticGetter('sourceMap', sourceMapLiteral));
+    }
   } else if (Array.isArray(style.externalStyles) && style.externalStyles.length > 0) {
     // import generated from @Component() styleUrls option
     // import myTagStyle from './import-path.css';
     // static get style() { return myTagStyle; }
-    const styleUrlIdentifier = createStyleIdentifier(cmp, style);
+    const styleUrlIdentifier = createStyleIdentifier(cmp, style, { separateStyles: buildCtx.config.sourceMapCss });
     classMembers.push(createStaticGetter('style', styleUrlIdentifier));
+    const sourceMapLiteral = createStyleSourceMapLiteral(cmp, buildCtx);
+    if (sourceMapLiteral) {
+      classMembers.push(createStaticGetter('sourceMap', sourceMapLiteral));
+    }
   } else if (typeof style.styleIdentifier === 'string') {
     // direct import already written in the source code
     // import myTagStyle from './import-path.css';
     // static get style() { return myTagStyle; }
     const styleIdentifier = ts.factory.createIdentifier(style.styleIdentifier);
     classMembers.push(createStaticGetter('style', styleIdentifier));
+    const sourceMapLiteral = createStyleSourceMapLiteral(cmp, buildCtx);
+    if (sourceMapLiteral) {
+      classMembers.push(createStaticGetter('sourceMap', sourceMapLiteral));
+    }
   }
 };
 

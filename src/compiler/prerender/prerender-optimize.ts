@@ -242,7 +242,7 @@ export const hashAssets = async (
 
           let css = await sys.readFile(filePath);
           if (isString(css) && css.length > 0) {
-            css = await minifyCss({
+            const minifyResult = await minifyCss({
               css,
               async resolveUrl(urlProp) {
                 const assetUrl = new URL(urlProp, stylesheetUrl);
@@ -251,6 +251,7 @@ export const hashAssets = async (
                 return assetUrl.pathname + assetUrl.search;
               },
             });
+            css = typeof minifyResult === 'string' ? minifyResult : minifyResult.output;
             sys.writeFileSync(filePath, css);
           }
         } catch (e: any) {

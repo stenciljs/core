@@ -157,7 +157,7 @@ export const getRollupOptions = (
       resolveIdWithTypeScript(config, compilerCtx),
       rollupCommonjsPlugin({
         include: /node_modules/,
-        sourceMap: config.sourceMap,
+        sourceMap: config.sourceMapJs,
         transformMixedEsModules: false,
         ...config.commonjs,
       }),

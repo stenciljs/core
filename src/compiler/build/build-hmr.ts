@@ -50,6 +50,7 @@ export const generateHmr = (config: d.Config, compilerCtx: d.CompilerCtx, buildC
           styleId: getScopeId(s.styleTag, s.styleMode),
           styleTag: s.styleTag,
           styleText: s.styleText,
+          styleSourceMap: s.styleSourceMap,
         } as d.HmrStyleUpdate;
       }),
       (s) => s.styleId,

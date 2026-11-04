@@ -11,13 +11,15 @@ export const optimizeCss = async (
   // TODO(STENCIL-1076): Investigate removing this parameter, which appears to be unused. This function is exported by
   // the compiler, making this a breaking change should we remove it.
   filePath: string,
+  returnMap = false,
+  map?: d.SourceMap | string,
 ) => {
   if (typeof styleText !== 'string' || !styleText.length) {
     //  don't bother with invalid data
     return styleText;
   }
 
-  if ((config.autoprefixCss === false || config.autoprefixCss === null) && !config.minifyCss) {
+  if ((config.autoprefixCss === false || config.autoprefixCss === null) && !config.minifyCss && !config.sourceMapCss) {
     // don't wanna autoprefix or minify, so just skip this
     return styleText;
   }
@@ -31,12 +33,22 @@ export const optimizeCss = async (
     filePath: filePath,
     autoprefixer: config.autoprefixCss,
     minify: config.minifyCss,
+    map,
+    sourceMap: config.sourceMapCss,
   };
 
   const cacheKey = await compilerCtx.cache.createKey('optimizeCss', optimizeCssId, opts);
   const cachedContent = await compilerCtx.cache.get(cacheKey);
   if (cachedContent != null) {
     // let's use the cached data we already figured out
+    if (returnMap && config.sourceMapCss) {
+      const cachedMap = await compilerCtx.cache.get(cacheKey + 'Map');
+      return {
+        output: cachedContent,
+        diagnostics: [],
+        map: cachedMap ? JSON.parse(cachedMap) : undefined,
+      };
+    }
     return cachedContent;
   }
 
@@ -51,8 +63,11 @@ export const optimizeCss = async (
 
     // only cache if we got a cache key, if not it probably has an @import
     await compilerCtx.cache.put(cacheKey, minifyResults.output);
+    if (minifyResults.map) {
+      await compilerCtx.cache.put(cacheKey + 'Map', JSON.stringify(minifyResults.map));
+    }
 
-    return minifyResults.output;
+    return returnMap ? minifyResults : minifyResults.output;
   }
 
   return styleText;

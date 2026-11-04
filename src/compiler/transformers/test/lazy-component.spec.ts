@@ -156,6 +156,33 @@ describe('lazy-component', () => {
       ),
     );
 
+    it('emits CSS source-map metadata alongside an external style import', () => {
+      const buildCtx = mockBuildCtx();
+      (buildCtx.config as any).sourceMapCss = true;
+      const transformOpts: d.TransformOptions = {
+        coreImportPath: '@stencil/core',
+        componentExport: 'lazy',
+        componentMetadata: null,
+        currentDirectory: '/',
+        proxy: null,
+        style: 'static',
+        styleImportData: null,
+        sourceMapCss: true,
+      };
+
+      const transformer = lazyComponentTransform(buildCtx.compilerCtx, transformOpts, buildCtx);
+      const t = transpileModule(
+        `@Component({ tag: 'cmp-a', styleUrl: 'cmp-a.css' }) export class CmpA {}`,
+        null,
+        buildCtx.compilerCtx,
+        [],
+        [transformer],
+      );
+
+      expect(t.outputText).toContain('sourceMap as CmpAStyleSourceMap0');
+      expect(t.outputText).toContain('CmpA.sourceMap = CmpAStyleSourceMap0');
+    });
+
     // eslint-disable-next-line jest/expect-expect
     it(
       'using `styleUrls` parameter as object',

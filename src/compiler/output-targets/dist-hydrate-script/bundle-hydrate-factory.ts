@@ -77,6 +77,7 @@ const getCustomBeforeTransformers = (
     proxy: null,
     style: 'static',
     styleImportData: 'queryparams',
+    sourceMapCss: config.sourceMapCss,
   };
   const customBeforeTransformers = [updateStencilCoreImports(transformOpts.coreImportPath)];
 

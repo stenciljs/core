@@ -63,6 +63,7 @@ export const STATIC_GETTER_NAMES = [
   'slotAssignment',
   'states',
   'style',
+  'sourceMap',
   'styleMode',
   'styleUrl',
   'styleUrls',

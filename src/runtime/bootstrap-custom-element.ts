@@ -159,10 +159,11 @@ export const forceModeUpdate = (elm: d.RenderNode) => {
       const oldScopeId = elm['s-sc'];
       const scopeId = getScopeId(cmpMeta, mode);
       const style = (elm.constructor as any).style[mode];
+      const sourceMap = (elm.constructor as any).sourceMap?.[mode];
       const flags = cmpMeta.$flags$;
       if (style) {
         if (!styles.has(scopeId)) {
-          registerStyle(scopeId, style, !!(flags & CMP_FLAGS.shadowDomEncapsulation));
+          registerStyle(scopeId, style, !!(flags & CMP_FLAGS.shadowDomEncapsulation), sourceMap);
         }
         hostRef.$modeName$ = mode;
         elm.classList.remove(oldScopeId + '-h', oldScopeId + '-s');

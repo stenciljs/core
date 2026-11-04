@@ -22,7 +22,7 @@ export const generateEsm = async (
       format: 'es',
       entryFileNames: '[name].js',
       assetFileNames: '[name]-[hash][extname]',
-      sourcemap: config.sourceMap,
+      sourcemap: config.sourceMapJs,
       plugins: [lazyBundleIdPlugin(buildCtx, config, false, '')],
     };
     const outputTargetType = esmOutputs[0].type;

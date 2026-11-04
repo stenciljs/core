@@ -22,7 +22,7 @@ export const generateEsmBrowser = async (
       entryFileNames: '[name].esm.js',
       chunkFileNames: config.hashFileNames ? 'p-[hash].js' : '[name]-[hash].js',
       assetFileNames: config.hashFileNames ? 'p-[hash][extname]' : '[name]-[hash][extname]',
-      sourcemap: config.sourceMap,
+      sourcemap: config.sourceMapJs,
       plugins: [lazyBundleIdPlugin(buildCtx, config, config.hashFileNames, '', true)],
     };
 

@@ -1,4 +1,30 @@
+import { hmrInlineStyles } from '../hmr-inline-styles';
 import { getHmrHref, updateCssUrlValue } from '../hmr-util';
+
+describe('hmrInlineStyles', () => {
+  it('updates separate style elements with their individual source maps', () => {
+    const container = document.createElement('div');
+    const firstStyle = document.createElement('style');
+    const secondStyle = document.createElement('style');
+    firstStyle.setAttribute('sty-id', 'sc-cmp-a');
+    secondStyle.setAttribute('sty-id', 'sc-cmp-a');
+    firstStyle.setAttribute('data-style-index', '0');
+    secondStyle.setAttribute('data-style-index', '1');
+    container.append(firstStyle, secondStyle);
+
+    hmrInlineStyles(container, '1234', [
+      {
+        styleId: 'sc-cmp-a',
+        styleTag: 'cmp-a',
+        styleText: ['.first{}', '.second{}'],
+        styleSourceMap: ['first.css.map', 'second.css.map'],
+      },
+    ]);
+
+    expect(firstStyle.innerHTML).toContain('sourceMappingURL=first.css.map');
+    expect(secondStyle.innerHTML).toContain('sourceMappingURL=second.css.map');
+  });
+});
 
 describe('updateCssUrlValue', () => {
   const versionId = '1234';

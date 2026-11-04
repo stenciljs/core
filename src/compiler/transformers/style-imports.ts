@@ -108,11 +108,14 @@ const updateEsmStyleImportPath = (
       if (n.importClause.name && n.importClause.name.escapedText === style.styleIdentifier) {
         const orgImportPath = n.moduleSpecifier.text;
         const importPath = getStyleImportPath(transformOpts, tsSourceFile, cmp, style, orgImportPath);
+        const namedBindings = transformOpts.sourceMapCss
+          ? addStyleSourceMapImport(n.importClause.namedBindings, style)
+          : n.importClause.namedBindings;
 
         statements[i] = ts.factory.updateImportDeclaration(
           n,
           retrieveTsModifiers(n),
-          n.importClause,
+          ts.factory.updateImportClause(n.importClause, false, n.importClause.name, namedBindings),
           ts.factory.createStringLiteral(importPath),
           undefined,
         );
@@ -121,6 +124,21 @@ const updateEsmStyleImportPath = (
     }
   }
   return statements;
+};
+
+const addStyleSourceMapImport = (namedBindings: ts.NamedImportBindings | undefined, style: d.StyleCompiler) => {
+  const sourceMapIdentifier = `${style.styleIdentifier}SourceMap`;
+  style.sourceMapIdentifiers = [sourceMapIdentifier];
+  const sourceMapImport = ts.factory.createImportSpecifier(
+    false,
+    ts.factory.createIdentifier('sourceMap'),
+    ts.factory.createIdentifier(sourceMapIdentifier),
+  );
+
+  if (namedBindings && ts.isNamedImports(namedBindings)) {
+    return ts.factory.updateNamedImports(namedBindings, [...namedBindings.elements, sourceMapImport]);
+  }
+  return ts.factory.createNamedImports([sourceMapImport]);
 };
 
 /**
@@ -175,13 +193,25 @@ const createStyleImport = <ModuleType extends 'esm' | 'cjs'>(
      */
     const styleIdentifier = `${style.styleIdentifier}${i}`;
     const importIdentifier = ts.factory.createIdentifier(styleIdentifier);
+    const sourceMapIdentifier = `${style.styleIdentifier}SourceMap${i}`;
+    style.sourceMapIdentifiers ||= [];
+    style.sourceMapIdentifiers[Number(i)] = sourceMapIdentifier;
     const importPath = getStyleImportPath(transformOpts, tsSourceFile, cmp, style, externalStyle);
 
     if (moduleType === 'esm') {
+      const namedBindings = transformOpts.sourceMapCss
+        ? ts.factory.createNamedImports([
+            ts.factory.createImportSpecifier(
+              false,
+              ts.factory.createIdentifier('sourceMap'),
+              ts.factory.createIdentifier(sourceMapIdentifier),
+            ),
+          ])
+        : undefined;
       imports.push(
         ts.factory.createImportDeclaration(
           undefined,
-          ts.factory.createImportClause(false, importIdentifier, undefined),
+          ts.factory.createImportClause(false, importIdentifier, namedBindings),
           ts.factory.createStringLiteral(importPath),
         ) as ImportDeclarationOrVariableStatementType,
       );
@@ -206,6 +236,24 @@ const createStyleImport = <ModuleType extends 'esm' | 'cjs'>(
           ),
         ) as ImportDeclarationOrVariableStatementType,
       );
+      if (transformOpts.sourceMapCss) {
+        imports.push(
+          ts.factory.createVariableStatement(
+            undefined,
+            ts.factory.createVariableDeclarationList(
+              [
+                ts.factory.createVariableDeclaration(
+                  ts.factory.createIdentifier(sourceMapIdentifier),
+                  undefined,
+                  undefined,
+                  ts.factory.createPropertyAccessExpression(importIdentifier, 'sourceMap'),
+                ),
+              ],
+              ts.NodeFlags.Const,
+            ),
+          ) as ImportDeclarationOrVariableStatementType,
+        );
+      }
     } else {
       throw new Error(`Invalid module type: ${moduleType}`);
     }
@@ -228,18 +276,53 @@ const updateCjsStyleRequires = (
   moduleFile: d.Module,
 ) => {
   const styleRequires: ts.Statement[] = [];
+  const styleSourceMapRequires: ts.Statement[] = [];
 
   moduleFile.cmps.forEach((cmp) => {
     cmp.styles.forEach((style) => {
-      if (typeof style.styleIdentifier === 'string' && style.externalStyles.length > 0) {
-        // add style imports built from @Component() styleUrl option
-        styleRequires.push(...createStyleImport(transformOpts, tsSourceFile, cmp, style));
+      if (typeof style.styleIdentifier === 'string') {
+        if (style.externalStyles.length > 0) {
+          // add style imports built from @Component() styleUrl option
+          styleRequires.push(...createStyleImport(transformOpts, tsSourceFile, cmp, style));
+        } else if (transformOpts.sourceMapCss) {
+          const sourceMapIdentifier = `${style.styleIdentifier}SourceMap`;
+          style.sourceMapIdentifiers = [sourceMapIdentifier];
+          styleSourceMapRequires.push(
+            ts.factory.createVariableStatement(
+              undefined,
+              ts.factory.createVariableDeclarationList(
+                [
+                  ts.factory.createVariableDeclaration(
+                    ts.factory.createIdentifier(sourceMapIdentifier),
+                    undefined,
+                    undefined,
+                    ts.factory.createPropertyAccessExpression(
+                      ts.factory.createIdentifier(style.styleIdentifier),
+                      'sourceMap',
+                    ),
+                  ),
+                ],
+                ts.NodeFlags.Const,
+              ),
+            ),
+          );
+        }
       }
     });
   });
 
-  if (styleRequires.length > 0) {
-    return ts.factory.updateSourceFile(tsSourceFile, [...styleRequires, ...tsSourceFile.statements]);
+  if (styleRequires.length > 0 || styleSourceMapRequires.length > 0) {
+    // Keep imports at the top so generated source-map declarations execute after their required style bindings.
+    const firstNonImportIndex = tsSourceFile.statements.findIndex((statement) => !ts.isImportDeclaration(statement));
+    const importStatements =
+      firstNonImportIndex === -1 ? tsSourceFile.statements : tsSourceFile.statements.slice(0, firstNonImportIndex);
+    const nonImportStatements = firstNonImportIndex === -1 ? [] : tsSourceFile.statements.slice(firstNonImportIndex);
+    return ts.factory.updateSourceFile(tsSourceFile, [
+      ...styleRequires,
+      ...importStatements,
+      ...styleSourceMapRequires,
+      ...nonImportStatements,
+    ]);
   }
 
   return tsSourceFile;

@@ -1,4 +1,5 @@
 import { catchError, isOutputTargetDistGlobalStyles, normalizePath } from '@utils';
+import { basename } from 'path';
 
 import type * as d from '../../declarations';
 import { runPluginTransforms } from '../plugin/plugin';
@@ -17,7 +18,7 @@ export const generateGlobalStyles = async (
 
   const globalStyles = await buildGlobalStyles(config, compilerCtx, buildCtx);
   if (globalStyles) {
-    await Promise.all(outputTargets.map((o) => compilerCtx.fs.writeFile(o.file, globalStyles)));
+    await Promise.all(outputTargets.map((o) => writeGlobalStyle(compilerCtx, o.file, globalStyles)));
   }
 
   return globalStyles;
@@ -43,6 +44,7 @@ const buildGlobalStyles = async (config: d.ValidatedConfig, compilerCtx: d.Compi
     if (transformResults) {
       let cssCode: string;
       let dependencies: string[] | undefined;
+      let transformMap: d.SourceMap | string | undefined;
 
       if (typeof transformResults === 'string') {
         // Handle case where transformResults is a string (the CSS code directly)
@@ -52,13 +54,26 @@ const buildGlobalStyles = async (config: d.ValidatedConfig, compilerCtx: d.Compi
         // Handle case where transformResults is a PluginTransformationDescriptor object
         cssCode = transformResults.code;
         dependencies = transformResults.dependencies;
+        transformMap = transformResults.map;
       } else {
         // Invalid transformResults
         compilerCtx.cachedGlobalStyle = null;
         return null;
       }
 
-      const optimizedCss = await optimizeCss(config, compilerCtx, buildCtx.diagnostics, cssCode, globalStylePath);
+      const optimizedResult = await optimizeCss(
+        config,
+        compilerCtx,
+        buildCtx.diagnostics,
+        cssCode,
+        globalStylePath,
+        true,
+        transformMap,
+      );
+      const optimizedCss =
+        typeof optimizedResult === 'string'
+          ? optimizedResult
+          : appendSourceMap(optimizedResult.output, optimizedResult.map);
       compilerCtx.cachedGlobalStyle = optimizedCss;
 
       if (Array.isArray(dependencies)) {
@@ -77,7 +92,8 @@ const buildGlobalStyles = async (config: d.ValidatedConfig, compilerCtx: d.Compi
         buildCtx.stylesUpdated.push({
           styleTag: 'global',
           styleMode: undefined,
-          styleText: optimizedCss,
+          styleText: typeof optimizedResult === 'string' ? optimizedResult : optimizedResult.output,
+          styleSourceMap: typeof optimizedResult === 'string' ? undefined : sourceMapToDataUrl(optimizedResult.map),
         });
       }
 
@@ -91,6 +107,45 @@ const buildGlobalStyles = async (config: d.ValidatedConfig, compilerCtx: d.Compi
   compilerCtx.cachedGlobalStyle = null;
   return null;
 };
+
+const appendSourceMap = (css: string, sourceMap?: d.SourceMap) => {
+  if (!sourceMap) {
+    return css;
+  }
+  const sourceMapUrl = sourceMapToDataUrl(sourceMap);
+  return `${css}\n/*# sourceMappingURL=${sourceMapUrl} */`;
+};
+
+const writeGlobalStyle = async (compilerCtx: d.CompilerCtx, filePath: string, css: string) => {
+  const external = externalizeSourceMap(css, filePath);
+  await compilerCtx.fs.writeFile(filePath, external.css);
+  if (external.map) {
+    await compilerCtx.fs.writeFile(`${filePath}.map`, JSON.stringify(external.map));
+  }
+};
+
+const externalizeSourceMap = (css: string, filePath: string) => {
+  const match = css.match(/\n\/\*# sourceMappingURL=data:application\/json;charset=utf-8;base64,([^*]+) \*\/$/);
+  if (!match || match.index == null) {
+    return { css, map: undefined };
+  }
+
+  try {
+    const map = JSON.parse(Buffer.from(match[1], 'base64').toString()) as d.SourceMap;
+    map.file = basename(filePath);
+    return {
+      css: `${css.slice(0, match.index)}\n/*# sourceMappingURL=${basename(filePath)}.map */`,
+      map,
+    };
+  } catch (e) {
+    return { css, map: undefined };
+  }
+};
+
+const sourceMapToDataUrl = (sourceMap?: d.SourceMap) =>
+  sourceMap
+    ? `data:application/json;charset=utf-8;base64,${Buffer.from(JSON.stringify(sourceMap)).toString('base64')}`
+    : undefined;
 
 const canSkipGlobalStyles = async (config: d.ValidatedConfig, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx) => {
   if (!compilerCtx.cachedGlobalStyle) {

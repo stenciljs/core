@@ -138,6 +138,7 @@ export const getTranspileConfig = (input: TranspileOptions): TranspileConfig => 
     file: compileOpts.file,
     style: compileOpts.style as any,
     styleImportData: compileOpts.styleImportData as any,
+    sourceMapCss: compileOpts.sourceMap !== false,
     target: compileOpts.target as any,
   };
 
