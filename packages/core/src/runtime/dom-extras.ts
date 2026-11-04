@@ -573,7 +573,7 @@ const patchSlottedRemove = (node: Node) => {
  *
  * @param node the slotted node to be patched
  */
-export const patchParentNode = (node: Node) => {
+const patchParentNode = (node: Node) => {
   if (!node || (node as any).__parentNode) return;
 
   patchHostOriginalAccessor('parentNode', node);

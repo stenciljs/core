@@ -38,7 +38,7 @@
         "test/fixtures/virtual-css/**",
         "test/fixtures/my-global-styled.tsx"
       ],
-      "ignoreDependencies": ["@vitest/browser", "esbuild", "rollup", "webpack"]
+      "ignoreDependencies": ["@vitest/browser"]
     },
     "packages/playground": {
       "ignoreDependencies": ["@preact/signals-core"]
