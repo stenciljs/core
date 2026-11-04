@@ -271,11 +271,23 @@ export const validateTypesAfterGeneration = async (
         fileName.startsWith(normalizePath(config.srcDir))
       );
     });
+    const semanticDiagnostics: d.Diagnostic[] = [];
     for (const sourceFile of sourceFiles) {
       const tsSemantic = loadTypeScriptDiagnostics(tsProgram.getSemanticDiagnostics(sourceFile));
       applyDevModeRelaxation(config, tsSemantic);
-      buildCtx.diagnostics.push(...tsSemantic);
+      semanticDiagnostics.push(...tsSemantic);
     }
+
+    // The program was type-checked against the components.d.ts on disk, which predates any
+    // component added or changed since - so its own `HTML{Tag}Element` etc. come up missing.
+    // On errors, write the current components.d.ts first: if it changed, check again with a fresh
+    // program instead of reporting errors the next build wouldn't have.
+    if (semanticDiagnostics.some((diagnostic) => diagnostic.level === 'error')) {
+      if (await generateAppTypes(config, compilerCtx, buildCtx, 'src')) {
+        return { hasTypesChanged: true, needsRebuild: true };
+      }
+    }
+    buildCtx.diagnostics.push(...semanticDiagnostics);
   }
 
   // Update components.d.ts in case components changed
