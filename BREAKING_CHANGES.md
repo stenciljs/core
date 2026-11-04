@@ -27,6 +27,7 @@ Stencil recently had its 10th birthday - this release is a consolidation, organi
   - [`openBrowser` Defaults to `false`](#openbrowser-defaults-to-false)
   - [`@Watch` Handlers No Longer Fire Before the Component Has Rendered](#watch-handlers-no-longer-fire-before-the-component-has-rendered)
   - [`componentShouldUpdate` Batching](#componentshouldupdate-batching)
+  - [`slotchange` in `scoped` / `none` Components Matches Native Slots](#slotchange-in-scoped--none-components-matches-native-slots)
   - [Boolean Props: `"false"` Is Now `true`](#boolean-props-false-is-now-true)
   - [Rollup Replaced with Rolldown](#rollup-replaced-with-rolldown)
   - [JSX Types](#jsx-types)
@@ -172,6 +173,19 @@ To migrate, if you relied on the previous auto-open behavior, pass `--open` on t
 Per [Stencil's documented lifecycle](https://stenciljs.com/docs/component-lifecycle#component-lifecycle-methods), `@Watch()` handlers should not fire until a component has fully rendered for the first time. Previously - especially in the `loader-bundle` output - watch methods could be called during earlier lifecycle stages. In v5, `@Watch` now adheres to the documented behavior. This is technically a bug fix, but the previous behavior was long-standing enough that some codebases may have come to rely on it.
 
 To migrate, if you need a watcher to run before the component has finished rendering, call it manually from an earlier lifecycle method, or use `@Watch('propName', { immediate: true })`.
+
+#### `slotchange` in `scoped` / `none` Components Matches Native Slots
+
+Stencil emulates `<slot>` for `scoped` and `none` components, including the `slotchange` event. That emulation now fires in the same cases as a native (shadow DOM) slot:
+
+- **Initial content:** a slot that receives content on the component's first render fires `slotchange` once, asynchronously. Previously the emulated slot only fired for later changes.
+- **Removal:** removing slotted content with `removeChild()` or the node's own `remove()` fires `slotchange`, including content hydrated from SSR markup. Previously only additions did.
+
+Content that arrives already in place from SSR markup doesn't fire an initial `slotchange` when hydrated, for emulated and native slots alike.
+
+Removal events rely on the light DOM patches (see [`compat.lightDomPatches`](#extras-renamed-to-compat)), enabled by default.
+
+To migrate, if an `onSlotchange` handler assumed its first call meant the content had changed after load, check the slot's assigned nodes instead of counting calls.
 
 #### `componentShouldUpdate` Batching
 
