@@ -21,6 +21,9 @@ export interface PreviewInput {
   /** Virtual paths (into `files`) of every compiled global stylesheet - one per `global-style`
    * output target, or the single legacy `Config.globalStyle` file. */
   globalStylePaths: string[];
+  /** The global CSS to add to every shadow root (the real build's `globalStyles` app-global) -
+   * from the global stylesheets whose `inject` puts them there. */
+  injectedGlobalStyles: string;
 }
 
 const VENDOR_IMPORT_MAP = {
@@ -153,19 +156,23 @@ BUILD.signalBacking = ${signalBacking};
 </script>`;
 
 // Mirrors what `appDataPlugin` does in a real build (no browser equivalent): override
-// `@stencil/core/app-globals` with a module exporting `globalScripts` bound to the user's file,
-// then call it. Mutates `imports` in place so the override lands in the import map.
-const buildGlobalScriptOverrideScript = (
+// `@stencil/core/app-globals` with a module exporting `globalScripts` bound to the user's file, and
+// `globalStyles` (which the runtime adopts into every shadow root), then call the script. Mutates
+// `imports` in place so the override lands in the import map.
+const buildAppGlobalsOverrideScript = (
   globalScriptPath: string | null,
+  injectedGlobalStyles: string,
   imports: Record<string, string>,
 ) => {
   const moduleUrl = globalScriptPath && imports[globalScriptPath];
-  if (!moduleUrl) return '';
-  const overrideModule = `import * as globalScriptNs from ${JSON.stringify(moduleUrl)};
-export const globalScripts = globalScriptNs.default || (() => {});
-export const globalStyles = '';`;
+  if (!moduleUrl && !injectedGlobalStyles) return '';
+  const overrideModule = `${moduleUrl ? `import * as globalScriptNs from ${JSON.stringify(moduleUrl)};` : ''}
+export const globalScripts = ${moduleUrl ? 'globalScriptNs.default || (() => {})' : '() => {}'};
+export const globalStyles = ${JSON.stringify(injectedGlobalStyles)};`;
   imports['@stencil/core/app-globals'] = toDataUrl(overrideModule);
-  return `<script type="module">import { globalScripts } from '@stencil/core/app-globals'; globalScripts();</script>`;
+  return moduleUrl
+    ? `<script type="module">import { globalScripts } from '@stencil/core/app-globals'; globalScripts();</script>`
+    : '';
 };
 
 // Untagged CSS self-injects via `injectSideEffectStyle` on import (css-to-esm.ts's
@@ -248,6 +255,7 @@ export class StencilPlaygroundPreview {
     signalBacking: false,
     globalScriptPath: null,
     globalStylePaths: [],
+    injectedGlobalStyles: '',
   };
 
   @Event() previewResult!: EventEmitter<PreviewResult>;
@@ -262,7 +270,15 @@ export class StencilPlaygroundPreview {
 
   @Watch('input')
   update() {
-    const { files, indexHtml, vdomSignals, signalBacking, globalScriptPath, globalStylePaths } =
+    const {
+      files,
+      indexHtml,
+      vdomSignals,
+      signalBacking,
+      globalScriptPath,
+      globalStylePaths,
+      injectedGlobalStyles,
+    } =
       this.input;
     if (files.length === 0) return;
 
@@ -270,7 +286,7 @@ export class StencilPlaygroundPreview {
     // Mutates `imports` (the global-script override) before it's serialized into the import map
     // below, so both scripts must run first.
     const globalsHead =
-      buildGlobalScriptOverrideScript(globalScriptPath, imports) +
+      buildAppGlobalsOverrideScript(globalScriptPath, injectedGlobalStyles, imports) +
       buildGlobalStyleScript(globalStylePaths, imports);
 
     this.iframe.srcdoc = indexHtml

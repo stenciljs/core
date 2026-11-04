@@ -611,6 +611,56 @@ export class MyComponent {
     await expect(squiggles(1)).toHaveCount(1);
   });
 
+  test.describe('global styles in shadow roots', () => {
+    const SHADOW_CMP: PlaygroundFile = {
+      name: 'my-cmp.tsx',
+      content: `import { Component } from '@stencil/core';
+
+@Component({ tag: 'my-cmp', encapsulation: { type: 'shadow' } })
+export class MyCmp {
+  render() {
+    return <p>Shadow content</p>;
+  }
+}
+`,
+    };
+    const GLOBAL_CSS = (name: string): PlaygroundFile => ({
+      name,
+      content: ':host(my-cmp) { color: rgb(1, 2, 3); }',
+    });
+    const hostColor = async (page: Page) => {
+      await expect
+        .poll(() => previewFrame(page)?.locator('my-cmp p').count() ?? 0)
+        .toBeGreaterThan(0);
+      return previewFrame(page).locator('my-cmp').evaluate((el) => getComputedStyle(el).color);
+    };
+    const config = (inject?: string) => ({
+      name: 'stencil.config.ts',
+      content: `export const config = {
+  outputTargets: [{ type: 'global-style', input: './theme.css'${inject ? `, inject: '${inject}'` : ''} }],
+};`,
+    });
+
+    test('adds the auto-detected global.css to shadow roots', async ({ page }) => {
+      await mount(page, [SHADOW_CMP, GLOBAL_CSS('global.css')]);
+      expect(await hostColor(page)).toBe('rgb(1, 2, 3)');
+    });
+
+    test("leaves an explicit global-style target out of shadow roots unless it sets inject", async ({
+      page,
+    }) => {
+      await mount(page, [SHADOW_CMP, GLOBAL_CSS('theme.css'), config()]);
+      expect(await hostColor(page)).not.toBe('rgb(1, 2, 3)');
+    });
+
+    test("adds an explicit global-style target with inject: 'client' to shadow roots", async ({
+      page,
+    }) => {
+      await mount(page, [SHADOW_CMP, GLOBAL_CSS('theme.css'), config('client')]);
+      expect(await hostColor(page)).toBe('rgb(1, 2, 3)');
+    });
+  });
+
   test('lets a <form> in the preview submit', async ({ page }) => {
     await mount(page, [
       {
