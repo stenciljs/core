@@ -1,6 +1,6 @@
 import type * as d from '@stencil/core';
 
-import { isOutputTargetSsr } from '../../../utils';
+import { isOutputTargetServerRenderer } from '../../../utils';
 import { getBuildFeatures, updateBuildConditionals } from '../../app-core/app-data';
 /**
  * Get build conditions appropriate for the `standalone` Output
@@ -18,7 +18,7 @@ export const getStandaloneBuildConditionals = (
   // then the default in "import { BUILD, NAMESPACE } from '@stencil/core/app-data'"
   // needs to have the static build conditionals set for the custom elements build
   const build = getBuildFeatures(cmps) as d.BuildConditionals;
-  const hasSsrOutputTargets = config.outputTargets.some(isOutputTargetSsr);
+  const hasSsrOutputTargets = config.outputTargets.some(isOutputTargetServerRenderer);
 
   build.lazyLoad = false;
   build.hydrateClientSide = hasSsrOutputTargets;

@@ -1,6 +1,6 @@
 import type * as d from '@stencil/core';
 
-import { isOutputTargetSsr } from '../../../utils';
+import { isOutputTargetServerRenderer } from '../../../utils';
 import { getBuildFeatures, updateBuildConditionals } from '../../app-core/app-data';
 
 export const getLazyBuildConditionals = (
@@ -17,7 +17,7 @@ export const getLazyBuildConditionals = (
   build.initializeNextTick = config.compat.initializeNextTick;
   build.staticHydrationStyles = staticHydrationStyles;
 
-  const hasSsrOutputTargets = config.outputTargets.some(isOutputTargetSsr);
+  const hasSsrOutputTargets = config.outputTargets.some(isOutputTargetServerRenderer);
   build.hydrateClientSide = hasSsrOutputTargets;
 
   updateBuildConditionals(config, build);
