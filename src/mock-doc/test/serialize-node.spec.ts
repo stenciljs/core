@@ -185,6 +185,61 @@ describe('serializeNodeToHtml', () => {
     `);
   });
 
+  it('treat an element with only removed comments as empty, pretty', () => {
+    const elm = doc.createElement('div');
+
+    elm.innerHTML = `<section><!--a--></section>`;
+
+    const html = serializeNodeToHtml(elm, { prettyHtml: true, removeHtmlComments: true });
+    expect(html).toBe(`<section></section>`);
+  });
+
+  it('treat an element with only removed comments and whitespace as empty, pretty', () => {
+    const elm = doc.createElement('div');
+
+    elm.innerHTML = `<section>\n  <!--a-->\n</section>`;
+
+    const html = serializeNodeToHtml(elm, { prettyHtml: true, removeHtmlComments: true });
+    expect(html).toBe(`<section></section>`);
+  });
+
+  it('treat an element with only removed comments as empty', () => {
+    const elm = doc.createElement('div');
+
+    elm.innerHTML = `<section><!--a--><!--b--></section>`;
+
+    const html = serializeNodeToHtml(elm, { removeHtmlComments: true });
+    expect(html).toBe(`<section></section>`);
+  });
+
+  it('keep content next to removed comments, pretty', () => {
+    const elm = doc.createElement('div');
+
+    elm.innerHTML = `<section><!--a-->88</section>`;
+
+    const html = serializeNodeToHtml(elm, { prettyHtml: true, removeHtmlComments: true });
+    expect(html).toBe(`<section>\n  88\n</section>`);
+  });
+
+  it('keep comments when they are not removed, pretty', () => {
+    const elm = doc.createElement('div');
+
+    elm.innerHTML = `<section><!--a--></section>`;
+
+    const html = serializeNodeToHtml(elm, { prettyHtml: true });
+    expect(html).toBe(`<section>\n  <!--a-->\n</section>`);
+  });
+
+  it('shadow root with only removed comments in the light dom, pretty', () => {
+    const elm = doc.createElement('cmp-a');
+    const shadowRoot = elm.attachShadow({ mode: 'open' });
+    shadowRoot.appendChild(doc.createElement('article'));
+    elm.appendChild(doc.createComment('a'));
+
+    const html = serializeNodeToHtml(elm, { prettyHtml: true, removeHtmlComments: true, outerHtml: true });
+    expect(html).toBe(`<cmp-a>\n  <template shadowrootmode="open">\n    <article></article>\n  </template>\n</cmp-a>`);
+  });
+
   it('style', () => {
     const input = `<style>     \n    text   \n\n</style>`;
     doc.body.innerHTML = input;
