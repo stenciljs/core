@@ -154,6 +154,24 @@ describe('Stencil Collection output target', () => {
       expect(content).toContain('"hydrateClientSide": true');
     });
 
+    it('sets hydrateClientSide: true when only an ssr-wasm output target is present', async () => {
+      const config = mockValidatedConfig({
+        srcDir: '/src',
+        bundles: [],
+        outputTargets: [
+          collectionTarget,
+          { type: 'ssr-wasm', dir: '/dist/ssr-wasm' } as d.OutputTargetSsrWasm,
+        ],
+      });
+      const compilerCtx = mockCompilerCtx(config);
+      const buildCtx = mockBuildCtx(config, compilerCtx);
+
+      await outputCollection(config, compilerCtx, buildCtx, changedModules);
+
+      const content = await compilerCtx.fs.readFile(appDataPath);
+      expect(content).toContain('"hydrateClientSide": true');
+    });
+
     it('sets hydrateClientSide: false when no SSR output target is present', async () => {
       const config = mockValidatedConfig({
         srcDir: '/src',

@@ -72,6 +72,16 @@ describe('build-conditionals', () => {
       expect(bc.hydrateClientSide).toBe(true);
     });
 
+    it('hydrateClientSide true with only an ssr-wasm output target', () => {
+      const ssrWasmOutputTarget: d.OutputTargetSsrWasm = {
+        type: 'ssr-wasm',
+      };
+      userConfig.outputTargets = [ssrWasmOutputTarget];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const bc = getStandaloneBuildConditionals(config, cmps);
+      expect(bc.hydrateClientSide).toBe(true);
+    });
+
     it('hydratedSelectorName', () => {
       userConfig.hydratedFlag = {
         name: 'boooop',
@@ -138,6 +148,16 @@ describe('build-conditionals', () => {
         type: 'ssr',
       };
       userConfig.outputTargets = [hydrateOutputTarget];
+      const { config } = validateConfig(userConfig, mockLoadConfigInit());
+      const bc = getLazyBuildConditionals(config, cmps);
+      expect(bc.hydrateClientSide).toBe(true);
+    });
+
+    it('hydrateClientSide true with only an ssr-wasm output target', () => {
+      const ssrWasmOutputTarget: d.OutputTargetSsrWasm = {
+        type: 'ssr-wasm',
+      };
+      userConfig.outputTargets = [ssrWasmOutputTarget];
       const { config } = validateConfig(userConfig, mockLoadConfigInit());
       const bc = getLazyBuildConditionals(config, cmps);
       expect(bc.hydrateClientSide).toBe(true);

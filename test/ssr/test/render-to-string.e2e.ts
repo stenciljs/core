@@ -72,6 +72,46 @@ test.describe('renderToString API', () => {
     expect(html).toMatchSnapshot();
   });
 
+  test.describe('hydration ids', () => {
+    const page = () =>
+      `<another-car-list cars='${JSON.stringify([vento, beetle])}'></another-car-list>`;
+    const hostIds = (html: string | null) =>
+      [...(html || '').matchAll(/\ss-id="(\d+)"/g)].map((m) => Number(m[1]));
+
+    test('full-document renders start from 1 every time, without a reset', async () => {
+      const first = await renderToString(page(), { buildId: 'fixed' });
+      const second = await renderToString(page(), { buildId: 'fixed' });
+      expect(hostIds(first.html)[0]).toBe(1);
+      expect(second.html).toBe(first.html);
+    });
+
+    test('concurrent full-document renders each get their own ids', async () => {
+      const results = await Promise.all(
+        Array.from({ length: 5 }, () => renderToString(page(), { buildId: 'fixed' })),
+      );
+      const expected = hostIds(results[0].html);
+      expect(new Set(expected).size).toBe(expected.length);
+      for (const { html } of results) {
+        expect(html).toBe(results[0].html);
+      }
+    });
+
+    test('fragment renders keep counting across calls until resetSsrDocData()', async () => {
+      const fragment = async () => hostIds((await renderToString(page(), { fullDocument: false })).html);
+      const a = await fragment();
+      const b = await fragment();
+      // fragments of one page must not collide
+      expect(Math.min(...b)).toBeGreaterThan(Math.max(...a));
+      // a full-document render in between doesn't disturb the sequence
+      await renderToString(page());
+      const c = await fragment();
+      expect(Math.min(...c)).toBeGreaterThan(Math.max(...b));
+
+      resetSsrDocData();
+      expect(await fragment()).toEqual(a);
+    });
+  });
+
   test('can render nested components', async () => {
     const { html } = await renderToString(
       `<another-car-list cars='${JSON.stringify([vento, beetle])}'></another-car-list>`,
