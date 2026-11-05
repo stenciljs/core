@@ -21,17 +21,106 @@ import { postProcessSsrCode } from '../ssr/write-ssr-outputs';
 
 const execFileAsync = promisify(execFile);
 
-// Polyfill timer APIs not available in QuickJS-ng (extism explicitly does not provide
-// setTimeout, setInterval, etc.). Must run before the IIFE so $nativeSetTimeout and
-// the mock-doc window setup both capture defined values instead of undefined.
-// No-ops are correct: the only setTimeout use in the bundle is the render-abort guard,
-// which we do not want firing synchronously.
+// Timers for QuickJS-ng, which has none (Extism doesn't provide setTimeout, setInterval, etc.).
+// Must run before the IIFE so $nativeSetTimeout and the mock-doc window capture these. Every
+// timer in the bundle goes through them: the render-abort guard, and mock-doc's window timers,
+// requestAnimationFrame and requestIdleCallback that components use.
+//
+// Timers run on a virtual clock. While a render is in progress, a pump fires them in due-time
+// order, letting pending promise work run first. Nothing waits in real time.
+//
+// - Timers due at or after the render's `timeout` never fire. That includes the render-abort
+//   guard (due exactly at `timeout`), so it can't fire while work is still in progress.
+// - When no timer can fire, the pump stops. A render that's still waiting then ends with the
+//   outro's error result, as it would with no timers at all.
+// - Firing a callback synchronously instead would trip the abort guard at the start of every
+//   render, and loop forever on setInterval.
 const SSR_WASM_TIMER_POLYFILL = /* js */ `
-if (typeof globalThis !== "undefined") {
-  if (typeof globalThis.setTimeout !== "function") globalThis.setTimeout = function() { return 0; };
-  if (typeof globalThis.clearTimeout !== "function") globalThis.clearTimeout = function() {};
-  if (typeof globalThis.setInterval !== "function") globalThis.setInterval = function() { return 0; };
-  if (typeof globalThis.clearInterval !== "function") globalThis.clearInterval = function() {};
+if (typeof globalThis !== "undefined" && typeof globalThis.setTimeout !== "function") {
+  (function() {
+    var timers = [];
+    var nextId = 1;
+    var now = 0;
+    var render = null;
+    var pumping = false;
+
+    function add(fn, delay, args, interval) {
+      delay = Math.max(0, Number(delay) || 0);
+      var timer = { id: nextId++, due: now + delay, delay: delay, fn: fn, args: args, interval: interval };
+      timers.push(timer);
+      if (render && !pumping) pump();
+      return timer.id;
+    }
+
+    function clear(id) {
+      for (var i = 0; i < timers.length; i++) {
+        if (timers[i].id === id) {
+          timers.splice(i, 1);
+          return;
+        }
+      }
+    }
+
+    function nextTimer() {
+      var next = null;
+      for (var i = 0; i < timers.length; i++) {
+        if (!next || timers[i].due < next.due || (timers[i].due === next.due && timers[i].id < next.id)) next = timers[i];
+      }
+      return next;
+    }
+
+    async function pump() {
+      pumping = true;
+      var current = render;
+      try {
+        while (render === current && current && !current.done) {
+          // let the work that's already queued (and anything it queues) run first
+          for (var i = 0; i < 100 && !current.done; i++) await null;
+          if (render !== current || current.done) return;
+          var next = nextTimer();
+          if (!next) return;
+          if (next.due >= current.budget || ++current.fired > 10000) {
+            current.onBudgetExceeded();
+            return;
+          }
+          now = next.due;
+          if (next.interval) next.due = now + Math.max(next.delay, 1);
+          else clear(next.id);
+          if (typeof next.fn === "function") {
+            try {
+              next.fn.apply(globalThis, next.args);
+            } catch (e) {
+              if (typeof console !== "undefined") console.error(e);
+            }
+          }
+        }
+      } finally {
+        pumping = false;
+      }
+    }
+
+    globalThis.setTimeout = function(fn, delay) { return add(fn, delay, Array.prototype.slice.call(arguments, 2), false); };
+    globalThis.setInterval = function(fn, delay) { return add(fn, delay, Array.prototype.slice.call(arguments, 2), true); };
+    globalThis.clearTimeout = clear;
+    globalThis.clearInterval = clear;
+
+    // Used by the outro around each renderToString call.
+    globalThis.__stencilSsrWasmTimers = {
+      start: function(budget, onBudgetExceeded) {
+        timers.length = 0;
+        now = 0;
+        render = { budget: budget, fired: 0, done: false, onBudgetExceeded: onBudgetExceeded };
+        return render;
+      },
+      stop: function(r) {
+        r.done = true;
+        if (render === r) {
+          render = null;
+          timers.length = 0;
+        }
+      }
+    };
+  })();
 }
 `;
 
@@ -97,13 +186,35 @@ module.exports = {
         return;
       }
       var inp = JSON.parse(Host.inputString());
-      // QuickJS-ng has no timers, so if hydration never settles on its own (a Promise
-      // nothing will ever resolve), the call doesn't hang - it just runs out of scheduled
-      // work and returns whatever was last written here. Write a diagnostic up front so
-      // that's a real error instead of silence, then overwrite it once renderToString()
-      // actually resolves.
+      // If hydration never settles (a Promise nothing will resolve, or a timer due after the
+      // timeout), the call doesn't hang - it runs out of scheduled work and returns whatever
+      // was last written here. Write an error up front so that's a real error instead of
+      // silence, then overwrite it once renderToString() actually resolves.
       Host.outputString(JSON.stringify({ __error: 'renderToString did not complete - a component may be waiting on work that never resolves' }));
-      var result = await renderToString(inp.html, inp.options);
+      var opts = inp.options || {};
+      var budget = typeof opts.timeout === 'number' ? opts.timeout : 15000;
+      var timers = globalThis.__stencilSsrWasmTimers;
+      var render = timers && timers.start(budget, function() {
+        Host.outputString(JSON.stringify({ __error: 'renderToString did not complete within the ' + budget + 'ms timeout - a component may be waiting on work that never resolves, on a timer due after the timeout, or on timers it schedules forever' }));
+      });
+      var result;
+      try {
+        result = await renderToString(inp.html, inp.options);
+      } finally {
+        if (render) timers.stop(render);
+      }
+      // renderToString reports some failures (e.g. input that isn't an HTML string) as an
+      // error diagnostic with no html, rather than throwing. Surface those as __error, as
+      // documented, so hosts only need one failure check.
+      if (!result || typeof result.html !== 'string') {
+        var diagnostics = (result && result.diagnostics) || [];
+        var firstError = diagnostics.find(function(d) { return d.level === 'error'; });
+        Host.outputString(JSON.stringify({
+          __error: firstError ? firstError.messageText : 'renderToString returned no html',
+          diagnostics: diagnostics
+        }));
+        return;
+      }
       Host.outputString(JSON.stringify(result));
     } catch(e) {
       Host.outputString(JSON.stringify({ __error: String(e) }));
