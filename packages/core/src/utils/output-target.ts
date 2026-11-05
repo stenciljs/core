@@ -152,6 +152,17 @@ export const isOutputTargetSsr = (o: d.OutputTarget): o is d.OutputTargetSsr => 
 export const isOutputTargetSsrWasm = (o: d.OutputTarget): o is d.OutputTargetSsrWasm =>
   o.type === SSR_WASM;
 
+/**
+ * Whether an output target renders components on the server (`ssr` or `ssr-wasm`).
+ * When one is present, client builds must be able to hydrate server-rendered markup.
+ * @param o the output target to check
+ * @returns true if the output target server-renders components
+ */
+export const isOutputTargetServerRenderer = (
+  o: d.OutputTarget,
+): o is d.OutputTargetSsr | d.OutputTargetSsrWasm =>
+  isOutputTargetSsr(o) || isOutputTargetSsrWasm(o);
+
 export const isOutputTargetCollection = (o: d.OutputTarget): o is d.OutputTargetCollection =>
   o.type === COLLECTION;
 

@@ -67,6 +67,39 @@ test.describe('styles and modes', () => {
       expect(style1Text).toContain('.sc-non-shadow-child-h');
     });
 
+    test('includes scoped component styles in a fragment (fullDocument: false)', async ({
+      page,
+    }) => {
+      const { html } = await renderToString('<scoped-ssr-child-cmp></scoped-ssr-child-cmp>', {
+        fullDocument: false,
+      });
+
+      // the fragment carries the styles that a full document would have put in <head>
+      expect(html || '').toMatch(/^<style sty-id="sc-scoped-ssr-child-cmp">/);
+
+      await page.setContent(html || '');
+      const borderColor = await page
+        .locator('scoped-ssr-child-cmp')
+        .evaluate((el) => getComputedStyle(el).borderTopColor);
+      expect(borderColor).toBe('rgb(255, 0, 0)');
+    });
+
+    test('includes serializeShadowRoot `scoped` component styles in a fragment', async () => {
+      const { html } = await renderToString('<ssr-shadow-cmp>text</ssr-shadow-cmp>', {
+        fullDocument: false,
+        serializeShadowRoot: 'scoped',
+      });
+      expect(html || '').toMatch(/^<style sty-id="sc-ssr-shadow-cmp">/);
+    });
+
+    test('does not move styles into the body of a full document', async () => {
+      const { html } = await renderToString('<scoped-ssr-child-cmp></scoped-ssr-child-cmp>');
+      expect(html || '').toMatch(
+        /<head>[\s\S]*<style sty-id="sc-scoped-ssr-child-cmp">[\s\S]*<\/head>/,
+      );
+      expect(html || '').not.toMatch(/<body>[\s\S]*<style sty-id=/);
+    });
+
     test('adds nested scoped styles to parent shadow root', async ({ page }) => {
       const { html } = await renderToString(
         `<div>

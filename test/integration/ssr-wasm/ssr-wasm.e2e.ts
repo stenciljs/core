@@ -81,21 +81,40 @@ describe('ssr-wasm plugin execution', () => {
     expect(output).toHaveProperty('components');
   });
 
-  it('calls resetSsrDocData and works', async () => {
+  it('returns __error for input renderToString rejects (instead of html: null)', async () => {
+    for (const input of [{ html: 123 }, {}]) {
+      const output = await call('renderToString', input);
+      expect(typeof output.__error).toBe('string');
+      expect(output.__error).toContain('Invalid html');
+      expect(Array.isArray(output.diagnostics)).toBe(true);
+    }
+  });
+
+  it('full-document renders always start hydration ids from 1, without a reset', async () => {
+    for (const name of ['Test', 'Another', 'Third']) {
+      const output = await call('renderToString', {
+        html: `<my-greeting name="${name}"></my-greeting>`,
+      });
+      expect(output.html).toContain('<!--r.1-->');
+    }
+  });
+
+  it('fragment renders keep counting across calls until resetSsrDocData', async () => {
+    const fragment = (name: string) =>
+      call('renderToString', {
+        html: `<my-greeting name="${name}"></my-greeting>`,
+        options: { fullDocument: false },
+      });
     await expect(plugin.call('resetSsrDocData', '')).resolves.not.toThrow();
-    const output1 = await call('renderToString', {
-      html: '<my-greeting name="Test"></my-greeting>',
-    });
-    expect(output1.html).toContain('<!--r.1-->');
-    const output2 = await call('renderToString', {
-      html: '<my-greeting name="Another"></my-greeting>',
-    });
-    expect(output2.html).toContain('<!--r.2-->');
+    expect((await fragment('Test')).html).toContain('<!--r.1-->');
+    expect((await fragment('Another')).html).toContain('<!--r.2-->');
+    // a full-document render in between doesn't disturb the fragment sequence
+    expect((await call('renderToString', { html: '<my-greeting></my-greeting>' })).html).toContain(
+      '<!--r.1-->',
+    );
+    expect((await fragment('Third')).html).toContain('<!--r.3-->');
     await expect(plugin.call('resetSsrDocData', '')).resolves.not.toThrow();
-    const output3 = await call('renderToString', {
-      html: '<my-greeting name="Test"></my-greeting>',
-    });
-    expect(output3.html).toContain('<!--r.1-->');
+    expect((await fragment('Test')).html).toContain('<!--r.1-->');
   });
 
   it('calls setTagTransformer and works', async () => {
@@ -106,11 +125,61 @@ describe('ssr-wasm plugin execution', () => {
     await call('setTagTransformer', []);
   });
 
-  // SsrFactoryOptions.timeout relies on setTimeout, which QuickJS-ng does not provide - see
-  // generate-ssr-wasm.ts. That doesn't hang the call, though: QuickJS-ng runs to completion,
-  // so a component whose hydration never settles on its own just makes renderToString()
-  // resolve quickly with an error result (via the fallback Host.outputString() call in
-  // SSR_WASM_OUTRO) instead of silently returning no output at all.
+  describe('timers (a virtual clock: nothing waits in real time)', () => {
+    const render = (html: string, options?: object) =>
+      call('renderToString', { html, options: { fullDocument: false, ...options } });
+
+    it('fires setTimeout callbacks', async () => {
+      const start = Date.now();
+      const output = await render('<timer-cmp></timer-cmp>');
+      expect(output.__error).toBeUndefined();
+      expect(output.html).toContain('after timer');
+      expect(Date.now() - start).toBeLessThan(2000);
+    });
+
+    it('fires setInterval callbacks until cleared', async () => {
+      const output = await render('<interval-cmp></interval-cmp>');
+      expect(output.__error).toBeUndefined();
+      expect(output.html).toMatch(/ticks: (<!--[^>]*-->)?3/);
+    });
+
+    it('fires requestAnimationFrame callbacks', async () => {
+      const output = await render('<raf-cmp></raf-cmp>');
+      expect(output.__error).toBeUndefined();
+      expect(output.html).toContain('after frame');
+    });
+
+    it('never fires a timer due after the timeout, and reports it', async () => {
+      const start = Date.now();
+      const output = await render('<slow-timer-cmp></slow-timer-cmp>');
+      expect(output.__error).toContain('15000ms timeout');
+      expect(Date.now() - start).toBeLessThan(2000);
+    });
+
+    it('fires a long timer when the timeout allows it', async () => {
+      const output = await render('<slow-timer-cmp></slow-timer-cmp>', { timeout: 120_000 });
+      expect(output.__error).toBeUndefined();
+      expect(output.html).toContain('done after a minute');
+    });
+
+    it('stops a component that schedules timers forever', async () => {
+      const start = Date.now();
+      const output = await render('<poll-forever-cmp></poll-forever-cmp>', { timeout: 1000 });
+      expect(output.__error).toContain('1000ms timeout');
+      expect(Date.now() - start).toBeLessThan(5000);
+    });
+
+    it("doesn't carry timers over into the next render", async () => {
+      await render('<poll-forever-cmp></poll-forever-cmp>', { timeout: 1000 });
+      const output = await render('<timer-cmp></timer-cmp>');
+      expect(output.__error).toBeUndefined();
+      expect(output.html).toContain('after timer');
+    });
+  });
+
+  // QuickJS-ng runs to completion: a component whose hydration never settles (and has no
+  // timer due before the timeout) makes renderToString() resolve quickly with an error result
+  // instead of hanging or silently returning no output.
   it('a component that never settles resolves with an error result instead of hanging or returning nothing', async () => {
     const start = Date.now();
     const output = await call('renderToString', {

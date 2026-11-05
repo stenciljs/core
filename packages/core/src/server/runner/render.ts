@@ -262,6 +262,9 @@ function finalizeSsr(win: MockWindow, doc: Document, opts: SsrFactoryOptions, re
     }
 
     if (opts.serializeToHtml) {
+      if (opts.fullDocument === false) {
+        moveComponentStylesIntoBody(doc);
+      }
       results.html = serializeDocumentToString(doc, opts);
     }
   } catch (e) {
@@ -308,6 +311,28 @@ export function serializeDocumentToString(doc: Document, opts: SsrFactoryOptions
     serializeShadowRoot: opts.serializeShadowRoot,
     fullDocument: opts.fullDocument,
   });
+}
+
+/**
+ * A fragment (`fullDocument: false`) serializes only the contents of `<body>`, but the styles of
+ * scoped components - and of shadow components rendered with `serializeShadowRoot: 'scoped'` -
+ * are written to `<head>`. Move them to the start of `<body>` so the fragment carries the styles
+ * its components need, instead of rendering unstyled until the client loads.
+ *
+ * Stateless: every fragment includes all the styles it uses, so the same styles can appear in
+ * several fragments on one page. On the client, a style found outside `<head>` isn't reused, so
+ * the runtime adds its own copy to `<head>` when the component loads - harmless duplication.
+ * @param doc the rendered document
+ */
+function moveComponentStylesIntoBody(doc: Document) {
+  if (!doc.head || !doc.body) {
+    return;
+  }
+  const styles = Array.from(doc.head.querySelectorAll(`style[${HYDRATED_STYLE_ID}]`));
+  const firstChild = doc.body.firstChild;
+  for (const style of styles) {
+    doc.body.insertBefore(style, firstChild);
+  }
 }
 
 function isValidDocument(doc: Document) {
