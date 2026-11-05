@@ -276,7 +276,8 @@ function* streamToHtml(
           (childNodes.length === 0 ||
             (childNodes.length === 1 &&
               childNodes[0].nodeType === NODE_TYPES.TEXT_NODE &&
-              childNodes[0].nodeValue?.trim() === ''))
+              childNodes[0].nodeValue?.trim() === '') ||
+            hasOnlyRemovedComments(childNodes, opts))
         ) {
           yield '\n';
           output.currentLineWidth = 0;
@@ -303,6 +304,8 @@ function* streamToHtml(
             (typeof childNodes[0].nodeValue !== 'string' || childNodes[0].nodeValue.trim() === '')
           ) {
             // skip over empty text nodes
+          } else if (hasOnlyRemovedComments(childNodes, opts)) {
+            // skip over comments that are removed from the output
           } else {
             const isWithinWhitespaceSensitiveNode =
               opts.newLines || (opts.indentSpaces ?? 0) > 0 ? isWithinWhitespaceSensitive(node) : false;
@@ -475,17 +478,11 @@ function* streamToHtml(
   } else if (node.nodeType === NODE_TYPES.COMMENT_NODE) {
     const nodeValue = node.nodeValue;
 
-    const isHydrateAnnotation =
-      nodeValue?.startsWith(CONTENT_REF_ID + '.') ||
-      nodeValue?.startsWith(ORG_LOCATION_ID + '.') ||
-      nodeValue?.startsWith(SLOT_NODE_ID + '.') ||
-      nodeValue?.startsWith(TEXT_NODE_ID + '.');
-
     /**
      * remove comments from stringified output if user set the `removeHtmlComments` e.g.
      * in the `renderToString` function and we are no dealing with a hydrate annotation
      */
-    if (opts.removeHtmlComments && !isHydrateAnnotation) {
+    if (isRemovedComment(node, opts)) {
       return;
     }
 
@@ -554,6 +551,53 @@ function isWithinWhitespaceSensitive(node: Node | MockNode) {
     _node = _node.parentNode;
   }
   return false;
+}
+
+/**
+ * Determine whether a comment node is left out of the serialized output, which
+ * happens when `removeHtmlComments` is set and the comment is not a hydrate
+ * annotation.
+ *
+ * @param node a node to check
+ * @param opts serialization options
+ * @returns whether or not the node is a comment that will not be serialized
+ */
+function isRemovedComment(node: Node | MockNode, opts: SerializeNodeToHtmlOptions) {
+  if (node.nodeType !== NODE_TYPES.COMMENT_NODE || !opts.removeHtmlComments) {
+    return false;
+  }
+  const nodeValue = node.nodeValue;
+  const isHydrateAnnotation =
+    nodeValue?.startsWith(CONTENT_REF_ID + '.') ||
+    nodeValue?.startsWith(ORG_LOCATION_ID + '.') ||
+    nodeValue?.startsWith(SLOT_NODE_ID + '.') ||
+    nodeValue?.startsWith(TEXT_NODE_ID + '.');
+  return !isHydrateAnnotation;
+}
+
+/**
+ * Determine whether a list of child nodes contains at least one comment that is
+ * removed from the output and otherwise only whitespace text, so that serializing
+ * it produces no content.
+ *
+ * @param childNodes the child nodes to check
+ * @param opts serialization options
+ * @returns whether or not the child nodes serialize to nothing
+ */
+function hasOnlyRemovedComments(childNodes: NodeList, opts: SerializeNodeToHtmlOptions) {
+  let hasRemovedComment = false;
+  for (let i = 0; i < childNodes.length; i++) {
+    const childNode = childNodes[i];
+    if (isRemovedComment(childNode, opts)) {
+      hasRemovedComment = true;
+    } else if (
+      childNode.nodeType !== NODE_TYPES.TEXT_NODE ||
+      (typeof childNode.nodeValue === 'string' && childNode.nodeValue.trim() !== '')
+    ) {
+      return false;
+    }
+  }
+  return hasRemovedComment;
 }
 
 /**
