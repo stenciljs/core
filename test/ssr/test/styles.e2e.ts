@@ -67,7 +67,9 @@ test.describe('styles and modes', () => {
       expect(style1Text).toContain('.sc-non-shadow-child-h');
     });
 
-    test('includes scoped component styles in a fragment (fullDocument: false)', async ({ page }) => {
+    test('includes scoped component styles in a fragment (fullDocument: false)', async ({
+      page,
+    }) => {
       const { html } = await renderToString('<scoped-ssr-child-cmp></scoped-ssr-child-cmp>', {
         fullDocument: false,
       });
@@ -92,7 +94,9 @@ test.describe('styles and modes', () => {
 
     test('does not move styles into the body of a full document', async () => {
       const { html } = await renderToString('<scoped-ssr-child-cmp></scoped-ssr-child-cmp>');
-      expect(html || '').toMatch(/<head>[\s\S]*<style sty-id="sc-scoped-ssr-child-cmp">[\s\S]*<\/head>/);
+      expect(html || '').toMatch(
+        /<head>[\s\S]*<style sty-id="sc-scoped-ssr-child-cmp">[\s\S]*<\/head>/,
+      );
       expect(html || '').not.toMatch(/<body>[\s\S]*<style sty-id=/);
     });
 

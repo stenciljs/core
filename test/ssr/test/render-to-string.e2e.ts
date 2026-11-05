@@ -97,7 +97,8 @@ test.describe('renderToString API', () => {
     });
 
     test('fragment renders keep counting across calls until resetSsrDocData()', async () => {
-      const fragment = async () => hostIds((await renderToString(page(), { fullDocument: false })).html);
+      const fragment = async () =>
+        hostIds((await renderToString(page(), { fullDocument: false })).html);
       const a = await fragment();
       const b = await fragment();
       // fragments of one page must not collide
