@@ -949,6 +949,16 @@ export interface SsrDocumentOptions {
    */
   referrer?: string;
   /**
+   * Render into one long-lived mock window, reset between renders, instead of creating a new one
+   * for every call. Skips evaluating the whole SSR platform (runtime and every component)
+   * on each render: most of the cost of rendering a small fragment, and a good part of a whole page.
+   *
+   * Applies to HTML string input (not a `Document`). One window per distinct `serializeShadowRoot` value,
+   * and renders sharing a window run one at a time.
+   * Defaults to `false`, except in the `ssr-wasm` output target, where it defaults to `true`.
+   */
+  reuseWindow?: boolean;
+  /**
    * Removes every `<script>` element found in the `document`. Defaults to `false`.
    */
   removeScripts?: boolean;
@@ -1091,6 +1101,12 @@ export interface SsrFactoryOptions extends SerializeDocumentOptions {
   serializeToHtml: boolean;
   destroyWindow: boolean;
   destroyDocument: boolean;
+  /**
+   * A canonical key for `serializeShadowRoot`, set by the renderer. Renders with the same key
+   * render every component the same way, so they can share an SSR platform.
+   * @internal
+   */
+  serializeShadowRootKey?: string;
 }
 
 /**

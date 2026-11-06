@@ -1,6 +1,6 @@
 import { createConsole } from './console';
 import { MockCustomElementRegistry } from './custom-element-registry';
-import { MockDocument, resetDocument } from './document';
+import { MockDocument, resetDocument, resetDocumentForReuse } from './document';
 import { MockDocumentFragment } from './document-fragment';
 import { MockSVGElement } from './element';
 import {
@@ -856,6 +856,88 @@ export function cloneDocument(srcDoc: Document) {
 export function constrainTimeouts(win: MockWindow) {
   win.__allowInterval = false;
   win.__maxTimeout = 0;
+}
+
+/**
+ * Reset a window so the same object can be used for another render, then parse `html` into its
+ * document.
+ *
+ * Code that captured the window's sub-objects (e.g. an SSR platform holding `win.location`,
+ * `win.console` or `win.document`) keeps working: those objects are kept and reset in place,
+ * rather than replaced. Everything else on the window - including anything a previous render
+ * added - is removed.
+ * @param win the window to reset
+ * @param html the HTML for the next render
+ */
+export function resetWindowForReuse(win: MockWindow, html: string) {
+  const retained = {
+    console: win.console,
+    document: win.document as unknown as MockDocument,
+    eventCounts: win.performance.eventCounts as Map<string, number>,
+    history: win.history,
+    localStorage: win.localStorage,
+    location: win.location,
+    navigator: win.navigator,
+    orientation: win.screen.orientation,
+    performance: win.performance,
+    screen: win.screen,
+    sessionStorage: win.sessionStorage,
+  };
+
+  if (win.__timeouts) {
+    win.__timeouts.forEach((timeoutId) => {
+      nativeClearInterval(timeoutId);
+      nativeClearTimeout(timeoutId);
+    });
+  }
+
+  resetObject(retained.console, createConsole());
+  resetObject(retained.history, new MockHistory());
+  resetObject(retained.location, new MockLocation());
+  resetObject(retained.navigator, new MockNavigator());
+  retained.localStorage.clear();
+  retained.sessionStorage.clear();
+  retained.eventCounts.clear();
+  resetObject(retained.performance, {
+    eventCounts: retained.eventCounts,
+    interactionCount: 0,
+    timeOrigin: Date.now(),
+  });
+
+  for (const key of Reflect.ownKeys(win)) {
+    delete (win as any)[key];
+  }
+
+  resetWindowDefaults(win);
+  resetWindowDimensions(win);
+  const defaultScreen = win.screen;
+  resetObject(retained.orientation, defaultScreen.orientation);
+  resetObject(retained.screen, { ...defaultScreen, orientation: retained.orientation });
+
+  win.console = retained.console;
+  win.customElements = null;
+  win.document = retained.document as any;
+  win.history = retained.history;
+  win.localStorage = retained.localStorage;
+  win.location = retained.location;
+  win.navigator = retained.navigator;
+  win.performance = retained.performance;
+  win.screen = retained.screen;
+  win.sessionStorage = retained.sessionStorage;
+
+  resetDocumentForReuse(retained.document, win, html);
+}
+
+/**
+ * Replace every own property of `target` with those of `defaults`, keeping the object itself.
+ * @param target the object to reset in place
+ * @param defaults the properties it should have afterwards
+ */
+function resetObject(target: object, defaults: object) {
+  for (const key of Reflect.ownKeys(target)) {
+    delete (target as any)[key];
+  }
+  Object.assign(target, defaults);
 }
 
 function resetWindow(win: MockWindow) {

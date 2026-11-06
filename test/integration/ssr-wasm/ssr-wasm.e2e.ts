@@ -180,6 +180,35 @@ describe('ssr-wasm plugin execution', () => {
   // QuickJS-ng runs to completion: a component whose hydration never settles (and has no
   // timer due before the timeout) makes renderToString() resolve quickly with an error result
   // instead of hanging or silently returning no output.
+  it('keeps rendering fragments after a call whose render never settled', async () => {
+    // Fragment renders share one window per plugin instance (reuseWindow defaults to true here),
+    // and renders sharing a window queue behind each other. A render that never settles must not
+    // block every later call.
+    const fragment = (html: string) =>
+      call('renderToString', { html, options: { fullDocument: false } });
+
+    const stuck = await fragment('<hangs-forever-cmp></hangs-forever-cmp>');
+    expect(typeof stuck.__error).toBe('string');
+
+    for (const name of ['After', 'Again']) {
+      const output = await fragment(`<my-greeting name="${name}"></my-greeting>`);
+      expect(output.__error).toBeUndefined();
+      expect(output.html).toContain(`Hello, ${name}!`);
+    }
+  });
+
+  it('renders fragments the same with and without window reuse', async () => {
+    const html = '<my-greeting name="Same"></my-greeting>';
+    await call('resetSsrDocData', '');
+    const reused = await call('renderToString', { html, options: { fullDocument: false } });
+    await call('resetSsrDocData', '');
+    const fresh = await call('renderToString', {
+      html,
+      options: { fullDocument: false, reuseWindow: false },
+    });
+    expect(reused.html).toBe(fresh.html);
+  });
+
   it('a component that never settles resolves with an error result instead of hanging or returning nothing', async () => {
     const start = Date.now();
     const output = await call('renderToString', {
