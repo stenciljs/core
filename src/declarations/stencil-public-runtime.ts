@@ -1574,7 +1574,7 @@ export namespace JSXBase {
     contextmenu?: string;
     dir?: string;
     draggable?: boolean;
-    hidden?: boolean;
+    hidden?: boolean | '' | 'hidden' | 'until-found' | (string & {});
     id?: string;
     inert?: boolean;
     lang?: string;

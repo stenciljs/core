@@ -5,6 +5,7 @@ import { h } from '@stencil/core';
 export function TypeTestComponent() {
   return (
     <div>
+      <div hidden="until-found">Hidden until found</div>
       <h1 ariaLabel="123">Hello</h1>
       <h1 ariaLabel={'123'}>Hello</h1>
       {/* @ts-expect-error */}
