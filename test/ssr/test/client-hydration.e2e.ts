@@ -407,4 +407,143 @@ test.describe('client hydration', () => {
       expect(classes.withoutClass).toEqual(['child-disabled', 'child-own']);
     });
   });
+  /**
+   * Slotted content of components that don't render into a native shadow root (scoped, or no
+   * encapsulation) has to be moved into place on every client render, independently of what
+   * other components on the page have rendered. Each page below holds only the components under
+   * test, so no other render can mask a missed relocation.
+   */
+  test.describe('slot relocation after hydration', () => {
+    /** Wait for every Stencil component on the page, including those inside shadow roots. */
+    const waitForComponents = async (page: import('@playwright/test').Page, tags: string[]) => {
+      const collect = `(root, tags) => [...root.querySelectorAll('*')].flatMap((el) => [
+        ...(tags.includes(el.localName) ? [el] : []),
+        ...(el.shadowRoot ? collect(el.shadowRoot, tags) : []),
+      ])`;
+      await page.waitForFunction(
+        ({ tags, collect }) => {
+          const fn = new Function(`const collect = ${collect}; return collect;`)();
+          const found = fn(document, tags);
+          return found.length > 0 && found.every((el: any) => typeof el.componentOnReady === 'function');
+        },
+        { tags, collect },
+      );
+      await page.evaluate(
+        ({ tags, collect }) => {
+          const fn = new Function(`const collect = ${collect}; return collect;`)();
+          return Promise.all(fn(document, tags).map((el: any) => el.componentOnReady()));
+        },
+        { tags, collect },
+      );
+    };
+
+    const PARENT_TAGS = ['shadow-text-parent-cmp', 'scoped-ssr-child-cmp', 'plain-slot-cmp'];
+    const slotted = (page: import('@playwright/test').Page) =>
+      page.evaluate(() => {
+        const root = document.querySelector('shadow-text-parent-cmp')!.shadowRoot!;
+        const scoped = root.querySelector('scoped-ssr-child-cmp')!;
+        const plain = root.querySelector('plain-slot-cmp')!;
+        return {
+          scoped: scoped.querySelector('div')!.textContent,
+          scopedChildren: scoped.querySelectorAll('div').length,
+          plain: plain.querySelector('p.plain-slot')!.textContent,
+          plainParagraphs: plain.querySelectorAll('p').length,
+        };
+      });
+
+    test('keeps text a shadow component slots into scoped and unencapsulated children', async ({
+      page,
+    }) => {
+      const { html } = await renderToString('<shadow-text-parent-cmp></shadow-text-parent-cmp>', {
+        fullDocument: true,
+        serializeShadowRoot: 'declarative-shadow-dom',
+      });
+      expect(html || '').toContain('slotted text');
+
+      await page.setContent(html || '');
+      await waitForComponents(page, PARENT_TAGS);
+
+      expect(await slotted(page)).toEqual({
+        scoped: 'slotted text',
+        scopedChildren: 1,
+        plain: 'slotted text',
+        plainParagraphs: 1,
+      });
+    });
+
+    test('moves updated slotted text into place on later renders', async ({ page }) => {
+      const { html } = await renderToString('<shadow-text-parent-cmp></shadow-text-parent-cmp>', {
+        fullDocument: true,
+        serializeShadowRoot: 'declarative-shadow-dom',
+      });
+      await page.setContent(html || '');
+      await waitForComponents(page, PARENT_TAGS);
+
+      for (const text of ['second', 'third']) {
+        await page.evaluate((t) => {
+          (document.querySelector('shadow-text-parent-cmp') as any).text = t;
+        }, text);
+        await expect
+          .poll(() => slotted(page))
+          .toEqual({ scoped: text, scopedChildren: 1, plain: text, plainParagraphs: 1 });
+      }
+    });
+
+    test('relocates slotted text on the server when a shadow parent is rendered as scoped', async () => {
+      // `serializeShadowRoot: 'scoped'` renders shadow components without a shadow root on the
+      // server, so their slotted content has to be relocated there too.
+      const { html } = await renderToString('<shadow-text-parent-cmp></shadow-text-parent-cmp>', {
+        fullDocument: false,
+        serializeShadowRoot: 'scoped',
+      });
+      expect(html || '').toMatch(/<scoped-ssr-child-cmp[^>]*>(?:(?!<\/scoped-ssr-child-cmp>)[\s\S])*<div[^>]*>(?:<!--[^>]*-->)*slotted text<\/div>/);
+      expect(html || '').toMatch(/<p class="plain-slot"[^>]*>(?:<!--[^>]*-->)*slotted text<\/p>/);
+    });
+
+    test('keeps slotted content when a scoped component removes and re-renders its slot', async ({
+      page,
+    }) => {
+      const { html } = await renderToString(
+        '<scoped-slot-toggle-cmp><span class="light">light content</span></scoped-slot-toggle-cmp>',
+        { fullDocument: true },
+      );
+      await page.setContent(html || '');
+      await waitForComponents(page, ['scoped-slot-toggle-cmp']);
+
+      const light = page.locator('scoped-slot-toggle-cmp span.light');
+      await expect(light).toHaveCount(1);
+      await expect(page.locator('scoped-slot-toggle-cmp .wrap span.light')).toBeVisible();
+
+      await page.evaluate(() => {
+        (document.querySelector('scoped-slot-toggle-cmp') as any).showSlot = false;
+      });
+      await expect(light).toBeHidden();
+      await expect(light).toHaveCount(1);
+
+      await page.evaluate(() => {
+        (document.querySelector('scoped-slot-toggle-cmp') as any).showSlot = true;
+      });
+      await expect(page.locator('scoped-slot-toggle-cmp .wrap span.light')).toBeVisible();
+      await expect(light).toHaveCount(1);
+      await expect(light).toHaveText('light content');
+    });
+
+    test('keeps slotted text in a scoped component nested in a shadow component inside a shadow root', async ({
+      page,
+    }) => {
+      // shadow -> shadow -> scoped: the slotted text crosses two shadow boundaries
+      const { html } = await renderToString(
+        '<cmp-with-slot><shadow-text-parent-cmp text="deep"></shadow-text-parent-cmp></cmp-with-slot>',
+        { fullDocument: true, serializeShadowRoot: 'declarative-shadow-dom' },
+      );
+      await page.setContent(html || '');
+      await waitForComponents(page, ['cmp-with-slot', ...PARENT_TAGS]);
+      expect(await slotted(page)).toEqual({
+        scoped: 'deep',
+        scopedChildren: 1,
+        plain: 'deep',
+        plainParagraphs: 1,
+      });
+    });
+  });
 });
