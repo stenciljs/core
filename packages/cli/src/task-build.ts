@@ -1,5 +1,6 @@
 import { relative } from 'path';
 import { isCancel, select } from '@clack/prompts';
+import { isCI } from 'std-env';
 import type * as d from '@stencil/core/compiler';
 
 import { printCheckVersionResults, startCheckVersion } from './check-version';
@@ -138,12 +139,16 @@ type MigrationAction = 'run' | 'dry-run' | 'exit';
 /**
  * Prompt the user about available migrations.
  * Shows what migrations are available and lets them choose to run them.
+ *
+ * Without someone to answer (in CI, or when stdin isn't a terminal) it doesn't prompt: it says
+ * how to apply the migrations and returns `'exit'`, so the build fails instead of waiting
+ * forever on a prompt, or ending with exit code 0 when stdin closes.
  * @param config the Stencil config
  * @param migrationResult the result of migration detection with available migrations
  * @param context whether this is a pre-build check or post-error check
  * @returns the user's chosen action for handling migrations
  */
-async function promptForMigration(
+export async function promptForMigration(
   config: d.ValidatedConfig,
   migrationResult: MigrationDetectionResult,
   context: 'pre-build' | 'post-error',
@@ -169,6 +174,13 @@ async function promptForMigration(
     logger.info('Your config contains deprecated options that must be migrated before building.');
   } else {
     logger.info('These migrations may help resolve the build errors above.');
+  }
+
+  if (isCI || !process.stdin.isTTY) {
+    logger.info(
+      `Run ${logger.cyan('stencil migrate')} to apply them (or ${logger.cyan('stencil migrate --dry-run')} to preview the changes), then build again.`,
+    );
+    return 'exit';
   }
 
   const action = await select<string>({

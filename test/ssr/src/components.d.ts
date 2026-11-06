@@ -139,6 +139,11 @@ export namespace Components {
     interface PartWrapSsrShadowCmp {
         "selected": boolean;
     }
+    /**
+     * No encapsulation, with a default slot.
+     */
+    interface PlainSlotCmp {
+    }
     interface PrerenderCmp {
     }
     interface PropCmp {
@@ -182,6 +187,15 @@ export namespace Components {
         "cars": CarData[];
         "selected": CarData;
     }
+    /**
+     * Scoped, with a default slot that can be removed and rendered again.
+     */
+    interface ScopedSlotToggleCmp {
+        /**
+          * @default true
+         */
+        "showSlot": boolean;
+    }
     interface ScopedSsrChildCmp {
     }
     interface ScopedSsrParentCmp {
@@ -205,6 +219,17 @@ export namespace Components {
     interface ShadowSsrChildCmp {
     }
     interface ShadowSsrParentCmp {
+    }
+    /**
+     * A shadow component that renders non-shadow children with slotted text from its own template:
+     * the text is the shadow component's content, slotted into a scoped child
+     * (`scoped-ssr-child-cmp`) and an unencapsulated one (`plain-slot-cmp`).
+     */
+    interface ShadowTextParentCmp {
+        /**
+          * @default 'slotted text'
+         */
+        "text": string;
     }
     interface ShadowWrapper {
     }
@@ -433,6 +458,15 @@ declare global {
         prototype: HTMLPartWrapSsrShadowCmpElement;
         new (): HTMLPartWrapSsrShadowCmpElement;
     };
+    /**
+     * No encapsulation, with a default slot.
+     */
+    interface HTMLPlainSlotCmpElement extends Components.PlainSlotCmp, HTMLStencilElement {
+    }
+    var HTMLPlainSlotCmpElement: {
+        prototype: HTMLPlainSlotCmpElement;
+        new (): HTMLPlainSlotCmpElement;
+    };
     interface HTMLPrerenderCmpElement extends Components.PrerenderCmp, HTMLStencilElement {
     }
     var HTMLPrerenderCmpElement: {
@@ -476,6 +510,15 @@ declare global {
     var HTMLScopedCarListElement: {
         prototype: HTMLScopedCarListElement;
         new (): HTMLScopedCarListElement;
+    };
+    /**
+     * Scoped, with a default slot that can be removed and rendered again.
+     */
+    interface HTMLScopedSlotToggleCmpElement extends Components.ScopedSlotToggleCmp, HTMLStencilElement {
+    }
+    var HTMLScopedSlotToggleCmpElement: {
+        prototype: HTMLScopedSlotToggleCmpElement;
+        new (): HTMLScopedSlotToggleCmpElement;
     };
     interface HTMLScopedSsrChildCmpElement extends Components.ScopedSsrChildCmp, HTMLStencilElement {
     }
@@ -523,6 +566,17 @@ declare global {
     var HTMLShadowSsrParentCmpElement: {
         prototype: HTMLShadowSsrParentCmpElement;
         new (): HTMLShadowSsrParentCmpElement;
+    };
+    /**
+     * A shadow component that renders non-shadow children with slotted text from its own template:
+     * the text is the shadow component's content, slotted into a scoped child
+     * (`scoped-ssr-child-cmp`) and an unencapsulated one (`plain-slot-cmp`).
+     */
+    interface HTMLShadowTextParentCmpElement extends Components.ShadowTextParentCmp, HTMLStencilElement {
+    }
+    var HTMLShadowTextParentCmpElement: {
+        prototype: HTMLShadowTextParentCmpElement;
+        new (): HTMLShadowTextParentCmpElement;
     };
     interface HTMLShadowWrapperElement extends Components.ShadowWrapper, HTMLStencilElement {
     }
@@ -608,11 +662,13 @@ declare global {
         "own-controller-cmp": HTMLOwnControllerCmpElement;
         "part-ssr-shadow-cmp": HTMLPartSsrShadowCmpElement;
         "part-wrap-ssr-shadow-cmp": HTMLPartWrapSsrShadowCmpElement;
+        "plain-slot-cmp": HTMLPlainSlotCmpElement;
         "prerender-cmp": HTMLPrerenderCmpElement;
         "prop-cmp": HTMLPropCmpElement;
         "runtime-decorators": HTMLRuntimeDecoratorsElement;
         "scoped-car-detail": HTMLScopedCarDetailElement;
         "scoped-car-list": HTMLScopedCarListElement;
+        "scoped-slot-toggle-cmp": HTMLScopedSlotToggleCmpElement;
         "scoped-ssr-child-cmp": HTMLScopedSsrChildCmpElement;
         "scoped-ssr-parent-cmp": HTMLScopedSsrParentCmpElement;
         "serialize-deserializer": HTMLSerializeDeserializerElement;
@@ -620,6 +676,7 @@ declare global {
         "shadow-closed": HTMLShadowClosedElement;
         "shadow-ssr-child-cmp": HTMLShadowSsrChildCmpElement;
         "shadow-ssr-parent-cmp": HTMLShadowSsrParentCmpElement;
+        "shadow-text-parent-cmp": HTMLShadowTextParentCmpElement;
         "shadow-wrapper": HTMLShadowWrapperElement;
         "slow-fetch-cmp": HTMLSlowFetchCmpElement;
         "slow-ssr-prop": HTMLSlowSsrPropElement;
@@ -766,6 +823,11 @@ declare namespace LocalJSX {
     interface PartWrapSsrShadowCmp {
         "selected"?: boolean;
     }
+    /**
+     * No encapsulation, with a default slot.
+     */
+    interface PlainSlotCmp {
+    }
     interface PrerenderCmp {
     }
     interface PropCmp {
@@ -810,6 +872,15 @@ declare namespace LocalJSX {
         "onCarSelected"?: (event: ScopedCarListCustomEvent<CarData>) => void;
         "selected"?: CarData;
     }
+    /**
+     * Scoped, with a default slot that can be removed and rendered again.
+     */
+    interface ScopedSlotToggleCmp {
+        /**
+          * @default true
+         */
+        "showSlot"?: boolean;
+    }
     interface ScopedSsrChildCmp {
     }
     interface ScopedSsrParentCmp {
@@ -830,6 +901,17 @@ declare namespace LocalJSX {
     interface ShadowSsrChildCmp {
     }
     interface ShadowSsrParentCmp {
+    }
+    /**
+     * A shadow component that renders non-shadow children with slotted text from its own template:
+     * the text is the shadow component's content, slotted into a scoped child
+     * (`scoped-ssr-child-cmp`) and an unencapsulated one (`plain-slot-cmp`).
+     */
+    interface ShadowTextParentCmp {
+        /**
+          * @default 'slotted text'
+         */
+        "text"?: string;
     }
     interface ShadowWrapper {
     }
@@ -921,9 +1003,15 @@ declare namespace LocalJSX {
     interface ScopedCarListAttributes {
         "cars": string;
     }
+    interface ScopedSlotToggleCmpAttributes {
+        "showSlot": boolean;
+    }
     interface SerializeDeserializerAttributes {
         "array": string;
         "getSet": string;
+    }
+    interface ShadowTextParentCmpAttributes {
+        "text": string;
     }
     interface SlowFetchCmpAttributes {
         "url": string;
@@ -963,11 +1051,13 @@ declare namespace LocalJSX {
         "own-controller-cmp": OwnControllerCmp;
         "part-ssr-shadow-cmp": Omit<PartSsrShadowCmp, keyof PartSsrShadowCmpAttributes> & { [K in keyof PartSsrShadowCmp & keyof PartSsrShadowCmpAttributes]?: PartSsrShadowCmp[K] } & { [K in keyof PartSsrShadowCmp & keyof PartSsrShadowCmpAttributes as `attr:${K}`]?: PartSsrShadowCmpAttributes[K] } & { [K in keyof PartSsrShadowCmp & keyof PartSsrShadowCmpAttributes as `prop:${K}`]?: PartSsrShadowCmp[K] };
         "part-wrap-ssr-shadow-cmp": Omit<PartWrapSsrShadowCmp, keyof PartWrapSsrShadowCmpAttributes> & { [K in keyof PartWrapSsrShadowCmp & keyof PartWrapSsrShadowCmpAttributes]?: PartWrapSsrShadowCmp[K] } & { [K in keyof PartWrapSsrShadowCmp & keyof PartWrapSsrShadowCmpAttributes as `attr:${K}`]?: PartWrapSsrShadowCmpAttributes[K] } & { [K in keyof PartWrapSsrShadowCmp & keyof PartWrapSsrShadowCmpAttributes as `prop:${K}`]?: PartWrapSsrShadowCmp[K] };
+        "plain-slot-cmp": PlainSlotCmp;
         "prerender-cmp": PrerenderCmp;
         "prop-cmp": Omit<PropCmp, keyof PropCmpAttributes> & { [K in keyof PropCmp & keyof PropCmpAttributes]?: PropCmp[K] } & { [K in keyof PropCmp & keyof PropCmpAttributes as `attr:${K}`]?: PropCmpAttributes[K] } & { [K in keyof PropCmp & keyof PropCmpAttributes as `prop:${K}`]?: PropCmp[K] };
         "runtime-decorators": Omit<RuntimeDecorators, keyof RuntimeDecoratorsAttributes> & { [K in keyof RuntimeDecorators & keyof RuntimeDecoratorsAttributes]?: RuntimeDecorators[K] } & { [K in keyof RuntimeDecorators & keyof RuntimeDecoratorsAttributes as `attr:${K}`]?: RuntimeDecoratorsAttributes[K] } & { [K in keyof RuntimeDecorators & keyof RuntimeDecoratorsAttributes as `prop:${K}`]?: RuntimeDecorators[K] };
         "scoped-car-detail": Omit<ScopedCarDetail, keyof ScopedCarDetailAttributes> & { [K in keyof ScopedCarDetail & keyof ScopedCarDetailAttributes]?: ScopedCarDetail[K] } & { [K in keyof ScopedCarDetail & keyof ScopedCarDetailAttributes as `attr:${K}`]?: ScopedCarDetailAttributes[K] } & { [K in keyof ScopedCarDetail & keyof ScopedCarDetailAttributes as `prop:${K}`]?: ScopedCarDetail[K] };
         "scoped-car-list": Omit<ScopedCarList, keyof ScopedCarListAttributes> & { [K in keyof ScopedCarList & keyof ScopedCarListAttributes]?: ScopedCarList[K] } & { [K in keyof ScopedCarList & keyof ScopedCarListAttributes as `attr:${K}`]?: ScopedCarListAttributes[K] } & { [K in keyof ScopedCarList & keyof ScopedCarListAttributes as `prop:${K}`]?: ScopedCarList[K] };
+        "scoped-slot-toggle-cmp": Omit<ScopedSlotToggleCmp, keyof ScopedSlotToggleCmpAttributes> & { [K in keyof ScopedSlotToggleCmp & keyof ScopedSlotToggleCmpAttributes]?: ScopedSlotToggleCmp[K] } & { [K in keyof ScopedSlotToggleCmp & keyof ScopedSlotToggleCmpAttributes as `attr:${K}`]?: ScopedSlotToggleCmpAttributes[K] } & { [K in keyof ScopedSlotToggleCmp & keyof ScopedSlotToggleCmpAttributes as `prop:${K}`]?: ScopedSlotToggleCmp[K] };
         "scoped-ssr-child-cmp": ScopedSsrChildCmp;
         "scoped-ssr-parent-cmp": ScopedSsrParentCmp;
         "serialize-deserializer": Omit<SerializeDeserializer, keyof SerializeDeserializerAttributes> & { [K in keyof SerializeDeserializer & keyof SerializeDeserializerAttributes]?: SerializeDeserializer[K] } & { [K in keyof SerializeDeserializer & keyof SerializeDeserializerAttributes as `attr:${K}`]?: SerializeDeserializerAttributes[K] } & { [K in keyof SerializeDeserializer & keyof SerializeDeserializerAttributes as `prop:${K}`]?: SerializeDeserializer[K] };
@@ -975,6 +1065,7 @@ declare namespace LocalJSX {
         "shadow-closed": ShadowClosed;
         "shadow-ssr-child-cmp": ShadowSsrChildCmp;
         "shadow-ssr-parent-cmp": ShadowSsrParentCmp;
+        "shadow-text-parent-cmp": Omit<ShadowTextParentCmp, keyof ShadowTextParentCmpAttributes> & { [K in keyof ShadowTextParentCmp & keyof ShadowTextParentCmpAttributes]?: ShadowTextParentCmp[K] } & { [K in keyof ShadowTextParentCmp & keyof ShadowTextParentCmpAttributes as `attr:${K}`]?: ShadowTextParentCmpAttributes[K] } & { [K in keyof ShadowTextParentCmp & keyof ShadowTextParentCmpAttributes as `prop:${K}`]?: ShadowTextParentCmp[K] };
         "shadow-wrapper": ShadowWrapper;
         "slow-fetch-cmp": Omit<SlowFetchCmp, keyof SlowFetchCmpAttributes> & { [K in keyof SlowFetchCmp & keyof SlowFetchCmpAttributes]?: SlowFetchCmp[K] } & { [K in keyof SlowFetchCmp & keyof SlowFetchCmpAttributes as `attr:${K}`]?: SlowFetchCmpAttributes[K] } & { [K in keyof SlowFetchCmp & keyof SlowFetchCmpAttributes as `prop:${K}`]?: SlowFetchCmp[K] };
         "slow-ssr-prop": SlowSsrProp;
@@ -1027,6 +1118,10 @@ declare module "@stencil/core" {
             "own-controller-cmp": LocalJSX.IntrinsicElements["own-controller-cmp"] & JSXBase.HTMLAttributes<HTMLOwnControllerCmpElement>;
             "part-ssr-shadow-cmp": LocalJSX.IntrinsicElements["part-ssr-shadow-cmp"] & JSXBase.HTMLAttributes<HTMLPartSsrShadowCmpElement>;
             "part-wrap-ssr-shadow-cmp": LocalJSX.IntrinsicElements["part-wrap-ssr-shadow-cmp"] & JSXBase.HTMLAttributes<HTMLPartWrapSsrShadowCmpElement>;
+            /**
+             * No encapsulation, with a default slot.
+             */
+            "plain-slot-cmp": LocalJSX.IntrinsicElements["plain-slot-cmp"] & JSXBase.HTMLAttributes<HTMLPlainSlotCmpElement>;
             "prerender-cmp": LocalJSX.IntrinsicElements["prerender-cmp"] & JSXBase.HTMLAttributes<HTMLPrerenderCmpElement>;
             "prop-cmp": LocalJSX.IntrinsicElements["prop-cmp"] & JSXBase.HTMLAttributes<HTMLPropCmpElement>;
             "runtime-decorators": LocalJSX.IntrinsicElements["runtime-decorators"] & JSXBase.HTMLAttributes<HTMLRuntimeDecoratorsElement>;
@@ -1035,6 +1130,10 @@ declare module "@stencil/core" {
              * Component that helps display a list of cars
              */
             "scoped-car-list": LocalJSX.IntrinsicElements["scoped-car-list"] & JSXBase.HTMLAttributes<HTMLScopedCarListElement>;
+            /**
+             * Scoped, with a default slot that can be removed and rendered again.
+             */
+            "scoped-slot-toggle-cmp": LocalJSX.IntrinsicElements["scoped-slot-toggle-cmp"] & JSXBase.HTMLAttributes<HTMLScopedSlotToggleCmpElement>;
             "scoped-ssr-child-cmp": LocalJSX.IntrinsicElements["scoped-ssr-child-cmp"] & JSXBase.HTMLAttributes<HTMLScopedSsrChildCmpElement>;
             "scoped-ssr-parent-cmp": LocalJSX.IntrinsicElements["scoped-ssr-parent-cmp"] & JSXBase.HTMLAttributes<HTMLScopedSsrParentCmpElement>;
             "serialize-deserializer": LocalJSX.IntrinsicElements["serialize-deserializer"] & JSXBase.HTMLAttributes<HTMLSerializeDeserializerElement>;
@@ -1047,6 +1146,12 @@ declare module "@stencil/core" {
             "shadow-closed": LocalJSX.IntrinsicElements["shadow-closed"] & JSXBase.HTMLAttributes<HTMLShadowClosedElement>;
             "shadow-ssr-child-cmp": LocalJSX.IntrinsicElements["shadow-ssr-child-cmp"] & JSXBase.HTMLAttributes<HTMLShadowSsrChildCmpElement>;
             "shadow-ssr-parent-cmp": LocalJSX.IntrinsicElements["shadow-ssr-parent-cmp"] & JSXBase.HTMLAttributes<HTMLShadowSsrParentCmpElement>;
+            /**
+             * A shadow component that renders non-shadow children with slotted text from its own template:
+             * the text is the shadow component's content, slotted into a scoped child
+             * (`scoped-ssr-child-cmp`) and an unencapsulated one (`plain-slot-cmp`).
+             */
+            "shadow-text-parent-cmp": LocalJSX.IntrinsicElements["shadow-text-parent-cmp"] & JSXBase.HTMLAttributes<HTMLShadowTextParentCmpElement>;
             "shadow-wrapper": LocalJSX.IntrinsicElements["shadow-wrapper"] & JSXBase.HTMLAttributes<HTMLShadowWrapperElement>;
             /**
              * Used by hydrate-timeout.e2e.ts to reproduce stenciljs/core#6864: a
