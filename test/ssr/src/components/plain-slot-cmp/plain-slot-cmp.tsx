@@ -7,7 +7,7 @@ import { Component, h } from '@stencil/core';
 export class PlainSlotCmp {
   render() {
     return (
-      <p class="plain-slot">
+      <p class='plain-slot'>
         <slot />
       </p>
     );

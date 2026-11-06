@@ -1,7 +1,7 @@
 import { relative } from 'path';
 import { isCancel, select } from '@clack/prompts';
-import type * as d from '@stencil/core/compiler';
 import { isCI } from 'std-env';
+import type * as d from '@stencil/core/compiler';
 
 import { printCheckVersionResults, startCheckVersion } from './check-version';
 import { startupCompilerLog } from './logs';

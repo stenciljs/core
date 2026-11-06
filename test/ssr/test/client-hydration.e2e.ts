@@ -424,7 +424,9 @@ test.describe('client hydration', () => {
         ({ tags, collect }) => {
           const fn = new Function(`const collect = ${collect}; return collect;`)();
           const found = fn(document, tags);
-          return found.length > 0 && found.every((el: any) => typeof el.componentOnReady === 'function');
+          return (
+            found.length > 0 && found.every((el: any) => typeof el.componentOnReady === 'function')
+          );
         },
         { tags, collect },
       );
@@ -496,7 +498,9 @@ test.describe('client hydration', () => {
         fullDocument: false,
         serializeShadowRoot: 'scoped',
       });
-      expect(html || '').toMatch(/<scoped-ssr-child-cmp[^>]*>(?:(?!<\/scoped-ssr-child-cmp>)[\s\S])*<div[^>]*>(?:<!--[^>]*-->)*slotted text<\/div>/);
+      expect(html || '').toMatch(
+        /<scoped-ssr-child-cmp[^>]*>(?:(?!<\/scoped-ssr-child-cmp>)[\s\S])*<div[^>]*>(?:<!--[^>]*-->)*slotted text<\/div>/,
+      );
       expect(html || '').toMatch(/<p class="plain-slot"[^>]*>(?:<!--[^>]*-->)*slotted text<\/p>/);
     });
 

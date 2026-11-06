@@ -9,6 +9,6 @@ export class ScopedSlotToggleCmp {
   @Prop() showSlot = true;
 
   render() {
-    return <div class="wrap">{this.showSlot && <slot />}</div>;
+    return <div class='wrap'>{this.showSlot && <slot />}</div>;
   }
 }

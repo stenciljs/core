@@ -13,6 +13,7 @@ vi.mock('@clack/prompts', () => ({
 }));
 
 import * as clack from '@clack/prompts';
+
 import { promptForMigration } from '../task-build';
 
 describe('promptForMigration', () => {
