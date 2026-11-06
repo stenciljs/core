@@ -36,6 +36,7 @@ let hostTagName: string;
 let hostRegistry: CustomElementRegistry;
 let useNativeShadowDom = false;
 let checkSlotFallbackVisibility = false;
+/** Whether the current render has slotted content to relocate. Set at the start of each render. */
 let checkSlotRelocate = false;
 let isSvgMode = false;
 
@@ -1076,6 +1077,11 @@ export const insertBefore = (
   isInitialLoad?: boolean,
 ): Node => {
   if (BUILD.slotRelocation) {
+    if ((parent as d.RenderNode | null)?.['s-cr']) {
+      // `parent` is the host of a component that relocates its slotted content (it has a
+      // content ref). The node just added to it has to be moved into its slot in this render
+      checkSlotRelocate = true;
+    }
     if (
       BUILD.scoped &&
       typeof newNode['s-sn'] === 'string' &&
@@ -1293,6 +1299,12 @@ render() {
 
     // always reset
     checkSlotFallbackVisibility = false;
+
+    // Decided per render. A component with `<slot>`s that isn't rendering into a native shadow
+    // root has to move its slotted content into place on every render - including content a
+    // parent added since the last one. The patch below also sets it when it adds nodes to
+    // another component's host (see `insertBefore`) or moves slot content around.
+    checkSlotRelocate = !useNativeShadowDom && !!(cmpMeta.$flags$ & CMP_FLAGS.hasSlot);
   }
 
   // synchronous patch
@@ -1469,7 +1481,6 @@ render() {
   // Only an issue if there were no "slots" rendered. Otherwise, nodes are hidden correctly.
   if (
     BUILD.slotRelocation &&
-    !useNativeShadowDom &&
     !(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) &&
     hostElm['s-cr']
   ) {
