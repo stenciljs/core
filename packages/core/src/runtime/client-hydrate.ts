@@ -102,7 +102,10 @@ export const initializeClientHydrate = (
     const node = childRenderNode.$elm$ as d.RenderNode;
 
     if (!shadowRoot) {
-      node['s-hn'] = transformTag(tagName).toUpperCase();
+      if (childRenderNode.$hostId$ === hostId) {
+        // Only nodes this component rendered belong to it.
+        node['s-hn'] = transformTag(tagName).toUpperCase();
+      }
 
       if (childRenderNode.$tag$ === 'slot') {
         // If this is a virtual 'slot', add it's Content-position Reference now.
@@ -218,17 +221,15 @@ export const initializeClientHydrate = (
         // Try to set an appropriate Content-position Reference (CR) node for this host element
 
         if (!siSlot['s-cr']) {
-          // Is a CR already set on the host?
-          siSlot['s-cr'] = hostEle['s-cr'];
-
-          if (!siSlot['s-cr'] && hostEle.shadowRoot) {
-            // Host has shadowDOM - just use the host itself as the CR for native slotting
-            siSlot['s-cr'] = hostEle;
-          } else {
-            // If all else fails - just set the CR as the first child
-            // (9/10 if node['s-cr'] hasn't been set, the node will be at the element root)
-            siSlot['s-cr'] = ((hostEle as any).__childNodes || hostEle.childNodes)[0];
-          }
+          siSlot['s-cr'] =
+            // the CR already set on the host, if there is one
+            hostEle['s-cr'] ||
+            // a host with shadowDOM - just use the host itself as the CR for native slotting
+            (hostEle.shadowRoot
+              ? hostEle
+              : // if all else fails - the first child
+                // (9/10 if node['s-cr'] hasn't been set, the node will be at the element root)
+                ((hostEle as any).__childNodes || hostEle.childNodes)[0]);
         }
         // Create our 'Original Location' node
         addSlotRelocateNode(siNode, siSlot, false, siNode['s-oo'] || currentPos);
