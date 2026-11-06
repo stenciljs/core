@@ -178,9 +178,17 @@ const SSR_WASM_INTERFACE = /* ts */ `declare module "main" {
 // snapshot taken during IIFE setup (which QuickJS-ng resolves incorrectly).
 // setTagTransformer accepts [{from: string, to: string}] and builds a tag transformer.
 const SSR_WASM_OUTRO = /* js */ `
+// Whether a renderToString call is in progress. Still true at the start of a call means the last
+// call ended with its render waiting on work that never resolved (see below).
+var $stencilWasmRenderInProgress = false;
+
 module.exports = {
   renderToString: async function() {
     try {
+      if ($stencilWasmRenderInProgress && typeof resetReusableWindows === 'function') {
+        // That render will never finish, so it would hold its reusable window and queue forever.
+        resetReusableWindows();
+      }
       if (typeof renderToString !== 'function') {
         Host.outputString(JSON.stringify({ __error: 'renderToString is ' + typeof renderToString }));
         return;
@@ -192,15 +200,20 @@ module.exports = {
       // silence, then overwrite it once renderToString() actually resolves.
       Host.outputString(JSON.stringify({ __error: 'renderToString did not complete - a component may be waiting on work that never resolves' }));
       var opts = inp.options || {};
+      // A plugin instance runs one call at a time, so its renders can always share one window
+      // (see the reuseWindow option). Skips re-evaluating the whole platform on every call.
+      if (typeof opts.reuseWindow !== 'boolean') opts.reuseWindow = true;
       var budget = typeof opts.timeout === 'number' ? opts.timeout : 15000;
       var timers = globalThis.__stencilSsrWasmTimers;
       var render = timers && timers.start(budget, function() {
         Host.outputString(JSON.stringify({ __error: 'renderToString did not complete within the ' + budget + 'ms timeout - a component may be waiting on work that never resolves, on a timer due after the timeout, or on timers it schedules forever' }));
       });
       var result;
+      $stencilWasmRenderInProgress = true;
       try {
-        result = await renderToString(inp.html, inp.options);
+        result = await renderToString(inp.html, opts);
       } finally {
+        $stencilWasmRenderInProgress = false;
         if (render) timers.stop(render);
       }
       // renderToString reports some failures (e.g. input that isn't an HTML string) as an
@@ -226,6 +239,9 @@ module.exports = {
       var m = mappings.find(function(x) { return x.from === tag; });
       return m ? m.to : tag;
     });
+    // Platforms register components under their transformed tags when they're set up, so the
+    // reused windows' platforms have to be set up again.
+    if (typeof resetReusableWindows === 'function') resetReusableWindows();
   },
   resetSsrDocData: function() {
     resetSsrDocData();

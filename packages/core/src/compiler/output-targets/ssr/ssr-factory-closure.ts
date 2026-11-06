@@ -20,7 +20,39 @@ var $nativeClearTimeout = (typeof globalThis !== 'undefined' ? globalThis : glob
 // Used to abort in-flight fetch() calls and to call any user defined AbortControllers when ssr times out.
 var $stencilNativeAbortController = AbortController;
 
+// Evaluated SSR platforms, per window and per serializeShadowRoot mode. Evaluating the platform
+// (runtime, vdom and every component class) is the main fixed cost of a render, so a window that's
+// rendered into again (see the \`reuseWindow\` option) reuses it. A new window gets a new platform.
+var $stencilSsrApps = new WeakMap();
+
 export function ssrFactory($stencilWindow, $stencilHydrateOpts, $stencilHydrateResults, $stencilAfterHydrate, $stencilHydrateResolve) {
+  // Rendering shadow components as scoped permanently changes their metadata inside the platform,
+  // so a platform is only shared by renders whose serializeShadowRoot marks the same components as
+  // scoped: keyed by the canonical key the renderer computes for it.
+  var $stencilShadowModeKey = $stencilHydrateOpts.serializeShadowRootKey;
+  var $stencilApp;
+  if (typeof $stencilShadowModeKey !== 'string') {
+    $stencilApp = $stencilCreateSsrApp($stencilWindow);
+  } else {
+    var $stencilWindowApps = $stencilSsrApps.get($stencilWindow);
+    if (!$stencilWindowApps) {
+      $stencilWindowApps = new Map();
+      $stencilSsrApps.set($stencilWindow, $stencilWindowApps);
+    }
+    $stencilApp = $stencilWindowApps.get($stencilShadowModeKey);
+    if (!$stencilApp) {
+      $stencilApp = $stencilCreateSsrApp($stencilWindow);
+      $stencilWindowApps.set($stencilShadowModeKey, $stencilApp);
+    }
+  }
+  $stencilApp($stencilHydrateOpts, $stencilHydrateResults, $stencilAfterHydrate, $stencilHydrateResolve);
+}
+
+/**
+ * Evaluates the SSR platform for a window, and returns a function that renders with it.
+ * Renders using the same platform must run one at a time.
+ */
+function $stencilCreateSsrApp($stencilWindow) {
   var globalThis = $stencilWindow;
   var self = $stencilWindow;
   var top = $stencilWindow;
@@ -109,7 +141,9 @@ export function ssrFactory($stencilWindow, $stencilHydrateOpts, $stencilHydrateR
   // Aborted when the render times out or errors, so in-flight fetch() calls
   // made by component code stop holding the render's window/results alive
   // instead of running to completion against a torn-down window. See #6864.
-  var $stencilAbortController = new $stencilNativeAbortController();
+  // A new one is created for every render (see the function returned below),
+  // so one render's timeout never cancels the next render's work.
+  var $stencilAbortController;
 
   // Any AbortController a component creates itself is transparently wired to
   // cascade-abort when the render times out too, so component code using the
@@ -182,9 +216,18 @@ export function ssrFactory($stencilWindow, $stencilHydrateOpts, $stencilHydrateR
 
 export const SSR_FACTORY_OUTRO = /* js */ `
     /*hydrateAppClosure end*/
-    ssrApp(window, $stencilHydrateOpts, $stencilHydrateResults, $stencilAfterHydrate, $stencilHydrateResolve, $stencilAbortController);
+    return function ($stencilHydrateOpts, $stencilHydrateResults, $stencilAfterHydrate, $stencilHydrateResolve) {
+      $stencilAbortController = new $stencilNativeAbortController();
+      // a reused window is reset between renders, which removes these; put them back
+      $stencilWindow.fetch = fetch;
+      $stencilWindow.FetchError = FetchError;
+      $stencilWindow.Headers = Headers;
+      $stencilWindow.Request = Request;
+      $stencilWindow.Response = Response;
+      ssrApp(window, $stencilHydrateOpts, $stencilHydrateResults, $stencilAfterHydrate, $stencilHydrateResolve, $stencilAbortController);
+    };
   }
 
-  hydrateAppClosure($stencilWindow);
+  return hydrateAppClosure($stencilWindow);
 }
 `;

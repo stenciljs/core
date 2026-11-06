@@ -362,6 +362,46 @@ export function resetDocument(doc: Document) {
   }
 }
 
+/**
+ * Reset a document so the same object can be used for another render, then parse `html` into
+ * it. The document object itself is kept (code holding a reference to it stays valid), but its
+ * whole element tree is replaced with freshly parsed elements - so caches keyed on elements, like
+ * the runtime's applied-styles cache keyed on `<head>`, start empty.
+ * @param doc the document to reset
+ * @param win the window that owns the document
+ * @param html the HTML to parse into the document
+ */
+export function resetDocumentForReuse(doc: MockDocument, win: MockWindow, html: string) {
+  resetDocument(doc as any);
+
+  for (const key of Reflect.ownKeys(doc)) {
+    if (typeof key !== 'string' || !REUSABLE_DOC_KEY_KEEPERS.has(key)) {
+      delete (doc as any)[key];
+    }
+  }
+
+  doc.defaultView = win as any;
+  const parsedDocument = parseDocumentUtil(doc, html);
+  doc.documentElement = parsedDocument.documentElement;
+}
+
+/** Structural document properties kept by {@link resetDocumentForReuse}; everything else is per-render state. */
+const REUSABLE_DOC_KEY_KEEPERS = new Set([
+  '_nodeValue',
+  'nodeName',
+  'nodeType',
+  'ownerDocument',
+  'parentNode',
+  '_childNodes',
+  '__namespaceURI',
+  '__localName',
+  'defaultView',
+  'cookie',
+  'referrer',
+  'compatMode',
+  'contentType',
+]);
+
 const DOC_KEY_KEEPERS = new Set([
   'nodeName',
   'nodeType',

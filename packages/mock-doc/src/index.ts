@@ -11,4 +11,10 @@ export { MockRequest, MockResponse } from './request-response';
 export type { MockRequestInfo, MockRequestInit, MockResponseInit } from './request-response';
 export { serializeNodeToHtml } from './serialize-node';
 export type { SerializeNodeToHtmlOptions } from './serialize-node';
-export { cloneDocument, cloneWindow, constrainTimeouts, MockWindow } from './window';
+export {
+  cloneDocument,
+  cloneWindow,
+  constrainTimeouts,
+  MockWindow,
+  resetWindowForReuse,
+} from './window';

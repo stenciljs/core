@@ -20,9 +20,46 @@ import {
   renderBuildError,
   renderCatchError,
 } from './render-utils';
+import {
+  discardReusableWindow,
+  enqueueReusableRender,
+  getReusableWindow,
+  serializeShadowRootKey,
+} from './reusable-window';
 import { initializeWindow } from './window-initialize';
 
 const NOOP = () => {};
+
+/**
+ * Render into the long-lived window for this render's `serializeShadowRoot` mode, once any
+ * earlier render using that window has finished. See the `reuseWindow` option.
+ * @param html the HTML to render
+ * @param opts the normalized render options
+ * @param results the results object to fill in
+ * @returns the render results
+ */
+function renderInReusableWindow(
+  html: string,
+  opts: SsrFactoryOptions,
+  results: SsrResults,
+): Promise<SsrResults> {
+  opts.destroyWindow = false;
+  opts.destroyDocument = false;
+  const key = opts.serializeShadowRootKey;
+
+  const run = async (): Promise<SsrResults> => {
+    try {
+      await render(getReusableWindow(html, key), opts, results);
+    } catch (e) {
+      // the window may be in an unknown state: start the next render with a new one
+      discardReusableWindow(key);
+      renderCatchError(results, e);
+    }
+    return results;
+  };
+
+  return enqueueReusableRender(key, run);
+}
 
 /**
  * Renders HTML to a string, returning the full hydration results.
@@ -94,12 +131,18 @@ export function ssrDocument(doc: any | string, options?: SsrDocumentOptions): Pr
     typeof opts.serializeShadowRoot === 'undefined'
       ? 'declarative-shadow-dom'
       : opts.serializeShadowRoot;
+  // the SSR factory caches evaluated platforms by this, and reusable windows are kept by it
+  opts.serializeShadowRootKey = serializeShadowRootKey(opts.serializeShadowRoot);
 
   let win: MockWindow | null = null;
   const results = generateHydrateResults(opts);
 
   if (hasError(results.diagnostics)) {
     return Promise.resolve(results);
+  }
+
+  if (typeof doc === 'string' && opts.reuseWindow) {
+    return renderInReusableWindow(doc, opts, results);
   }
 
   if (typeof doc === 'string') {
