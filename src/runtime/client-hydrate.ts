@@ -697,12 +697,20 @@ const addSlottedNodes = (
 
   // Loop through the next siblings of the slot node, looking for nodes that match this slot's name
   do {
+    const slotAttribute = slottedNode?.['getAttribute'] ? slottedNode.getAttribute('slot') : null;
+    const isSlotFallback = slottedNode?.nodeName === 'SLOT-FB';
+    const ssrSlotName =
+      slottedNode && slottedNode.nodeType === NODE_TYPE.ElementNode
+        ? (slottedNode as Element).getAttribute('s-sn')
+        : null;
     if (
       slottedNode &&
-      (((slottedNode['getAttribute'] && slottedNode.getAttribute('slot')) || slottedNode['s-sn']) === slotName ||
+      !isSlotFallback &&
+      ((slotAttribute ?? slottedNode['s-sn']) === slotName ||
+        (slotAttribute === null && ssrSlotName === slotName) ||
         (slotName === '' &&
           !slottedNode['s-sn'] &&
-          (!slottedNode['getAttribute'] || !slottedNode.getAttribute('slot')) &&
+          slotAttribute === null &&
           (slottedNode.nodeType === NODE_TYPE.CommentNode || slottedNode.nodeType === NODE_TYPE.TextNode)))
     ) {
       // Looking for nodes that match this slot's name,
