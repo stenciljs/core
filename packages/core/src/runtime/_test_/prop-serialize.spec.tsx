@@ -245,4 +245,43 @@ describe('attribute serialization', () => {
     expect(root.hasAttribute('json-prop')).toBe(true);
     expect(root.getAttribute('json-prop')).toBe('{"page":"custom"}');
   });
+
+  describe('input matching serialized value', () => {
+    @Component({ tag: 'cmp-any-serialize' })
+    class CmpAnySerialize {
+      @Prop({ reflect: true }) value: any;
+      @PropSerialize('value')
+      serializeValue(newValue: any) {
+        if (newValue !== null && typeof newValue === 'object') {
+          return null;
+        }
+        return String(newValue);
+      }
+    }
+
+    it('should update a prop when new value is equal to serialized value', async () => {
+      const { root, rootInstance, waitForChanges } = await newSpecPage({
+        components: [CmpAnySerialize],
+        html: `<cmp-any-serialize></cmp-any-serialize>`,
+      });
+
+      root.value = 1;
+      await waitForChanges();
+      expect(root.value).toBe(1);
+      expect(root.getAttribute('value')).toBe('1');
+
+      root.value = '1';
+      await waitForChanges();
+      expect(root.value).toBe('1');
+      expect(root.getAttribute('value')).toBe('1');
+
+      root.value = { id: 1 };
+      await waitForChanges();
+      expect(root.hasAttribute('value')).toBe(false);
+
+      root.value = null;
+      await waitForChanges();
+      expect(root.value).toBe(null);
+    });
+  });
 });

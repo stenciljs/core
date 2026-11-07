@@ -27,7 +27,7 @@ describe('setAccessor for custom elements', () => {
       const fn = () => {
         /**/
       };
-      setAccessor(elm, 'onMyMethod', undefined, fn, false, 0);
+      setAccessor(elm, 'onMyMethod', undefined, fn, false, 0, false);
 
       expect(addEventSpy).toHaveBeenCalledTimes(0);
     });
@@ -39,9 +39,9 @@ describe('setAccessor for custom elements', () => {
       const orgValue = () => {
         /**/
       };
-      setAccessor(elm, 'onClick', undefined, orgValue, false, 0);
+      setAccessor(elm, 'onClick', undefined, orgValue, false, 0, false);
 
-      setAccessor(elm, 'onClick', orgValue, undefined, false, 0);
+      setAccessor(elm, 'onClick', orgValue, undefined, false, 0, false);
 
       expect(addEventSpy).toHaveBeenCalledTimes(1);
       expect(addEventSpy).toHaveBeenCalledWith(elm, 'click', orgValue, false);
@@ -55,9 +55,9 @@ describe('setAccessor for custom elements', () => {
       const orgValue = () => {
         /**/
       };
-      setAccessor(elm, 'onMouseOver', undefined, orgValue, false, 0);
+      setAccessor(elm, 'onMouseOver', undefined, orgValue, false, 0, false);
 
-      setAccessor(elm, 'onMouseOver', orgValue, undefined, false, 0);
+      setAccessor(elm, 'onMouseOver', orgValue, undefined, false, 0, false);
 
       expect(addEventSpy).toHaveBeenCalledWith(elm, 'mouseover', orgValue, false);
       expect(removeEventSpy).toHaveBeenCalledWith(elm, 'mouseover', orgValue, false);
@@ -70,12 +70,12 @@ describe('setAccessor for custom elements', () => {
       const orgValue = () => {
         /**/
       };
-      setAccessor(elm, 'onClick', undefined, orgValue, false, 0);
+      setAccessor(elm, 'onClick', undefined, orgValue, false, 0, false);
 
       const newValue = () => {
         /**/
       };
-      setAccessor(elm, 'onClick', orgValue, newValue, false, 0);
+      setAccessor(elm, 'onClick', orgValue, newValue, false, 0, false);
 
       expect(addEventSpy).toHaveBeenCalledTimes(2);
       expect(removeEventSpy).toHaveBeenCalledTimes(1);
@@ -89,7 +89,7 @@ describe('setAccessor for custom elements', () => {
         /**/
       };
 
-      setAccessor(elm, 'onIonChange', undefined, newValue, false, 0);
+      setAccessor(elm, 'onIonChange', undefined, newValue, false, 0, false);
 
       expect(addEventSpy).toHaveBeenCalledWith(elm, 'ionChange', newValue, false);
       expect(removeEventSpy).not.toHaveBeenCalled();
@@ -103,7 +103,7 @@ describe('setAccessor for custom elements', () => {
         /**/
       };
 
-      setAccessor(elm, 'onMouseOver', undefined, newValue, false, 0);
+      setAccessor(elm, 'onMouseOver', undefined, newValue, false, 0, false);
 
       expect(addEventSpy).toHaveBeenCalledWith(elm, 'mouseover', newValue, false);
       expect(removeEventSpy).not.toHaveBeenCalled();
@@ -117,7 +117,7 @@ describe('setAccessor for custom elements', () => {
         /**/
       };
 
-      setAccessor(elm, 'onClick', undefined, newValue, false, 0);
+      setAccessor(elm, 'onClick', undefined, newValue, false, 0, false);
 
       expect(addEventSpy).toHaveBeenCalledWith(elm, 'click', newValue, false);
       expect(removeEventSpy).not.toHaveBeenCalled();
@@ -131,7 +131,7 @@ describe('setAccessor for custom elements', () => {
         /**/
       };
 
-      setAccessor(elm, 'onClickCapture', undefined, newValue, false, 0);
+      setAccessor(elm, 'onClickCapture', undefined, newValue, false, 0, false);
 
       expect(addEventSpy).toHaveBeenCalledWith(elm, 'click', newValue, true);
       expect(removeEventSpy).not.toHaveBeenCalled();
@@ -145,8 +145,8 @@ describe('setAccessor for custom elements', () => {
         /**/
       };
 
-      setAccessor(elm, 'onClickCapture', undefined, orgValue, false, 0);
-      setAccessor(elm, 'onClickCapture', orgValue, undefined, false, 0);
+      setAccessor(elm, 'onClickCapture', undefined, orgValue, false, 0, false);
+      setAccessor(elm, 'onClickCapture', orgValue, undefined, false, 0, false);
 
       expect(addEventSpy).toHaveBeenCalledTimes(1);
       expect(addEventSpy).toHaveBeenCalledWith(elm, 'click', orgValue, true);
@@ -155,23 +155,23 @@ describe('setAccessor for custom elements', () => {
   });
 
   it('should set part as an attribute on a custom element', () => {
-    setAccessor(elm, 'part', undefined, 'my-part', false, 0);
+    setAccessor(elm, 'part', undefined, 'my-part', false, 0, false);
     expect(elm.getAttribute('part')).toBe('my-part');
   });
 
   it('should update part attribute on a custom element', () => {
-    setAccessor(elm, 'part', undefined, 'old-part', false, 0);
+    setAccessor(elm, 'part', undefined, 'old-part', false, 0, false);
     expect(elm.getAttribute('part')).toBe('old-part');
 
-    setAccessor(elm, 'part', 'old-part', 'new-part', false, 0);
+    setAccessor(elm, 'part', 'old-part', 'new-part', false, 0, false);
     expect(elm.getAttribute('part')).toBe('new-part');
   });
 
   it('should remove part attribute when value is null', () => {
-    setAccessor(elm, 'part', undefined, 'my-part', false, 0);
+    setAccessor(elm, 'part', undefined, 'my-part', false, 0, false);
     expect(elm.getAttribute('part')).toBe('my-part');
 
-    setAccessor(elm, 'part', 'my-part', null, false, 0);
+    setAccessor(elm, 'part', 'my-part', null, false, 0, false);
     expect(elm.hasAttribute('part')).toBe(false);
   });
 
@@ -179,7 +179,7 @@ describe('setAccessor for custom elements', () => {
     const oldValue: any = 'someval';
     const newValue: any = { some: 'obj' };
 
-    setAccessor(elm, 'myprop', oldValue, newValue, false, 0);
+    setAccessor(elm, 'myprop', oldValue, newValue, false, 0, false);
     expect(elm.myprop).toBe(newValue);
     expect(elm.hasAttribute('myprop')).toBe(false);
   });
@@ -188,7 +188,7 @@ describe('setAccessor for custom elements', () => {
     const oldValue: any = 'someval';
     const newValue: any = [1, 2, 3];
 
-    setAccessor(elm, 'myprop', oldValue, newValue, false, 0);
+    setAccessor(elm, 'myprop', oldValue, newValue, false, 0, false);
     expect(elm.myprop).toBe(newValue);
     expect(elm.hasAttribute('myprop')).toBe(false);
   });
@@ -199,7 +199,7 @@ describe('setAccessor for custom elements', () => {
       /**/
     };
 
-    setAccessor(elm, 'ref', oldValue, newValue, false, 0);
+    setAccessor(elm, 'ref', oldValue, newValue, false, 0, false);
     expect(elm.ref).toBeUndefined();
     expect(elm.hasAttribute('ref')).toBe(false);
   });
@@ -210,7 +210,7 @@ describe('setAccessor for custom elements', () => {
       /**/
     };
 
-    setAccessor(elm, 'myprop', oldValue, newValue, false, 0);
+    setAccessor(elm, 'myprop', oldValue, newValue, false, 0, false);
     expect(elm.myprop).toBe(newValue);
     expect(elm.hasAttribute('myprop')).toBe(false);
   });
@@ -220,7 +220,7 @@ describe('setAccessor for custom elements', () => {
     const newValue: any = null;
     elm.myprop = oldValue;
 
-    setAccessor(elm, 'myprop', oldValue, newValue, false, 0);
+    setAccessor(elm, 'myprop', oldValue, newValue, false, 0, false);
     expect(elm.hasAttribute('myprop')).toBe(false);
   });
 
@@ -229,7 +229,7 @@ describe('setAccessor for custom elements', () => {
     const newValue: any = 'stringval';
     elm.myprop = oldValue;
 
-    setAccessor(elm, 'myprop', oldValue, newValue, false, 0);
+    setAccessor(elm, 'myprop', oldValue, newValue, false, 0, false);
     expect(elm.myprop).toBe('stringval');
     expect(elm.hasAttribute('myprop')).toBe(false);
   });
@@ -241,7 +241,7 @@ describe('setAccessor for custom elements', () => {
     const newValue: any = null;
     elm.cmpAprop = oldValue;
 
-    setAccessor(elm, 'cmpAprop', oldValue, newValue, false, 0);
+    setAccessor(elm, 'cmpAprop', oldValue, newValue, false, 0, false);
     expect(elm.cmpAprop).toBe(null);
     expect(elm.hasAttribute('cmpAprop')).toBe(false);
   });
@@ -250,7 +250,7 @@ describe('setAccessor for custom elements', () => {
     const oldValue: any = 'someval';
     const newValue: any = null;
 
-    setAccessor(elm, 'myprop', oldValue, newValue, false, 0);
+    setAccessor(elm, 'myprop', oldValue, newValue, false, 0, false);
     expect(elm.myprop).toBeUndefined();
     expect(elm.hasAttribute('myprop')).toBe(false);
   });
@@ -259,7 +259,7 @@ describe('setAccessor for custom elements', () => {
     const oldValue: any = 'someval';
     const newValue: any = undefined;
 
-    setAccessor(elm, 'myprop', oldValue, newValue, false, 0);
+    setAccessor(elm, 'myprop', oldValue, newValue, false, 0, false);
     expect(elm.myprop).toBeUndefined();
     expect(elm.hasAttribute('myprop')).toBe(false);
 
@@ -271,7 +271,7 @@ describe('setAccessor for custom elements', () => {
     const oldValue: any = 'someval';
     const newValue: any = false;
 
-    setAccessor(elm, 'myprop', oldValue, newValue, false, 0);
+    setAccessor(elm, 'myprop', oldValue, newValue, false, 0, false);
     expect(elm.myprop).toBeUndefined();
 
     expect(elm).toEqualAttributes({});
@@ -283,7 +283,7 @@ describe('setAccessor for custom elements', () => {
     // values are written back onto the host element
     elm.setAttribute('flag', 'true');
 
-    setAccessor(elm, 'flag', true, false, false, VNODE_FLAGS.isHost);
+    setAccessor(elm, 'flag', true, false, false, VNODE_FLAGS.isHost, false);
 
     expect(elm.hasAttribute('flag')).toBe(false);
   });
@@ -291,7 +291,7 @@ describe('setAccessor for custom elements', () => {
   it('should still remove a reflected boolean attribute that holds the canonical empty string', () => {
     elm.setAttribute('flag', '');
 
-    setAccessor(elm, 'flag', true, false, false, VNODE_FLAGS.isHost);
+    setAccessor(elm, 'flag', true, false, false, VNODE_FLAGS.isHost, false);
 
     expect(elm.hasAttribute('flag')).toBe(false);
   });
@@ -310,7 +310,7 @@ describe('setAccessor for custom elements', () => {
       const enumElm = document.createElement('my-tag');
       enumElm.setAttribute(attrName, 'true');
 
-      setAccessor(enumElm, attrName, true, false, false, VNODE_FLAGS.isHost);
+      setAccessor(enumElm, attrName, true, false, false, VNODE_FLAGS.isHost, false);
 
       expect(enumElm.hasAttribute(attrName)).toBe(true);
       expect(enumElm.getAttribute(attrName)).toBe(expectedValue);
@@ -322,13 +322,13 @@ describe('setAccessor for custom elements', () => {
     // by hand in JSX on some element that isn't the component's own host
     elm.setAttribute('flag', 'true');
 
-    setAccessor(elm, 'flag', true, false, false, 0);
+    setAccessor(elm, 'flag', true, false, false, 0, false);
 
     expect(elm.getAttribute('flag')).toBe('true');
   });
 
   it('should add aria role attribute', () => {
-    setAccessor(elm, 'role', undefined, 'tab', true, 0);
+    setAccessor(elm, 'role', undefined, 'tab', true, 0, false);
     expect(elm.hasAttribute('role')).toBe(true);
     expect(elm.getAttribute('role')).toBe('tab');
   });
@@ -336,14 +336,14 @@ describe('setAccessor for custom elements', () => {
   it('should update aria role attribute', () => {
     elm.setAttribute('role', 'tab');
 
-    setAccessor(elm, 'role', 'tab', 'other', true, 0);
+    setAccessor(elm, 'role', 'tab', 'other', true, 0, false);
     expect(elm.getAttribute('role')).toBe('other');
   });
 
   it('should remove aria role attribute', () => {
     elm.setAttribute('role', 'tab');
 
-    setAccessor(elm, 'role', 'tab', undefined, true, 0);
+    setAccessor(elm, 'role', 'tab', undefined, true, 0, false);
     expect(elm.hasAttribute('role')).toBe(false);
   });
 
@@ -352,7 +352,7 @@ describe('setAccessor for custom elements', () => {
     const oldValue: any = 'rotate(45 72 72)';
     const newValue: any = 'rotate(45 27 27)';
 
-    setAccessor(elm, 'transform', oldValue, newValue, true, 0);
+    setAccessor(elm, 'transform', oldValue, newValue, true, 0, false);
     expect(elm.transform).toBeUndefined();
     expect(elm.getAttribute('transform')).toBe('rotate(45 27 27)');
   });
@@ -361,7 +361,7 @@ describe('setAccessor for custom elements', () => {
     const oldValue: any = undefined;
     const newValue: any = 'rotate(45 27 27)';
 
-    setAccessor(elm, 'transform', oldValue, newValue, true, 0);
+    setAccessor(elm, 'transform', oldValue, newValue, true, 0, false);
     expect(elm.transform).toBeUndefined();
     expect(elm.hasAttribute('transform')).toBe(true);
   });
@@ -371,7 +371,7 @@ describe('setAccessor for custom elements', () => {
     const oldValue: any = 'rotate(45 27 27)';
     const newValue: any = undefined;
 
-    setAccessor(elm, 'transform', oldValue, newValue, true, 0);
+    setAccessor(elm, 'transform', oldValue, newValue, true, 0, false);
     expect(elm.transform).toBeUndefined();
     expect(elm.hasAttribute('transform')).toBe(false);
   });
@@ -380,7 +380,7 @@ describe('setAccessor for custom elements', () => {
     const oldValue: any = 'someval';
     const newValue: any = true;
 
-    setAccessor(elm, 'myprop', oldValue, newValue, false, 0);
+    setAccessor(elm, 'myprop', oldValue, newValue, false, 0, false);
     expect(elm.myprop).toBeUndefined();
     expect(elm).toEqualAttributes({ myprop: '' });
   });
@@ -389,7 +389,7 @@ describe('setAccessor for custom elements', () => {
     const oldValue: any = 'someval';
     const newValue: any = 88;
 
-    setAccessor(elm, 'myprop', oldValue, newValue, false, 0);
+    setAccessor(elm, 'myprop', oldValue, newValue, false, 0, false);
     expect(elm.myprop).toBeUndefined();
     expect(elm).toEqualAttributes({ myprop: '88' });
   });
@@ -398,7 +398,7 @@ describe('setAccessor for custom elements', () => {
     const oldValue: any = 'someval';
     const newValue: any = 'stringval';
 
-    setAccessor(elm, 'myprop', oldValue, newValue, false, 0);
+    setAccessor(elm, 'myprop', oldValue, newValue, false, 0, false);
     expect(elm.myprop).toBeUndefined();
     expect(elm).toEqualAttributes({ myprop: 'stringval' });
   });
@@ -406,7 +406,7 @@ describe('setAccessor for custom elements', () => {
   it('ignore when updating readonly properties', () => {
     const readOnlyProp = 'namespaceURI';
     const oldReadOnlyVal = 'http://www.w3.org/1999/xhtml';
-    setAccessor(elm, readOnlyProp, oldReadOnlyVal, 'foobar', false, 0);
+    setAccessor(elm, readOnlyProp, oldReadOnlyVal, 'foobar', false, 0, false);
     expect(elm[readOnlyProp]).toBe(oldReadOnlyVal);
   });
 });
@@ -416,7 +416,7 @@ describe('setAccessor for inputs', () => {
     describe('should not add attribute when prop is undefined or null', () => {
       function expectStraightForwardAttribute(propName: string, newValue: any, oldValue: any) {
         const inputElm = document.createElement('input');
-        setAccessor(inputElm, propName, oldValue, newValue, false, 0);
+        setAccessor(inputElm, propName, oldValue, newValue, false, 0, false);
 
         expect(inputElm.hasAttribute(propName)).toBe(false);
       }
@@ -456,10 +456,10 @@ describe('setAccessor for inputs', () => {
 
       it('checked', () => {
         const inputElm = document.createElement('input');
-        setAccessor(inputElm, 'checked', false, true, false, 0);
+        setAccessor(inputElm, 'checked', false, true, false, 0, false);
         expect(inputElm.checked).toEqual(true);
 
-        setAccessor(inputElm, 'checked', true, false, false, 0);
+        setAccessor(inputElm, 'checked', true, false, false, 0, false);
         expect(inputElm.checked).toEqual(false);
       });
     });
@@ -467,7 +467,7 @@ describe('setAccessor for inputs', () => {
     describe('should update when prop is defined', () => {
       function expectStraightForwardAttribute(propName: string, newValue: any, oldValue: any) {
         const inputElm = document.createElement('input');
-        setAccessor(inputElm, propName, oldValue, newValue, false, 0);
+        setAccessor(inputElm, propName, oldValue, newValue, false, 0, false);
 
         const expected = newValue === true ? '' : newValue.toString();
         expect(inputElm).toEqualAttributes({ [propName]: expected });
@@ -504,7 +504,7 @@ describe('setAccessor for inputs', () => {
     describe('should not add attribute when prop is undefined or null', () => {
       function expectSpecialAttribute(propName: string, newValue: any, oldValue: any) {
         const inputElm = document.createElement('input');
-        setAccessor(inputElm, propName, oldValue, newValue, false, 0);
+        setAccessor(inputElm, propName, oldValue, newValue, false, 0, false);
 
         expect(inputElm).toEqualAttributes({});
       }
@@ -552,7 +552,7 @@ describe('setAccessor for inputs', () => {
     describe('should update when prop is defined', () => {
       function expectSpecialAttributeDefined(propName: string, newValue: any, oldValue: any) {
         const inputElm = document.createElement('input');
-        setAccessor(inputElm, propName, oldValue, newValue, false, 0);
+        setAccessor(inputElm, propName, oldValue, newValue, false, 0, false);
 
         expect(inputElm).toEqualAttributes({ [propName]: newValue.toString() });
         expect((inputElm as any)[propName]).toBe(newValue);
@@ -592,7 +592,7 @@ describe('setAccessor for inputs', () => {
     describe('should not add attribute when prop is undefined or null', () => {
       function expectBooleanAttribute(propName: string, newValue: any, oldValue: any) {
         const inputElm = document.createElement('input');
-        setAccessor(inputElm, propName, oldValue, newValue, false, 0);
+        setAccessor(inputElm, propName, oldValue, newValue, false, 0, false);
 
         expect(inputElm.hasAttribute(propName)).toBe(false);
       }
@@ -618,7 +618,7 @@ describe('setAccessor for inputs', () => {
     describe('should update when prop is defined', () => {
       function expectBooleanAttributeDefined(propName: string, newValue: any, oldValue: any) {
         const inputElm = document.createElement('input');
-        setAccessor(inputElm, propName, oldValue, newValue, false, 0);
+        setAccessor(inputElm, propName, oldValue, newValue, false, 0, false);
 
         expect(inputElm).toEqualAttributes({ [propName]: '' });
         expect((inputElm as any)[propName]).toBe(newValue);
@@ -643,7 +643,7 @@ describe('setAccessor for inputs', () => {
     describe('should not add attribute when prop is undefined or null', () => {
       function expectMinMaxAttribute(propName: string, newValue: any, oldValue: any) {
         const inputElm = document.createElement('input');
-        setAccessor(inputElm, propName, oldValue, newValue, false, 0);
+        setAccessor(inputElm, propName, oldValue, newValue, false, 0, false);
 
         expect(inputElm.hasAttribute(propName)).toBe(false);
       }
@@ -661,7 +661,7 @@ describe('setAccessor for inputs', () => {
     describe('should update when prop is defined', () => {
       function expectMinMaxAttributeDefined(propName: string, newValue: any, oldValue: any) {
         const inputElm = document.createElement('input');
-        setAccessor(inputElm, propName, oldValue, newValue, false, 0);
+        setAccessor(inputElm, propName, oldValue, newValue, false, 0, false);
 
         expect(inputElm).toEqualAttributes({ [propName]: newValue.toString() });
         expect((inputElm as any)[propName]).toBe(newValue.toString());
@@ -685,44 +685,44 @@ describe('setAccessor for standard html elements', () => {
   describe('simple global attributes', () => {
     it('should not add attribute when prop is undefined or null', () => {
       const inputElm = document.createElement('section');
-      setAccessor(inputElm, 'title', undefined, undefined, false, 0);
+      setAccessor(inputElm, 'title', undefined, undefined, false, 0, false);
 
       expect(inputElm.hasAttribute('title')).toBe(false);
     });
 
     it('should add attribute when prop is string', () => {
       const inputElm = document.createElement('section');
-      setAccessor(inputElm, 'title', undefined, 'lime', false, 0);
+      setAccessor(inputElm, 'title', undefined, 'lime', false, 0, false);
 
       expect(inputElm.hasAttribute('title')).toBe(true);
     });
 
     it('should add attribute when prop is boolean', () => {
       const inputElm = document.createElement('section');
-      setAccessor(inputElm, 'color', undefined, true, false, 0);
+      setAccessor(inputElm, 'color', undefined, true, false, 0, false);
 
       expect(inputElm.hasAttribute('color')).toBe(true);
     });
 
     it('should add attribute when prop is number', () => {
       const inputElm = document.createElement('section');
-      setAccessor(inputElm, 'color', undefined, 1, false, 0);
+      setAccessor(inputElm, 'color', undefined, 1, false, 0, false);
 
       expect(inputElm.hasAttribute('color')).toBe(true);
     });
 
     it('should remove attribute when prop is undefined', () => {
       const inputElm = document.createElement('section');
-      setAccessor(inputElm, 'title', undefined, 'lime', false, 0);
-      setAccessor(inputElm, 'title', 'lime', undefined, false, 0);
+      setAccessor(inputElm, 'title', undefined, 'lime', false, 0, false);
+      setAccessor(inputElm, 'title', 'lime', undefined, false, 0, false);
 
       expect(inputElm.hasAttribute('title')).toBe(false);
     });
 
     it('should remove attribute when prop is null', () => {
       const inputElm = document.createElement('section');
-      setAccessor(inputElm, 'title', undefined, 'lime', false, 0);
-      setAccessor(inputElm, 'title', 'lime', null, false, 0);
+      setAccessor(inputElm, 'title', undefined, 'lime', false, 0, false);
+      setAccessor(inputElm, 'title', 'lime', null, false, 0, false);
 
       expect(inputElm.hasAttribute('title')).toBe(false);
     });
@@ -731,58 +731,58 @@ describe('setAccessor for standard html elements', () => {
   describe('simple nonstandard attributes', () => {
     it('should not add attribute when prop is undefined or null', () => {
       const inputElm = document.createElement('section');
-      setAccessor(inputElm, 'color', undefined, undefined, false, 0);
+      setAccessor(inputElm, 'color', undefined, undefined, false, 0, false);
 
       expect(inputElm.hasAttribute('color')).toBe(false);
     });
 
     it('should add attribute when prop is string', () => {
       const inputElm = document.createElement('section');
-      setAccessor(inputElm, 'color', undefined, 'lime', false, 0);
+      setAccessor(inputElm, 'color', undefined, 'lime', false, 0, false);
 
       expect(inputElm.hasAttribute('color')).toBe(true);
     });
 
     it('should add attribute when prop is boolean', () => {
       const inputElm = document.createElement('section');
-      setAccessor(inputElm, 'color', undefined, true, false, 0);
+      setAccessor(inputElm, 'color', undefined, true, false, 0, false);
 
       expect(inputElm.hasAttribute('color')).toBe(true);
     });
 
     it('should add attribute when prop is number', () => {
       const inputElm = document.createElement('section');
-      setAccessor(inputElm, 'color', undefined, 1, false, 0);
+      setAccessor(inputElm, 'color', undefined, 1, false, 0, false);
 
       expect(inputElm.hasAttribute('color')).toBe(true);
     });
 
     it('should aria role attribute', () => {
       const inputElm = document.createElement('section');
-      setAccessor(inputElm, 'role', undefined, 'main', false, 0);
+      setAccessor(inputElm, 'role', undefined, 'main', false, 0, false);
 
       expect(inputElm.hasAttribute('role')).toBe(true);
     });
 
     it('should remove attribute when prop is undefined', () => {
       const inputElm = document.createElement('section');
-      setAccessor(inputElm, 'color', undefined, 1, false, 0);
-      setAccessor(inputElm, 'color', 1, undefined, false, 0);
+      setAccessor(inputElm, 'color', undefined, 1, false, 0, false);
+      setAccessor(inputElm, 'color', 1, undefined, false, 0, false);
 
       expect(inputElm.hasAttribute('color')).toBe(false);
     });
 
     it('should remove attribute when prop is null', () => {
       const inputElm = document.createElement('section');
-      setAccessor(inputElm, 'color', undefined, 1, false, 0);
-      setAccessor(inputElm, 'color', 1, null, false, 0);
+      setAccessor(inputElm, 'color', undefined, 1, false, 0, false);
+      setAccessor(inputElm, 'color', 1, null, false, 0, false);
 
       expect(inputElm.hasAttribute('color')).toBe(false);
     });
     it('should remove aria role attribute', () => {
       const inputElm = document.createElement('section');
-      setAccessor(inputElm, 'role', undefined, 'main', false, 0);
-      setAccessor(inputElm, 'role', 'main', undefined, false, 0);
+      setAccessor(inputElm, 'role', undefined, 'main', false, 0, false);
+      setAccessor(inputElm, 'role', 'main', undefined, false, 0, false);
 
       expect(inputElm.hasAttribute('role')).toBe(false);
     });
@@ -791,13 +791,13 @@ describe('setAccessor for standard html elements', () => {
   describe('class attribute', () => {
     it('should add classes', () => {
       const elm = document.createElement('section');
-      setAccessor(elm, 'class', undefined, 'class1 class2   class3  ', false, 0);
+      setAccessor(elm, 'class', undefined, 'class1 class2   class3  ', false, 0, false);
       expect(elm).toHaveClasses(['class1', 'class2', 'class3']);
 
-      setAccessor(elm, 'class', undefined, 'new', false, 0);
+      setAccessor(elm, 'class', undefined, 'new', false, 0, false);
       expect(elm).toHaveClasses(['class1', 'class2', 'class3', 'new']);
 
-      setAccessor(elm, 'class', '  class1 class2', 'new class4', false, 0);
+      setAccessor(elm, 'class', '  class1 class2', 'new class4', false, 0, false);
       expect(elm).toHaveClasses(['class3', 'new', 'class4']);
 
       setAccessor(
@@ -809,25 +809,26 @@ describe('setAccessor for standard html elements', () => {
        class3  `,
         false,
         0,
+        false,
       );
       expect(elm).toHaveClasses(['class1', 'class2', 'class3']);
     });
 
     it('should not add any classes', () => {
       const elm = document.createElement('section');
-      setAccessor(elm, 'class', '', '', false, 0);
+      setAccessor(elm, 'class', '', '', false, 0, false);
       expect(elm).toHaveClasses([]);
 
-      setAccessor(elm, 'class', 'class1 class3 class2', 'class1 class2 class3', false, 0);
+      setAccessor(elm, 'class', 'class1 class3 class2', 'class1 class2 class3', false, 0, false);
       expect(elm).toHaveClasses([]);
 
-      setAccessor(elm, 'class', 'class1 class3 class2', undefined, false, 0);
+      setAccessor(elm, 'class', 'class1 class3 class2', undefined, false, 0, false);
       expect(elm).toHaveClasses([]);
 
-      setAccessor(elm, 'class', undefined, undefined, false, 0);
+      setAccessor(elm, 'class', undefined, undefined, false, 0, false);
       expect(elm).toHaveClasses([]);
 
-      setAccessor(elm, 'class', '', `\n      \n      \n     `, false, 0);
+      setAccessor(elm, 'class', '', `\n      \n      \n     `, false, 0, false);
       expect(elm).toHaveClasses([]);
     });
 
@@ -835,7 +836,7 @@ describe('setAccessor for standard html elements', () => {
       const elm = document.createElement('section');
       elm.classList.add('icon', 'ion-color');
 
-      setAccessor(elm, 'class', 'icon', 'icon2', false, 0);
+      setAccessor(elm, 'class', 'icon', 'icon2', false, 0, false);
       expect(elm).toHaveClasses(['ion-color', 'icon2']);
 
       setAccessor(
@@ -846,6 +847,7 @@ describe('setAccessor for standard html elements', () => {
         'icon2',
         false,
         0,
+        false,
       );
       expect(elm).toHaveClasses(['icon2']);
     });
@@ -854,7 +856,7 @@ describe('setAccessor for standard html elements', () => {
       const elm = document.createElement('section');
       elm.classList.add('md');
 
-      setAccessor(elm, 'class', undefined, 'md ios', false, 0);
+      setAccessor(elm, 'class', undefined, 'md ios', false, 0, false);
       expect(elm.className).toEqual('md ios');
     });
 
@@ -862,7 +864,7 @@ describe('setAccessor for standard html elements', () => {
       const elm = document.createElement('section');
       elm.classList.add('md');
 
-      setAccessor(elm, 'class', 'md', 'md ios', false, 0);
+      setAccessor(elm, 'class', 'md', 'md ios', false, 0, false);
       expect(elm.className).toEqual('md ios');
     });
 
@@ -870,7 +872,7 @@ describe('setAccessor for standard html elements', () => {
       const elm = document.createElement('section');
       elm.classList.add('md');
 
-      setAccessor(elm, 'class', 'md', '', false, 0);
+      setAccessor(elm, 'class', 'md', '', false, 0, false);
       expect(elm.className).toEqual('');
     });
 
@@ -878,12 +880,12 @@ describe('setAccessor for standard html elements', () => {
       const elm = document.createElement('section');
 
       // not s-si set
-      setAccessor(elm, 'class', 'a-scope-id', undefined, false, 0, true);
+      setAccessor(elm, 'class', 'a-scope-id', undefined, false, 0, false, true);
       expect(elm.className).toEqual('');
 
       (elm as any)['s-si'] = 'a-scope-id';
 
-      setAccessor(elm, 'class', '', undefined, false, 0, true);
+      setAccessor(elm, 'class', '', undefined, false, 0, false, true);
       expect(elm.className).toEqual('a-scope-id');
 
       setAccessor(
@@ -893,12 +895,13 @@ describe('setAccessor for standard html elements', () => {
         undefined,
         false,
         0,
+        false,
         true,
       );
       expect(elm.className).toEqual('a-scope-id a-scope-id-something a-scope-id-something-else');
 
       elm.className = '';
-      setAccessor(elm, 'class', 'something-old', 'something-new', false, 0, true);
+      setAccessor(elm, 'class', 'something-old', 'something-new', false, 0, false, true);
       expect(elm.className).toEqual('something-new a-scope-id');
 
       elm.className = '';
@@ -909,13 +912,22 @@ describe('setAccessor for standard html elements', () => {
         'something-new',
         false,
         0,
+        false,
         true,
       );
       expect(elm.className).toEqual('something-new a-scope-id a-scope-id-something');
 
       // just check it reverts to normal behavior after initial render
       elm.className = '';
-      setAccessor(elm, 'class', 'something-old a-scope-id-something', 'something-new', false, 0);
+      setAccessor(
+        elm,
+        'class',
+        'something-old a-scope-id-something',
+        'something-new',
+        false,
+        0,
+        false,
+      );
       expect(elm.className).toEqual('something-new');
     });
   });
@@ -928,7 +940,7 @@ describe('setAccessor for standard html elements', () => {
         color: 'blue',
         paddingLeft: '88px',
       };
-      setAccessor(elm, 'style', undefined, newStyles, false, 0);
+      setAccessor(elm, 'style', undefined, newStyles, false, 0, false);
       expect(elm.style.cssText).toEqual('box-shadow: 1px; color: blue; padding-left: 88px;');
 
       elm = document.createElement('my-tag');
@@ -942,6 +954,7 @@ describe('setAccessor for standard html elements', () => {
         },
         false,
         0,
+        false,
       );
       expect(elm.style.cssText).toEqual('font-size: 12px; margin-right: 55px;');
 
@@ -958,6 +971,7 @@ describe('setAccessor for standard html elements', () => {
         },
         false,
         0,
+        false,
       );
 
       expect(elm.style.cssText).toEqual('font-size: 20px;');
@@ -965,7 +979,7 @@ describe('setAccessor for standard html elements', () => {
 
     it('should not add styles', () => {
       const elm = document.createElement('section');
-      setAccessor(elm, 'style', undefined, undefined, false, 0);
+      setAccessor(elm, 'style', undefined, undefined, false, 0, false);
       expect(elm.style.cssText).toEqual('');
 
       setAccessor(
@@ -975,10 +989,11 @@ describe('setAccessor for standard html elements', () => {
         { color: 'blue', 'font-size': '12px', paddingLeft: '88px' },
         false,
         0,
+        false,
       );
       expect(elm.style.cssText).toEqual('');
 
-      setAccessor(elm, 'style', { color: 'blue', 'font-size': '12px' }, undefined, false, 0);
+      setAccessor(elm, 'style', { color: 'blue', 'font-size': '12px' }, undefined, false, 0, false);
       expect(elm.style.cssText).toEqual('');
     });
 
@@ -994,6 +1009,7 @@ describe('setAccessor for standard html elements', () => {
         { color: 'blue', padding: '30px', marginRight: '55px' },
         false,
         0,
+        false,
       );
 
       expect(elm.style.cssText).toEqual('color: black; padding: 30px; margin-right: 55px;');
@@ -1017,10 +1033,19 @@ describe('setAccessor for standard html elements', () => {
         undefined,
         false,
         0,
+        false,
       );
       expect(elm.style.cssText).toEqual('margin: 20px;');
 
-      setAccessor(elm, 'style', { margin: '20px' }, { margin: '30px', color: 'orange' }, false, 0);
+      setAccessor(
+        elm,
+        'style',
+        { margin: '20px' },
+        { margin: '30px', color: 'orange' },
+        false,
+        0,
+        false,
+      );
       expect(elm.style.cssText).toEqual('margin: 30px; color: orange;');
     });
   });
@@ -1028,12 +1053,12 @@ describe('setAccessor for standard html elements', () => {
   it('uses setAttribute if element has not setter', () => {
     const elm = document.createElement('button');
     const spy = vi.spyOn(elm, 'setAttribute');
-    setAccessor(elm, 'form', undefined, 'some-form', false, 0);
+    setAccessor(elm, 'form', undefined, 'some-form', false, 0, false);
     expect(spy.mock.calls).toEqual([['form', 'some-form']]);
 
     const elm2 = document.createElement('button');
     const spy2 = vi.spyOn(elm2, 'setAttribute');
-    setAccessor(elm2, 'textContent', undefined, 'some-content', false, 0);
+    setAccessor(elm2, 'textContent', undefined, 'some-content', false, 0, false);
     expect(spy2.mock.calls).toEqual([]);
   });
 
@@ -1051,7 +1076,9 @@ describe('setAccessor for standard html elements', () => {
     });
 
     it('should parse SVGAnimatedString', () => {
-      const classList = parseClassList({ baseVal: 'class1 class2 class3' } as SVGAnimatedString);
+      const classList = parseClassList({
+        baseVal: 'class1 class2 class3',
+      } as SVGAnimatedString);
       expect(classList).toEqual(['class1', 'class2', 'class3']);
     });
   });
@@ -1064,55 +1091,55 @@ describe('setAccessor for standard html elements', () => {
     });
 
     it('should set value as attribute using setAttribute', () => {
-      setAccessor(elm, 'attr:data-value', undefined, 'hello', false, 0);
+      setAccessor(elm, 'attr:data-value', undefined, 'hello', false, 0, false);
       expect(elm.getAttribute('data-value')).toBe('hello');
     });
 
     it('should set true boolean as empty string attribute', () => {
-      setAccessor(elm, 'attr:hidden', undefined, true, false, 0);
+      setAccessor(elm, 'attr:hidden', undefined, true, false, 0, false);
       expect(elm.getAttribute('hidden')).toBe('');
     });
 
     it('should remove attribute when value is false', () => {
       elm.setAttribute('hidden', '');
-      setAccessor(elm, 'attr:hidden', true, false, false, 0);
+      setAccessor(elm, 'attr:hidden', true, false, false, 0, false);
       expect(elm.hasAttribute('hidden')).toBe(false);
     });
 
     it('should remove attribute when value is null', () => {
       elm.setAttribute('data-value', 'test');
-      setAccessor(elm, 'attr:data-value', 'test', null, false, 0);
+      setAccessor(elm, 'attr:data-value', 'test', null, false, 0, false);
       expect(elm.hasAttribute('data-value')).toBe(false);
     });
 
     it('should remove attribute when value is undefined', () => {
       elm.setAttribute('data-value', 'test');
-      setAccessor(elm, 'attr:data-value', 'test', undefined, false, 0);
+      setAccessor(elm, 'attr:data-value', 'test', undefined, false, 0, false);
       expect(elm.hasAttribute('data-value')).toBe(false);
     });
 
     it('should force attribute even for properties that exist on element', () => {
       const nativeElm = document.createElement('input');
       const spy = vi.spyOn(nativeElm, 'setAttribute');
-      setAccessor(nativeElm, 'attr:id', undefined, 'my-id', false, 0);
+      setAccessor(nativeElm, 'attr:id', undefined, 'my-id', false, 0, false);
       expect(spy).toHaveBeenCalledWith('id', 'my-id');
     });
 
     it('should set string value as attribute', () => {
-      setAccessor(elm, 'attr:aria-label', undefined, 'Close', false, 0);
+      setAccessor(elm, 'attr:aria-label', undefined, 'Close', false, 0, false);
       expect(elm.getAttribute('aria-label')).toBe('Close');
     });
 
     it('should update attribute value on re-render', () => {
-      setAccessor(elm, 'attr:data-count', undefined, '1', false, 0);
+      setAccessor(elm, 'attr:data-count', undefined, '1', false, 0, false);
       expect(elm.getAttribute('data-count')).toBe('1');
-      setAccessor(elm, 'attr:data-count', '1', '2', false, 0);
+      setAccessor(elm, 'attr:data-count', '1', '2', false, 0, false);
       expect(elm.getAttribute('data-count')).toBe('2');
     });
 
     it('should not set attribute when old and new values are equal', () => {
       const spy = vi.spyOn(elm, 'setAttribute');
-      setAccessor(elm, 'attr:data-value', 'same', 'same', false, 0);
+      setAccessor(elm, 'attr:data-value', 'same', 'same', false, 0, false);
       expect(spy).not.toHaveBeenCalled();
     });
   });
@@ -1125,42 +1152,42 @@ describe('setAccessor for standard html elements', () => {
     });
 
     it('should set value as property directly', () => {
-      setAccessor(elm, 'prop:myProp', undefined, 'hello', false, 0);
+      setAccessor(elm, 'prop:myProp', undefined, 'hello', false, 0, false);
       expect(elm.myProp).toBe('hello');
     });
 
     it('should set complex object as property', () => {
       const obj = { foo: 'bar' };
-      setAccessor(elm, 'prop:data', undefined, obj, false, 0);
+      setAccessor(elm, 'prop:data', undefined, obj, false, 0, false);
       expect(elm.data).toBe(obj);
     });
 
     it('should set array as property', () => {
       const arr = [1, 2, 3];
-      setAccessor(elm, 'prop:items', undefined, arr, false, 0);
+      setAccessor(elm, 'prop:items', undefined, arr, false, 0, false);
       expect(elm.items).toBe(arr);
     });
 
     it('should set null as property', () => {
       elm.myProp = 'old';
-      setAccessor(elm, 'prop:myProp', 'old', null, false, 0);
+      setAccessor(elm, 'prop:myProp', 'old', null, false, 0, false);
       expect(elm.myProp).toBe(null);
     });
 
     it('should set undefined as property', () => {
       elm.myProp = 'old';
-      setAccessor(elm, 'prop:myProp', 'old', undefined, false, 0);
+      setAccessor(elm, 'prop:myProp', 'old', undefined, false, 0, false);
       expect(elm.myProp).toBe(undefined);
     });
 
     it('should not set attribute when using prop: prefix', () => {
       const spy = vi.spyOn(elm, 'setAttribute');
-      setAccessor(elm, 'prop:value', undefined, 'test', false, 0);
+      setAccessor(elm, 'prop:value', undefined, 'test', false, 0, false);
       expect(spy).not.toHaveBeenCalled();
     });
 
     it('should force property even in SVG mode', () => {
-      setAccessor(elm, 'prop:myProp', undefined, 'hello', true, 0);
+      setAccessor(elm, 'prop:myProp', undefined, 'hello', true, 0, false);
       expect(elm.myProp).toBe('hello');
     });
 
@@ -1172,13 +1199,13 @@ describe('setAccessor for standard html elements', () => {
         },
       });
       expect(() => {
-        setAccessor(elm, 'prop:readOnlyProp', undefined, 'new-value', false, 0);
+        setAccessor(elm, 'prop:readOnlyProp', undefined, 'new-value', false, 0, false);
       }).not.toThrow();
     });
 
     it('should not set property when old and new values are equal', () => {
       elm.myProp = 'same';
-      setAccessor(elm, 'prop:myProp', 'same', 'same', false, 0);
+      setAccessor(elm, 'prop:myProp', 'same', 'same', false, 0, false);
       // early return means property setter not called again
       expect(elm.myProp).toBe('same');
     });

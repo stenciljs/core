@@ -1,7 +1,7 @@
 import { BUILD } from 'virtual:app-data';
 import type * as d from '@stencil/core';
 
-import { NODE_TYPE } from '../runtime-constants';
+import { NODE_TYPE, VNODE_FLAGS } from '../runtime-constants';
 import { setAccessor } from './set-accessor';
 
 /**
@@ -43,6 +43,8 @@ export const updateElement = (
       ? newVnode.$elm$.host
       : (newVnode.$elm$ as any);
 
+  const fromPropUpdate = !!(BUILD.serializer && newVnode.$flags$ & VNODE_FLAGS.isHost);
+
   if (BUILD.updatable) {
     // remove attributes no longer present on the vnode by setting them to undefined
     for (const memberName of sortedAttrNames(oldKeys)) {
@@ -54,6 +56,7 @@ export const updateElement = (
           undefined,
           isSvgMode,
           newVnode.$flags$,
+          fromPropUpdate,
           isInitialRender,
         );
       }
@@ -69,6 +72,7 @@ export const updateElement = (
       newVnodeAttrs[memberName],
       isSvgMode,
       newVnode.$flags$,
+      fromPropUpdate,
       isInitialRender,
     );
   }

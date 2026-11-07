@@ -43,6 +43,7 @@ export const disposeAllSignalAttrs = (elm: Node) => {
  * @param newValue the new value for the attribute
  * @param isSvg whether we're in an svg context or not
  * @param flags bitflags for Vdom variables
+ * @param fromPropUpdate whether this attribute update was triggered with the value of an updated reflected prop
  * @param initialRender whether this is the first render of the VDom
  */
 export const setAccessor = (
@@ -52,6 +53,7 @@ export const setAccessor = (
   newValue: any,
   isSvg: boolean,
   flags: number,
+  fromPropUpdate: boolean,
   initialRender?: boolean,
 ) => {
   if (oldValue === newValue) {
@@ -69,7 +71,7 @@ export const setAccessor = (
       memberName,
       effect(() => {
         const curVal = newValue.value;
-        setAccessor(elm, memberName, prevVal, curVal, isSvg, flags);
+        setAccessor(elm, memberName, prevVal, curVal, isSvg, flags, fromPropUpdate);
         prevVal = curVal;
       }),
     );
@@ -282,7 +284,7 @@ export const setAccessor = (
               elm.setAttribute(memberName, n);
             }
           }
-        } else if ((elm as any)[memberName] !== newValue) {
+        } else if (!fromPropUpdate) {
           (elm as any)[memberName] = newValue;
         }
       } catch {

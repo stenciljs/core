@@ -45,6 +45,8 @@ export const setValue = (
 ) => {
   // check our new property value against our internal value
   const hostRef = getHostRef(ref);
+  const elm = BUILD.lazyLoad ? hostRef.$hostElement$ : (ref as d.HostElement);
+  const instance = BUILD.lazyLoad ? hostRef.$lazyInstance$ : (elm as any);
 
   if (BUILD.signalBacking) {
     const sig = hostRef?.$signalValues$?.get(propName);
@@ -56,14 +58,7 @@ export const setValue = (
         cmpMeta.$attrsToReflect$ &&
         cmpMeta.$serializers$?.[propName]
       ) {
-        const elm = BUILD.lazyLoad ? hostRef.$hostElement$ : (ref as d.HostElement);
-        applySerializers(
-          hostRef,
-          cmpMeta,
-          propName,
-          parsed,
-          BUILD.lazyLoad ? hostRef.$lazyInstance$ : (elm as any),
-        );
+        applySerializers(hostRef, cmpMeta, propName, parsed, instance);
       }
       // @preact/signals-core uses === so NaN !== NaN always triggers effects;
       // match the legacy path's NaN-equality semantics explicitly.
@@ -85,21 +80,8 @@ export const setValue = (
     return;
   }
 
-  if (
-    BUILD.serializer &&
-    hostRef.$serializerValues$.has(propName) &&
-    hostRef.$serializerValues$.get(propName) === newVal
-  ) {
-    // The newValue is the same as a saved serialized value from a prop update.
-    // The prop can be intentionally different from the attribute;
-    // updating the underlying prop here can cause an infinite loop.
-    return;
-  }
-
-  const elm = BUILD.lazyLoad ? hostRef.$hostElement$ : (ref as d.HostElement);
   const oldVal = hostRef.$instanceValues$.get(propName);
   const flags = hostRef.$flags$;
-  const instance = BUILD.lazyLoad ? hostRef.$lazyInstance$ : (elm as any);
   newVal = parsePropertyValue(newVal, cmpMeta.$members$[propName][0]);
 
   // explicitly check for NaN on both sides, as `NaN === NaN` is always false
