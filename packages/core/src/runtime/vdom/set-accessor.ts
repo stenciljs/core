@@ -306,7 +306,7 @@ export const setAccessor = (
         xlink = true;
       }
     }
-    if (newValue == null || newValue === false) {
+    if (newValue == null || newValue === false || isComplex) {
       if (
         newValue !== false ||
         elm.getAttribute(memberName) === '' ||
