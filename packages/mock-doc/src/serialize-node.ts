@@ -348,16 +348,15 @@ function* streamToHtml(
               /**
                * In cases where a user would pass in a declarative shadow dom of a
                * Stencil component, we want to skip over the template tag as we
-               * will be parsing the shadow root of the component again.
+               * will be serializing the shadow root of the component again.
                *
                * We know it is a hydrated Stencil component by checking if the `HYDRATE_ID`
                * is set on the node.
                */
-              const sId = (node as HTMLElement).attributes.getNamedItem(HYDRATE_ID);
               const isStencilDeclarativeShadowDOM =
-                childNodes[i].nodeName.toLowerCase() === 'template' && sId;
+                childNodes[i].nodeName.toLowerCase() === 'template' &&
+                (node as HTMLElement).attributes.getNamedItem(HYDRATE_ID);
               if (isStencilDeclarativeShadowDOM) {
-                yield `\n${' '.repeat(output.indent)}<!--r.${sId.value}-->`;
                 continue;
               }
 
