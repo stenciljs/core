@@ -2,7 +2,7 @@ import { BUILD } from 'virtual:app-data';
 import { plt } from 'virtual:platform';
 import type * as d from '@stencil/core';
 
-import { PLATFORM_FLAGS } from './runtime-constants';
+import { NODE_TYPE, PLATFORM_FLAGS } from './runtime-constants';
 import {
   addSlotRelocateNode,
   dispatchSlotChangeEvent,
@@ -342,7 +342,10 @@ export const patchTextContent = (hostElementPrototype: HTMLElement): void => {
       const childNodes = this.__childNodes
         ? this.childNodes
         : getSlottedChildNodes(this.childNodes);
-      childNodes.forEach((node: d.RenderNode) => (text += node.textContent || ''));
+      childNodes.forEach((node: d.RenderNode) => {
+        // like the native getter: comments (e.g. frameworks' hydration markers) contribute nothing
+        if (node.nodeType !== NODE_TYPE.CommentNode) text += node.textContent || '';
+      });
       return text;
     },
     set: function (value) {
@@ -353,7 +356,10 @@ export const patchTextContent = (hostElementPrototype: HTMLElement): void => {
         if (node['s-ol']) node['s-ol'].remove();
         node.remove();
       });
-      this.insertAdjacentHTML('beforeend', value);
+      // a text node, never parsed as HTML
+      if (value != null && value !== '') {
+        this.append(this.ownerDocument.createTextNode(String(value)));
+      }
     },
   });
 };
