@@ -164,7 +164,15 @@ export function ssrApp(
             registerHost(elm, Cstr.cmpMeta);
 
             // proxy the host element with the component's metadata
-            proxyHostElement(elm, Cstr);
+            proxyHostElement(elm, Cstr, (messageText) =>
+              results.diagnostics.push({
+                level: 'warn',
+                type: 'hydrate',
+                header: 'SSR Warning',
+                messageText,
+                lines: [],
+              }),
+            );
           }
         }
       }

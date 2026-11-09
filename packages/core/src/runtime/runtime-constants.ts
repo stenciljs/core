@@ -65,6 +65,13 @@ export const COMMENT_NODE_ID = 'c';
 export const HYDRATE_ID = 's-id';
 export const HYDRATED_STYLE_ID = 'sty-id';
 export const HYDRATE_CHILD_ID = 'c-id';
+/**
+ * Starts an attribute value written by the `ssr` output's `ssrProp()` on a server: a reference to
+ * a value it put in the registry below, for the SSR runtime to take out and set as the prop.
+ */
+export const SSR_PROP_REF_PREFIX = '__stencil_ssr_ref:';
+/** `Symbol.for()` key of the `ssrProp()` registry on the server's real global object. */
+export const SSR_PROPS_REGISTRY_KEY = 'stencil.ssrProps';
 export const HYDRATED_CSS = '{visibility:hidden}.hydrated{visibility:inherit}';
 
 export const STENCIL_DOC_DATA = '_stencilDocData';
