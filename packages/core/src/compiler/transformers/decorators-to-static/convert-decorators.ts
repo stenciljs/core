@@ -10,6 +10,13 @@ import { CLASS_DECORATORS_TO_REMOVE, MEMBER_DECORATORS_TO_REMOVE } from './decor
 import { elementDecoratorsToStatic } from './element-decorator';
 import { eventDecoratorsToStatic } from './event-decorator';
 import { ImportAliasMap } from './import-alias-map';
+import {
+  addBuildImport,
+  createJsonSerializerMethods,
+  getJsonSerializedProps,
+  JSON_DESERIALIZE_METHOD,
+  JSON_SERIALIZE_METHOD,
+} from './json-serialize-prop';
 import { listenDecoratorsToStatic } from './listen-decorator';
 import { methodDecoratorsToStatic, validateMethods } from './method-decorator';
 import { propDecoratorsToStatic } from './prop-decorator';
@@ -36,6 +43,9 @@ import { watchDecoratorsToStatic } from './watch-decorator';
  * @returns a TypeScript transformer factory which can be passed to
  * TypeScript to transform source code during the compilation process
  */
+/** Source files with a `@Prop({ serialize: 'json' })`, which need a `Build` import. */
+const filesWithJsonProps = new WeakSet<ts.SourceFile>();
+
 export const convertDecoratorsToStatic = (
   config: d.ValidatedConfig,
   diagnostics: d.Diagnostic[],
@@ -54,7 +64,9 @@ export const convertDecoratorsToStatic = (
 
     return (tsSourceFile) => {
       sourceFile = tsSourceFile;
-      return ts.visitEachChild(tsSourceFile, visit, transformCtx);
+      const updated = ts.visitEachChild(tsSourceFile, visit, transformCtx);
+      // the methods generated for `@Prop({ serialize: 'json' })` use `Build`
+      return filesWithJsonProps.has(tsSourceFile) ? addBuildImport(updated) : updated;
     };
   };
 };
@@ -130,6 +142,36 @@ const visitClassDeclaration = (
   // stores a reference to fields that should be watched for changes
   // parse member decorators (Prop, State, Listen, Event, Method, Element and Watch)
   if (decoratedMembers.length > 0) {
+    // `@Prop({ serialize: 'json' })` is shorthand for a generated serializer / deserializer pair
+    const handWritten = serializeDecoratorsToStatic(
+      typeChecker,
+      decoratedMembers,
+      [],
+      importAliasMap.get('PropSerialize'),
+      'PropSerialize',
+      importAliasMap.get('Prop'),
+    ).concat(
+      serializeDecoratorsToStatic(
+        typeChecker,
+        decoratedMembers,
+        [],
+        importAliasMap.get('AttrDeserialize'),
+        'AttrDeserialize',
+        importAliasMap.get('Prop'),
+      ),
+    );
+    const jsonProps = getJsonSerializedProps(
+      diagnostics,
+      typeChecker,
+      decoratedMembers,
+      importAliasMap.get('Prop'),
+      handWritten,
+    );
+    if (jsonProps.length > 0) {
+      filteredMethodsAndFields.push(...createJsonSerializerMethods());
+      filesWithJsonProps.add(sourceFile);
+    }
+
     const serializers = serializeDecoratorsToStatic(
       typeChecker,
       decoratedMembers,
@@ -137,6 +179,7 @@ const visitClassDeclaration = (
       importAliasMap.get('PropSerialize'),
       'PropSerialize',
       importAliasMap.get('Prop'),
+      jsonProps.map((propName) => ({ propName, methodName: JSON_SERIALIZE_METHOD })),
     );
     const deserializers = serializeDecoratorsToStatic(
       typeChecker,
@@ -145,6 +188,7 @@ const visitClassDeclaration = (
       importAliasMap.get('AttrDeserialize'),
       'AttrDeserialize',
       importAliasMap.get('Prop'),
+      jsonProps.map((propName) => ({ propName, methodName: JSON_DESERIALIZE_METHOD })),
     );
     propDecoratorsToStatic(
       config,

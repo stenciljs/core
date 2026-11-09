@@ -24,7 +24,7 @@ export { proxyComponent } from './proxy-component';
 export { ReactiveControllerHost } from './reactive-controller';
 export { render } from './render';
 export { HYDRATED_STYLE_ID } from './runtime-constants';
-export { getValue, setValue } from './set-value';
+export { applySerializers, getValue, setValue } from './set-value';
 export { setTagTransformer, transformTag } from './tag-transform';
 export { forceUpdate, getRenderingRef, postUpdateComponent } from './update-component';
 export { h, Host } from './vdom/h';
