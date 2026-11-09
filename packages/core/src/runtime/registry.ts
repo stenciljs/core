@@ -4,7 +4,8 @@ export const setRegistry = (registry: CustomElementRegistry): void => {
   _registry = registry;
 };
 
-export const getRegistry = (): CustomElementRegistry => _registry ?? customElements;
+// `globalThis.` so a server import (no `customElements` global) gets `undefined` rather than throwing
+export const getRegistry = (): CustomElementRegistry => _registry ?? globalThis.customElements;
 
 /**
  * @param elm a defined component host
