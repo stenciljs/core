@@ -23,8 +23,8 @@ export class ImportAliasMap extends Map<StencilDecorator, string> {
 
         if (namedBindings && ts.isNamedImports(namedBindings)) {
           for (const element of namedBindings.elements) {
-            const importName = element.name.getText();
-            const originalImportName = element.propertyName?.getText() ?? importName;
+            const importName = element.name.text;
+            const originalImportName = element.propertyName?.text ?? importName;
 
             // We only care to generate a map for the Stencil decorators
             if (STENCIL_DECORATORS.includes(originalImportName as StencilDecorator)) {
