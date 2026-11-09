@@ -139,6 +139,11 @@ describe('writeExportMaps', () => {
         import: './dist/ssr/index.js',
         require: './dist/ssr/index.cjs',
       },
+      './ssr-prop': {
+        types: './dist/ssr/ssr-prop.d.ts',
+        import: './dist/ssr/ssr-prop.js',
+        require: './dist/ssr/ssr-prop.cjs',
+      },
       './package.json': './package.json',
     });
   });
@@ -360,7 +365,7 @@ describe('writeExportMaps', () => {
     it('should not rewrite a package.json it has nothing to change in', async () => {
       config.outputTargets = [{ type: 'ssr', dir: '/dist/ssr' } as d.OutputTargetSsr];
       const source =
-        '{"name":"my-lib","exports":{"./ssr":{"types":"./dist/ssr/index.d.ts","import":"./dist/ssr/index.js"},"./package.json":"./package.json"}}';
+        '{"name":"my-lib","exports":{"./ssr":{"types":"./dist/ssr/index.d.ts","import":"./dist/ssr/index.js"},"./ssr-prop":{"types":"./dist/ssr/ssr-prop.d.ts","import":"./dist/ssr/ssr-prop.js"},"./package.json":"./package.json"}}';
 
       await run(source);
 

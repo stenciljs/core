@@ -1,4 +1,5 @@
 import ts from 'typescript';
+import type * as d from '@stencil/core';
 
 import {
   convertValueToLiteral,
@@ -15,6 +16,7 @@ export const serializeDecoratorsToStatic = (
   decoratorName: string,
   translateType: 'PropSerialize' | 'AttrDeserialize',
   propDecoratorName: string,
+  generated: d.ComponentCompilerChangeHandler[] = [],
 ) => {
   // we only care about `@Prop` decorated properties
   const props: string[] = decoratedProps
@@ -27,9 +29,13 @@ export const serializeDecoratorsToStatic = (
       return [];
     });
 
-  const serializers = decoratedProps
-    .filter(ts.isMethodDeclaration)
-    .flatMap((method) => parseSerializeDecorator(typeChecker, method, decoratorName, props));
+  const serializers = [
+    ...decoratedProps
+      .filter(ts.isMethodDeclaration)
+      .flatMap((method) => parseSerializeDecorator(typeChecker, method, decoratorName, props)),
+    // e.g. from `@Prop({ serialize: 'json' })`
+    ...generated,
+  ];
 
   if (serializers.length > 0) {
     if (translateType === 'PropSerialize') {

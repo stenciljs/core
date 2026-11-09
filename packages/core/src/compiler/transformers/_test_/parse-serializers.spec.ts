@@ -90,3 +90,73 @@ describe('parse PropSerialize', () => {
     ]);
   });
 });
+
+describe("@Prop({ serialize: 'json' })", () => {
+  // the output starts with the generated `Build` import, which `getStaticGetter` can't evaluate
+  const staticGetter = (output: string, name: string) =>
+    getStaticGetter(output.replace(/^import[^;]*;\s*/, ''), name) as any;
+
+  it('generates a JSON serializer / deserializer pair, reflected to the attribute', () => {
+    const t = transpileModule(`
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop({ serialize: 'json' }) chartData: { x: number }[];
+        @Prop({ serialize: 'json' }) items: string[];
+        @Prop() other: string;
+      }
+    `);
+
+    expect(staticGetter(t.outputText, 'serializers')).toEqual([
+      { methodName: 'stencilSerializeJson', propName: 'chartData' },
+      { methodName: 'stencilSerializeJson', propName: 'items' },
+    ]);
+    expect(staticGetter(t.outputText, 'deserializers')).toEqual([
+      { methodName: 'stencilDeserializeJson', propName: 'chartData' },
+      { methodName: 'stencilDeserializeJson', propName: 'items' },
+    ]);
+    const props = staticGetter(t.outputText, 'properties');
+    expect(props.chartData).toMatchObject({ attribute: 'chart-data', reflect: true });
+    expect(props.items).toMatchObject({ attribute: 'items', reflect: true });
+
+    // one pair of methods for the class, using an aliased `Build` import
+    expect(t.outputText.match(/stencilSerializeJson\(value\)/g)).toHaveLength(1);
+    expect(t.outputText).toContain('__stencil_Build.isServer ? JSON.stringify(value) : null');
+    expect(t.outputText).toMatch(/^import \{ Build as __stencil_Build \} from "@stencil\/core";/);
+  });
+
+  // the test harness throws on the first error diagnostic
+  it('reports a format other than json', () => {
+    expect(() =>
+      transpileModule(`
+        @Component({tag: 'cmp-a'})
+        export class CmpA {
+          @Prop({ serialize: 'yaml' as any }) items: string[];
+        }
+      `),
+    ).toThrow(`@Prop({ serialize }) on "items" must be 'json'`);
+  });
+
+  it('reports attribute: null', () => {
+    expect(() =>
+      transpileModule(`
+        @Component({tag: 'cmp-a'})
+        export class CmpA {
+          @Prop({ serialize: 'json', attribute: null }) items: string[];
+        }
+      `),
+    ).toThrow('needs an attribute to write to');
+  });
+
+  it('reports a hand-written serializer for the same prop', () => {
+    expect(() =>
+      transpileModule(`
+        @Component({tag: 'cmp-a'})
+        export class CmpA {
+          @Prop({ serialize: 'json' }) items: string[];
+          @PropSerialize('items')
+          mine(value) { return String(value); }
+        }
+      `),
+    ).toThrow(`"items" has both @Prop({ serialize: 'json' }) and its own`);
+  });
+});

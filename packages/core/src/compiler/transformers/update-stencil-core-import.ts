@@ -49,9 +49,11 @@ export const updateStencilCoreImports = (
               ) {
                 const origImports = s.importClause.namedBindings.elements;
 
-                const keepImports = origImports
-                  .map((e) => e.getText())
-                  .filter((name) => KEEP_IMPORTS.has(name));
+                // by the imported name, keeping any alias (`Build as B`); `getText()` would fail on
+                // an import a transformer added
+                const keepImports = origImports.filter((e) =>
+                  KEEP_IMPORTS.has((e.propertyName ?? e.name).text),
+                );
 
                 if (keepImports.length > 0) {
                   const newImport = ts.factory.updateImportDeclaration(
@@ -61,11 +63,13 @@ export const updateStencilCoreImports = (
                       false,
                       undefined,
                       ts.factory.createNamedImports(
-                        keepImports.map((name) =>
+                        keepImports.map((e) =>
                           ts.factory.createImportSpecifier(
                             false,
-                            undefined,
-                            ts.factory.createIdentifier(name),
+                            e.propertyName
+                              ? ts.factory.createIdentifier(e.propertyName.text)
+                              : undefined,
+                            ts.factory.createIdentifier(e.name.text),
                           ),
                         ),
                       ),

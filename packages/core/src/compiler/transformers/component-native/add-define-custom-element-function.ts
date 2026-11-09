@@ -181,17 +181,9 @@ const createDefineCase = (tagName: string, actionExpression: ts.Expression): ts.
 };
 
 /**
- * Adds the exported `defineCustomElement` function declaration.
+ * Adds the exported `defineCustomElement` function declaration. `__stencil_getRegistry()` returns
+ * `undefined` where there's no `customElements` (e.g. on a server), so the call is a no-op there.
  *
- * Global path:
- * ```js
- * export function defineCustomElement() {
- *   if (typeof customElements === 'undefined') return;
- *   ['my-comp', ...].forEach(tagName => { switch (tagName) { ... } });
- * }
- * ```
- *
- * Scoped path:
  * ```js
  * export function defineCustomElement(opts) {
  *   const _storeReg = __stencil_getRegistry();

@@ -35,5 +35,4 @@
       </li>
     </ul>
   </template>
-  <!--r.1-->
 </complex-properties>

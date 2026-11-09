@@ -259,6 +259,49 @@ export namespace Components {
     }
     interface SsrOrderWrapCmp {
     }
+    /**
+     * Complex props with no serializer: fine on the server, but they don't reach the browser.
+     */
+    interface SsrPropCmp {
+        /**
+          * A multi-word name: its attribute is `extra-items`.
+          * @default []
+         */
+        "extraItems": string[];
+        /**
+          * @default []
+         */
+        "items": string[];
+        "label": string;
+    }
+    /**
+     * `@Prop({ serialize: 'json' })`: the generated JSON serializer pair carries the prop to the browser.
+     */
+    interface SsrPropJsonCmp {
+        /**
+          * @default ['default']
+         */
+        "items": string[];
+    }
+    /**
+     * A prop JSON can't carry (a `Map`): `ssrProp()` hands it to the server render as it is, and the
+     * component's own `@PropSerialize` / `@AttrDeserialize` carry it to the browser.
+     */
+    interface SsrPropMapCmp {
+        /**
+          * @default new Map()
+         */
+        "scores": Map<string, number>;
+    }
+    /**
+     * A complex prop that serializes itself to its attribute on the server, and reads it back.
+     */
+    interface SsrPropSerializedCmp {
+        /**
+          * @default []
+         */
+        "items": string[];
+    }
     interface SsrShadowCmp {
         "selected": boolean;
     }
@@ -625,6 +668,43 @@ declare global {
         prototype: HTMLSsrOrderWrapCmpElement;
         new (): HTMLSsrOrderWrapCmpElement;
     };
+    /**
+     * Complex props with no serializer: fine on the server, but they don't reach the browser.
+     */
+    interface HTMLSsrPropCmpElement extends Components.SsrPropCmp, HTMLStencilElement {
+    }
+    var HTMLSsrPropCmpElement: {
+        prototype: HTMLSsrPropCmpElement;
+        new (): HTMLSsrPropCmpElement;
+    };
+    /**
+     * `@Prop({ serialize: 'json' })`: the generated JSON serializer pair carries the prop to the browser.
+     */
+    interface HTMLSsrPropJsonCmpElement extends Components.SsrPropJsonCmp, HTMLStencilElement {
+    }
+    var HTMLSsrPropJsonCmpElement: {
+        prototype: HTMLSsrPropJsonCmpElement;
+        new (): HTMLSsrPropJsonCmpElement;
+    };
+    /**
+     * A prop JSON can't carry (a `Map`): `ssrProp()` hands it to the server render as it is, and the
+     * component's own `@PropSerialize` / `@AttrDeserialize` carry it to the browser.
+     */
+    interface HTMLSsrPropMapCmpElement extends Components.SsrPropMapCmp, HTMLStencilElement {
+    }
+    var HTMLSsrPropMapCmpElement: {
+        prototype: HTMLSsrPropMapCmpElement;
+        new (): HTMLSsrPropMapCmpElement;
+    };
+    /**
+     * A complex prop that serializes itself to its attribute on the server, and reads it back.
+     */
+    interface HTMLSsrPropSerializedCmpElement extends Components.SsrPropSerializedCmp, HTMLStencilElement {
+    }
+    var HTMLSsrPropSerializedCmpElement: {
+        prototype: HTMLSsrPropSerializedCmpElement;
+        new (): HTMLSsrPropSerializedCmpElement;
+    };
     interface HTMLSsrShadowCmpElement extends Components.SsrShadowCmp, HTMLStencilElement {
     }
     var HTMLSsrShadowCmpElement: {
@@ -684,6 +764,10 @@ declare global {
         "ssr-class-parent-cmp": HTMLSsrClassParentCmpElement;
         "ssr-order-cmp": HTMLSsrOrderCmpElement;
         "ssr-order-wrap-cmp": HTMLSsrOrderWrapCmpElement;
+        "ssr-prop-cmp": HTMLSsrPropCmpElement;
+        "ssr-prop-json-cmp": HTMLSsrPropJsonCmpElement;
+        "ssr-prop-map-cmp": HTMLSsrPropMapCmpElement;
+        "ssr-prop-serialized-cmp": HTMLSsrPropSerializedCmpElement;
         "ssr-shadow-cmp": HTMLSsrShadowCmpElement;
         "wrap-ssr-shadow-cmp": HTMLWrapSsrShadowCmpElement;
     }
@@ -941,6 +1025,49 @@ declare namespace LocalJSX {
     }
     interface SsrOrderWrapCmp {
     }
+    /**
+     * Complex props with no serializer: fine on the server, but they don't reach the browser.
+     */
+    interface SsrPropCmp {
+        /**
+          * A multi-word name: its attribute is `extra-items`.
+          * @default []
+         */
+        "extraItems"?: string[];
+        /**
+          * @default []
+         */
+        "items"?: string[];
+        "label"?: string;
+    }
+    /**
+     * `@Prop({ serialize: 'json' })`: the generated JSON serializer pair carries the prop to the browser.
+     */
+    interface SsrPropJsonCmp {
+        /**
+          * @default ['default']
+         */
+        "items"?: string[];
+    }
+    /**
+     * A prop JSON can't carry (a `Map`): `ssrProp()` hands it to the server render as it is, and the
+     * component's own `@PropSerialize` / `@AttrDeserialize` carry it to the browser.
+     */
+    interface SsrPropMapCmp {
+        /**
+          * @default new Map()
+         */
+        "scores"?: Map<string, number>;
+    }
+    /**
+     * A complex prop that serializes itself to its attribute on the server, and reads it back.
+     */
+    interface SsrPropSerializedCmp {
+        /**
+          * @default []
+         */
+        "items"?: string[];
+    }
     interface SsrShadowCmp {
         "selected"?: boolean;
     }
@@ -1019,6 +1146,18 @@ declare namespace LocalJSX {
     interface SsrClassChildCmpAttributes {
         "disabled": boolean;
     }
+    interface SsrPropCmpAttributes {
+        "label": string;
+    }
+    interface SsrPropJsonCmpAttributes {
+        "items": string;
+    }
+    interface SsrPropMapCmpAttributes {
+        "scores": string;
+    }
+    interface SsrPropSerializedCmpAttributes {
+        "items": string;
+    }
     interface SsrShadowCmpAttributes {
         "selected": boolean;
     }
@@ -1073,6 +1212,10 @@ declare namespace LocalJSX {
         "ssr-class-parent-cmp": SsrClassParentCmp;
         "ssr-order-cmp": SsrOrderCmp;
         "ssr-order-wrap-cmp": SsrOrderWrapCmp;
+        "ssr-prop-cmp": Omit<SsrPropCmp, keyof SsrPropCmpAttributes> & { [K in keyof SsrPropCmp & keyof SsrPropCmpAttributes]?: SsrPropCmp[K] } & { [K in keyof SsrPropCmp & keyof SsrPropCmpAttributes as `attr:${K}`]?: SsrPropCmpAttributes[K] } & { [K in keyof SsrPropCmp & keyof SsrPropCmpAttributes as `prop:${K}`]?: SsrPropCmp[K] };
+        "ssr-prop-json-cmp": Omit<SsrPropJsonCmp, keyof SsrPropJsonCmpAttributes> & { [K in keyof SsrPropJsonCmp & keyof SsrPropJsonCmpAttributes]?: SsrPropJsonCmp[K] } & { [K in keyof SsrPropJsonCmp & keyof SsrPropJsonCmpAttributes as `attr:${K}`]?: SsrPropJsonCmpAttributes[K] } & { [K in keyof SsrPropJsonCmp & keyof SsrPropJsonCmpAttributes as `prop:${K}`]?: SsrPropJsonCmp[K] };
+        "ssr-prop-map-cmp": Omit<SsrPropMapCmp, keyof SsrPropMapCmpAttributes> & { [K in keyof SsrPropMapCmp & keyof SsrPropMapCmpAttributes]?: SsrPropMapCmp[K] } & { [K in keyof SsrPropMapCmp & keyof SsrPropMapCmpAttributes as `attr:${K}`]?: SsrPropMapCmpAttributes[K] } & { [K in keyof SsrPropMapCmp & keyof SsrPropMapCmpAttributes as `prop:${K}`]?: SsrPropMapCmp[K] };
+        "ssr-prop-serialized-cmp": Omit<SsrPropSerializedCmp, keyof SsrPropSerializedCmpAttributes> & { [K in keyof SsrPropSerializedCmp & keyof SsrPropSerializedCmpAttributes]?: SsrPropSerializedCmp[K] } & { [K in keyof SsrPropSerializedCmp & keyof SsrPropSerializedCmpAttributes as `attr:${K}`]?: SsrPropSerializedCmpAttributes[K] } & { [K in keyof SsrPropSerializedCmp & keyof SsrPropSerializedCmpAttributes as `prop:${K}`]?: SsrPropSerializedCmp[K] };
         "ssr-shadow-cmp": Omit<SsrShadowCmp, keyof SsrShadowCmpAttributes> & { [K in keyof SsrShadowCmp & keyof SsrShadowCmpAttributes]?: SsrShadowCmp[K] } & { [K in keyof SsrShadowCmp & keyof SsrShadowCmpAttributes as `attr:${K}`]?: SsrShadowCmpAttributes[K] } & { [K in keyof SsrShadowCmp & keyof SsrShadowCmpAttributes as `prop:${K}`]?: SsrShadowCmp[K] };
         "wrap-ssr-shadow-cmp": Omit<WrapSsrShadowCmp, keyof WrapSsrShadowCmpAttributes> & { [K in keyof WrapSsrShadowCmp & keyof WrapSsrShadowCmpAttributes]?: WrapSsrShadowCmp[K] } & { [K in keyof WrapSsrShadowCmp & keyof WrapSsrShadowCmpAttributes as `attr:${K}`]?: WrapSsrShadowCmpAttributes[K] } & { [K in keyof WrapSsrShadowCmp & keyof WrapSsrShadowCmpAttributes as `prop:${K}`]?: WrapSsrShadowCmp[K] };
     }
@@ -1164,6 +1307,23 @@ declare module "@stencil/core" {
             "ssr-class-parent-cmp": LocalJSX.IntrinsicElements["ssr-class-parent-cmp"] & JSXBase.HTMLAttributes<HTMLSsrClassParentCmpElement>;
             "ssr-order-cmp": LocalJSX.IntrinsicElements["ssr-order-cmp"] & JSXBase.HTMLAttributes<HTMLSsrOrderCmpElement>;
             "ssr-order-wrap-cmp": LocalJSX.IntrinsicElements["ssr-order-wrap-cmp"] & JSXBase.HTMLAttributes<HTMLSsrOrderWrapCmpElement>;
+            /**
+             * Complex props with no serializer: fine on the server, but they don't reach the browser.
+             */
+            "ssr-prop-cmp": LocalJSX.IntrinsicElements["ssr-prop-cmp"] & JSXBase.HTMLAttributes<HTMLSsrPropCmpElement>;
+            /**
+             * `@Prop({ serialize: 'json' })`: the generated JSON serializer pair carries the prop to the browser.
+             */
+            "ssr-prop-json-cmp": LocalJSX.IntrinsicElements["ssr-prop-json-cmp"] & JSXBase.HTMLAttributes<HTMLSsrPropJsonCmpElement>;
+            /**
+             * A prop JSON can't carry (a `Map`): `ssrProp()` hands it to the server render as it is, and the
+             * component's own `@PropSerialize` / `@AttrDeserialize` carry it to the browser.
+             */
+            "ssr-prop-map-cmp": LocalJSX.IntrinsicElements["ssr-prop-map-cmp"] & JSXBase.HTMLAttributes<HTMLSsrPropMapCmpElement>;
+            /**
+             * A complex prop that serializes itself to its attribute on the server, and reads it back.
+             */
+            "ssr-prop-serialized-cmp": LocalJSX.IntrinsicElements["ssr-prop-serialized-cmp"] & JSXBase.HTMLAttributes<HTMLSsrPropSerializedCmpElement>;
             "ssr-shadow-cmp": LocalJSX.IntrinsicElements["ssr-shadow-cmp"] & JSXBase.HTMLAttributes<HTMLSsrShadowCmpElement>;
             "wrap-ssr-shadow-cmp": LocalJSX.IntrinsicElements["wrap-ssr-shadow-cmp"] & JSXBase.HTMLAttributes<HTMLWrapSsrShadowCmpElement>;
         }

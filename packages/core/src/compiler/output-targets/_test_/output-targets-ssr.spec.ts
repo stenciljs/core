@@ -143,6 +143,9 @@ describe('ssr', () => {
       mockFs.readFile = vi.fn().mockResolvedValue('{"name":"test"}');
       mockFs.writeFile = vi.fn().mockResolvedValue(undefined);
       mockFs.copyFile = vi.fn().mockResolvedValue(undefined);
+      config.sys.readFile = vi
+        .fn()
+        .mockResolvedValue('import "rolldown";\ndeclare function renderToString(): void;\n');
 
       const outputTarget: d.OutputTargetSsr = {
         type: SSR,
@@ -170,7 +173,12 @@ describe('ssr', () => {
         rolldownOutput as any,
       );
 
-      expect(mockFs.copyFile).toHaveBeenCalled();
+      // the runner's types, without their bare imports
+      expect(mockFs.writeFile).toHaveBeenCalledWith(
+        expect.stringMatching(/dist[\\/]+hydrate[\\/]+index\.d\.ts$/),
+        'declare function renderToString(): void;\n',
+        expect.anything(),
+      );
       expect(mockFs.writeFile).not.toHaveBeenCalledWith(
         expect.stringMatching(/dist[\\/]+hydrate[\\/]+package\.json$/),
         expect.any(String),

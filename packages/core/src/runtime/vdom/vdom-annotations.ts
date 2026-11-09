@@ -169,7 +169,13 @@ const insertVNodeAnnotations = (
     hostElm.setAttribute(HYDRATE_ID, hostId as any);
 
     if (hostElm['s-cr'] != null) {
-      hostElm['s-cr'].nodeValue = `${CONTENT_REF_ID}.${hostId}`;
+      if (hostElm.shadowRoot) {
+        // only light DOM components need it on the client (shadow hosts discard it). Leaving it
+        // in a shadow host's light DOM gives frameworks hydrating that light DOM an unexpected node
+        hostElm['s-cr'].remove();
+      } else {
+        hostElm['s-cr'].nodeValue = `${CONTENT_REF_ID}.${hostId}`;
+      }
     }
 
     if (vnode.$children$ != null) {

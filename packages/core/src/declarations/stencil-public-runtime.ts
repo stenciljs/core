@@ -214,6 +214,17 @@ export interface PropOptions {
    * In this case you can set the `reflect` option to `true`, since it defaults to `false`:
    */
   reflect?: boolean;
+
+  /**
+   * Carry the prop's value from a server render to the browser in its attribute, as JSON:
+   * shorthand for a `@PropSerialize()` that writes `JSON.stringify(value)` on the server and an
+   * `@AttrDeserialize()` that reads it back with `JSON.parse()`. Attribute values that aren't
+   * valid JSON leave the prop as it is (with a warning in dev builds).
+   *
+   * For other formats (a `Map`, a `Date`...), write the `@PropSerialize()` /
+   * `@AttrDeserialize()` pair yourself.
+   */
+  serialize?: 'json';
 }
 
 export interface MethodDecorator {

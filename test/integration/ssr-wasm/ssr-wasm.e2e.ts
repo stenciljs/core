@@ -95,7 +95,7 @@ describe('ssr-wasm plugin execution', () => {
       const output = await call('renderToString', {
         html: `<my-greeting name="${name}"></my-greeting>`,
       });
-      expect(output.html).toContain('<!--r.1-->');
+      expect(output.html).toContain('s-id="1"');
     }
   });
 
@@ -106,15 +106,15 @@ describe('ssr-wasm plugin execution', () => {
         options: { fullDocument: false },
       });
     await expect(plugin.call('resetSsrDocData', '')).resolves.not.toThrow();
-    expect((await fragment('Test')).html).toContain('<!--r.1-->');
-    expect((await fragment('Another')).html).toContain('<!--r.2-->');
+    expect((await fragment('Test')).html).toContain('s-id="1"');
+    expect((await fragment('Another')).html).toContain('s-id="2"');
     // a full-document render in between doesn't disturb the fragment sequence
     expect((await call('renderToString', { html: '<my-greeting></my-greeting>' })).html).toContain(
-      '<!--r.1-->',
+      's-id="1"',
     );
-    expect((await fragment('Third')).html).toContain('<!--r.3-->');
+    expect((await fragment('Third')).html).toContain('s-id="3"');
     await expect(plugin.call('resetSsrDocData', '')).resolves.not.toThrow();
-    expect((await fragment('Test')).html).toContain('<!--r.1-->');
+    expect((await fragment('Test')).html).toContain('s-id="1"');
   });
 
   it('calls setTagTransformer and works', async () => {

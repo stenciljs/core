@@ -285,7 +285,6 @@ test.describe('client hydration', () => {
       </nested-scope-cmp>
     </div>
   </template>
-  <!--r.1-->
   <nested-child-cmp custom-hydrate-flag="" s-id="2">
     <template shadowrootmode="open">
       <style sty-id="sc-nested-child-cmp">
@@ -295,7 +294,6 @@ test.describe('client hydration', () => {
         <slot c-id="2.1.1.0"></slot>
       </div>
     </template>
-    <!--r.2-->
     Hello World
   </nested-child-cmp>
 </nested-cmp-parent>`);

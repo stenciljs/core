@@ -102,7 +102,8 @@ export const performAutomaticKeyInsertion = (
     // longer.
     if (
       ts.isMethodDeclaration(node) &&
-      node.name.getText() === 'render' &&
+      ts.isIdentifier(node.name) &&
+      node.name.text === 'render' &&
       numReturnStatements(node) === 1
     ) {
       resetKeyCounter();

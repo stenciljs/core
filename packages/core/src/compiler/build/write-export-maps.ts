@@ -257,6 +257,12 @@ const getGeneratedExports = (
       import: `${outDir}/index.js`,
       require: ssr.cjs ? `${outDir}/index.cjs` : undefined,
     };
+    // `ssrProp()` for framework templates: imported on the client too
+    generated['./ssr-prop'] = {
+      types: `${outDir}/ssr-prop.d.ts`,
+      import: `${outDir}/ssr-prop.js`,
+      require: ssr.cjs ? `${outDir}/ssr-prop.cjs` : undefined,
+    };
   }
 
   if (loaderBundle || standalone) {

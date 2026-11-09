@@ -26,4 +26,34 @@ describe('scoped-slot-text', () => {
     expect((label.childNodes[0] as any)['s-cr']).toBeDefined();
     expect(label.childNodes[1].textContent).toBe('New text for label structure testing');
   });
+
+  it('sets text, never parsed as HTML', async () => {
+    const { root } = await render(<cmp-label>This text should go in a slot</cmp-label>);
+    await waitForExist('cmp-label.hydrated');
+
+    root.textContent = '<i id="injected">x</i>';
+    expect(root.querySelector('#injected')).toBeNull();
+    expect(root.textContent).toBe('<i id="injected">x</i>');
+    expect(root.querySelector('label')!.textContent).toBe('<i id="injected">x</i>');
+  });
+
+  it('clears the slotted content when set to an empty string', async () => {
+    const { root } = await render(<cmp-label>This text should go in a slot</cmp-label>);
+    await waitForExist('cmp-label.hydrated');
+
+    root.textContent = '';
+    expect(root.textContent).toBe('');
+    expect(root.querySelector('label')).toBeTruthy();
+  });
+
+  it('ignores slotted comments when read, like the native getter', async () => {
+    const { root } = await render(<cmp-label>This text should go in a slot</cmp-label>);
+    await waitForExist('cmp-label.hydrated');
+
+    // frameworks put marker comments between adjacent text (React `<!-- -->`, Solid `<!--$-->`)
+    root.textContent = 'Rendered by ';
+    root.appendChild(document.createComment('$'));
+    root.appendChild(document.createTextNode('Solid'));
+    expect(root.textContent).toBe('Rendered by Solid');
+  });
 });

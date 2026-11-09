@@ -6,7 +6,7 @@ import { HOST_FLAGS, WATCH_FLAGS } from '../utils/constants';
 import { parsePropertyValue } from './parse-property-value';
 import { scheduleUpdate } from './update-component';
 
-const applySerializers = (
+export const applySerializers = (
   hostRef: d.HostRef,
   cmpMeta: d.ComponentRuntimeMeta,
   propName: string,
