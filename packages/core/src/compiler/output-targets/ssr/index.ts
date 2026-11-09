@@ -2,6 +2,7 @@ import type * as d from '@stencil/core';
 
 import { filterActiveTargets, isOutputTargetSsr } from '../../../utils';
 import { generateSsrApp } from './generate-ssr-app';
+import { validateSsrReservedAttributes } from './validate-reserved-attributes';
 
 export const outputSsr = async (
   config: d.ValidatedConfig,
@@ -16,6 +17,7 @@ export const outputSsr = async (
   );
 
   if (ssrOutputTargets.length > 0) {
+    validateSsrReservedAttributes(config, buildCtx);
     const timespan = buildCtx.createTimeSpan(`generate SSR app started`);
 
     await generateSsrApp(config, compilerCtx, buildCtx, ssrOutputTargets);
