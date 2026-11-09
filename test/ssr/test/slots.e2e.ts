@@ -144,8 +144,9 @@ test.describe('slot handling', () => {
       const textContent = await page.evaluate(
         () => document.querySelector('non-shadow-forwarded-slot')?.textContent?.trim() ?? '',
       );
+      // in order, and like the native getter, without the comments' text
       expect(textContent).toContain(
-        'Text node 1 Comment 1  Slotted element 1  Slotted element 2  Comment 2 Text node 2',
+        'Text node 1  Slotted element 1  Slotted element 2   Text node 2',
       );
     });
   });

@@ -495,4 +495,35 @@ describe('hydrate no encapsulation', () => {
       </cmp-a>
     `);
   });
+
+  it("doesn't take slotted text for a text node that isn't in the server HTML", async () => {
+    @Component({ tag: 'cmp-a' })
+    class CmpA {
+      render() {
+        return (
+          <Host>
+            <strong>Note:</strong> <slot />
+          </Host>
+        );
+      }
+    }
+    const serverHydrated = await newSpecPage({
+      components: [CmpA],
+      html: `<cmp-a>Slotted text</cmp-a>`,
+      hydrateServerSide: true,
+    });
+    // something between server and client (a minifier, a framework's HTML handling) drops the
+    // whitespace-only text node, leaving its `<!--t.-->` annotation followed by the slot
+    const html = serverHydrated.root.outerHTML.replace(/(<!--t\.1\.2\.0\.1-->) /, '$1');
+    expect(html).toContain('<!--t.1.2.0.1--><!--s.');
+
+    const clientHydrated = await newSpecPage({
+      components: [CmpA],
+      html,
+      hydrateClientSide: true,
+    });
+    // the space is recreated, and the slotted text stays slotted text
+    expect(clientHydrated.root.textContent).toBe('Note: Slotted text');
+    expect(clientHydrated.root.querySelector('strong').textContent).toBe('Note:');
+  });
 });

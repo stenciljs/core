@@ -17,6 +17,8 @@ export const SSR_FACTORY_INTRO = /* js */ `
 // Used for the hydrate timeout timer to avoid being affected by constrainTimeouts.
 var $nativeSetTimeout = (typeof globalThis !== 'undefined' ? globalThis : global).setTimeout;
 var $nativeClearTimeout = (typeof globalThis !== 'undefined' ? globalThis : global).clearTimeout;
+// Holds the \`ssrProp()\` registry, which template code writes to outside the factory.
+var $stencilNativeGlobal = typeof globalThis !== 'undefined' ? globalThis : global;
 // Used to abort in-flight fetch() calls and to call any user defined AbortControllers when ssr times out.
 var $stencilNativeAbortController = AbortController;
 

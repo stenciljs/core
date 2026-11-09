@@ -361,6 +361,10 @@ export const objectLiteralToObjectMap = (
             val = false;
             break;
 
+          case ts.SyntaxKind.NullKeyword:
+            val = null;
+            break;
+
           case ts.SyntaxKind.Identifier:
             const escapedText = (propAssignment.initializer as ts.Identifier).escapedText;
             if (escapedText === 'String') {
@@ -698,7 +702,7 @@ const getTypeReferenceLocation = (
       st.importClause.namedBindings &&
       ts.isNamedImports(st.importClause.namedBindings) &&
       Array.isArray(st.importClause.namedBindings.elements) &&
-      st.importClause.namedBindings.elements.find((nbe) => nbe.name.getText() === typeName);
+      st.importClause.namedBindings.elements.find((nbe) => nbe.name.text === typeName);
     if (!statement) {
       return false;
     }
@@ -721,9 +725,7 @@ const getTypeReferenceLocation = (
     );
 
     if (importHomeModule) {
-      const importElement = namedImportBindings.elements.find(
-        (nbe) => nbe.name.getText() === typeName,
-      );
+      const importElement = namedImportBindings.elements.find((nbe) => nbe.name.text === typeName);
       const importName = importElement.name;
       const originalTypeName = getOriginalTypeName(importName, checker);
 

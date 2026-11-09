@@ -1665,4 +1665,17 @@ describe('parse props', () => {
       },
     ]);
   });
+
+  it('should have no attribute with attribute: null', () => {
+    const t = transpileModule(`
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop({ attribute: null }) val: string;
+      }
+    `);
+    expect(getStaticGetter(t.outputText, 'properties')).toMatchObject({
+      val: { attribute: undefined },
+    });
+    expect(t.property?.attribute).toBeUndefined();
+  });
 });

@@ -149,7 +149,7 @@ export const validateMethods = (
   members: ts.NodeArray<ts.ClassElement>,
 ) => {
   members.filter(ts.isMethodDeclaration).map((method) => {
-    if (method.name.getText() === 'componentDidUnload') {
+    if (ts.isIdentifier(method.name) && method.name.text === 'componentDidUnload') {
       const err = buildError(diagnostics);
       err.header = `Replace "componentDidUnload()" with "disconnectedCallback()"`;
       err.messageText = `The "componentDidUnload()" method was removed in Stencil 2. Please use the "disconnectedCallback()" method instead.`;
