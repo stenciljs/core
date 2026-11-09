@@ -744,6 +744,14 @@ const findCorrespondingNode = (
   node: Node,
   type: typeof NODE_TYPE.CommentNode | typeof NODE_TYPE.TextNode,
 ) => {
+  if (type === NODE_TYPE.TextNode) {
+    // The server writes a text node's annotation right before it. If the next node isn't text,
+    // the text was empty or dropped on the way (e.g. trimmed whitespace): recreate it rather than
+    // take a later text node that belongs to someone else (slotted content)
+    const next = node.nextSibling;
+    if (next?.nodeType === NODE_TYPE.TextNode) return next;
+    return node.parentNode.insertBefore(node.ownerDocument.createTextNode(''), next);
+  }
   let sibling = node;
   do {
     sibling = sibling.nextSibling;
