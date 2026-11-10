@@ -2,7 +2,7 @@ This is Stencil - a toolchain for building reusable, scalable Design Systems bui
 
 This is a major version development branch - breaking changes are ok. 
 
-Read the `./V5_PLANNING.md` file at session start for more details on the goals and plans for this major version. Add and amend this document as needed to keep track of the major version planning and progress.
+Open v5 work is tracked in `./V5_FOLLOW_UPS.md`. Add items there when deferring work, and delete them when done - it's a to-do list, not a changelog. User-facing changes go in `BREAKING_CHANGES.md` and the docs site.
 
 Always seek to replace code with more modern standards and more modern 3rd party dependencies where possible, and remove older code and dependencies that are no longer needed - but please discuss this with the user before doing so.
 
@@ -31,7 +31,7 @@ Generally, non-trivial changes should pass -
 
 To run a specific unit test: `pnpm -F PACKAGE_NAME test TEST_NAME`
 
-Tests are important. If you notice an area that is not well covered by tests, mention it and add a note to the planning document that tests should be added. If you are adding new functionality, add tests for it. If you are fixing a bug, add a test that reproduces the bug and then fixes it.
+Tests are important. If you notice an area that is not well covered by tests, mention it and add it to the Tests section of `V5_FOLLOW_UPS.md`. If you are adding new functionality, add tests for it. If you are fixing a bug, add a test that reproduces the bug and then fixes it.
 
 When stuck on any problem, try adding debug logging. Ask the user to paste the results if need be. Having added debug / console.log messaging, do not remove them until it has been confirmed that the issue has been resolved by the user. 
 
