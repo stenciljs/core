@@ -84,8 +84,11 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
         styleContainerNode.querySelector(`[${HYDRATED_STYLE_ID}="${scopeId}"]`);
 
       if (existingStyleElm) {
-        // Update existing style element (for hydration or HMR)
-        existingStyleElm.textContent = style;
+        // Reuse the server sheet; only HMR needs new text
+        if (BUILD.hotModuleReplacement) {
+          existingStyleElm.textContent = style;
+        }
+        appliedStyles.add(scopeId);
       } else if (!appliedStyles.has(scopeId)) {
         styleElm = win.document.createElement('style');
         styleElm.textContent = style;
@@ -96,12 +99,7 @@ export const addStyle = (styleContainerNode: any, cmpMeta: d.ComponentRuntimeMet
           styleElm.setAttribute('nonce', nonce);
         }
 
-        if (
-          (BUILD.hydrateServerSide || BUILD.hotModuleReplacement) &&
-          (cmpMeta.$flags$ & CMP_FLAGS.scopedCssEncapsulation ||
-            cmpMeta.$flags$ & CMP_FLAGS.shadowNeedsScopedCss ||
-            cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation)
-        ) {
+        if (BUILD.hydrateServerSide || BUILD.hotModuleReplacement) {
           styleElm.setAttribute(HYDRATED_STYLE_ID, scopeId);
         }
 
@@ -306,18 +304,34 @@ export const getScopeId = (cmp: d.ComponentRuntimeMeta, mode?: string) =>
 export const convertScopedToShadow = (css: string) => css.replace(/\/\*!@([^\/]+)\*\/[^\{]+\{/g, '$1{');
 
 /**
- * Hydrate styles after SSR for components *not* using DSD. Convert 'scoped' styles to 'shadow'
- * and add them to a constructable stylesheet.
+ * Hydrate styles after SSR for shadow components that were serialized as 'scoped' (not DSD).
+ * Convert their 'scoped' styles back to 'shadow' and add them to a constructable stylesheet.
+ *
+ * Sheets of scoped and non-encapsulated components are left alone so they stay in the
+ * document head, where `addStyle()` reuses them.
+ *
+ * @param cmpMetas the components whose server-rendered styles may need converting
  */
-export const hydrateScopedToShadow = () => {
+export const hydrateScopedToShadow = (cmpMetas: Pick<d.ComponentRuntimeMeta, '$flags$' | '$tagName$'>[]) => {
   if (!win.document) {
     return;
   }
 
-  const styles = win.document.querySelectorAll(`[${HYDRATED_STYLE_ID}]`);
+  const styleElms = win.document.querySelectorAll(`[${HYDRATED_STYLE_ID}]`);
   let i = 0;
-  for (; i < styles.length; i++) {
-    registerStyle(styles[i].getAttribute(HYDRATED_STYLE_ID), convertScopedToShadow(styles[i].innerHTML), true);
+  for (; i < styleElms.length; i++) {
+    const scopeId = styleElms[i].getAttribute(HYDRATED_STYLE_ID);
+    const isShadowCmpStyle = cmpMetas.some((cmpMeta) => {
+      const cmpScopeId = 'sc-' + cmpMeta.$tagName$;
+      return (
+        cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation &&
+        (scopeId === cmpScopeId ||
+          (BUILD.mode && cmpMeta.$flags$ & CMP_FLAGS.hasMode && scopeId.startsWith(cmpScopeId + '-')))
+      );
+    });
+    if (isShadowCmpStyle) {
+      registerStyle(scopeId, convertScopedToShadow(styleElms[i].innerHTML), true);
+    }
   }
 };
 

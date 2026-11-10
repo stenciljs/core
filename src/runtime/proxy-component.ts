@@ -380,7 +380,7 @@ export const proxyComponent = (
               entry?.forEach((watcher) => {
                 const [[watchMethodName, watcherFlags]] = Object.entries(watcher);
                 if (
-                  instance[watchMethodName] != null &&
+                  instance?.[watchMethodName] != null &&
                   (flags & HOST_FLAGS.isWatchReady || watcherFlags & WATCH_FLAGS.Immediate)
                 ) {
                   instance[watchMethodName].call(instance, newValue, oldValue, attrName);
