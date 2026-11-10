@@ -8,6 +8,27 @@ Open work left over from v5. User-facing changes are recorded in [BREAKING_CHANG
 - **Mixed Stencil runtimes.** A host upgraded by a runtime whose `registerHost` overwrites `s-p`/`s-rc` would drop a queued child render. Decide whether older runtimes matter.
 - **`signalBacking` default.** Flip to `true` once there's adoption feedback.
 
+## v4 patch issues: v5 status
+
+Open bugs #6926+ triaged against v5 (Nov 2026). When the v4 fix lands on `main`, port it (and its test) for **Broken** rows; for **Not in v5** rows, drop the fix during merge but keep the regression test if it ports cheaply. Delete rows as they're handled.
+
+| Issue | v5 | Evidence / notes |
+| --- | --- | --- |
+| #6926 SSR child-first definition reorders text | Broken | `serializeShadowRoot: 'scoped'`, standalone child defined first → `[text, child]`; parent-first correct |
+| #6934 SSR content in non-shadow default slot hidden | Not in v5 | `.inner` visible after hydration, lazy and standalone wrap-first (children wait for parent, #6920) |
+| #6936 spec crash, multi-level cross-file `extends` | Not in v5 | `transpileSync` (vitest plugin options) merges props from both base levels; `tsGetSourceFile` still lacks `setParentNodes` |
+| #6939 CSS docs lost after TS edit in watch | Not in v5 | No loss with/without sass; v5 replays `styleDocs` from the transform cache entry (bd848898a) |
+| #6945 `@Watch` native attr before lazy instance throws | Broken | Lazy: `reading 'ariaLabelChanged'`; `instance[watchMethodName]` unguarded in `proxy-component.ts` |
+| #6947 SSR non-encapsulated `<style>` lacks `sty-id` | Broken (part 1) | Sheet of a non-encapsulated cmp duplicated after hydration. Part 2 (per-instance rewrite) not reproduced: 0 `textContent` writes |
+| #6959 source map `sources` paths + duplicate URL | Broken | `sources` are `../src/…` (need `../../../src/…`) in loader-bundle/standalone/www; two `sourceMappingURL`s in `loader-bundle/esm` |
+| #6960 mock-doc `ElementInternals` methods missing | Broken | `setFormValue is not a function` in SSR; `attachInternals()` still returns the empty proxy |
+| #6963 `''` attr ignored on `boolean \| string` prop | Broken | Standalone preset attr → `false`; lazy and standalone `setAttribute('union', '')` at default `false` → stays `false` |
+| #6970 extending form-associated cmp: `super()` drops `hostRef` | Broken | Lazy: `reading '$hostElement$'`; standalone fine |
+| #6972 `innerHTML` on scoped cmp hides content | Broken | Lazy and standalone: `<b hidden>`, text → `s-nt-` comments |
+| #6973 slot-patched `appendChild` quadratic | Broken | 250 children ≈ 220 ms, 1000 ≈ 3.4 s (shadow < 5 ms). `domMutations` is on by default in v5 |
+| #6976 lazy chunk maps overwritten by unminified maps | Broken | Minified non-entry chunks in `www/build` + hashed loader-bundle: 1 code line, map describes 1682 |
+| #6978 renamed lazy entry left imported by shared chunk | Not in v5 | Rolldown keeps the side-effect import out of the shared chunk; 0 missing imports. `lazyBundleIdPlugin` still only rewrites entries / ignores `dynamicImports` |
+
 ## Clean-up
 
 - `CompilerSystem` remote-module leftovers: `getRemoteModuleUrl`, `compiler/sys/fetch/*`, `isRemoteUrl` branches in `core-resolve-plugin.ts`, `stencil-sys.ts`, `typescript-sys.ts`. The browser build is only the single-file transpiler (`compiler/browser.ts`), which doesn't fetch modules.
