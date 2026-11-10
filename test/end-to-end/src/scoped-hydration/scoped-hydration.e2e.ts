@@ -35,6 +35,11 @@ describe('`scoped: true` hydration checks', () => {
     expect(styles[1].textContent).not.toContain(`.sc-non-shadow-child-h`);
     expect(styles[2].textContent).toContain(`.sc-non-shadow-child-h`);
     expect(styles[3].textContent).not.toContain(`.sc-non-shadow-child-h`);
+
+    const adoptedRules = await page.evaluate(() =>
+      document.adoptedStyleSheets.flatMap((sheet) => Array.from(sheet.cssRules).map((rule) => rule.cssText)),
+    );
+    expect(adoptedRules.join('')).not.toContain(`.sc-non-shadow-child-h`);
   });
 
   it('maintains order of multiple slots', async () => {
