@@ -27,10 +27,14 @@ describe('`scoped: true` hydration checks', () => {
     );
     const page = await newE2EPage({ html, url: 'https://stencil.com' });
     const styles = await page.findAll('style');
-    expect(styles.length).toBe(3);
-    expect(styles[1].textContent).toContain(`.sc-non-shadow-child-h`);
-    expect(styles[0].textContent).not.toContain(`.sc-non-shadow-child-h`);
-    expect(styles[2].textContent).not.toContain(`.sc-non-shadow-child-h`);
+    // `newE2EPage({ html })` nests the whole SSR document inside `<body>`, so the server's
+    // `<head>` styles land in the body. The client only reuses a server sheet found in `<head>`,
+    // so it adds its own copy there.
+    expect(styles.length).toBe(4);
+    expect(styles[0].textContent).toContain(`.sc-non-shadow-child-h`);
+    expect(styles[1].textContent).not.toContain(`.sc-non-shadow-child-h`);
+    expect(styles[2].textContent).toContain(`.sc-non-shadow-child-h`);
+    expect(styles[3].textContent).not.toContain(`.sc-non-shadow-child-h`);
   });
 
   it('maintains order of multiple slots', async () => {
