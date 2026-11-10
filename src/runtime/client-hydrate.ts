@@ -333,7 +333,8 @@ const clientHydrate = (
 
   if (node.nodeType === NODE_TYPE.ElementNode) {
     childNodeType = (node as HTMLElement).getAttribute(HYDRATE_CHILD_ID);
-    if (childNodeType) {
+    // The host's child ID belongs to its enclosing component and must remain available for that component's hydration.
+    if (childNodeType && node !== hostElm) {
       // Node data from the element's attribute:
       // `${hostId}.${nodeId}.${depth}.${index}`
       childIdSplt = childNodeType.split('.');
