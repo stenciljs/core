@@ -9,7 +9,14 @@ import {
 } from '@stencil/core';
 
 import { createNodeLogger, createNodeSys } from '../../sys/node';
-import { isBoolean, isObject, isOutputTargetGlobalStyle, isString, sortBy, STYLE_EXT } from '../../utils';
+import {
+  isBoolean,
+  isObject,
+  isOutputTargetGlobalStyle,
+  isString,
+  sortBy,
+  STYLE_EXT,
+} from '../../utils';
 import { setBooleanConfig } from './config-utils';
 import { DEFAULT_DEV_MODE } from './constants';
 import { validateOutputTargets } from './outputs';
