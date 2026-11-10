@@ -9,7 +9,14 @@ import {
 } from '@stencil/core';
 
 import { createNodeLogger, createNodeSys } from '../../sys/node';
-import { isBoolean, isOutputTargetGlobalStyle, isString, sortBy, STYLE_EXT } from '../../utils';
+import {
+  isBoolean,
+  isObject,
+  isOutputTargetGlobalStyle,
+  isString,
+  sortBy,
+  STYLE_EXT,
+} from '../../utils';
 import { setBooleanConfig } from './config-utils';
 import { DEFAULT_DEV_MODE } from './constants';
 import { validateOutputTargets } from './outputs';
@@ -207,7 +214,11 @@ export const validateConfig = (
   setBooleanConfig(validatedConfig, 'profile', validatedConfig.devMode);
   setBooleanConfig(validatedConfig, 'writeLog', false);
   setBooleanConfig(validatedConfig, 'buildAppCore', true);
-  setBooleanConfig(validatedConfig, 'autoprefixCss', false);
+  // `autoprefixCss` can also be an `AutoprefixerOptions` object (browserslist `targets`), which
+  // setBooleanConfig would replace with the default
+  if (!isObject(validatedConfig.autoprefixCss)) {
+    setBooleanConfig(validatedConfig, 'autoprefixCss', false);
+  }
   setBooleanConfig(validatedConfig, 'validateTypes', !validatedConfig._isTesting);
   setBooleanConfig(validatedConfig, 'allowInlineScripts', true);
 

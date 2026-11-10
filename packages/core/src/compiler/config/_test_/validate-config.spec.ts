@@ -59,6 +59,19 @@ describe('validation', () => {
     });
   });
 
+  describe('autoprefixCss', () => {
+    it('defaults to false', () => {
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.autoprefixCss).toBe(false);
+    });
+
+    it('keeps an options object with browser targets', () => {
+      userConfig.autoprefixCss = { targets: ['safari 15'] };
+      const { config } = validateConfig(userConfig, bootstrapConfig);
+      expect(config.autoprefixCss).toEqual({ targets: ['safari 15'] });
+    });
+  });
+
   describe('devMode validation', () => {
     it('defaults devMode to false (production) when not set by CLI', () => {
       // devMode is not user-settable in stencil.config.ts; it is injected by
