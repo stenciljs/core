@@ -28,6 +28,7 @@ Stencil recently had its 10th birthday - this release is a consolidation, organi
   - [`@Watch` Handlers No Longer Fire Before the Component Has Rendered](#watch-handlers-no-longer-fire-before-the-component-has-rendered)
   - [`componentShouldUpdate` Batching](#componentshouldupdate-batching)
   - [`slotchange` in `scoped` / `none` Components Matches Native Slots](#slotchange-in-scoped--none-components-matches-native-slots)
+  - [Shadow Roots of Parser-Created Elements Attach on Connect](#shadow-roots-of-parser-created-elements-attach-on-connect)
   - [Boolean Props: `"false"` Is Now `true`](#boolean-props-false-is-now-true)
   - [Rollup Replaced with Rolldown](#rollup-replaced-with-rolldown)
   - [JSX Types](#jsx-types)
@@ -189,6 +190,14 @@ Content that arrives already in place from SSR markup doesn't fire an initial `s
 Removal events rely on the light DOM patches (see [`compat.lightDomPatches`](#extras-renamed-to-compat)), enabled by default.
 
 To migrate, if an `onSlotchange` handler assumed its first call meant the content had changed after load, check the slot's assigned nodes instead of counting calls.
+
+#### Shadow Roots of Parser-Created Elements Attach on Connect
+
+To support streamed SSR, a `shadow` component created by the HTML parser while the document is still loading no longer attaches its shadow root in the constructor. It attaches when the element connects, or, for a server-rendered host, once the parser has finished the host's subtree so its declarative shadow root can be reused. Hydration of a streamed host likewise waits until its subtree is parsed. Previously the constructor attached a root before the parser reached the host's `<template shadowrootmode>`, the browser rejected the declarative root, and the component re-rendered on the client.
+
+Elements created any other way (after load, upgraded when their definition arrives, or via `document.createElement` once the document has loaded) still attach in the constructor.
+
+To migrate, don't read `this.el.shadowRoot` in a component's constructor; use `connectedCallback` or a later lifecycle method.
 
 #### `componentShouldUpdate` Batching
 
