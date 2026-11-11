@@ -1,3 +1,26 @@
+## 😜 [4.45.3](https://github.com/stenciljs/core/compare/v4.45.2...v4.45.3) (2026-11-11)
+
+
+### Bug Fixes
+
+* **bundlers:** add turbopackIgnore ([#6933](https://github.com/stenciljs/core/issues/6933)) ([4289e42](https://github.com/stenciljs/core/commit/4289e42155108628b1392719f228513535d86f73))
+* **compiler:** analyze JSX in mixin and base class methods ([#6930](https://github.com/stenciljs/core/issues/6930)) ([d9fb74a](https://github.com/stenciljs/core/commit/d9fb74a1e32e47e8fb181fb8ef20a444b7e038ae))
+* **compiler:** don't overwrite lazy chunk source maps with rollup map assets ([#6977](https://github.com/stenciljs/core/issues/6977)) ([17aa467](https://github.com/stenciljs/core/commit/17aa467f9f7bf18a0ed2840063df84d192497ed6))
+* **compiler:** pass hostRef to base component constructors in lazy builds ([#6996](https://github.com/stenciljs/core/issues/6996)) ([89399a8](https://github.com/stenciljs/core/commit/89399a8d591561af1bdef0f0742b26ea20dd1249))
+* **compiler:** rewrite renamed lazy entry references in all chunks ([#6999](https://github.com/stenciljs/core/issues/6999)) ([3756a34](https://github.com/stenciljs/core/commit/3756a346158a7a0a18948bbd5293ab9b7f1798f4))
+* **compiler:** set parent nodes when resolving extended classes in spec tests ([#6937](https://github.com/stenciljs/core/issues/6937)) ([3801169](https://github.com/stenciljs/core/commit/3801169676a2224790cb55aa2be3efced8b83f7c))
+* **docs:** use the alias declaration for lib and package types in typeLibrary ([#6931](https://github.com/stenciljs/core/issues/6931)) ([f7d38a2](https://github.com/stenciljs/core/commit/f7d38a274934c81960d28555bcb23be277da9f2e))
+* **mock-doc:** implement ElementInternals methods for SSR ([#6995](https://github.com/stenciljs/core/issues/6995)) ([f615a1c](https://github.com/stenciljs/core/commit/f615a1c6830fb7bfb55e027fdeebdfcecf7e6e80))
+* **runtime:** keep empty attributes on boolean | string props ([#6963](https://github.com/stenciljs/core/issues/6963)) ([#6968](https://github.com/stenciljs/core/issues/6968)) ([8b1bdb4](https://github.com/stenciljs/core/commit/8b1bdb4910b39cc3086f5f088c8fcafe5a875990))
+* **runtime:** non-shadow appendChild perf & insertBefore null reference handling ([#6998](https://github.com/stenciljs/core/issues/6998)) ([3639d2c](https://github.com/stenciljs/core/commit/3639d2c52a65fd0aec4216398d442fabf3a02633))
+* **runtime:** patch innerHTML and innerText setters on scoped components ([370a106](https://github.com/stenciljs/core/commit/370a106d9b0b923bd016ec81081cc89fb5a9f7bb))
+* **runtime:** patch innerHTML and innerText setters on scoped components ([#6997](https://github.com/stenciljs/core/issues/6997)) ([a0f15ef](https://github.com/stenciljs/core/commit/a0f15ef5cf5f0761b4749398a2e14ecee674d5ca))
+* **runtime:** preserve slotted node order ([#6927](https://github.com/stenciljs/core/issues/6927)) ([cf53b0d](https://github.com/stenciljs/core/commit/cf53b0d9487ccbd6c4f078407e2db1beac8f1bf4)), closes [#6926](https://github.com/stenciljs/core/issues/6926)
+* **runtime:** reuse SSR styles during hydration ([#6993](https://github.com/stenciljs/core/issues/6993)) ([3b6af6e](https://github.com/stenciljs/core/commit/3b6af6e9a0942b3ee5241294a17ec0455a35957d))
+* **runtime:** skip native attribute watchers until the lazy instance exists ([#6946](https://github.com/stenciljs/core/issues/6946)) ([f0dd8d7](https://github.com/stenciljs/core/commit/f0dd8d79e82b0bea2732079d764d09cbddebdf54)), closes [#6945](https://github.com/stenciljs/core/issues/6945)
+* **types:** support hidden until-found attribute ([#6988](https://github.com/stenciljs/core/issues/6988)) ([9be802b](https://github.com/stenciljs/core/commit/9be802b3523b04f7ca85daef391b58ed897c29d7))
+
+
 ## 🐘 [4.45.2](https://github.com/stenciljs/core/compare/v4.45.1...v4.45.2) (2026-10-05)
 
 
