@@ -13,7 +13,9 @@ let globalStyleSheet: CSSStyleSheet | null | undefined;
 const GLOBAL_STYLE_ID = 'sc-global';
 
 export function createShadowRoot(this: HTMLElement, cmpMeta: d.ComponentRuntimeMeta) {
-  const opts: ShadowRootInit = { mode: 'open' };
+  // `clonable` is a valid `attachShadow` option per the DOM spec, but is not yet present on the
+  // `ShadowRootInit` lib type, so widen the type locally to allow setting it.
+  const opts: ShadowRootInit & { clonable?: boolean } = { mode: 'open' };
 
   if (BUILD.shadowDelegatesFocus) {
     opts.delegatesFocus = !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDelegatesFocus);
@@ -24,6 +26,10 @@ export function createShadowRoot(this: HTMLElement, cmpMeta: d.ComponentRuntimeM
     if (isManual) {
       opts.slotAssignment = 'manual';
     }
+  }
+
+  if (BUILD.shadowClonable) {
+    opts.clonable = !!(cmpMeta.$flags$ & CMP_FLAGS.shadowClonable);
   }
 
   const shadowRoot = this.attachShadow(opts);

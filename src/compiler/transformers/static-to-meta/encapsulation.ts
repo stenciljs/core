@@ -48,6 +48,24 @@ export const parseStaticShadowDelegatesFocus = (
 };
 
 /**
+ * Find and return if `clonable` is enabled for a component based on the return value of its static getter of the
+ * same name.
+ *
+ * @param encapsulation the encapsulation mode to use for a component
+ * @param staticMembers a collection of static getters to search
+ * @returns when `encapsulation` is 'shadow', return `true` if the static getter returns true. If the static getter
+ * returns `false` or does not exist, return `false`. If `encapsulation` is not 'shadow', return `null`, regardless of
+ * the static getter's existence/return value.
+ */
+export const parseStaticShadowClonable = (encapsulation: string, staticMembers: ts.ClassElement[]): boolean | null => {
+  if (encapsulation === 'shadow') {
+    const clonable: boolean = getStaticValue(staticMembers, 'clonable');
+    return !!clonable;
+  }
+  return null;
+};
+
+/**
  * Find and return the `slotAssignment` mode for a component.
  *
  * @param encapsulation the encapsulation mode to use for a component
