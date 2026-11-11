@@ -210,8 +210,8 @@
       "path": "src/components/interfaces.ts"
     },
     "src/components/interfaces.ts::FooBar": {
-      "declaration": "{\n  biz: string;\n}",
-      "docstring": "",
+      "declaration": "export type FooBar = {\n  biz: string;\n};",
+      "docstring": "Type that should be included",
       "path": "src/components/interfaces.ts"
     },
     "src/components/interfaces.ts::FizzBuzz": {

@@ -45,26 +45,52 @@ export function addToLibrary(
   const id = getTypeId(pathToTypeModule, typeName);
 
   if (!type.isTypeParameter() && !(id in TYPE_LIBRARY)) {
-    // an alias of an array or another lib or package type resolves to a declaration outside the project
     const alias = symbol?.declarations?.find(ts.isTypeAliasDeclaration);
-    const resolvedFile = getSymbolForType(type)?.declarations?.[0]?.getSourceFile();
-    const useAlias =
-      alias &&
-      resolvedFile &&
-      (resolvedFile.hasNoDefaultLib || isNodeModulePath(resolvedFile.fileName));
-    const declaration = useAlias ? alias.getText() : getTypeDeclaration(checker, type);
+    const declaration = alias ? alias.getText() : getTypeDeclaration(checker, type);
 
     if (declaration !== '') {
       TYPE_LIBRARY[id] = {
         declaration,
-        docstring: getTypeDocstring(type, checker, useAlias ? symbol : undefined),
+        docstring: getTypeDocstring(type, checker, alias ? symbol : undefined),
         path: pathToTypeModule,
       };
+      // the alias's text only names the types it uses, so add those too
+      if (alias) addReferencedTypes(alias.type, checker);
     }
   }
 
   return id;
 }
+
+/**
+ * Add the project types referenced in a type node (e.g. `Box` and `Item` in `Box<Item[]>`) to the
+ * library. Types from TypeScript's lib files or other packages are left out.
+ *
+ * @param node the type node to search
+ * @param checker a {@link ts.TypeChecker} instance
+ */
+const addReferencedTypes = (node: ts.TypeNode, checker: ts.TypeChecker) => {
+  const visit = (child: ts.Node) => {
+    if (ts.isTypeReferenceNode(child)) {
+      const name = ts.isIdentifier(child.typeName) ? child.typeName : child.typeName.right;
+      const nameSymbol = checker.getSymbolAtLocation(name);
+      const refSymbol = nameSymbol && resolveAliasedSymbol(checker, nameSymbol);
+      const decl = refSymbol?.declarations?.find(isTypeDeclLike);
+      const sourceFile = decl?.getSourceFile();
+      if (sourceFile && !sourceFile.hasNoDefaultLib && !isNodeModulePath(sourceFile.fileName)) {
+        addToLibrary(
+          checker.getDeclaredTypeOfSymbol(refSymbol),
+          refSymbol.getName(),
+          checker,
+          normalizePath(sourceFile.fileName, false),
+          refSymbol,
+        );
+      }
+    }
+    ts.forEachChild(child, visit);
+  };
+  visit(node);
+};
 
 /**
  * This returns a reference to the cached {@link d.JsonDocsTypeLibrary} which
