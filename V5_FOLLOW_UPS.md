@@ -11,7 +11,6 @@ Open work left over from v5. User-facing changes are recorded in [BREAKING_CHANG
 ## Bugs
 
 - #6959 source maps: bundle map `sources` don't resolve from the map's location (`../src/…` where `../../../src/…` is needed) in loader-bundle, standalone and www; `loader-bundle/esm` files carry two `sourceMappingURL` comments. Fixed on neither branch (#6971 was declined as too invasive).
-- #6994 an external write to a host's `class` drops Stencil's host classes and the `hydrated` class. The class diff in `set-accessor.ts` only adds/removes classes that changed between renders, and the `hydrated` class is only added once.
 
 ## Clean-up
 
@@ -52,6 +51,7 @@ Open work left over from v5. User-facing changes are recorded in [BREAKING_CHANG
 
 Kept so they aren't re-proposed without new information.
 
+- Restoring host classes / `hydrated` after an external `className` write (#6994): native behavior, and re-adding would override intentional removals. Use `classList`, the React output-target wrappers, or `hydratedFlag: { selector: 'attribute' }`.
 - Auto-reflecting props to attributes during SSR: primitives only, adds unreflected attributes that go stale, conflicts with `"false"`-is-truthy booleans.
 - `transferProps` SSR option: top-level JSON only, not in `ssr-wasm`, a second path alongside `@PropSerialize`/`@AttrDeserialize`.
 - `devalue` in core: components pick their format in `@PropSerialize`.

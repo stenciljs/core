@@ -10,7 +10,7 @@ import { BUILD } from 'virtual:app-data';
 import { consoleDevError, getHostRef, nextTick, plt, win } from 'virtual:platform';
 import type * as d from '@stencil/core';
 
-import { CMP_FLAGS, NODE_TYPES, SVG_NS } from '../../utils/constants';
+import { CMP_FLAGS, HOST_FLAGS, NODE_TYPES, SVG_NS } from '../../utils/constants';
 import { isDef } from '../../utils/helpers';
 import { patchSlottedNode } from '../dom-extras';
 import { getShadowRoot } from '../element';
@@ -1308,7 +1308,9 @@ render() {
   }
 
   // synchronous patch
+  if (BUILD.serializer) hostRef.$flags$ |= HOST_FLAGS.isReflecting;
   patch(oldVNode, rootVnode, isInitialLoad);
+  if (BUILD.serializer) hostRef.$flags$ &= ~HOST_FLAGS.isReflecting;
 
   if (BUILD.slotRelocation) {
     // while we're moving nodes around existing nodes, temporarily disable

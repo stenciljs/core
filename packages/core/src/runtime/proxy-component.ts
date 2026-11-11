@@ -287,10 +287,11 @@ export const proxyComponent = (
 
           if (
             BUILD.serializer &&
+            hostRef.$flags$ & HOST_FLAGS.isReflecting &&
             hostRef.$serializerValues$.has(propName) &&
             hostRef.$serializerValues$.get(propName) === newValue
           ) {
-            // The newValue is the same as a saved serialized value from a prop update.
+            // The runtime is reflecting the serialized value back onto the host.
             // The prop can be intentionally different from the attribute;
             //  updating the underlying prop here can cause an infinite loop.
             return;
