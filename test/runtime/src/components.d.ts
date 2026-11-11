@@ -303,6 +303,10 @@ export namespace Components {
     }
     interface EventListenerCapture {
     }
+    interface ExcludeComponentRoot {
+    }
+    interface ExcludedComponent {
+    }
     interface ExtendedCmp {
         /**
           * @default 'getter default value'
@@ -943,6 +947,8 @@ export namespace Components {
     interface RadioGroupBlurTest {
     }
     interface RefAttrOrder {
+    }
+    interface ReferenceTargetCmp {
     }
     interface ReflectNanAttribute {
         "val": number;
@@ -1868,6 +1874,18 @@ declare global {
         prototype: HTMLEventListenerCaptureElement;
         new (): HTMLEventListenerCaptureElement;
     };
+    interface HTMLExcludeComponentRootElement extends Components.ExcludeComponentRoot, HTMLStencilElement {
+    }
+    var HTMLExcludeComponentRootElement: {
+        prototype: HTMLExcludeComponentRootElement;
+        new (): HTMLExcludeComponentRootElement;
+    };
+    interface HTMLExcludedComponentElement extends Components.ExcludedComponent, HTMLStencilElement {
+    }
+    var HTMLExcludedComponentElement: {
+        prototype: HTMLExcludedComponentElement;
+        new (): HTMLExcludedComponentElement;
+    };
     interface HTMLExtendedCmpElement extends Components.ExtendedCmp, HTMLStencilElement {
     }
     var HTMLExtendedCmpElement: {
@@ -2605,6 +2623,12 @@ declare global {
         prototype: HTMLRefAttrOrderElement;
         new (): HTMLRefAttrOrderElement;
     };
+    interface HTMLReferenceTargetCmpElement extends Components.ReferenceTargetCmp, HTMLStencilElement {
+    }
+    var HTMLReferenceTargetCmpElement: {
+        prototype: HTMLReferenceTargetCmpElement;
+        new (): HTMLReferenceTargetCmpElement;
+    };
     interface HTMLReflectNanAttributeElement extends Components.ReflectNanAttribute, HTMLStencilElement {
     }
     var HTMLReflectNanAttributeElement: {
@@ -3286,6 +3310,8 @@ declare global {
         "event-basic": HTMLEventBasicElement;
         "event-custom-type": HTMLEventCustomTypeElement;
         "event-listener-capture": HTMLEventListenerCaptureElement;
+        "exclude-component-root": HTMLExcludeComponentRootElement;
+        "excluded-component": HTMLExcludedComponentElement;
         "extended-cmp": HTMLExtendedCmpElement;
         "extended-cmp-cmp": HTMLExtendedCmpCmpElement;
         "extends-abstract": HTMLExtendsAbstractElement;
@@ -3373,6 +3399,7 @@ declare global {
         "prop-setter-lazy-race-cold": HTMLPropSetterLazyRaceColdElement;
         "radio-group-blur-test": HTMLRadioGroupBlurTestElement;
         "ref-attr-order": HTMLRefAttrOrderElement;
+        "reference-target-cmp": HTMLReferenceTargetCmpElement;
         "reflect-nan-attribute": HTMLReflectNanAttributeElement;
         "reflect-nan-attribute-hyphen": HTMLReflectNanAttributeHyphenElement;
         "reflect-to-attr": HTMLReflectToAttrElement;
@@ -3758,6 +3785,10 @@ declare namespace LocalJSX {
         "onTestEvent"?: (event: EventCustomTypeCustomEvent<TestEventDetail>) => void;
     }
     interface EventListenerCapture {
+    }
+    interface ExcludeComponentRoot {
+    }
+    interface ExcludedComponent {
     }
     interface ExtendedCmp {
         /**
@@ -4340,6 +4371,8 @@ declare namespace LocalJSX {
     interface RadioGroupBlurTest {
     }
     interface RefAttrOrder {
+    }
+    interface ReferenceTargetCmp {
     }
     interface ReflectNanAttribute {
         "val"?: number;
@@ -5047,6 +5080,8 @@ declare namespace LocalJSX {
         "event-basic": EventBasic;
         "event-custom-type": EventCustomType;
         "event-listener-capture": EventListenerCapture;
+        "exclude-component-root": ExcludeComponentRoot;
+        "excluded-component": ExcludedComponent;
         "extended-cmp": Omit<ExtendedCmp, keyof ExtendedCmpAttributes> & { [K in keyof ExtendedCmp & keyof ExtendedCmpAttributes]?: ExtendedCmp[K] } & { [K in keyof ExtendedCmp & keyof ExtendedCmpAttributes as `attr:${K}`]?: ExtendedCmpAttributes[K] } & { [K in keyof ExtendedCmp & keyof ExtendedCmpAttributes as `prop:${K}`]?: ExtendedCmp[K] };
         "extended-cmp-cmp": Omit<ExtendedCmpCmp, keyof ExtendedCmpCmpAttributes> & { [K in keyof ExtendedCmpCmp & keyof ExtendedCmpCmpAttributes]?: ExtendedCmpCmp[K] } & { [K in keyof ExtendedCmpCmp & keyof ExtendedCmpCmpAttributes as `attr:${K}`]?: ExtendedCmpCmpAttributes[K] } & { [K in keyof ExtendedCmpCmp & keyof ExtendedCmpCmpAttributes as `prop:${K}`]?: ExtendedCmpCmp[K] };
         "extends-abstract": Omit<ExtendsAbstract, keyof ExtendsAbstractAttributes> & { [K in keyof ExtendsAbstract & keyof ExtendsAbstractAttributes]?: ExtendsAbstract[K] } & { [K in keyof ExtendsAbstract & keyof ExtendsAbstractAttributes as `attr:${K}`]?: ExtendsAbstractAttributes[K] } & { [K in keyof ExtendsAbstract & keyof ExtendsAbstractAttributes as `prop:${K}`]?: ExtendsAbstract[K] };
@@ -5134,6 +5169,7 @@ declare namespace LocalJSX {
         "prop-setter-lazy-race-cold": Omit<PropSetterLazyRaceCold, keyof PropSetterLazyRaceColdAttributes> & { [K in keyof PropSetterLazyRaceCold & keyof PropSetterLazyRaceColdAttributes]?: PropSetterLazyRaceCold[K] } & { [K in keyof PropSetterLazyRaceCold & keyof PropSetterLazyRaceColdAttributes as `attr:${K}`]?: PropSetterLazyRaceColdAttributes[K] } & { [K in keyof PropSetterLazyRaceCold & keyof PropSetterLazyRaceColdAttributes as `prop:${K}`]?: PropSetterLazyRaceCold[K] };
         "radio-group-blur-test": RadioGroupBlurTest;
         "ref-attr-order": RefAttrOrder;
+        "reference-target-cmp": ReferenceTargetCmp;
         "reflect-nan-attribute": Omit<ReflectNanAttribute, keyof ReflectNanAttributeAttributes> & { [K in keyof ReflectNanAttribute & keyof ReflectNanAttributeAttributes]?: ReflectNanAttribute[K] } & { [K in keyof ReflectNanAttribute & keyof ReflectNanAttributeAttributes as `attr:${K}`]?: ReflectNanAttributeAttributes[K] } & { [K in keyof ReflectNanAttribute & keyof ReflectNanAttributeAttributes as `prop:${K}`]?: ReflectNanAttribute[K] };
         "reflect-nan-attribute-hyphen": Omit<ReflectNanAttributeHyphen, keyof ReflectNanAttributeHyphenAttributes> & { [K in keyof ReflectNanAttributeHyphen & keyof ReflectNanAttributeHyphenAttributes]?: ReflectNanAttributeHyphen[K] } & { [K in keyof ReflectNanAttributeHyphen & keyof ReflectNanAttributeHyphenAttributes as `attr:${K}`]?: ReflectNanAttributeHyphenAttributes[K] } & { [K in keyof ReflectNanAttributeHyphen & keyof ReflectNanAttributeHyphenAttributes as `prop:${K}`]?: ReflectNanAttributeHyphen[K] };
         "reflect-to-attr": Omit<ReflectToAttr, keyof ReflectToAttrAttributes> & { [K in keyof ReflectToAttr & keyof ReflectToAttrAttributes]?: ReflectToAttr[K] } & { [K in keyof ReflectToAttr & keyof ReflectToAttrAttributes as `attr:${K}`]?: ReflectToAttrAttributes[K] } & { [K in keyof ReflectToAttr & keyof ReflectToAttrAttributes as `prop:${K}`]?: ReflectToAttr[K] };
@@ -5316,6 +5352,8 @@ declare module "@stencil/core" {
             "event-basic": LocalJSX.IntrinsicElements["event-basic"] & JSXBase.HTMLAttributes<HTMLEventBasicElement>;
             "event-custom-type": LocalJSX.IntrinsicElements["event-custom-type"] & JSXBase.HTMLAttributes<HTMLEventCustomTypeElement>;
             "event-listener-capture": LocalJSX.IntrinsicElements["event-listener-capture"] & JSXBase.HTMLAttributes<HTMLEventListenerCaptureElement>;
+            "exclude-component-root": LocalJSX.IntrinsicElements["exclude-component-root"] & JSXBase.HTMLAttributes<HTMLExcludeComponentRootElement>;
+            "excluded-component": LocalJSX.IntrinsicElements["excluded-component"] & JSXBase.HTMLAttributes<HTMLExcludedComponentElement>;
             "extended-cmp": LocalJSX.IntrinsicElements["extended-cmp"] & JSXBase.HTMLAttributes<HTMLExtendedCmpElement>;
             "extended-cmp-cmp": LocalJSX.IntrinsicElements["extended-cmp-cmp"] & JSXBase.HTMLAttributes<HTMLExtendedCmpCmpElement>;
             /**
@@ -5502,6 +5540,7 @@ declare module "@stencil/core" {
             "prop-setter-lazy-race-cold": LocalJSX.IntrinsicElements["prop-setter-lazy-race-cold"] & JSXBase.HTMLAttributes<HTMLPropSetterLazyRaceColdElement>;
             "radio-group-blur-test": LocalJSX.IntrinsicElements["radio-group-blur-test"] & JSXBase.HTMLAttributes<HTMLRadioGroupBlurTestElement>;
             "ref-attr-order": LocalJSX.IntrinsicElements["ref-attr-order"] & JSXBase.HTMLAttributes<HTMLRefAttrOrderElement>;
+            "reference-target-cmp": LocalJSX.IntrinsicElements["reference-target-cmp"] & JSXBase.HTMLAttributes<HTMLReferenceTargetCmpElement>;
             "reflect-nan-attribute": LocalJSX.IntrinsicElements["reflect-nan-attribute"] & JSXBase.HTMLAttributes<HTMLReflectNanAttributeElement>;
             "reflect-nan-attribute-hyphen": LocalJSX.IntrinsicElements["reflect-nan-attribute-hyphen"] & JSXBase.HTMLAttributes<HTMLReflectNanAttributeHyphenElement>;
             "reflect-to-attr": LocalJSX.IntrinsicElements["reflect-to-attr"] & JSXBase.HTMLAttributes<HTMLReflectToAttrElement>;

@@ -104,6 +104,26 @@ export const parseStaticSlotAssignment = (
 };
 
 /**
+ * Find and return the shadow root `referenceTarget` for a component.
+ *
+ * @param encapsulation the encapsulation mode to use for a component
+ * @param staticMembers a collection of static getters to search
+ * @returns the `referenceTarget` id if encapsulation is 'shadow' and one is set, otherwise `null`
+ */
+export const parseStaticShadowReferenceTarget = (
+  encapsulation: string,
+  staticMembers: ts.ClassElement[],
+): string | null => {
+  if (encapsulation === 'shadow') {
+    const referenceTarget: unknown = getStaticValue(staticMembers, 'referenceTarget');
+    if (typeof referenceTarget === 'string' && referenceTarget.trim()) {
+      return referenceTarget.trim();
+    }
+  }
+  return null;
+};
+
+/**
  * Find and return the shadow DOM mode for a component.
  *
  * @param encapsulation the encapsulation mode to use for a component

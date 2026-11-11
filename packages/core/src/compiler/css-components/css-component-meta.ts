@@ -102,6 +102,7 @@ export const createCssOnlyComponentMeta = (def: CssOnlyComponentDef): d.Componen
   shadowDelegatesFocus: false,
   shadowClonable: false,
   shadowSerializable: false,
+  shadowReferenceTarget: null,
   shadowMode: null,
   slotAssignment: null,
   sourceFilePath: def.sourceFilePath,

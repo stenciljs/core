@@ -85,6 +85,7 @@ type Encapsulation =
       slotAssignment?: 'manual' | 'named';
       clonable?: boolean;
       serializable?: boolean;
+      referenceTarget?: string;
     }
   | { type: 'scoped'; patches?: ('all' | 'children' | 'clone' | 'insert')[] }
   | { type: 'none'; patches?: ('all' | 'children' | 'clone' | 'insert')[] };
@@ -98,6 +99,7 @@ type Encapsulation =
 - **New:** per-component slot patches via `encapsulation: { type: 'scoped', patches: [...] }` (previously only settable globally).
 - **New:** `encapsulation: { type: 'shadow', clonable: true }` preserves the shadow root when the host is deep-cloned via `Node.cloneNode(true)` (without it, cloning a shadow host produces an empty shell).
 - **New:** `encapsulation: { type: 'shadow', serializable: true }` marks the shadow root serializable, so it's included when the host is serialized via `Element.getHTML({ serializableShadowRoots: true })`.
+- **New:** `encapsulation: { type: 'shadow', referenceTarget: 'some-id' }` sets the shadow root's [`referenceTarget`](https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot/referenceTarget), so IDREFs pointing at the host (`<label for>`, `aria-labelledby`, etc.) resolve to the element with that `id` inside the shadow root. Also emitted as `shadowrootreferencetarget` in SSR / declarative shadow DOM output.
 
 Run `stencil migrate --dry-run` to preview the automatic migration, or `stencil migrate` to apply it. Running `stencil build` when there are pending migrations will raise a warning and invite you to run migrations before continuing.
 

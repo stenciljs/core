@@ -392,12 +392,14 @@ export class MockElement extends MockNode {
     addEventListener(this, type, handler, options);
   }
 
-  attachShadow(_opts: ShadowRootInit) {
+  // `referenceTarget` is not yet in TypeScript's DOM lib
+  attachShadow(_opts: ShadowRootInit & { referenceTarget?: string }) {
     const shadowRoot = this.ownerDocument.createDocumentFragment();
     shadowRoot.mode = _opts.mode ?? 'open';
     shadowRoot.delegatesFocus = _opts.delegatesFocus ?? false;
     shadowRoot.clonable = _opts.clonable ?? false;
     shadowRoot.serializable = _opts.serializable ?? false;
+    shadowRoot.referenceTarget = _opts.referenceTarget ?? null;
     this.shadowRoot = shadowRoot;
     return shadowRoot;
   }

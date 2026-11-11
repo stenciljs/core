@@ -75,6 +75,9 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
     if (BUILD.reflect) {
       cmpMeta.$attrsToReflect$ = [];
     }
+    if (BUILD.shadowReferenceTarget) {
+      cmpMeta.$referenceTarget$ = compactMeta[7];
+    }
 
     if (BUILD.hotModuleReplacement) {
       // if we're in an HMR dev build then we need to set up the callback

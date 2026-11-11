@@ -97,6 +97,7 @@ export const stubComponentCompilerMeta = (
   shadowDelegatesFocus: false,
   shadowClonable: false,
   shadowSerializable: false,
+  shadowReferenceTarget: null,
   shadowMode: null,
   slotAssignment: null,
   sourceFilePath: '/some/stubbed/path/my-component.tsx',

@@ -103,6 +103,9 @@ export const bootstrapLazy = (
         cmpMeta.$serializers$ = compactMeta[5] ?? {};
         cmpMeta.$deserializers$ = compactMeta[6] ?? {};
       }
+      if (BUILD.shadowReferenceTarget) {
+        cmpMeta.$referenceTarget$ = compactMeta[7];
+      }
       const tagName = transformTag(cmpMeta.$tagName$);
       const HostElement = class extends HTMLElement {
         ['s-p']: Promise<void>[];

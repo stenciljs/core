@@ -75,6 +75,7 @@ export const BUILD: BuildConditionals = {
   shadowSlotAssignmentManual: false,
   shadowClonable: true,
   shadowSerializable: true,
+  shadowReferenceTarget: true,
   initializeNextTick: false,
   asyncLoading: true,
   asyncQueue: false,

@@ -126,6 +126,14 @@ export interface ShadowEncapsulation {
    * element is serialized via `Element.getHTML({ serializableShadowRoots: true })`.
    */
   serializable?: boolean;
+  /**
+   * The `id` of an element inside the shadow root that IDREF attributes pointing at the host
+   * (e.g. `<label for>`, `aria-labelledby`, `aria-describedby`) should resolve to instead.
+   * Lets a label or ARIA relationship outside the component target an internal element.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot/referenceTarget
+   */
+  referenceTarget?: string;
 }
 
 /**

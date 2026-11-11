@@ -19,6 +19,9 @@ export const addHydrateRuntimeCmpMeta = (
     $lazyBundleId$: fakeBundleIds(cmp),
     $attrsToReflect$: getHydrateAttrsToReflect(cmp),
   };
+  if (compactMeta[7]) {
+    cmpMeta.$referenceTarget$ = compactMeta[7];
+  }
   const staticMember = createStaticGetter('cmpMeta', convertValueToLiteral(cmpMeta));
   addStaticStyleGetterWithinClass(classMembers, cmp, buildCtx);
 

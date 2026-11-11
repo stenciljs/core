@@ -18,7 +18,10 @@ const GLOBAL_STYLE_ID = 'sc-global';
 export function createShadowRoot(this: HTMLElement, cmpMeta: d.ComponentRuntimeMeta) {
   // Determine shadow root mode - 'closed' if flag is set, otherwise 'open' (default)
   const isClosed = BUILD.shadowModeClosed && !!(cmpMeta.$flags$ & CMP_FLAGS.shadowModeClosed);
-  const opts: ShadowRootInit = { mode: isClosed ? 'closed' : 'open' };
+  // `referenceTarget` is not yet in TypeScript's DOM lib
+  const opts: ShadowRootInit & { referenceTarget?: string } = {
+    mode: isClosed ? 'closed' : 'open',
+  };
 
   const reg: CustomElementRegistry | undefined = (this.constructor as any)._registry;
   if (reg) opts.customElementRegistry = reg;
@@ -40,6 +43,10 @@ export function createShadowRoot(this: HTMLElement, cmpMeta: d.ComponentRuntimeM
 
   if (BUILD.shadowSerializable) {
     opts.serializable = !!(cmpMeta.$flags$ & CMP_FLAGS.shadowSerializable);
+  }
+
+  if (BUILD.shadowReferenceTarget && cmpMeta.$referenceTarget$) {
+    opts.referenceTarget = cmpMeta.$referenceTarget$;
   }
 
   const shadowRoot = this.attachShadow(opts);
