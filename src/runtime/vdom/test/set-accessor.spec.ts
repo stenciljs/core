@@ -954,6 +954,25 @@ describe('setAccessor for standard html elements', () => {
         setAccessor(elm, 'class', serverClassName, undefined, false, VNODE_FLAGS.isHost, true);
         expect(elm.className).toEqual('');
       });
+
+      it('should restore host classes wiped by an external className write even when old and new host classes match', () => {
+        const elm = document.createElement('cmp-host') as any;
+        setAccessor(elm, 'class', undefined, 'md button', false, VNODE_FLAGS.isHost);
+        expect(elm.className).toEqual('md button');
+
+        elm.className = 'mine';
+        setAccessor(elm, 'class', 'md button', 'md button', false, VNODE_FLAGS.isHost);
+        expect(elm.classList.contains('mine')).toBe(true);
+        expect(elm.classList.contains('md')).toBe(true);
+        expect(elm.classList.contains('button')).toBe(true);
+
+        elm.className = 'mine';
+        setAccessor(elm, 'class', 'md button', 'md button active', false, VNODE_FLAGS.isHost);
+        expect(elm.classList.contains('mine')).toBe(true);
+        expect(elm.classList.contains('md')).toBe(true);
+        expect(elm.classList.contains('button')).toBe(true);
+        expect(elm.classList.contains('active')).toBe(true);
+      });
     });
   });
 

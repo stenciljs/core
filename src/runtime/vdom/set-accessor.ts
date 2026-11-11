@@ -41,7 +41,7 @@ export const setAccessor = (
   flags: number,
   initialRender?: boolean,
 ) => {
-  if (oldValue === newValue) {
+  if (oldValue === newValue && !(BUILD.vdomClass && memberName === 'class' && flags & VNODE_FLAGS.isHost)) {
     return;
   }
 
@@ -72,7 +72,17 @@ export const setAccessor = (
         removedClasses = removedClasses.filter((c) => !ownClasses.includes(c));
       }
       classList.remove(...removedClasses);
-      classList.add(...newClasses.filter((c) => c && !oldClasses.includes(c)));
+      // External DOM writes (e.g. `el.className = 'mine'`) can wipe host classes between renders,
+      // so re-apply all active host classes rather than only diffing against `oldClasses`.
+      classList.add(...newClasses.filter((c) => c && (flags & VNODE_FLAGS.isHost ? true : !oldClasses.includes(c))));
+      if (flags & VNODE_FLAGS.isHost) {
+        if (elm['s-sc']) {
+          classList.add(elm['s-sc']);
+        }
+        if (elm['s-si']) {
+          classList.add(elm['s-si']);
+        }
+      }
     }
   } else if (BUILD.vdomStyle && memberName === 'style') {
     // update style attribute, css properties and values

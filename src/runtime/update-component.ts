@@ -371,6 +371,10 @@ export const postUpdateComponent = (hostRef: d.HostRef) => {
       }
     }
   } else {
+    if (BUILD.asyncLoading && BUILD.cssAnnotations) {
+      // Re-apply the hydrated flag in case an external DOM write cleared host classes between renders.
+      addHydratedFlag(elm);
+    }
     // we've already loaded this component
     // fire off the user's componentDidUpdate method (if one was provided)
     // componentDidUpdate runs AFTER render() has been called
