@@ -8,6 +8,7 @@ import {
   getSourceMappingUrlForEndOfFile,
   getSourceMappingUrlLinker,
   relativizeSourceMap,
+  resolve,
   rolldownToStencilSourceMap,
 } from '../index';
 
@@ -307,7 +308,7 @@ describe('sourcemaps', () => {
 
     it('makes a source absolute and strips its query', () => {
       expect(transform(true)('../src/cmp.css?tag=cmp-a', '/root/dist/cmp.js.map')).toBe(
-        '/root/src/cmp.css',
+        resolve('/root/src/cmp.css'),
       );
     });
 
