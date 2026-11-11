@@ -80,30 +80,31 @@ export const lazyBundleIdPlugin = (
       if (!map.size) return;
 
       for (const [_key, file] of files) {
-        if (!file.isEntry) continue;
+        if (file.type !== 'chunk') continue;
 
         const newFileName = map.get(file.fileName);
-        if (!newFileName) continue;
+        if (newFileName) {
+          file.facadeModuleId = newFileName;
+          file.fileName = newFileName;
 
-        file.facadeModuleId = newFileName;
-        file.fileName = newFileName;
+          if (config.sourceMap && file.map) {
+            // Update the file name in the existing sourcemap,
+            // preserving the original mappings
+            file.map.file = newFileName;
+          }
+        }
+
+        // any chunk (shared chunks and other entries too) may import a renamed entry
+        const renamedImports = new Set(
+          [...file.imports, ...file.dynamicImports].filter((imported) => map.has(imported)),
+        );
+        if (!renamedImports.size) continue;
 
         const magicString = new MagicString(file.code);
-
-        file.imports.forEach((imported: string, i) => {
-          const replaced = map.get(imported);
-          if (replaced) {
-            magicString.replaceAll(imported, replaced);
-            file.imports[i] = replaced;
-          }
-        });
+        renamedImports.forEach((imported) => magicString.replaceAll(imported, map.get(imported)));
         file.code = magicString.toString();
-
-        if (config.sourceMap && file.map) {
-          // Update the file name in the existing sourcemap,
-          // preserving the original mappings
-          file.map.file = newFileName;
-        }
+        file.imports = file.imports.map((imported) => map.get(imported) ?? imported);
+        file.dynamicImports = file.dynamicImports.map((imported) => map.get(imported) ?? imported);
       }
     },
   };
