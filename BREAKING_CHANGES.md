@@ -43,6 +43,7 @@ Stencil recently had its 10th birthday - this release is a consolidation, organi
   - [`hashFileNames` / `hashedFileNameLength` Moved to Output Targets](#hashfilenames--hashedfilenamelength-moved-to-output-targets)
   - [Global Styles & Assets Modernized](#global-styles--assets-modernized)
   - [Output File Extensions Modernized](#output-file-extensions-modernized)
+  - [`docs-json`: `typeLibrary` Uses a Type Alias's Own Declaration](#docs-json-typelibrary-uses-a-type-aliass-own-declaration)
 - [Configuration](#configuration)
   - [`buildDist` and `buildDocs` Removed](#builddist-and-builddocs-removed)
   - [`--prod` Flag and `devMode` Config Removed](#--prod-flag-and-devmode-config-removed)
@@ -395,6 +396,26 @@ To migrate, run `stencil migrate` - an explicit `extras.addGlobalStyleToComponen
 With CJS now a fringe/opt-in requirement, `"type": "module"` is strongly recommended, and file extensions have been standardized: `.esm.js` → `.js`, and (if `cjs: true` is set) `.cjs.js` → `.cjs`.
 
 To migrate, update the relevant fields in your `package.json` to point at the new extensions - Stencil raises a warning when key `package.json` fields point at paths that no longer exist. Note that because the browser-facing `loader-bundle` CDN script is often referenced by URLs outside of your control, the old `NAMESPACE.esm.js` / `index.esm.js` entry points are **not** removed - it's kept as a permanent forwarding module.
+
+#### `docs-json`: `typeLibrary` Uses a Type Alias's Own Declaration
+
+A `typeLibrary` entry for a type alias now holds the alias itself and its JSDoc. Previously it held whatever the alias resolved to: the target interface (without its type arguments), the object literal, the primitive (`string`) or, for an alias of an array or a lib type, TypeScript's own declaration (e.g. all of `interface Array<T>`).
+
+```ts
+/** A box of items */
+export type ItemBox = Box<Item[]>;
+```
+
+```diff
+ "src/types.ts::ItemBox": {
+-  "declaration": "export interface Box<T> { value: T }",
+-  "docstring": "",
++  "declaration": "export type ItemBox = Box<Item[]>;",
++  "docstring": "A box of items",
+ }
+```
+
+Project types the alias names (`Box`, `Item`) are added to `typeLibrary` as their own entries. Tools that read `declaration` for an alias's shape should follow those entries.
 
 ### Configuration
 

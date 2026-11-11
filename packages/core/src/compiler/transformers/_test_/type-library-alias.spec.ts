@@ -16,19 +16,41 @@ const join = (...segments: string[]): string => normalizePath(pathJoin(...segmen
 const typescriptLibDir = dirname(createRequire(import.meta.url).resolve('typescript'));
 
 describe('type library aliases', () => {
-  it('keeps the declaration of a project type for an alias of that type', () => {
+  it('uses the alias declaration for an alias of a project type, and adds that type', () => {
     const t = transpileModule(`
+      export interface Item { label: string }
       export interface Box<T> { value: T }
-      export type StringBox = Box<string>;
+      export type ItemBox = Box<Item[]>;
 
       @Component({tag: 'cmp-a'})
       export class CmpA {
-        @Prop() box: StringBox;
+        @Prop() box: ItemBox;
       }
     `);
 
-    expect(getTypeLibrary()[t.property.complexType.references.StringBox.id].declaration).toBe(
-      'export interface Box<T> { value: T }',
+    const library = getTypeLibrary();
+    const { id } = t.property.complexType.references.ItemBox;
+    expect(library[id].declaration).toBe('export type ItemBox = Box<Item[]>;');
+
+    const modulePath = id.slice(0, id.lastIndexOf('::'));
+    expect(library[`${modulePath}::Box`].declaration).toBe('export interface Box<T> { value: T }');
+    expect(library[`${modulePath}::Item`].declaration).toBe(
+      'export interface Item { label: string }',
+    );
+  });
+
+  it('handles an alias that references itself', () => {
+    const t = transpileModule(`
+      export type Tree = { children: Tree[] };
+
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @Prop() tree: Tree;
+      }
+    `);
+
+    expect(getTypeLibrary()[t.property.complexType.references.Tree.id].declaration).toBe(
+      'export type Tree = { children: Tree[] };',
     );
   });
 

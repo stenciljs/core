@@ -81,7 +81,7 @@ describe('type library', () => {
     const relativePath = relative(config.rootDir, mealModulePath);
 
     expect(getTypeLibrary()[`${relativePath}::JustAnAlias`]).toEqual({
-      declaration: `string`,
+      declaration: `export type JustAnAlias = string;`,
       docstring: '',
       path: relativePath,
     });

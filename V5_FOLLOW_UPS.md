@@ -24,7 +24,6 @@ Open work left over from v5. User-facing changes are recorded in [BREAKING_CHANG
 - `create-stencil`: publish the shim that runs `npx @stencil/cli@latest init` (npm `latest` is still 4.0.2).
 - `@stencil/storybook-plugin` (separate repo): show CEM `tags` in the docs panel; tests for `parseLiteralValues()` / `inferSBType()` / `inferControlType()`; migration guide from the community plugin.
 - Build chain: tsgo.
-- `docs-json` `typeLibrary`: always use an alias's own text (`export type StringBox = Box<string>;`), not only when it resolves to a lib / package type (#6931). Today a project-type alias holds the target's declaration (generic, not instantiated) under the alias's id. Also add the types the alias references to the library, so the target's shape isn't lost. Changes `type-library-alias.spec.ts` and the `test/build/docs-json` fixture.
 - SSR custom states: `:state(x)` can't match before hydration (no HTML serialization for custom states), so `:host(:state(open))` styles flash until the client runs `states.add()`. Serialize all active states (`initialValue` and any `states.add()` during server lifecycle hooks) to a host marker attribute (e.g. `data-state-open`) and have the compiler emit a fallback selector beside each `:state()` selector. Needs mock-doc `ElementInternals.states` to record adds (see #6960). Emit fallbacks as separate rules, not one selector list (an unsupported `:state()` drops the whole list). Remove the marker once the client applies states.
 
 ## Docs gaps (stencil-site)
