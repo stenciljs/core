@@ -16,6 +16,7 @@ const testRequiresManualSetup =
   window.__wdioSpec__.includes('custom-elements-boolean-string') ||
   window.__wdioSpec__.includes('no-external-runtime') ||
   window.__wdioSpec__.includes('global-script') ||
+  window.__wdioSpec__.endsWith('style-hydration.test.tsx') ||
   window.__wdioSpec__.endsWith('custom-tag-name.test.tsx') ||
   window.__wdioSpec__.endsWith('page-list.test.ts') ||
   window.__wdioSpec__.endsWith('event-re-register.test.tsx') ||
