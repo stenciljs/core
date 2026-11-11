@@ -11,6 +11,8 @@ Open work left over from v5. User-facing changes are recorded in [BREAKING_CHANG
 ## Bugs
 
 - #6959 source maps: bundle map `sources` don't resolve from the map's location (`../src/…` where `../../../src/…` is needed) in loader-bundle, standalone and www; `loader-bundle/esm` files carry two `sourceMappingURL` comments. Fixed on neither branch (#6971 was declined as too invasive).
+- #6994 an external write to a host's `class` drops Stencil's host classes and the `hydrated` class. The class diff in `set-accessor.ts` only adds/removes classes that changed between renders, and the `hydrated` class is only added once.
+- Main-branch fix PRs that also apply to v5: #6988 (`hidden="until-found"` typing), #6930 (JSX in mixin / base-class methods not analysed), #6931 (`typeLibrary` entry for an alias of a lib type holds the lib declaration).
 
 ## Clean-up
 
