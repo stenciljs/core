@@ -944,6 +944,8 @@ export namespace Components {
     }
     interface RefAttrOrder {
     }
+    interface ReferenceTargetCmp {
+    }
     interface ReflectNanAttribute {
         "val": number;
     }
@@ -2605,6 +2607,12 @@ declare global {
         prototype: HTMLRefAttrOrderElement;
         new (): HTMLRefAttrOrderElement;
     };
+    interface HTMLReferenceTargetCmpElement extends Components.ReferenceTargetCmp, HTMLStencilElement {
+    }
+    var HTMLReferenceTargetCmpElement: {
+        prototype: HTMLReferenceTargetCmpElement;
+        new (): HTMLReferenceTargetCmpElement;
+    };
     interface HTMLReflectNanAttributeElement extends Components.ReflectNanAttribute, HTMLStencilElement {
     }
     var HTMLReflectNanAttributeElement: {
@@ -3373,6 +3381,7 @@ declare global {
         "prop-setter-lazy-race-cold": HTMLPropSetterLazyRaceColdElement;
         "radio-group-blur-test": HTMLRadioGroupBlurTestElement;
         "ref-attr-order": HTMLRefAttrOrderElement;
+        "reference-target-cmp": HTMLReferenceTargetCmpElement;
         "reflect-nan-attribute": HTMLReflectNanAttributeElement;
         "reflect-nan-attribute-hyphen": HTMLReflectNanAttributeHyphenElement;
         "reflect-to-attr": HTMLReflectToAttrElement;
@@ -4341,6 +4350,8 @@ declare namespace LocalJSX {
     }
     interface RefAttrOrder {
     }
+    interface ReferenceTargetCmp {
+    }
     interface ReflectNanAttribute {
         "val"?: number;
     }
@@ -5134,6 +5145,7 @@ declare namespace LocalJSX {
         "prop-setter-lazy-race-cold": Omit<PropSetterLazyRaceCold, keyof PropSetterLazyRaceColdAttributes> & { [K in keyof PropSetterLazyRaceCold & keyof PropSetterLazyRaceColdAttributes]?: PropSetterLazyRaceCold[K] } & { [K in keyof PropSetterLazyRaceCold & keyof PropSetterLazyRaceColdAttributes as `attr:${K}`]?: PropSetterLazyRaceColdAttributes[K] } & { [K in keyof PropSetterLazyRaceCold & keyof PropSetterLazyRaceColdAttributes as `prop:${K}`]?: PropSetterLazyRaceCold[K] };
         "radio-group-blur-test": RadioGroupBlurTest;
         "ref-attr-order": RefAttrOrder;
+        "reference-target-cmp": ReferenceTargetCmp;
         "reflect-nan-attribute": Omit<ReflectNanAttribute, keyof ReflectNanAttributeAttributes> & { [K in keyof ReflectNanAttribute & keyof ReflectNanAttributeAttributes]?: ReflectNanAttribute[K] } & { [K in keyof ReflectNanAttribute & keyof ReflectNanAttributeAttributes as `attr:${K}`]?: ReflectNanAttributeAttributes[K] } & { [K in keyof ReflectNanAttribute & keyof ReflectNanAttributeAttributes as `prop:${K}`]?: ReflectNanAttribute[K] };
         "reflect-nan-attribute-hyphen": Omit<ReflectNanAttributeHyphen, keyof ReflectNanAttributeHyphenAttributes> & { [K in keyof ReflectNanAttributeHyphen & keyof ReflectNanAttributeHyphenAttributes]?: ReflectNanAttributeHyphen[K] } & { [K in keyof ReflectNanAttributeHyphen & keyof ReflectNanAttributeHyphenAttributes as `attr:${K}`]?: ReflectNanAttributeHyphenAttributes[K] } & { [K in keyof ReflectNanAttributeHyphen & keyof ReflectNanAttributeHyphenAttributes as `prop:${K}`]?: ReflectNanAttributeHyphen[K] };
         "reflect-to-attr": Omit<ReflectToAttr, keyof ReflectToAttrAttributes> & { [K in keyof ReflectToAttr & keyof ReflectToAttrAttributes]?: ReflectToAttr[K] } & { [K in keyof ReflectToAttr & keyof ReflectToAttrAttributes as `attr:${K}`]?: ReflectToAttrAttributes[K] } & { [K in keyof ReflectToAttr & keyof ReflectToAttrAttributes as `prop:${K}`]?: ReflectToAttr[K] };
@@ -5502,6 +5514,7 @@ declare module "@stencil/core" {
             "prop-setter-lazy-race-cold": LocalJSX.IntrinsicElements["prop-setter-lazy-race-cold"] & JSXBase.HTMLAttributes<HTMLPropSetterLazyRaceColdElement>;
             "radio-group-blur-test": LocalJSX.IntrinsicElements["radio-group-blur-test"] & JSXBase.HTMLAttributes<HTMLRadioGroupBlurTestElement>;
             "ref-attr-order": LocalJSX.IntrinsicElements["ref-attr-order"] & JSXBase.HTMLAttributes<HTMLRefAttrOrderElement>;
+            "reference-target-cmp": LocalJSX.IntrinsicElements["reference-target-cmp"] & JSXBase.HTMLAttributes<HTMLReferenceTargetCmpElement>;
             "reflect-nan-attribute": LocalJSX.IntrinsicElements["reflect-nan-attribute"] & JSXBase.HTMLAttributes<HTMLReflectNanAttributeElement>;
             "reflect-nan-attribute-hyphen": LocalJSX.IntrinsicElements["reflect-nan-attribute-hyphen"] & JSXBase.HTMLAttributes<HTMLReflectNanAttributeHyphenElement>;
             "reflect-to-attr": LocalJSX.IntrinsicElements["reflect-to-attr"] & JSXBase.HTMLAttributes<HTMLReflectToAttrElement>;

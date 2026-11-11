@@ -171,6 +171,16 @@ function* streamToHtml(
           yield serializableAttr;
           output.currentLineWidth += serializableAttr.length;
         }
+
+        if (
+          'referenceTarget' in node &&
+          typeof node.referenceTarget === 'string' &&
+          node.referenceTarget
+        ) {
+          const referenceTargetAttr = ` shadowrootreferencetarget="${escapeString(node.referenceTarget, true)}"`;
+          yield referenceTargetAttr;
+          output.currentLineWidth += referenceTargetAttr.length;
+        }
       }
 
       const attrsLength = (node as HTMLElement).attributes.length;
@@ -194,6 +204,7 @@ function* streamToHtml(
           isShadowRoot &&
           (attrName === 'shadowrootmode' ||
             attrName === 'shadowrootdelegatesfocus' ||
+            attrName === 'shadowrootreferencetarget' ||
             attrName === 'shadowrootcustomelementregistry')
         ) {
           continue;

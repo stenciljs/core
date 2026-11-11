@@ -5,6 +5,7 @@ export class MockShadowRoot extends MockDocumentFragment {
   private _delegatesFocus: boolean = false;
   private _clonable: boolean = false;
   private _serializable: boolean = false;
+  private _referenceTarget: string | null = null;
 
   get activeElement(): HTMLElement | null {
     return null;
@@ -55,6 +56,14 @@ export class MockShadowRoot extends MockDocumentFragment {
 
   get pointerLockElement(): HTMLElement | null {
     return null;
+  }
+
+  get referenceTarget(): string | null {
+    return this._referenceTarget;
+  }
+
+  set referenceTarget(value: string | null) {
+    this._referenceTarget = value;
   }
 
   get serializable(): boolean {

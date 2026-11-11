@@ -107,6 +107,7 @@ export interface BuildFeatures {
   shadowSlotAssignmentManual: boolean;
   shadowClonable: boolean;
   shadowSerializable: boolean;
+  shadowReferenceTarget: boolean;
   scoped: boolean;
 
   // render
@@ -745,6 +746,11 @@ export interface ComponentCompilerMeta extends ComponentCompilerFeatures {
    * using HTMLSlotElement.assign(). Only applicable when encapsulation is 'shadow'.
    */
   slotAssignment: 'manual' | null;
+  /**
+   * `id` of the element within the shadow root that IDREFs targeting the host resolve to.
+   * Only applicable when encapsulation is 'shadow'.
+   */
+  shadowReferenceTarget: string | null;
   /**
    * Per-component slot patches for non-shadow DOM components.
    * These patches enable proper slot behavior without native Shadow DOM.
@@ -1651,6 +1657,9 @@ export type ComponentRuntimeMetaCompact = [
 
   /** deserializers */
   ComponentConstructorChangeHandlers?,
+
+  /** shadow root reference target */
+  string?,
 ];
 
 /**
@@ -1699,6 +1708,10 @@ export interface ComponentRuntimeMeta {
    * Information about which class members have attribute > prop deserializers attached on the component.
    */
   $deserializers$?: ComponentConstructorChangeHandlers;
+  /**
+   * `id` of the element within the shadow root that IDREFs targeting the host resolve to.
+   */
+  $referenceTarget$?: string;
 }
 
 /**

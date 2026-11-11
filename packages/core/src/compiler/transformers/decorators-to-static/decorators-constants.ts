@@ -65,6 +65,7 @@ const STATIC_GETTER_NAMES = [
   'originalStyleUrls',
   'patches',
   'properties',
+  'referenceTarget',
   'serializable',
   'shadowMode',
   'slotAssignment',

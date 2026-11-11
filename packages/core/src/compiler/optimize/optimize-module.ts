@@ -287,6 +287,7 @@ const RESERVED_CMP_META_PROPS = [
   '$lazyBundleId$',
   '$serializers$',
   '$deserializers$',
+  '$referenceTarget$',
 ];
 
 /**

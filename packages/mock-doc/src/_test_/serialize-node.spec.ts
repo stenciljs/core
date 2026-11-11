@@ -229,6 +229,21 @@ describe('serializeNodeToHtml', () => {
     );
   });
 
+  it('shadow root to template with referenceTarget', () => {
+    const elm = doc.createElement('cmp-a');
+    const shadowRoot = elm.attachShadow({ mode: 'open', referenceTarget: 'a"b' });
+    expect(shadowRoot.referenceTarget).toBe('a"b');
+    expect(elm.outerHTML).toContain(
+      '<template shadowrootmode="open" shadowrootreferencetarget="a&quot;b"',
+    );
+  });
+
+  it('shadow root without referenceTarget omits the attribute', () => {
+    const elm = doc.createElement('cmp-a');
+    elm.attachShadow({ mode: 'open' });
+    expect(elm.outerHTML).not.toContain('shadowrootreferencetarget');
+  });
+
   it('style', () => {
     const input = `<style>     \n    text   \n\n</style>`;
     doc.body.innerHTML = input;

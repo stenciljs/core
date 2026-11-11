@@ -123,6 +123,7 @@ describe('getOxcMinifyOptions', () => {
       '$lazyBundleId$',
       '$serializers$',
       '$deserializers$',
+      '$referenceTarget$',
     ]);
     expect(opts.mangleProps?.include.test('$lazyInstance$')).toBe(true);
     expect(opts.mangleProps?.include.test('plainProp')).toBe(false);

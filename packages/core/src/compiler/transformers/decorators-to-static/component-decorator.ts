@@ -122,6 +122,12 @@ export const componentDecoratorToStatic = (
       if (enc.serializable === true) {
         newMembers.push(createStaticGetter('serializable', convertValueToLiteral(true)));
       }
+
+      if (enc.referenceTarget) {
+        newMembers.push(
+          createStaticGetter('referenceTarget', convertValueToLiteral(enc.referenceTarget.trim())),
+        );
+      }
     } else if (enc.type === 'scoped') {
       newMembers.push(createStaticGetter('encapsulation', convertValueToLiteral('scoped')));
 
@@ -239,6 +245,16 @@ const validateComponent = (
         const err = buildError(diagnostics);
         err.messageText = `The "mode" option must be either "open" or "closed".`;
         augmentDiagnosticWithNode(err, findTagNode('mode', componentDecorator));
+        return false;
+      }
+
+      if (
+        enc.referenceTarget !== undefined &&
+        (typeof enc.referenceTarget !== 'string' || enc.referenceTarget.trim() === '')
+      ) {
+        const err = buildError(diagnostics);
+        err.messageText = `The "referenceTarget" option must be a non-empty string matching the id of an element in the component's shadow root.`;
+        augmentDiagnosticWithNode(err, findTagNode('referenceTarget', componentDecorator));
         return false;
       }
     }
