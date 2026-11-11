@@ -1,3 +1,17 @@
+## 🐘 [4.45.2](https://github.com/stenciljs/core/compare/v4.45.1...v4.45.2) (2026-10-05)
+
+
+### Bug Fixes
+
+* **mock-doc:** support force in classList.toggle ([#6913](https://github.com/stenciljs/core/issues/6913)) ([992ab54](https://github.com/stenciljs/core/commit/992ab5466c0b7a0d6ff420f25eb095a42791f0f6))
+* **runtime:** `document.hidden` page freezes ([#6918](https://github.com/stenciljs/core/issues/6918)) ([5a92cc7](https://github.com/stenciljs/core/commit/5a92cc7e99de7395c8f8956203bfcb248af9d479))
+* **runtime:** form-associated boolean attribute `"false"` parses as true ([#6908](https://github.com/stenciljs/core/issues/6908)) ([f971133](https://github.com/stenciljs/core/commit/f971133d7d47dce9598c6417e12902942c2053d3))
+* **runtime:** keep child host classes on first render after hydration ([#6912](https://github.com/stenciljs/core/issues/6912)) ([b6842e9](https://github.com/stenciljs/core/commit/b6842e9817c16258d7b8b8f2cb6c8420aad76c0e))
+* **runtime:** lazy getter/setter `@Prop` writes before first render ([#6909](https://github.com/stenciljs/core/issues/6909)) ([e2e5dfc](https://github.com/stenciljs/core/commit/e2e5dfc059c4c8fedf5258f9ee83d4a091ef20ac))
+* **scope-css:** scope rules inside [@container](https://github.com/container) ([#6914](https://github.com/stenciljs/core/issues/6914)) ([bc393d0](https://github.com/stenciljs/core/commit/bc393d028b86731cccce51d7af417e2186dcf7ac))
+
+
+
 ## 🐽 [4.45.1](https://github.com/stenciljs/core/compare/v4.45.0...v4.45.1) (2026-09-23)
 
 

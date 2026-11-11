@@ -87,7 +87,7 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
     }
 
     if (BUILD.hydrateClientSide && BUILD.shadowDom) {
-      hydrateScopedToShadow();
+      hydrateScopedToShadow([cmpMeta]);
     }
 
     const originalConnectedCallback = Cstr.prototype.connectedCallback;

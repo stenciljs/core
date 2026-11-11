@@ -157,3 +157,5 @@ jsxs
 labelable
 reentrancy
 macrotask
+turbopack
+metas

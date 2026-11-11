@@ -72,7 +72,7 @@ export const updateNativeExtendedClass = (
       withHeritageClauses.name,
       withHeritageClauses.typeParameters,
       withHeritageClauses.heritageClauses,
-      updateConstructor(withHeritageClauses, Array.from(withHeritageClauses.members), [], params, true),
+      updateConstructor(withHeritageClauses, Array.from(withHeritageClauses.members), [], params, 'false'),
     );
   }
 

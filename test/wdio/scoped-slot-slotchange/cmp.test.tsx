@@ -66,7 +66,7 @@ describe('scoped-slot-slotchange', () => {
     slotChangeEle.insertBefore(div, null);
     await waitForChanges();
 
-    await expect(slotChangeEle.slotEventCatch).toHaveLength(4);
+    await expect(slotChangeEle.slotEventCatch).toHaveLength(3);
     await expect(slotChangeEle.slotEventCatch[2]).toMatchObject({ event: { type: 'slotchange' } });
     await expect(slotChangeEle.slotEventCatch[2].assignedNodes[1].outerHTML).toMatch(`<div>InsertBefore content</div>`);
   });

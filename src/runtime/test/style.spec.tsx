@@ -1,7 +1,91 @@
 import { Component, getMode, setMode } from '@stencil/core';
+import { getHostRef } from '@stencil/core/internal/testing';
 import { newSpecPage } from '@stencil/core/testing';
 
+import { addStyle } from '../styles';
+
 describe('style', () => {
+  it('adds a hydration id to server-rendered styles without encapsulation', async () => {
+    @Component({
+      tag: 'cmp-a',
+      shadow: false,
+      scoped: false,
+      styles: 'cmp-a { color: red; }',
+    })
+    class CmpA {
+      render() {
+        return `innertext`;
+      }
+    }
+
+    const { doc } = await newSpecPage({
+      components: [CmpA],
+      html: `<cmp-a></cmp-a>`,
+      hydrateServerSide: true,
+      attachStyles: true,
+    });
+
+    const style = doc.head.querySelector('style[sty-id="sc-cmp-a"]');
+    expect(style).not.toBeNull();
+    expect(style.textContent).toContain('cmp-a { color: red; }');
+  });
+
+  it('reuses server-rendered styles without rewriting them during hydration', async () => {
+    @Component({
+      tag: 'cmp-a',
+      styles: 'cmp-a { color: red; }',
+    })
+    class CmpA {
+      render() {
+        return `innertext`;
+      }
+    }
+
+    const page = await newSpecPage({
+      components: [CmpA],
+      html: `<cmp-a></cmp-a><cmp-a></cmp-a>`,
+      hydrateClientSide: true,
+      attachStyles: true,
+      flushQueue: false,
+    });
+    const serverStyle = page.doc.createElement('style');
+    serverStyle.setAttribute('sty-id', 'sc-cmp-a');
+    serverStyle.textContent = 'server-rendered-style';
+    page.doc.head.append(serverStyle);
+
+    await page.waitForChanges();
+
+    const styles = page.doc.head.querySelectorAll('style[sty-id="sc-cmp-a"]');
+    expect(styles).toHaveLength(1);
+    expect(styles[0].textContent).toBe('server-rendered-style');
+  });
+
+  it('updates an existing style during HMR', async () => {
+    @Component({
+      tag: 'cmp-a',
+      styles: 'cmp-a { color: red; }',
+    })
+    class CmpA {
+      render() {
+        return `innertext`;
+      }
+    }
+
+    const page = await newSpecPage({
+      components: [CmpA],
+      html: `<cmp-a></cmp-a>`,
+      attachStyles: true,
+    });
+    const style = page.doc.head.querySelector('style');
+    style.setAttribute('sty-id', 'sc-cmp-a');
+    page.build.hotModuleReplacement = true;
+    page.styles.set('sc-cmp-a', 'hmr-updated-style');
+
+    addStyle(page.doc, getHostRef(page.root).$cmpMeta$);
+
+    expect(style.textContent).toBe('hmr-updated-style');
+  });
+
   it('get style string', async () => {
     @Component({
       tag: 'cmp-a',
