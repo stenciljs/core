@@ -29,7 +29,7 @@ export const tsGetSourceFile = (config: d.ValidatedConfig, module: ts.ResolvedMo
     return null;
   }
   const compilerOptions: ts.CompilerOptions = { ...config.tsCompilerOptions };
-  const host = ts.createCompilerHost(compilerOptions);
+  const host = ts.createCompilerHost(compilerOptions, true);
   const program = ts.createProgram([module.resolvedModule.resolvedFileName], compilerOptions, host);
   return program.getSourceFile(module.resolvedModule.resolvedFileName);
 };
