@@ -434,7 +434,8 @@ export const proxyComponent = (
           // test whether this property either has no 'getter' or if it does, does it also have a 'setter'
           // before attempting to write back to component props
           const propDesc = Object.getOwnPropertyDescriptor(prototype, propName);
-          if (!isSpuriousBooleanRemoval && newValue != this[propName] && (!propDesc.get || !!propDesc.set)) {
+          const isUnchanged = newValue === this[propName] || (newValue == null && this[propName] == null);
+          if (!isSpuriousBooleanRemoval && !isUnchanged && (!propDesc.get || !!propDesc.set)) {
             this[propName] = newValue;
           }
         });
