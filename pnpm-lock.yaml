@@ -466,6 +466,19 @@ importers:
         specifier: ^2.3.0
         version: 2.3.0
 
+  test/build/sourcemaps:
+    dependencies:
+      '@stencil/core':
+        specifier: workspace:*
+        version: link:../../../packages/core
+    devDependencies:
+      '@jridgewell/trace-mapping':
+        specifier: ^0.3.31
+        version: 0.3.31
+      rimraf:
+        specifier: ^6.1.3
+        version: 6.1.3
+
   test/build/type-tests:
     devDependencies:
       '@stencil/core':

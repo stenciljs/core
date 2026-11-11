@@ -4,8 +4,10 @@ import type { SourceMap as RolldownSourceMap } from 'rolldown';
 
 import {
   getInlineSourceMappingUrlLinker,
+  getRolldownSourceMapOptions,
   getSourceMappingUrlForEndOfFile,
   getSourceMappingUrlLinker,
+  relativizeSourceMap,
   rolldownToStencilSourceMap,
 } from '../index';
 
@@ -278,6 +280,67 @@ describe('sourcemaps', () => {
     it('encodes multiple disallowed characters at once', () => {
       expect(getSourceMappingUrlForEndOfFile('!some-(pkg)*')).toBe(
         '\n//# sourceMappingURL=%21some-%28pkg%29%2a.map',
+      );
+    });
+  });
+  describe('getRolldownSourceMapOptions', () => {
+    const transform = (exists: boolean) => {
+      const config = {
+        sourceMap: true,
+        sys: { accessSync: () => exists },
+      } as unknown as d.ValidatedConfig;
+      return getRolldownSourceMapOptions(config).sourcemapPathTransform as (
+        relativeSourcePath: string,
+        sourcemapPath: string,
+      ) => string;
+    };
+
+    it('hides the comment when source maps are on', () => {
+      const config = { sourceMap: true, sys: {} } as unknown as d.ValidatedConfig;
+      expect(getRolldownSourceMapOptions(config).sourcemap).toBe('hidden');
+    });
+
+    it('turns source maps off', () => {
+      const config = { sourceMap: false, sys: {} } as unknown as d.ValidatedConfig;
+      expect(getRolldownSourceMapOptions(config).sourcemap).toBe(false);
+    });
+
+    it('makes a source absolute and strips its query', () => {
+      expect(transform(true)('../src/cmp.css?tag=cmp-a', '/root/dist/cmp.js.map')).toBe(
+        '/root/src/cmp.css',
+      );
+    });
+
+    it('keeps the id of a virtual module', () => {
+      // Rolldown resolves a virtual id against its cwd, relative to the default `dist` dir
+      const mapPath = `${process.cwd()}/dist/runtime.js.map`;
+      expect(transform(false)('../@stencil/core/app-data', mapPath)).toBe('@stencil/core/app-data');
+    });
+  });
+
+  describe('relativizeSourceMap', () => {
+    const sourceMap: d.SourceMap = {
+      file: 'module.js',
+      mappings: 'AAAA',
+      names: [],
+      sources: ['/root/src/cmp.tsx', '@stencil/core/app-data'],
+      sourcesContent: ['', ''],
+      version: 3,
+    };
+
+    it('makes absolute sources relative to the written file', () => {
+      expect(
+        relativizeSourceMap(sourceMap, '/root/dist/loader-bundle/esm/cmp.entry.js').sources,
+      ).toEqual(['../../../src/cmp.tsx', '@stencil/core/app-data']);
+      expect(relativizeSourceMap(sourceMap, '/root/www/build/cmp.entry.js').sources).toEqual([
+        '../../src/cmp.tsx',
+        '@stencil/core/app-data',
+      ]);
+    });
+
+    it('names the written file', () => {
+      expect(relativizeSourceMap(sourceMap, '/root/www/build/cmp.entry.js').file).toBe(
+        'cmp.entry.js',
       );
     });
   });

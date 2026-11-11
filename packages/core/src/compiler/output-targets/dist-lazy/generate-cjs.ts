@@ -1,7 +1,12 @@
 import type * as d from '@stencil/core';
 import type { OutputOptions, RolldownBuild } from 'rolldown';
 
-import { generatePreamble, join, relativeImport } from '../../../utils';
+import {
+  generatePreamble,
+  getRolldownSourceMapOptions,
+  join,
+  relativeImport,
+} from '../../../utils';
 import { generateRolldownOutput } from '../../app-core/bundle-app-core';
 import { generateLazyModules } from './generate-lazy-module';
 import { lazyBundleIdPlugin } from './lazy-bundleid-plugin';
@@ -22,7 +27,7 @@ export const generateCjs = async (
       format: 'cjs',
       entryFileNames: '[name].cjs',
       assetFileNames: '[name]-[hash][extname]',
-      sourcemap: config.sourceMap,
+      ...getRolldownSourceMapOptions(config),
       plugins: [lazyBundleIdPlugin(buildCtx, config, false, 8, '.cjs')],
     };
 

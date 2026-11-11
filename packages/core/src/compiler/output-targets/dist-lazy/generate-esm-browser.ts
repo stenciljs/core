@@ -1,7 +1,7 @@
 import type * as d from '@stencil/core';
 import type { OutputOptions, RolldownBuild } from 'rolldown';
 
-import { generatePreamble, join } from '../../../utils';
+import { generatePreamble, getRolldownSourceMapOptions, join } from '../../../utils';
 import { generateRolldownOutput } from '../../app-core/bundle-app-core';
 import { generateLazyModules } from './generate-lazy-module';
 import { lazyBundleIdPlugin } from './lazy-bundleid-plugin';
@@ -22,7 +22,7 @@ export const generateEsmBrowser = async (
       entryFileNames: '[name].js',
       chunkFileNames: esmOutputs[0].hashFileNames ? 'p-[hash].js' : '[name]-[hash].js',
       assetFileNames: esmOutputs[0].hashFileNames ? 'p-[hash][extname]' : '[name]-[hash][extname]',
-      sourcemap: config.sourceMap,
+      ...getRolldownSourceMapOptions(config),
       plugins: [
         lazyBundleIdPlugin(
           buildCtx,
