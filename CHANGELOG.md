@@ -21,12 +21,6 @@
 * **types:** support hidden until-found attribute ([#6988](https://github.com/stenciljs/core/issues/6988)) ([9be802b](https://github.com/stenciljs/core/commit/9be802b3523b04f7ca85daef391b58ed897c29d7))
 
 
-### Reverts
-
-* Revert "fix(runtime): patch innerHTML and innerText setters on scoped components" ([86ff3fe](https://github.com/stenciljs/core/commit/86ff3fe969251d353d4836e7d86332813a7ebf3c))
-
-
-
 ## 🐘 [4.45.2](https://github.com/stenciljs/core/compare/v4.45.1...v4.45.2) (2026-10-05)
 
 
