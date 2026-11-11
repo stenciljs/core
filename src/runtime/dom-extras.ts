@@ -25,6 +25,7 @@ export const patchPseudoShadowDom = (hostElementPrototype: HTMLElement) => {
   patchSlotInsertAdjacentText(hostElementPrototype);
   patchInsertBefore(hostElementPrototype);
   patchTextContent(hostElementPrototype);
+  patchInnerContentSetters(hostElementPrototype);
   patchChildSlotNodes(hostElementPrototype);
   patchSlotRemoveChild(hostElementPrototype);
 };
@@ -363,13 +364,57 @@ export const patchTextContent = (hostElementPrototype: HTMLElement): void => {
       return text;
     },
     set: function (value) {
-      const childNodes = this.__childNodes ? this.childNodes : getSlottedChildNodes(this.childNodes);
-      childNodes.forEach((node: d.RenderNode) => {
-        if (node['s-ol']) node['s-ol'].remove();
-        node.remove();
-      });
+      removeSlottedNodes(this);
       this.insertAdjacentHTML('beforeend', value);
     },
+  });
+};
+
+/**
+ * Patches the `innerHTML` and `innerText` setters of a scoped component so they replace only
+ * the slotted content. Natively they would also remove the component's rendered nodes and its
+ * content reference node, leaving nothing for the next render to relocate into the slot.
+ * The getters are left as they are.
+ *
+ * @param hostElementPrototype the `Element` to be patched
+ */
+export const patchInnerContentSetters = (hostElementPrototype: HTMLElement) => {
+  if (!globalThis.HTMLElement) return;
+
+  const patchSetter = (
+    proto: object,
+    name: 'innerHTML' | 'innerText',
+    insert: (host: HTMLElement, value: string) => void,
+  ) => {
+    const get = Object.getOwnPropertyDescriptor(proto, name)?.get;
+    if (!get) return;
+    Object.defineProperty(hostElementPrototype, name, {
+      get,
+      set: function (this: d.RenderNode, value) {
+        removeSlottedNodes(this);
+        // light DOM nodes that haven't been relocated into a slot yet
+        (Array.from(internalCall(this, 'childNodes')) as d.RenderNode[]).forEach((node) => {
+          if (!node['s-cn'] && !node['s-nr'] && node['s-hn'] !== this.tagName) node.remove();
+        });
+        insert(this, value ?? '');
+      },
+    });
+  };
+
+  patchSetter(Element.prototype, 'innerHTML', (host, value) => host.insertAdjacentHTML('beforeend', value));
+  patchSetter(HTMLElement.prototype, 'innerText', (host, value) => host.append(value));
+};
+
+/**
+ * Removes the slotted nodes of a scoped component, along with their original location markers.
+ *
+ * @param host the host element of the component
+ */
+const removeSlottedNodes = (host: d.RenderNode) => {
+  const childNodes = host.__childNodes ? host.childNodes : getSlottedChildNodes(host.childNodes);
+  (childNodes as d.RenderNode[]).forEach((node) => {
+    if (node['s-ol']) node['s-ol'].remove();
+    node.remove();
   });
 };
 
