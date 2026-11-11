@@ -103,13 +103,16 @@ export const patchSlotAppendChild = (HostElementPrototype: any) => {
 
       const slotChildNodes = getSlotChildSiblings(slotNode, slotName);
       const appendAfter = slotChildNodes[slotChildNodes.length - 1];
+      const slotWasEmpty = slotChildNodes.every((node) => node['s-sr']);
 
       const parent = internalCall(appendAfter, 'parentNode') as d.RenderNode;
       const insertedNode: d.RenderNode = internalCall(parent, 'insertBefore')(newChild, appendAfter.nextSibling);
       dispatchSlotChangeEvent(slotNode);
 
-      // Check if there is fallback content that should be hidden
-      updateFallbackSlotVisibility(this);
+      // Fallback visibility only changes when a slot goes from empty to having content
+      if (slotWasEmpty) {
+        updateFallbackSlotVisibility(this);
+      }
 
       return insertedNode;
     }
@@ -131,7 +134,7 @@ const patchSlotRemoveChild = (ElementPrototype: any) => {
   ElementPrototype.removeChild = function (this: d.RenderNode, toRemove: d.RenderNode) {
     if (toRemove && typeof toRemove['s-sn'] !== 'undefined') {
       const childNodes = (this as any).__childNodes || this.childNodes;
-      const slotNode = getHostSlotNodes(childNodes, this.tagName, toRemove['s-sn']);
+      const slotNode = getHostSlotNodes(childNodes, this.tagName, toRemove['s-sn'])[0];
       if (slotNode && toRemove.isConnected) {
         toRemove.remove();
         // Check if there is fallback content that should be displayed if that
@@ -268,36 +271,32 @@ const patchInsertBefore = (HostElementPrototype: HTMLElement) => {
     currentChild: d.RenderNode | null,
   ) {
     const { slotName, slotNode } = findSlotFromSlottedNode(newChild, this);
-    const slottedNodes = this.__childNodes ? this.childNodes : getSlottedChildNodes(this.childNodes);
 
     if (slotNode) {
-      let found = false;
+      if (currentChild === null) {
+        // inserting before `null` appends; the patched appendChild method will correctly slot the node
+        this.appendChild(newChild);
+        return newChild;
+      }
 
-      slottedNodes.forEach((childNode) => {
-        if (childNode === currentChild || currentChild === null) {
-          // we found the node to insert before in our list of 'lightDOM' / slotted nodes
-          found = true;
+      const slottedNodes = this.__childNodes ? this.childNodes : getSlottedChildNodes(this.childNodes);
+      // the node to insert before is one of our 'lightDOM' / slotted nodes
+      if ((slottedNodes as d.RenderNode[]).includes(currentChild)) {
+        if (slotName !== currentChild['s-sn']) {
+          // new child is not in the same slot as 'slot before' node
+          // so let's use the patched appendChild method. This will correctly slot the node
+          this.appendChild(newChild);
+        } else {
+          // current child ('slot before' node) is 'in' the same slot
+          addSlotRelocateNode(newChild, slotNode);
 
-          if (currentChild === null || slotName !== currentChild['s-sn']) {
-            // new child is not in the same slot as 'slot before' node
-            // so let's use the patched appendChild method. This will correctly slot the node
-            this.appendChild(newChild);
-            return;
-          }
+          const parent = internalCall(currentChild, 'parentNode') as d.RenderNode;
+          internalCall(parent, 'insertBefore')(newChild, currentChild);
 
-          if (slotName === currentChild['s-sn']) {
-            // current child ('slot before' node) is 'in' the same slot
-            addSlotRelocateNode(newChild, slotNode);
-
-            const parent = internalCall(currentChild, 'parentNode') as d.RenderNode;
-            internalCall(parent, 'insertBefore')(newChild, currentChild);
-
-            dispatchSlotChangeEvent(slotNode);
-          }
-          return;
+          dispatchSlotChangeEvent(slotNode);
         }
-      });
-      if (found) return newChild;
+        return newChild;
+      }
     }
 
     /**
