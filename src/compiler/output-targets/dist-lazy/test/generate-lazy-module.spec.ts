@@ -1,6 +1,6 @@
 import type * as d from '../../../../declarations';
 import { stubComponentCompilerMeta } from '../../../types/tests/ComponentCompilerMeta.stub';
-import { sortBundleComponents } from '../generate-lazy-module';
+import { getAssetsToWrite, sortBundleComponents } from '../generate-lazy-module';
 
 describe('generate-lazy-module', () => {
   describe('sortBundleComponents', () => {
@@ -265,6 +265,23 @@ describe('generate-lazy-module', () => {
           grandChildCmp,
         ]);
       });
+    });
+  });
+
+  describe('getAssetsToWrite', () => {
+    const chunk = (fileName: string) => ({ type: 'chunk', fileName }) as d.RollupChunkResult;
+    const asset = (fileName: string) => ({ type: 'asset', fileName, content: '' }) as d.RollupAssetResult;
+
+    it('excludes the Rollup source map of each chunk, which Stencil writes itself', () => {
+      const results = [chunk('p-abc.js'), asset('p-abc.js.map'), chunk('p-def.entry.js'), asset('p-def.entry.js.map')];
+      expect(getAssetsToWrite(results)).toEqual([]);
+    });
+
+    it('keeps other assets, including source maps without a matching chunk', () => {
+      const other = asset('styles.css');
+      const orphanMap = asset('worker.js.map');
+      const results = [chunk('p-abc.js'), asset('p-abc.js.map'), other, orphanMap];
+      expect(getAssetsToWrite(results)).toEqual([other, orphanMap]);
     });
   });
 });
