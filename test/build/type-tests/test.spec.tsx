@@ -34,6 +34,13 @@ export function TypeTestComponent() {
       {/* @ts-expect-error - ariaLabel should be string, not number */}
       <h1 ariaLabel={123}>Hello</h1>
 
+      {/* Valid: boolean or 'until-found' for hidden */}
+      <div hidden>Hidden</div>
+      <div hidden='until-found'>Hidden until found</div>
+
+      {/* @ts-expect-error - hidden only accepts boolean or 'until-found' */}
+      <div hidden='foo'>Hidden</div>
+
       {/* ===== String Prop Type Checks ===== */}
 
       {/* Valid: string values */}
