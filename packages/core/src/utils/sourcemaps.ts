@@ -1,5 +1,8 @@
+import nodePath from 'node:path';
 import type * as d from '@stencil/core';
-import type { SourceMap as RolldownSourceMap } from 'rolldown';
+import type { OutputOptions, SourceMap as RolldownSourceMap } from 'rolldown';
+
+import { normalizePath, relative, resolve } from './path';
 
 /**
  * Converts a rolldown provided source map to one that Stencil can easily understand
@@ -81,4 +84,43 @@ export const getInlineSourceMappingUrlLinker = (sourceMapContents: string): stri
  */
 export const getSourceMappingUrlForEndOfFile = (url: string): string => {
   return `\n${getSourceMappingUrlLinker(url)}.map`;
+};
+
+/**
+ * Rolldown source map output options. Stencil appends its own `sourceMappingURL` comment, so the map
+ * is `hidden`. A chunk can be written to several directories, so `sources` are made absolute here
+ * (query strings stripped) and relative to each destination by {@link relativizeSourceMap}.
+ * Virtual modules have no file and keep their id.
+ *
+ * @param config the validated Stencil configuration
+ * @returns the source map options to spread into Rolldown's output options
+ */
+export const getRolldownSourceMapOptions = (
+  config: d.ValidatedConfig,
+): Pick<OutputOptions, 'sourcemap' | 'sourcemapPathTransform'> => ({
+  sourcemap: config.sourceMap ? 'hidden' : false,
+  sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
+    const absPath = resolve(nodePath.dirname(sourcemapPath), relativeSourcePath.split('?')[0]);
+    // Rolldown resolves a virtual module's id against its (default) cwd
+    return config.sys.accessSync(absPath) ? absPath : relative(process.cwd(), absPath);
+  },
+});
+
+/**
+ * Makes a source map's absolute `sources` relative to where the map is written, and names the
+ * file it maps.
+ *
+ * @param sourceMap the source map, with absolute `sources` from {@link getRolldownSourceMapOptions}
+ * @param filePath the path the mapped `.js` file is written to
+ * @returns the source map to write next to `filePath`
+ */
+export const relativizeSourceMap = (sourceMap: d.SourceMap, filePath: string): d.SourceMap => {
+  const dir = nodePath.dirname(filePath);
+  return {
+    ...sourceMap,
+    file: nodePath.basename(filePath),
+    sources: sourceMap.sources.map((source) =>
+      nodePath.isAbsolute(source) ? relative(dir, source) : normalizePath(source, false),
+    ),
+  };
 };

@@ -6,6 +6,7 @@ import {
   getSourceMappingUrlForEndOfFile,
   hasDependency,
   join,
+  relativizeSourceMap,
   rolldownToStencilSourceMap,
   stringifyRuntimeData,
 } from '../../../utils';
@@ -287,9 +288,11 @@ const writeLazyChunk = async (
       if (sourceMap) {
         fileCode = code + getSourceMappingUrlForEndOfFile(rolldownResult.fileName);
         writes.push(
-          compilerCtx.fs.writeFile(filePath + '.map', JSON.stringify(sourceMap), {
-            outputTargetType,
-          }),
+          compilerCtx.fs.writeFile(
+            filePath + '.map',
+            JSON.stringify(relativizeSourceMap(sourceMap, filePath)),
+            { outputTargetType },
+          ),
         );
       }
       writes.push(compilerCtx.fs.writeFile(filePath, fileCode, { outputTargetType }));
@@ -334,9 +337,11 @@ const writeLazyEntry = async (
       if (sourceMap) {
         fileCode = code + getSourceMappingUrlForEndOfFile(rolldownResult.fileName);
         writes.push(
-          compilerCtx.fs.writeFile(filePath + '.map', JSON.stringify(sourceMap), {
-            outputTargetType,
-          }),
+          compilerCtx.fs.writeFile(
+            filePath + '.map',
+            JSON.stringify(relativizeSourceMap(sourceMap, filePath)),
+            { outputTargetType },
+          ),
         );
       }
       writes.push(compilerCtx.fs.writeFile(filePath, fileCode, { outputTargetType }));
@@ -494,7 +499,8 @@ const convertChunk = async (
     code = optimizeResults.output;
   }
 
-  if (optimizeResults.sourceMap) {
+  // a chunk Rolldown gave no map (generated code only) gets none, not the minifier's
+  if (sourceMap && optimizeResults.sourceMap) {
     sourceMap = optimizeResults.sourceMap;
   }
   return { code, sourceMap };

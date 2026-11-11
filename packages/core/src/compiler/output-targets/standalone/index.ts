@@ -6,6 +6,7 @@ import {
   dashToPascalCase,
   filterActiveTargets,
   generatePreamble,
+  getRolldownSourceMapOptions,
   getSourceMappingUrlForEndOfFile,
   hasError,
   isBoolean,
@@ -14,6 +15,7 @@ import {
   isString,
   join,
   relative,
+  relativizeSourceMap,
   rolldownToStencilSourceMap,
 } from '../../../utils';
 import { mergeCollectionBuildFlags } from '../../app-core/app-data';
@@ -141,7 +143,7 @@ export const bundleStandalone = async (
       const rolldownOutput = await build.generate({
         banner: generatePreamble(config),
         format: 'esm',
-        sourcemap: config.sourceMap,
+        ...getRolldownSourceMapOptions(config),
         chunkFileNames: '[name].js',
         entryFileNames: '[name].js',
         hoistTransitiveImports: false,
@@ -181,12 +183,16 @@ export const bundleStandalone = async (
           ) {
             code = optimizeResults.output;
           }
-          if (optimizeResults.sourceMap) {
+          // a chunk Rolldown gave no map (generated code only) gets none, not the minifier's
+          if (sourceMap && optimizeResults.sourceMap) {
             sourceMap = optimizeResults.sourceMap;
+          }
+          if (sourceMap) {
+            const filePath = join(outputTargetDir, bundle.fileName);
             code = code + getSourceMappingUrlForEndOfFile(bundle.fileName);
             await compilerCtx.fs.writeFile(
-              join(outputTargetDir, bundle.fileName + '.map'),
-              JSON.stringify(sourceMap),
+              filePath + '.map',
+              JSON.stringify(relativizeSourceMap(sourceMap, filePath)),
               {
                 outputTargetType: outputTarget.type,
               },

@@ -1,6 +1,6 @@
 import type * as d from '@stencil/core';
 
-import { getSourceMappingUrlForEndOfFile, join } from '../../../utils';
+import { getSourceMappingUrlForEndOfFile, join, relativizeSourceMap } from '../../../utils';
 
 export const writeLazyModule = async (
   compilerCtx: d.CompilerCtx,
@@ -26,7 +26,13 @@ export const writeLazyModule = async (
       const writes: Promise<any>[] = [compilerCtx.fs.writeFile(jsPath, code, { outputTargetType })];
       if (sourceMap) {
         writes.push(
-          compilerCtx.fs.writeFile(mapPath, JSON.stringify(sourceMap), { outputTargetType }),
+          compilerCtx.fs.writeFile(
+            mapPath,
+            JSON.stringify(relativizeSourceMap(sourceMap, jsPath)),
+            {
+              outputTargetType,
+            },
+          ),
         );
       }
       return Promise.all(writes);
