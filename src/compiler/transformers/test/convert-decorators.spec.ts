@@ -192,7 +192,7 @@ describe('convert-decorators', () => {
       await c`export class CmpA extends Foobar {
         constructor() {
           this.count = 0;
-          super();
+          super(...arguments);
         }
         static get is() {
           return 'cmp-a';
@@ -310,7 +310,7 @@ describe('convert-decorators', () => {
     expect(await formatCode(t.outputText)).toContain(
       `  constructor() {
     this.foo = 'bar';
-    super();
+    super(...arguments);
     console.log('hello!');
   }`,
     );
