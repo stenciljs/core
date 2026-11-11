@@ -6,6 +6,8 @@ export function TypeTestComponent() {
   return (
     <div>
       <div hidden="until-found">Hidden until found</div>
+      {/* @ts-expect-error */}
+      <div hidden="foo">Hidden</div>
       <h1 ariaLabel="123">Hello</h1>
       <h1 ariaLabel={'123'}>Hello</h1>
       {/* @ts-expect-error */}

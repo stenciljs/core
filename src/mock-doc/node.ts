@@ -600,8 +600,10 @@ export class MockElement extends MockNode {
   get hidden() {
     return this.hasAttributeNS(null, 'hidden');
   }
-  set hidden(isHidden: boolean) {
-    if (isHidden === true) {
+  set hidden(isHidden: boolean | 'until-found') {
+    if (isHidden === 'until-found') {
+      this.setAttributeNS(null, 'hidden', 'until-found');
+    } else if (isHidden === true) {
       this.setAttributeNS(null, 'hidden', '');
     } else {
       this.removeAttributeNS(null, 'hidden');
