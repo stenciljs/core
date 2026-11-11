@@ -31,7 +31,7 @@ export const updateLazyComponentConstructor = (
   ];
 
   const cstrStatements = [
-    registerInstanceStatement(moduleFile),
+    registerInstanceStatement(moduleFile, classNode),
     ...addCreateEvents(moduleFile, cmp),
     ...createLazyAttachInternalsBinding(cmp),
   ];
@@ -42,21 +42,43 @@ export const updateLazyComponentConstructor = (
 /**
  * Create a statement containing an expression calling the `registerInstance`
  * helper with the {@link d.HostRef} argument passed to the lazy element
- * constructor
+ * constructor.
+ *
+ * The call is guarded by `new.target === <ClassName>` so only the
+ * most-derived component class registers the instance. A base component's
+ * constructor runs (via `super()`) before the derived class's field
+ * initializers, so registering there would wire up props and state before the
+ * derived class has applied its own defaults.
  *
  * **NOTE** this mutates the `moduleFile` param to add an import of the
  * `registerInstance` method from the Stencil core component runtime API.
  *
  * @param moduleFile information about a module containing a Stencil component
- * @returns an expression statement for a call to the `registerInstance` helper
+ * @param classNode the class declaration of the component
+ * @returns a statement calling the `registerInstance` helper
  */
-const registerInstanceStatement = (moduleFile: d.Module) => {
+const registerInstanceStatement = (moduleFile: d.Module, classNode: ts.ClassDeclaration) => {
   addCoreRuntimeApi(moduleFile, RUNTIME_APIS.registerInstance);
 
-  return ts.factory.createExpressionStatement(
+  const registerCall = ts.factory.createExpressionStatement(
     ts.factory.createCallExpression(ts.factory.createIdentifier(REGISTER_INSTANCE), undefined, [
       ts.factory.createThis(),
       ts.factory.createIdentifier(HOST_REF_ARG),
     ]),
+  );
+
+  if (!classNode.name) {
+    return registerCall;
+  }
+
+  return ts.factory.createIfStatement(
+    ts.factory.createStrictEquality(
+      ts.factory.createMetaProperty(
+        ts.SyntaxKind.NewKeyword,
+        ts.factory.createIdentifier('target'),
+      ),
+      ts.factory.createIdentifier(classNode.name.text),
+    ),
+    registerCall,
   );
 };

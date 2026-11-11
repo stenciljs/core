@@ -93,7 +93,7 @@ export const updateNativeSuperClass = (
         Array.from(withHeritageClauses.members),
         [],
         params,
-        true,
+        'false',
       ),
     );
   }
@@ -161,7 +161,7 @@ export const updateNativeBaseClass = (
 ): ts.ClassDeclaration => {
   const withHeritageClauses = updateNativeHostComponentHeritageClauses(node, moduleFile);
   const members = removeStaticMetaProperties(withHeritageClauses);
-  const membersWithCtor = updateConstructor(withHeritageClauses, members, [], undefined, false);
+  const membersWithCtor = updateConstructor(withHeritageClauses, members, [], undefined);
 
   return ts.factory.updateClassDeclaration(
     withHeritageClauses,

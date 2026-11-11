@@ -101,6 +101,7 @@ export function getHostSlotNodes(
       ...slottedNodes,
       ...getHostSlotNodes(internalCall(childNode, 'childNodes'), hostName, slotName),
     ];
+    if (typeof slotName !== 'undefined' && slottedNodes.length) return slottedNodes;
   }
   return slottedNodes;
 }

@@ -91,6 +91,7 @@ export const loadModule = (
   }
   return import(
     /* @vite-ignore */
+    /* turbopackIgnore: true */
     /* webpackInclude: /\.entry\.js$/ */
     /* webpackExclude: /\.system\.entry\.js$/ */
     /* webpackMode: "lazy" */

@@ -45,6 +45,16 @@ export namespace Components {
     interface AttributeBooleanRoot {
         "toggleState": () => Promise<void>;
     }
+    interface AttributeBooleanString {
+        /**
+          * @default false
+         */
+        "bool": boolean;
+        /**
+          * @default false
+         */
+        "union": boolean | string;
+    }
     interface AttributeComplex {
         "aria"?: Record<string, string | boolean | undefined> | string;
         "ariaCustomThing"?: Record<string, string | boolean | undefined> | string;
@@ -505,6 +515,20 @@ export namespace Components {
           * @default 'ExtendedCmp prop2 text'
          */
         "prop2": string;
+    }
+    interface ExtendsFormAssociatedBase {
+        "hasInternals": () => Promise<boolean>;
+        /**
+          * @default ''
+         */
+        "value": string;
+    }
+    interface ExtendsFormAssociatedDerived {
+        "hasInternals": () => Promise<boolean>;
+        /**
+          * @default 'derived'
+         */
+        "value": string;
     }
     interface ExtendsLifecycleBasic {
     }
@@ -1002,6 +1026,12 @@ export namespace Components {
          */
         "useSlot": boolean;
     }
+    interface ScopedSlotInnerContent {
+        /**
+          * @default 0
+         */
+        "count": number;
+    }
     interface ScopedSlotInsertbefore {
     }
     interface ScopedSlotInsertionOrderAfterInteraction {
@@ -1362,6 +1392,12 @@ declare global {
     var HTMLAttributeBooleanRootElement: {
         prototype: HTMLAttributeBooleanRootElement;
         new (): HTMLAttributeBooleanRootElement;
+    };
+    interface HTMLAttributeBooleanStringElement extends Components.AttributeBooleanString, HTMLStencilElement {
+    }
+    var HTMLAttributeBooleanStringElement: {
+        prototype: HTMLAttributeBooleanStringElement;
+        new (): HTMLAttributeBooleanStringElement;
     };
     interface HTMLAttributeComplexElement extends Components.AttributeComplex, HTMLStencilElement {
     }
@@ -1944,6 +1980,18 @@ declare global {
     var HTMLExtendsExternalWithMixinElement: {
         prototype: HTMLExtendsExternalWithMixinElement;
         new (): HTMLExtendsExternalWithMixinElement;
+    };
+    interface HTMLExtendsFormAssociatedBaseElement extends Components.ExtendsFormAssociatedBase, HTMLStencilElement {
+    }
+    var HTMLExtendsFormAssociatedBaseElement: {
+        prototype: HTMLExtendsFormAssociatedBaseElement;
+        new (): HTMLExtendsFormAssociatedBaseElement;
+    };
+    interface HTMLExtendsFormAssociatedDerivedElement extends Components.ExtendsFormAssociatedDerived, HTMLStencilElement {
+    }
+    var HTMLExtendsFormAssociatedDerivedElement: {
+        prototype: HTMLExtendsFormAssociatedDerivedElement;
+        new (): HTMLExtendsFormAssociatedDerivedElement;
     };
     interface HTMLExtendsLifecycleBasicElement extends Components.ExtendsLifecycleBasic, HTMLStencilElement {
     }
@@ -2683,6 +2731,12 @@ declare global {
         prototype: HTMLScopedSlotContentHideElement;
         new (): HTMLScopedSlotContentHideElement;
     };
+    interface HTMLScopedSlotInnerContentElement extends Components.ScopedSlotInnerContent, HTMLStencilElement {
+    }
+    var HTMLScopedSlotInnerContentElement: {
+        prototype: HTMLScopedSlotInnerContentElement;
+        new (): HTMLScopedSlotInnerContentElement;
+    };
     interface HTMLScopedSlotInsertbeforeElement extends Components.ScopedSlotInsertbefore, HTMLStencilElement {
     }
     var HTMLScopedSlotInsertbeforeElement: {
@@ -3165,6 +3219,7 @@ declare global {
         "attribute-basic-root": HTMLAttributeBasicRootElement;
         "attribute-boolean": HTMLAttributeBooleanElement;
         "attribute-boolean-root": HTMLAttributeBooleanRootElement;
+        "attribute-boolean-string": HTMLAttributeBooleanStringElement;
         "attribute-complex": HTMLAttributeComplexElement;
         "attribute-deserializer": HTMLAttributeDeserializerElement;
         "attribute-host": HTMLAttributeHostElement;
@@ -3242,6 +3297,8 @@ declare global {
         "extends-external": HTMLExtendsExternalElement;
         "extends-external-abstract": HTMLExtendsExternalAbstractElement;
         "extends-external-with-mixin": HTMLExtendsExternalWithMixinElement;
+        "extends-form-associated-base": HTMLExtendsFormAssociatedBaseElement;
+        "extends-form-associated-derived": HTMLExtendsFormAssociatedDerivedElement;
         "extends-lifecycle-basic": HTMLExtendsLifecycleBasicElement;
         "extends-lifecycle-multilevel": HTMLExtendsLifecycleMultilevelElement;
         "extends-local": HTMLExtendsLocalElement;
@@ -3335,6 +3392,7 @@ declare global {
         "scoped-slot-connectedcallback-middle": HTMLScopedSlotConnectedcallbackMiddleElement;
         "scoped-slot-connectedcallback-parent": HTMLScopedSlotConnectedcallbackParentElement;
         "scoped-slot-content-hide": HTMLScopedSlotContentHideElement;
+        "scoped-slot-inner-content": HTMLScopedSlotInnerContentElement;
         "scoped-slot-insertbefore": HTMLScopedSlotInsertbeforeElement;
         "scoped-slot-insertion-order-after-interaction": HTMLScopedSlotInsertionOrderAfterInteractionElement;
         "scoped-slot-slotchange": HTMLScopedSlotSlotchangeElement;
@@ -3445,6 +3503,16 @@ declare namespace LocalJSX {
         "strState"?: string;
     }
     interface AttributeBooleanRoot {
+    }
+    interface AttributeBooleanString {
+        /**
+          * @default false
+         */
+        "bool"?: boolean;
+        /**
+          * @default false
+         */
+        "union"?: boolean | string;
     }
     interface AttributeComplex {
         "aria"?: Record<string, string | boolean | undefined> | string;
@@ -3851,6 +3919,30 @@ declare namespace LocalJSX {
           * @default 'ExtendedCmp prop2 text'
          */
         "prop2"?: string;
+    }
+    interface ExtendsFormAssociatedBase {
+        /**
+          * If `true`, the user cannot interact with the element.
+         */
+        "disabled"?: boolean;
+        /**
+          * The `id` of a `<form>` element to associate this element with.
+         */
+        "form"?: string;
+        /**
+          * The name of the element, used when submitting an HTML form.
+         */
+        "name"?: string;
+        /**
+          * @default ''
+         */
+        "value"?: string;
+    }
+    interface ExtendsFormAssociatedDerived {
+        /**
+          * @default 'derived'
+         */
+        "value"?: string;
     }
     interface ExtendsLifecycleBasic {
     }
@@ -4329,6 +4421,12 @@ declare namespace LocalJSX {
          */
         "useSlot"?: boolean;
     }
+    interface ScopedSlotInnerContent {
+        /**
+          * @default 0
+         */
+        "count"?: number;
+    }
     interface ScopedSlotInsertbefore {
     }
     interface ScopedSlotInsertionOrderAfterInteraction {
@@ -4594,6 +4692,10 @@ declare namespace LocalJSX {
         "strState": string;
         "noreflect": boolean;
     }
+    interface AttributeBooleanStringAttributes {
+        "bool": boolean;
+        "union": string;
+    }
     interface AttributeComplexAttributes {
         "nu0": number;
         "nu1": number;
@@ -4694,6 +4796,12 @@ declare namespace LocalJSX {
         "getterProp": string;
         "prop2": string;
         "prop1": string;
+    }
+    interface ExtendsFormAssociatedBaseAttributes {
+        "value": string;
+    }
+    interface ExtendsFormAssociatedDerivedAttributes {
+        "value": string;
     }
     interface ExtendsLocalAttributes {
         "getterProp": string;
@@ -4814,6 +4922,9 @@ declare namespace LocalJSX {
     interface ScopedSlotContentHideAttributes {
         "useSlot": boolean;
     }
+    interface ScopedSlotInnerContentAttributes {
+        "count": number;
+    }
     interface ScopedSlotSlotchangeWrapAttributes {
         "swapSlotContent": boolean;
     }
@@ -4869,6 +4980,7 @@ declare namespace LocalJSX {
         "attribute-basic-root": AttributeBasicRoot;
         "attribute-boolean": Omit<AttributeBoolean, keyof AttributeBooleanAttributes> & { [K in keyof AttributeBoolean & keyof AttributeBooleanAttributes]?: AttributeBoolean[K] } & { [K in keyof AttributeBoolean & keyof AttributeBooleanAttributes as `attr:${K}`]?: AttributeBooleanAttributes[K] } & { [K in keyof AttributeBoolean & keyof AttributeBooleanAttributes as `prop:${K}`]?: AttributeBoolean[K] };
         "attribute-boolean-root": AttributeBooleanRoot;
+        "attribute-boolean-string": Omit<AttributeBooleanString, keyof AttributeBooleanStringAttributes> & { [K in keyof AttributeBooleanString & keyof AttributeBooleanStringAttributes]?: AttributeBooleanString[K] } & { [K in keyof AttributeBooleanString & keyof AttributeBooleanStringAttributes as `attr:${K}`]?: AttributeBooleanStringAttributes[K] } & { [K in keyof AttributeBooleanString & keyof AttributeBooleanStringAttributes as `prop:${K}`]?: AttributeBooleanString[K] };
         "attribute-complex": Omit<AttributeComplex, keyof AttributeComplexAttributes> & { [K in keyof AttributeComplex & keyof AttributeComplexAttributes]?: AttributeComplex[K] } & { [K in keyof AttributeComplex & keyof AttributeComplexAttributes as `attr:${K}`]?: AttributeComplexAttributes[K] } & { [K in keyof AttributeComplex & keyof AttributeComplexAttributes as `prop:${K}`]?: AttributeComplex[K] };
         "attribute-deserializer": Omit<AttributeDeserializer, keyof AttributeDeserializerAttributes> & { [K in keyof AttributeDeserializer & keyof AttributeDeserializerAttributes]?: AttributeDeserializer[K] } & { [K in keyof AttributeDeserializer & keyof AttributeDeserializerAttributes as `attr:${K}`]?: AttributeDeserializerAttributes[K] } & { [K in keyof AttributeDeserializer & keyof AttributeDeserializerAttributes as `prop:${K}`]?: AttributeDeserializer[K] };
         "attribute-host": AttributeHost;
@@ -4946,6 +5058,8 @@ declare namespace LocalJSX {
         "extends-external": Omit<ExtendsExternal, keyof ExtendsExternalAttributes> & { [K in keyof ExtendsExternal & keyof ExtendsExternalAttributes]?: ExtendsExternal[K] } & { [K in keyof ExtendsExternal & keyof ExtendsExternalAttributes as `attr:${K}`]?: ExtendsExternalAttributes[K] } & { [K in keyof ExtendsExternal & keyof ExtendsExternalAttributes as `prop:${K}`]?: ExtendsExternal[K] };
         "extends-external-abstract": Omit<ExtendsExternalAbstract, keyof ExtendsExternalAbstractAttributes> & { [K in keyof ExtendsExternalAbstract & keyof ExtendsExternalAbstractAttributes]?: ExtendsExternalAbstract[K] } & { [K in keyof ExtendsExternalAbstract & keyof ExtendsExternalAbstractAttributes as `attr:${K}`]?: ExtendsExternalAbstractAttributes[K] } & { [K in keyof ExtendsExternalAbstract & keyof ExtendsExternalAbstractAttributes as `prop:${K}`]?: ExtendsExternalAbstract[K] };
         "extends-external-with-mixin": Omit<ExtendsExternalWithMixin, keyof ExtendsExternalWithMixinAttributes> & { [K in keyof ExtendsExternalWithMixin & keyof ExtendsExternalWithMixinAttributes]?: ExtendsExternalWithMixin[K] } & { [K in keyof ExtendsExternalWithMixin & keyof ExtendsExternalWithMixinAttributes as `attr:${K}`]?: ExtendsExternalWithMixinAttributes[K] } & { [K in keyof ExtendsExternalWithMixin & keyof ExtendsExternalWithMixinAttributes as `prop:${K}`]?: ExtendsExternalWithMixin[K] };
+        "extends-form-associated-base": Omit<ExtendsFormAssociatedBase, keyof ExtendsFormAssociatedBaseAttributes> & { [K in keyof ExtendsFormAssociatedBase & keyof ExtendsFormAssociatedBaseAttributes]?: ExtendsFormAssociatedBase[K] } & { [K in keyof ExtendsFormAssociatedBase & keyof ExtendsFormAssociatedBaseAttributes as `attr:${K}`]?: ExtendsFormAssociatedBaseAttributes[K] } & { [K in keyof ExtendsFormAssociatedBase & keyof ExtendsFormAssociatedBaseAttributes as `prop:${K}`]?: ExtendsFormAssociatedBase[K] };
+        "extends-form-associated-derived": Omit<ExtendsFormAssociatedDerived, keyof ExtendsFormAssociatedDerivedAttributes> & { [K in keyof ExtendsFormAssociatedDerived & keyof ExtendsFormAssociatedDerivedAttributes]?: ExtendsFormAssociatedDerived[K] } & { [K in keyof ExtendsFormAssociatedDerived & keyof ExtendsFormAssociatedDerivedAttributes as `attr:${K}`]?: ExtendsFormAssociatedDerivedAttributes[K] } & { [K in keyof ExtendsFormAssociatedDerived & keyof ExtendsFormAssociatedDerivedAttributes as `prop:${K}`]?: ExtendsFormAssociatedDerived[K] };
         "extends-lifecycle-basic": ExtendsLifecycleBasic;
         "extends-lifecycle-multilevel": ExtendsLifecycleMultilevel;
         "extends-local": Omit<ExtendsLocal, keyof ExtendsLocalAttributes> & { [K in keyof ExtendsLocal & keyof ExtendsLocalAttributes]?: ExtendsLocal[K] } & { [K in keyof ExtendsLocal & keyof ExtendsLocalAttributes as `attr:${K}`]?: ExtendsLocalAttributes[K] } & { [K in keyof ExtendsLocal & keyof ExtendsLocalAttributes as `prop:${K}`]?: ExtendsLocal[K] };
@@ -5039,6 +5153,7 @@ declare namespace LocalJSX {
         "scoped-slot-connectedcallback-middle": ScopedSlotConnectedcallbackMiddle;
         "scoped-slot-connectedcallback-parent": ScopedSlotConnectedcallbackParent;
         "scoped-slot-content-hide": Omit<ScopedSlotContentHide, keyof ScopedSlotContentHideAttributes> & { [K in keyof ScopedSlotContentHide & keyof ScopedSlotContentHideAttributes]?: ScopedSlotContentHide[K] } & { [K in keyof ScopedSlotContentHide & keyof ScopedSlotContentHideAttributes as `attr:${K}`]?: ScopedSlotContentHideAttributes[K] } & { [K in keyof ScopedSlotContentHide & keyof ScopedSlotContentHideAttributes as `prop:${K}`]?: ScopedSlotContentHide[K] };
+        "scoped-slot-inner-content": Omit<ScopedSlotInnerContent, keyof ScopedSlotInnerContentAttributes> & { [K in keyof ScopedSlotInnerContent & keyof ScopedSlotInnerContentAttributes]?: ScopedSlotInnerContent[K] } & { [K in keyof ScopedSlotInnerContent & keyof ScopedSlotInnerContentAttributes as `attr:${K}`]?: ScopedSlotInnerContentAttributes[K] } & { [K in keyof ScopedSlotInnerContent & keyof ScopedSlotInnerContentAttributes as `prop:${K}`]?: ScopedSlotInnerContent[K] };
         "scoped-slot-insertbefore": ScopedSlotInsertbefore;
         "scoped-slot-insertion-order-after-interaction": ScopedSlotInsertionOrderAfterInteraction;
         "scoped-slot-slotchange": ScopedSlotSlotchange;
@@ -5127,6 +5242,7 @@ declare module "@stencil/core" {
             "attribute-basic-root": LocalJSX.IntrinsicElements["attribute-basic-root"] & JSXBase.HTMLAttributes<HTMLAttributeBasicRootElement>;
             "attribute-boolean": LocalJSX.IntrinsicElements["attribute-boolean"] & JSXBase.HTMLAttributes<HTMLAttributeBooleanElement>;
             "attribute-boolean-root": LocalJSX.IntrinsicElements["attribute-boolean-root"] & JSXBase.HTMLAttributes<HTMLAttributeBooleanRootElement>;
+            "attribute-boolean-string": LocalJSX.IntrinsicElements["attribute-boolean-string"] & JSXBase.HTMLAttributes<HTMLAttributeBooleanStringElement>;
             "attribute-complex": LocalJSX.IntrinsicElements["attribute-complex"] & JSXBase.HTMLAttributes<HTMLAttributeComplexElement>;
             "attribute-deserializer": LocalJSX.IntrinsicElements["attribute-deserializer"] & JSXBase.HTMLAttributes<HTMLAttributeDeserializerElement>;
             "attribute-host": LocalJSX.IntrinsicElements["attribute-host"] & JSXBase.HTMLAttributes<HTMLAttributeHostElement>;
@@ -5258,6 +5374,8 @@ declare module "@stencil/core" {
              * class pattern - the decorated class members should be properly merged and have reactivity.
              */
             "extends-external-with-mixin": LocalJSX.IntrinsicElements["extends-external-with-mixin"] & JSXBase.HTMLAttributes<HTMLExtendsExternalWithMixinElement>;
+            "extends-form-associated-base": LocalJSX.IntrinsicElements["extends-form-associated-base"] & JSXBase.HTMLAttributes<HTMLExtendsFormAssociatedBaseElement>;
+            "extends-form-associated-derived": LocalJSX.IntrinsicElements["extends-form-associated-derived"] & JSXBase.HTMLAttributes<HTMLExtendsFormAssociatedDerivedElement>;
             "extends-lifecycle-basic": LocalJSX.IntrinsicElements["extends-lifecycle-basic"] & JSXBase.HTMLAttributes<HTMLExtendsLifecycleBasicElement>;
             /**
              * Tests multi-level lifecycle inheritance.
@@ -5403,6 +5521,7 @@ declare module "@stencil/core" {
             "scoped-slot-connectedcallback-middle": LocalJSX.IntrinsicElements["scoped-slot-connectedcallback-middle"] & JSXBase.HTMLAttributes<HTMLScopedSlotConnectedcallbackMiddleElement>;
             "scoped-slot-connectedcallback-parent": LocalJSX.IntrinsicElements["scoped-slot-connectedcallback-parent"] & JSXBase.HTMLAttributes<HTMLScopedSlotConnectedcallbackParentElement>;
             "scoped-slot-content-hide": LocalJSX.IntrinsicElements["scoped-slot-content-hide"] & JSXBase.HTMLAttributes<HTMLScopedSlotContentHideElement>;
+            "scoped-slot-inner-content": LocalJSX.IntrinsicElements["scoped-slot-inner-content"] & JSXBase.HTMLAttributes<HTMLScopedSlotInnerContentElement>;
             "scoped-slot-insertbefore": LocalJSX.IntrinsicElements["scoped-slot-insertbefore"] & JSXBase.HTMLAttributes<HTMLScopedSlotInsertbeforeElement>;
             "scoped-slot-insertion-order-after-interaction": LocalJSX.IntrinsicElements["scoped-slot-insertion-order-after-interaction"] & JSXBase.HTMLAttributes<HTMLScopedSlotInsertionOrderAfterInteractionElement>;
             "scoped-slot-slotchange": LocalJSX.IntrinsicElements["scoped-slot-slotchange"] & JSXBase.HTMLAttributes<HTMLScopedSlotSlotchangeElement>;

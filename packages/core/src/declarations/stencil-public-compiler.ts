@@ -397,7 +397,7 @@ export type LightDomPatches = {
   childNodes?: boolean;
   /** Patches `cloneNode()` to correctly deep-clone slotted content. */
   cloneNode?: boolean;
-  /** Patches `appendChild()`, `insertBefore()`, and `removeChild()` to route to the correct slot. */
+  /** Patches `appendChild()`, `insertBefore()`, and `removeChild()` to route to the correct slot, and the `innerHTML` / `innerText` setters to replace only slotted content. */
   domMutations?: boolean;
   /** Patches `textContent` to act like shadow DOM (reads/writes slotted text only). */
   textContent?: boolean;

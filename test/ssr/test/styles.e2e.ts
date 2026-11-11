@@ -65,6 +65,14 @@ test.describe('styles and modes', () => {
 
       expect(style0Text).not.toContain('.sc-non-shadow-child-h');
       expect(style1Text).toContain('.sc-non-shadow-child-h');
+
+      // scoped sheets stay in the head; only shadow components' sheets are adopted
+      const adoptedRules = await page.evaluate(() =>
+        document.adoptedStyleSheets.flatMap((sheet) =>
+          Array.from(sheet.cssRules).map((rule) => rule.cssText),
+        ),
+      );
+      expect(adoptedRules.join('')).not.toContain('.sc-non-shadow-child-h');
     });
 
     test('includes scoped component styles in a fragment (fullDocument: false)', async ({

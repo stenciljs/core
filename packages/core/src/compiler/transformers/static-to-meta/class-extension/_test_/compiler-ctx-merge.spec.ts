@@ -1,10 +1,14 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import ts from 'typescript';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { mergeExtendedClassMeta } from '..';
 import { mockModule, mockValidatedConfig } from '../../../../../testing';
 import { mockBuildCtx, mockCompilerCtx } from '../../../../../testing/compiler';
+import { transpileSync } from '../../../../transpile';
 import { isStaticGetter } from '../../../transform-utils';
 
 describe('mergeExtendedClassMeta', () => {
@@ -336,6 +340,48 @@ describe('mergeExtendedClassMeta', () => {
       expect(buildCtx.diagnostics).toHaveLength(1);
       expect(buildCtx.diagnostics[0].messageText).toContain('Found "FocusMixin"');
       expect(buildCtx.diagnostics[0].messageText).toContain("couldn't find a class");
+    });
+  });
+
+  describe('transpileSync', () => {
+    let dir: string;
+
+    beforeEach(() => {
+      dir = fs.mkdtempSync(path.join(os.tmpdir(), 'stencil-class-extension-'));
+    });
+
+    afterEach(() => {
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+
+    it('resolves an inheritance chain that spans multiple files', () => {
+      fs.writeFileSync(
+        path.join(dir, 'root-base.ts'),
+        `import { Prop } from '@stencil/core';
+        export class RootBase { @Prop() rootProp: string; }`,
+      );
+      fs.writeFileSync(
+        path.join(dir, 'middle-base.ts'),
+        `import { Prop } from '@stencil/core';
+        import { RootBase } from './root-base';
+        export class MiddleBase extends RootBase { @Prop() middleProp: string; }`,
+      );
+      const file = path.join(dir, 'my-cmp.ts');
+      const code = `import { Component } from '@stencil/core';
+        import { MiddleBase } from './middle-base';
+        @Component({ tag: 'my-cmp' })
+        export class MyCmp extends MiddleBase { render() { return null; } }`;
+      fs.writeFileSync(file, code);
+
+      const results = transpileSync(code, {
+        file,
+        currentDirectory: dir,
+        componentMetadata: 'compilerstatic',
+      });
+
+      expect(results.diagnostics).toEqual([]);
+      expect(results.code).toContain('"rootProp"');
+      expect(results.code).toContain('"middleProp"');
     });
   });
 });

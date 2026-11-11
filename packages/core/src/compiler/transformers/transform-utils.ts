@@ -1370,8 +1370,8 @@ export function foundSuper(constructorBodyStatements: ts.NodeArray<ts.Statement>
  * @param statements a list of statements which should be added to the
  * constructor
  * @param parameters an optional list of parameters for the constructor
- * @param includeFalseArg whether to include a `false` argument in the `super()` call.
- * This is used in native Stencil components which extend other Stencil components to stop the base component from being initialized.
+ * @param superArgs the arguments for the `super()` call (see {@link SuperArgs}). `'false'` also
+ * replaces an existing `super()` call.
  * @returns a list of updated class elements
  */
 export const updateConstructor = (
@@ -1379,7 +1379,7 @@ export const updateConstructor = (
   classMembers: ts.ClassElement[],
   statements: ts.Statement[],
   parameters?: ts.ParameterDeclaration[],
-  includeFalseArg?: boolean,
+  superArgs?: SuperArgs,
 ): ts.ClassElement[] => {
   const constructorIndex = classMembers.findIndex(
     (m) => ts.isConstructorDeclaration(m) && m.body != null,
@@ -1401,7 +1401,7 @@ export const updateConstructor = (
       // 2. the new statements we've created to initialize fields
       // 3. the statements currently comprising the body of the constructor
       statements = [
-        createConstructorBodyWithSuper(includeFalseArg),
+        createConstructorBodyWithSuper(superArgs),
         ...statements,
         ...constructorBodyStatements,
       ];
@@ -1412,8 +1412,8 @@ export const updateConstructor = (
       // 2. the new statements we've created
       // 3. the statements currently comprising the body of the constructor
       if (foundSuperCall) {
-        if (includeFalseArg) {
-          foundSuperCall = createConstructorBodyWithSuper(includeFalseArg);
+        if (superArgs === 'false') {
+          foundSuperCall = createConstructorBodyWithSuper(superArgs);
         }
         statements = [foundSuperCall, ...statements, ...updatedStatements];
       } else {
@@ -1431,7 +1431,7 @@ export const updateConstructor = (
     // we don't seem to have a constructor, so let's create one and stick it
     // into the array of class elements
     if (needsSuper(classNode)) {
-      statements = [createConstructorBodyWithSuper(includeFalseArg), ...statements];
+      statements = [createConstructorBodyWithSuper(superArgs), ...statements];
     }
 
     // add the new constructor to the class members, putting it at the
@@ -1474,18 +1474,29 @@ const needsSuper = (classDeclaration: ts.ClassLikeDeclaration): boolean => {
 };
 
 /**
- * Create a statement with a call to `super()` suitable for including in the body of a constructor.
- * @param includeFalseArg whether to include a `false` argument in the `super()` call.
- * This is used in native Stencil components which extend other Stencil components to stop the base component from being initialized.
- * @returns a {@link ts.ExpressionStatement} node equivalent to `super()`
+ * The arguments for a generated `super()` call:
+ * - `'false'`: `super(false)`. Used in native Stencil components which extend other Stencil
+ *   components to stop the base component from being initialized.
+ * - `'forward'`: `super(...arguments)`. Used for a `super()` call the source didn't write, so the
+ *   constructor forwards its arguments like an implicit constructor does.
+ * - `undefined`: `super()`.
  */
-const createConstructorBodyWithSuper = (includeFalseArg?: boolean): ts.ExpressionStatement => {
+type SuperArgs = 'false' | 'forward';
+
+/**
+ * Create a statement with a call to `super()` suitable for including in the body of a constructor.
+ * @param superArgs the arguments for the call (see {@link SuperArgs})
+ * @returns a {@link ts.ExpressionStatement} node for the `super()` call
+ */
+const createConstructorBodyWithSuper = (superArgs?: SuperArgs): ts.ExpressionStatement => {
+  const args =
+    superArgs === 'false'
+      ? [ts.factory.createFalse()]
+      : superArgs === 'forward'
+        ? [ts.factory.createSpreadElement(ts.factory.createIdentifier('arguments'))]
+        : undefined;
   return ts.factory.createExpressionStatement(
-    ts.factory.createCallExpression(
-      ts.factory.createIdentifier('super'),
-      undefined,
-      includeFalseArg ? [ts.factory.createFalse()] : undefined,
-    ),
+    ts.factory.createCallExpression(ts.factory.createIdentifier('super'), undefined, args),
   );
 };
 

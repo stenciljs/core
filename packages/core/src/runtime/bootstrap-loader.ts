@@ -16,6 +16,7 @@ import {
   patchSlotInsertAdjacentHTML,
   patchSlotPrepend,
   patchSlotRemoveChild,
+  patchInnerContentSetters,
   patchTextContent,
 } from './dom-extras';
 import { hmrStart } from './hmr-component';
@@ -67,7 +68,11 @@ export const bootstrapLazy = (
   }
 
   if (BUILD.hydrateClientSide && BUILD.shadowDom) {
-    hydrateScopedToShadow();
+    const cmpMetas: Pick<d.ComponentRuntimeMeta, '$flags$' | '$tagName$'>[] = [];
+    lazyBundles.map((lazyBundle) =>
+      lazyBundle[1].map(([$flags$, $tagName$]) => cmpMetas.push({ $flags$, $tagName$ })),
+    );
+    hydrateScopedToShadow(cmpMetas);
   }
 
   lazyBundles.map((lazyBundle) => {
@@ -230,6 +235,7 @@ export const bootstrapLazy = (
             patchSlotInsertAdjacentHTML(HostElement.prototype);
             patchInsertBefore(HostElement.prototype);
             patchSlotRemoveChild(HostElement.prototype);
+            patchInnerContentSetters(HostElement.prototype);
           }
           if (BUILD.slotTextContent) {
             patchTextContent(HostElement.prototype);

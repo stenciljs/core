@@ -261,6 +261,8 @@ const visitClassDeclaration = (
     classNode,
     filteredMethodsAndFields,
     [],
+    undefined,
+    'forward',
   );
 
   const updatedModifiers = [

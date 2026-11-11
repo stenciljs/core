@@ -305,6 +305,12 @@ export namespace Components {
     interface SsrShadowCmp {
         "selected": boolean;
     }
+    interface SsrStyleLightCmp {
+    }
+    interface SsrStyleScopedCmp {
+    }
+    interface SsrStyleShadowCmp {
+    }
     interface WrapSsrShadowCmp {
         "selected": boolean;
     }
@@ -711,6 +717,24 @@ declare global {
         prototype: HTMLSsrShadowCmpElement;
         new (): HTMLSsrShadowCmpElement;
     };
+    interface HTMLSsrStyleLightCmpElement extends Components.SsrStyleLightCmp, HTMLStencilElement {
+    }
+    var HTMLSsrStyleLightCmpElement: {
+        prototype: HTMLSsrStyleLightCmpElement;
+        new (): HTMLSsrStyleLightCmpElement;
+    };
+    interface HTMLSsrStyleScopedCmpElement extends Components.SsrStyleScopedCmp, HTMLStencilElement {
+    }
+    var HTMLSsrStyleScopedCmpElement: {
+        prototype: HTMLSsrStyleScopedCmpElement;
+        new (): HTMLSsrStyleScopedCmpElement;
+    };
+    interface HTMLSsrStyleShadowCmpElement extends Components.SsrStyleShadowCmp, HTMLStencilElement {
+    }
+    var HTMLSsrStyleShadowCmpElement: {
+        prototype: HTMLSsrStyleShadowCmpElement;
+        new (): HTMLSsrStyleShadowCmpElement;
+    };
     interface HTMLWrapSsrShadowCmpElement extends Components.WrapSsrShadowCmp, HTMLStencilElement {
     }
     var HTMLWrapSsrShadowCmpElement: {
@@ -769,6 +793,9 @@ declare global {
         "ssr-prop-map-cmp": HTMLSsrPropMapCmpElement;
         "ssr-prop-serialized-cmp": HTMLSsrPropSerializedCmpElement;
         "ssr-shadow-cmp": HTMLSsrShadowCmpElement;
+        "ssr-style-light-cmp": HTMLSsrStyleLightCmpElement;
+        "ssr-style-scoped-cmp": HTMLSsrStyleScopedCmpElement;
+        "ssr-style-shadow-cmp": HTMLSsrStyleShadowCmpElement;
         "wrap-ssr-shadow-cmp": HTMLWrapSsrShadowCmpElement;
     }
 }
@@ -1071,6 +1098,12 @@ declare namespace LocalJSX {
     interface SsrShadowCmp {
         "selected"?: boolean;
     }
+    interface SsrStyleLightCmp {
+    }
+    interface SsrStyleScopedCmp {
+    }
+    interface SsrStyleShadowCmp {
+    }
     interface WrapSsrShadowCmp {
         "selected"?: boolean;
     }
@@ -1217,6 +1250,9 @@ declare namespace LocalJSX {
         "ssr-prop-map-cmp": Omit<SsrPropMapCmp, keyof SsrPropMapCmpAttributes> & { [K in keyof SsrPropMapCmp & keyof SsrPropMapCmpAttributes]?: SsrPropMapCmp[K] } & { [K in keyof SsrPropMapCmp & keyof SsrPropMapCmpAttributes as `attr:${K}`]?: SsrPropMapCmpAttributes[K] } & { [K in keyof SsrPropMapCmp & keyof SsrPropMapCmpAttributes as `prop:${K}`]?: SsrPropMapCmp[K] };
         "ssr-prop-serialized-cmp": Omit<SsrPropSerializedCmp, keyof SsrPropSerializedCmpAttributes> & { [K in keyof SsrPropSerializedCmp & keyof SsrPropSerializedCmpAttributes]?: SsrPropSerializedCmp[K] } & { [K in keyof SsrPropSerializedCmp & keyof SsrPropSerializedCmpAttributes as `attr:${K}`]?: SsrPropSerializedCmpAttributes[K] } & { [K in keyof SsrPropSerializedCmp & keyof SsrPropSerializedCmpAttributes as `prop:${K}`]?: SsrPropSerializedCmp[K] };
         "ssr-shadow-cmp": Omit<SsrShadowCmp, keyof SsrShadowCmpAttributes> & { [K in keyof SsrShadowCmp & keyof SsrShadowCmpAttributes]?: SsrShadowCmp[K] } & { [K in keyof SsrShadowCmp & keyof SsrShadowCmpAttributes as `attr:${K}`]?: SsrShadowCmpAttributes[K] } & { [K in keyof SsrShadowCmp & keyof SsrShadowCmpAttributes as `prop:${K}`]?: SsrShadowCmp[K] };
+        "ssr-style-light-cmp": SsrStyleLightCmp;
+        "ssr-style-scoped-cmp": SsrStyleScopedCmp;
+        "ssr-style-shadow-cmp": SsrStyleShadowCmp;
         "wrap-ssr-shadow-cmp": Omit<WrapSsrShadowCmp, keyof WrapSsrShadowCmpAttributes> & { [K in keyof WrapSsrShadowCmp & keyof WrapSsrShadowCmpAttributes]?: WrapSsrShadowCmp[K] } & { [K in keyof WrapSsrShadowCmp & keyof WrapSsrShadowCmpAttributes as `attr:${K}`]?: WrapSsrShadowCmpAttributes[K] } & { [K in keyof WrapSsrShadowCmp & keyof WrapSsrShadowCmpAttributes as `prop:${K}`]?: WrapSsrShadowCmp[K] };
     }
 }
@@ -1325,6 +1361,9 @@ declare module "@stencil/core" {
              */
             "ssr-prop-serialized-cmp": LocalJSX.IntrinsicElements["ssr-prop-serialized-cmp"] & JSXBase.HTMLAttributes<HTMLSsrPropSerializedCmpElement>;
             "ssr-shadow-cmp": LocalJSX.IntrinsicElements["ssr-shadow-cmp"] & JSXBase.HTMLAttributes<HTMLSsrShadowCmpElement>;
+            "ssr-style-light-cmp": LocalJSX.IntrinsicElements["ssr-style-light-cmp"] & JSXBase.HTMLAttributes<HTMLSsrStyleLightCmpElement>;
+            "ssr-style-scoped-cmp": LocalJSX.IntrinsicElements["ssr-style-scoped-cmp"] & JSXBase.HTMLAttributes<HTMLSsrStyleScopedCmpElement>;
+            "ssr-style-shadow-cmp": LocalJSX.IntrinsicElements["ssr-style-shadow-cmp"] & JSXBase.HTMLAttributes<HTMLSsrStyleShadowCmpElement>;
             "wrap-ssr-shadow-cmp": LocalJSX.IntrinsicElements["wrap-ssr-shadow-cmp"] & JSXBase.HTMLAttributes<HTMLWrapSsrShadowCmpElement>;
         }
     }

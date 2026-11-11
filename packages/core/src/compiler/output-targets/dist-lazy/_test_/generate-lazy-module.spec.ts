@@ -2,7 +2,7 @@ import { describe, expect, it, beforeEach } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { stubComponentCompilerMeta } from '../../../types/_tests_/ComponentCompilerMeta.stub';
-import { sortBundleComponents } from '../generate-lazy-module';
+import { getAssetsToWrite, sortBundleComponents } from '../generate-lazy-module';
 
 describe('generate-lazy-module', () => {
   describe('sortBundleComponents', () => {
@@ -303,6 +303,29 @@ describe('generate-lazy-module', () => {
           grandChildCmp,
         ]);
       });
+    });
+  });
+
+  describe('getAssetsToWrite', () => {
+    const chunk = (fileName: string) => ({ type: 'chunk', fileName }) as d.RolldownChunkResult;
+    const asset = (fileName: string) =>
+      ({ type: 'asset', fileName, content: '' }) as d.RolldownAssetResult;
+
+    it('excludes the Rolldown source map of each chunk, which Stencil writes itself', () => {
+      const results = [
+        chunk('p-abc.js'),
+        asset('p-abc.js.map'),
+        chunk('p-def.entry.js'),
+        asset('p-def.entry.js.map'),
+      ];
+      expect(getAssetsToWrite(results)).toEqual([]);
+    });
+
+    it('keeps other assets, including source maps without a matching chunk', () => {
+      const other = asset('styles.css');
+      const orphanMap = asset('worker.js.map');
+      const results = [chunk('p-abc.js'), asset('p-abc.js.map'), other, orphanMap];
+      expect(getAssetsToWrite(results)).toEqual([other, orphanMap]);
     });
   });
 });

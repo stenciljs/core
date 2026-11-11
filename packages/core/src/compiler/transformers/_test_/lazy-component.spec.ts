@@ -98,7 +98,7 @@ describe('lazy-component', () => {
       await c`import { registerInstance as __stencil_registerInstance } from "@stencil/core";
       export const CmpA = class {
         constructor (hostRef) {
-          __stencil_registerInstance(this, hostRef);
+          if (new.target === CmpA) __stencil_registerInstance(this, hostRef);
           if (hostRef.$hostElement$["s-ei"]) {
             this.internals = hostRef.$hostElement$["s-ei"];
           } else {
@@ -150,7 +150,7 @@ describe('lazy-component', () => {
         import CmpAStyle0 from './cmp-a.css';
         export const CmpA = class {
           constructor (hostRef) {
-            __stencil_registerInstance(this, hostRef);
+            if (new.target === CmpA) __stencil_registerInstance(this, hostRef);
           }
         };
         CmpA.style = CmpAStyle0();
@@ -178,7 +178,7 @@ describe('lazy-component', () => {
         import CmpAFooStyle0 from './cmp-a.foo.css';
         export const CmpA = class {
           constructor (hostRef) {
-            __stencil_registerInstance(this, hostRef);
+            if (new.target === CmpA) __stencil_registerInstance(this, hostRef);
           }
         };
         CmpA.style = { bar: CmpABarStyle0(), foo: CmpAFooStyle0() };
@@ -203,7 +203,7 @@ describe('lazy-component', () => {
         import CmpAStyle1 from './cmp-a.foo.css';
         export const CmpA = class {
           constructor (hostRef) {
-            __stencil_registerInstance(this, hostRef);
+            if (new.target === CmpA) __stencil_registerInstance(this, hostRef);
           }
         };
         CmpA.style = CmpAStyle0() + CmpAStyle1();

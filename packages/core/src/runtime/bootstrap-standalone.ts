@@ -25,6 +25,7 @@ import {
   patchSlotInsertAdjacentHTML,
   patchSlotPrepend,
   patchSlotRemoveChild,
+  patchInnerContentSetters,
   patchTextContent,
 } from './dom-extras';
 import { hmrApplyClass, hmrStart } from './hmr-component';
@@ -120,6 +121,7 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
           patchSlotInsertAdjacentHTML(Cstr.prototype);
           patchInsertBefore(Cstr.prototype);
           patchSlotRemoveChild(Cstr.prototype);
+          patchInnerContentSetters(Cstr.prototype);
         }
         if (BUILD.slotTextContent) {
           patchTextContent(Cstr.prototype);
@@ -128,7 +130,7 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
     }
 
     if (BUILD.hydrateClientSide && BUILD.shadowDom) {
-      hydrateScopedToShadow();
+      hydrateScopedToShadow([cmpMeta]);
     }
 
     const originalConnectedCallback = Cstr.prototype.connectedCallback;

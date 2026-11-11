@@ -44,7 +44,13 @@ export const updateNativeConstructor = (
     ...addCreateEvents(moduleFile, cmp),
     ...createNativeAttachInternalsBinding(cmp),
   ];
-  updateConstructor(classNode, classMembers, nativeCstrStatements, cstrMethodArgs, cmp.doesExtend);
+  updateConstructor(
+    classNode,
+    classMembers,
+    nativeCstrStatements,
+    cstrMethodArgs,
+    cmp.doesExtend ? 'false' : undefined,
+  );
 };
 
 /**

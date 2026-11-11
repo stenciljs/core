@@ -23,6 +23,7 @@ export const applyLightDomPatches = (hostElementPrototype: HTMLElement) => {
   patchSlotInsertAdjacentHTML(hostElementPrototype);
   patchInsertBefore(hostElementPrototype);
   patchTextContent(hostElementPrototype);
+  patchInnerContentSetters(hostElementPrototype);
   patchChildSlotNodes(hostElementPrototype);
   patchSlotRemoveChild(hostElementPrototype);
 };
@@ -104,6 +105,7 @@ export const patchSlotAppendChild = (HostElementPrototype: any) => {
 
       const slotChildNodes = getSlotChildSiblings(slotNode, slotName);
       const appendAfter = slotChildNodes[slotChildNodes.length - 1];
+      const slotWasEmpty = slotChildNodes.every((node) => node['s-sr']);
 
       const parent = internalCall(appendAfter, 'parentNode') as d.RenderNode;
       const insertedNode: d.RenderNode = internalCall(parent, 'insertBefore')(
@@ -112,8 +114,10 @@ export const patchSlotAppendChild = (HostElementPrototype: any) => {
       );
       dispatchSlotChangeEvent(slotNode);
 
-      // Check if there is fallback content that should be hidden
-      updateFallbackSlotVisibility(this);
+      // Fallback visibility only changes when a slot goes from empty to having content
+      if (slotWasEmpty) {
+        updateFallbackSlotVisibility(this);
+      }
 
       return insertedNode;
     }
@@ -135,11 +139,10 @@ export const patchSlotRemoveChild = (ElementPrototype: any) => {
   ElementPrototype.removeChild = function (this: d.RenderNode, toRemove: d.RenderNode) {
     if (toRemove && typeof toRemove['s-sn'] !== 'undefined') {
       const childNodes = (this as any).__childNodes || this.childNodes;
-      const slotNode = getHostSlotNodes(childNodes, this.tagName, toRemove['s-sn']);
+      const slotNode = getHostSlotNodes(childNodes, this.tagName, toRemove['s-sn'])[0];
       if (slotNode && toRemove.isConnected) {
         removeSlottedNode(toRemove);
-        // one entry at most: `getHostSlotNodes` stops at the first slot with this name
-        if (slotNode[0]) dispatchSlotChangeEvent(slotNode[0]);
+        dispatchSlotChangeEvent(slotNode);
         // Check if there is fallback content that should be displayed if that
         // was the last node in the slot
         updateFallbackSlotVisibility(this);
@@ -275,39 +278,35 @@ export const patchInsertBefore = (HostElementPrototype: HTMLElement) => {
     currentChild: d.RenderNode | null,
   ) {
     const { slotName, slotNode } = findSlotFromSlottedNode(newChild, this);
-    const slottedNodes = this.__childNodes
-      ? this.childNodes
-      : getSlottedChildNodes(this.childNodes);
 
     if (slotNode) {
-      let found = false;
+      if (currentChild === null) {
+        // inserting before `null` appends; the patched appendChild method will correctly slot the node
+        this.appendChild(newChild);
+        return newChild;
+      }
 
-      slottedNodes.forEach((childNode) => {
-        if (childNode === currentChild || currentChild === null) {
-          // we found the node to insert before in our list of 'lightDOM' / slotted nodes
-          found = true;
+      const slottedNodes = this.__childNodes
+        ? this.childNodes
+        : getSlottedChildNodes(this.childNodes);
+      // the node to insert before is one of our 'lightDOM' / slotted nodes
+      if ((slottedNodes as d.RenderNode[]).includes(currentChild)) {
+        if (slotName !== currentChild['s-sn']) {
+          // new child is not in the same slot as 'slot before' node
+          // so let's use the patched appendChild method. This will correctly slot the node
+          this.appendChild(newChild);
+        } else {
+          // current child ('slot before' node) is 'in' the same slot
+          addSlotRelocateNode(newChild, slotNode);
+          patchSlottedNode(newChild);
 
-          if (currentChild === null || slotName !== currentChild['s-sn']) {
-            // new child is not in the same slot as 'slot before' node
-            // so let's use the patched appendChild method. This will correctly slot the node
-            this.appendChild(newChild);
-            return;
-          }
+          const parent = internalCall(currentChild, 'parentNode') as d.RenderNode;
+          internalCall(parent, 'insertBefore')(newChild, currentChild);
 
-          if (slotName === currentChild['s-sn']) {
-            // current child ('slot before' node) is 'in' the same slot
-            addSlotRelocateNode(newChild, slotNode);
-            patchSlottedNode(newChild);
-
-            const parent = internalCall(currentChild, 'parentNode') as d.RenderNode;
-            internalCall(parent, 'insertBefore')(newChild, currentChild);
-
-            dispatchSlotChangeEvent(slotNode);
-          }
-          return;
+          dispatchSlotChangeEvent(slotNode);
         }
-      });
-      if (found) return newChild;
+        return newChild;
+      }
     }
 
     /**
@@ -349,18 +348,62 @@ export const patchTextContent = (hostElementPrototype: HTMLElement): void => {
       return text;
     },
     set: function (value) {
-      const childNodes = this.__childNodes
-        ? this.childNodes
-        : getSlottedChildNodes(this.childNodes);
-      childNodes.forEach((node: d.RenderNode) => {
-        if (node['s-ol']) node['s-ol'].remove();
-        node.remove();
-      });
+      removeSlottedNodes(this);
       // a text node, never parsed as HTML
       if (value != null && value !== '') {
         this.append(this.ownerDocument.createTextNode(String(value)));
       }
     },
+  });
+};
+
+/**
+ * Patches the `innerHTML` and `innerText` setters of a scoped component so they replace only
+ * the slotted content. Natively they would also remove the component's rendered nodes and its
+ * content reference node, leaving nothing for the next render to relocate into the slot.
+ * The getters are left as they are.
+ *
+ * @param hostElementPrototype the `Element` to be patched
+ */
+export const patchInnerContentSetters = (hostElementPrototype: HTMLElement) => {
+  if (!globalThis.HTMLElement) return;
+
+  const patchSetter = (
+    proto: object,
+    name: 'innerHTML' | 'innerText',
+    insert: (host: HTMLElement, value: string) => void,
+  ) => {
+    const get = Object.getOwnPropertyDescriptor(proto, name)?.get;
+    if (!get) return;
+    Object.defineProperty(hostElementPrototype, name, {
+      get,
+      set: function (this: d.RenderNode, value) {
+        removeSlottedNodes(this);
+        // light DOM nodes that haven't been relocated into a slot yet
+        (Array.from(internalCall(this, 'childNodes')) as d.RenderNode[]).forEach((node) => {
+          if (!node['s-cn'] && !node['s-nr'] && node['s-hn'] !== this.tagName) node.remove();
+        });
+        insert(this, value ?? '');
+      },
+    });
+  };
+
+  patchSetter(Element.prototype, 'innerHTML', (host, value) =>
+    host.insertAdjacentHTML('beforeend', value),
+  );
+  patchSetter(HTMLElement.prototype, 'innerText', (host, value) => host.append(value));
+};
+
+/**
+ * Removes the slotted nodes of a scoped component, along with their original location markers.
+ *
+ * @param host the host element of the component
+ */
+const removeSlottedNodes = (host: d.RenderNode) => {
+  const childNodes = host.__childNodes ? host.childNodes : getSlottedChildNodes(host.childNodes);
+  (childNodes as d.RenderNode[]).forEach((node) => {
+    if (node['s-ol']) node['s-ol'].remove();
+    node.remove();
   });
 };
 

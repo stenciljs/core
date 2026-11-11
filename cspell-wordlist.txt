@@ -198,3 +198,4 @@ cssproperty
 reentrancy
 macrotask
 minmax
+turbopack
