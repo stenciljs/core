@@ -28,9 +28,11 @@ import {
   patchInnerContentSetters,
   patchTextContent,
 } from './dom-extras';
+import { getShadowRoot } from './element';
 import { hmrApplyClass, hmrStart } from './hmr-component';
 import { computeMode } from './mode';
 import { normalizeWatchers } from './normalize-watchers';
+import { deferUntilParsed, mayStillBeParsing } from './parse-gate';
 import { proxyComponent } from './proxy-component';
 import { getHostRegistry } from './registry';
 import { PLATFORM_FLAGS } from './runtime-constants';
@@ -147,6 +149,13 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
         return getHostRef(this)?.$onReadyPromise$;
       },
       async connectedCallback(this: d.HostElement & { __hasHostListenerAttached: boolean }) {
+        // attaching a shadow root before a streamed host's declarative one is parsed
+        // makes the parser reject it
+        if (BUILD.hydrateClientSide && deferUntilParsed(this)) {
+          return;
+        }
+        if (BUILD.shadowDom) this.__attachShadow();
+
         const isFirstConnect = !this.__hasHostListenerAttached;
         let hostRef: d.HostRef | undefined;
         if (isFirstConnect) {
@@ -194,21 +203,20 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
         }
       },
       __attachShadow(this: d.HostElement) {
-        const isClosed = BUILD.shadowModeClosed && !!(cmpMeta.$flags$ & CMP_FLAGS.shadowModeClosed);
-
-        // For closed shadow roots, this.shadowRoot will be null.
-        // Check our stored reference instead.
-        let existingRoot: ShadowRoot | null = this.shadowRoot;
-        if (BUILD.shadowModeClosed && isClosed) {
-          existingRoot = (this as any).__shadowRoot ?? null;
+        if (
+          !(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation) ||
+          // the parser may still be streaming in a declarative shadow root
+          (BUILD.hydrateClientSide && mayStillBeParsing(this))
+        ) {
+          return;
         }
-
+        const existingRoot = getShadowRoot(this);
         if (!existingRoot) {
           createShadowRoot.call(this, cmpMeta);
         } else if (
           BUILD.isDev &&
           BUILD.shadowModeClosed &&
-          isClosed &&
+          cmpMeta.$flags$ & CMP_FLAGS.shadowModeClosed &&
           existingRoot.mode !== 'closed'
         ) {
           throw new Error(

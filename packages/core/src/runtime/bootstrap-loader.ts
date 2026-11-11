@@ -19,8 +19,10 @@ import {
   patchInnerContentSetters,
   patchTextContent,
 } from './dom-extras';
+import { getShadowRoot } from './element';
 import { hmrStart } from './hmr-component';
 import { normalizeWatchers } from './normalize-watchers';
+import { deferUntilParsed, mayStillBeParsing } from './parse-gate';
 import { createTime, installDevTools } from './profile';
 import { proxyComponent } from './proxy-component';
 import { HYDRATED_CSS, PLATFORM_FLAGS, PROXY_FLAGS } from './runtime-constants';
@@ -107,6 +109,15 @@ export const bootstrapLazy = (
         cmpMeta.$referenceTarget$ = compactMeta[7];
       }
       const tagName = transformTag(cmpMeta.$tagName$);
+      const attachShadowRoot = (elm: HTMLElement) => {
+        if (
+          cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation &&
+          !(cmpMeta.$flags$ & CMP_FLAGS.shadowNeedsScopedCss) &&
+          !getShadowRoot(elm)
+        ) {
+          createShadowRoot.call(elm, cmpMeta);
+        }
+      };
       const HostElement = class extends HTMLElement {
         ['s-p']: Promise<void>[];
         ['s-rc']: (() => void)[];
@@ -120,24 +131,10 @@ export const bootstrapLazy = (
           self = this;
 
           registerHost(self, cmpMeta);
-          if (
-            BUILD.shadowDom &&
-            cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation &&
-            !(cmpMeta.$flags$ & CMP_FLAGS.shadowNeedsScopedCss)
-          ) {
-            // this component is using shadow dom
-            // add the read-only property "shadowRoot" to the host element
-            // adding the shadow root build conditionals to minimize runtime
-
-            if (!self.shadowRoot) {
-              // we don't want to call `attachShadow` if there's already a shadow root
-              // attached to the component
-              createShadowRoot.call(self, cmpMeta);
-            } else if (BUILD.isDev && self.shadowRoot.mode !== 'open') {
-              throw new Error(
-                `Unable to re-use existing shadow root for ${cmpMeta.$tagName$}! Mode is set to ${self.shadowRoot.mode} but DSD shadow roots must use open mode.`,
-              );
-            }
+          // Attach now so ancestors hydrating before this connects see the shadow root -
+          // unless the parser may still be streaming in a declarative one.
+          if (BUILD.shadowDom && !(BUILD.hydrateClientSide && mayStillBeParsing(self))) {
+            attachShadowRoot(self);
           }
         }
 
@@ -146,6 +143,12 @@ export const bootstrapLazy = (
           if (!hostRef) {
             return;
           }
+          // attaching a shadow root before a streamed host's declarative one is parsed
+          // makes the parser reject it
+          if (BUILD.hydrateClientSide && deferUntilParsed(this)) {
+            return;
+          }
+          if (BUILD.shadowDom) attachShadowRoot(this);
 
           /**
            * The `connectedCallback` lifecycle event can potentially be fired multiple times
@@ -244,6 +247,13 @@ export const bootstrapLazy = (
             patchTextContent(HostElement.prototype);
           }
         }
+      }
+
+      if (BUILD.hydrateClientSide && BUILD.shadowDom) {
+        // called by the parse gate once a held host's subtree is parsed
+        (HostElement.prototype as d.HostElement).__attachShadow = function (this: HTMLElement) {
+          attachShadowRoot(this);
+        };
       }
 
       // if the component is formAssociated we need to set that on the host

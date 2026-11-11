@@ -1115,6 +1115,8 @@ export interface HostElement extends HTMLElement {
   forceUpdate?: () => void;
 
   __s_ghr?: () => HostRef;
+  /** attaches the component's shadow root if it needs one and doesn't have one yet */
+  __attachShadow?: () => void;
 
   // "s-" prefixed properties should not be property renamed
   // and should be common between all versions of stencil

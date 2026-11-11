@@ -67,10 +67,12 @@ export const initializeClientHydrate = (
     }
   }
 
-  if (win.document && (!plt.$orgLocNodes$ || !plt.$orgLocNodes$.size)) {
-    // This is the first pass over of this whole document;
-    // does a scrape to construct a 'bare-bones' tree of what elements we have and where content has been moved from
-    initializeDocumentHydrate(win.document.body, (plt.$orgLocNodes$ = new Map()));
+  if (win.document && !plt.$orgLocNodes$?.has(hostId)) {
+    // Scrape the document to construct a 'bare-bones' tree of what elements we have and where content has been moved from.
+    // Re-runs for hosts that weren't in the document yet (streamed) on an earlier pass.
+    initializeDocumentHydrate(win.document.body, (plt.$orgLocNodes$ ??= new Map()));
+    // hosts the scrape can't reach (e.g. inside a closed shadow root) would otherwise re-scrape every time
+    plt.$orgLocNodes$.set(hostId, hostElm);
   }
 
   hostElm[HYDRATE_ID] = hostId;
