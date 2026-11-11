@@ -355,8 +355,26 @@ describe('transform-utils', () => {
       );
 
       expect(
-        printClassMembers(classNode, updateConstructor(classNode, Array.from(classNode.members), [], [], true)),
+        printClassMembers(classNode, updateConstructor(classNode, Array.from(classNode.members), [], [], 'false')),
       ).toBe(`class MyClass extends BaseClass { constructor() { super(false); }}`);
+    });
+
+    it('forwards the constructor arguments to a generated super call', () => {
+      const classNode = ts.factory.createClassDeclaration(
+        undefined,
+        'MyClass',
+        undefined,
+        [
+          ts.factory.createHeritageClause(ts.SyntaxKind.ExtendsKeyword, [
+            ts.factory.createExpressionWithTypeArguments(ts.factory.createIdentifier('BaseClass'), []),
+          ]),
+        ],
+        [],
+      );
+
+      expect(
+        printClassMembers(classNode, updateConstructor(classNode, Array.from(classNode.members), [], [], 'forward')),
+      ).toBe(`class MyClass extends BaseClass { constructor() {  super(...arguments); }}`);
     });
   });
 

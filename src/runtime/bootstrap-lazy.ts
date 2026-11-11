@@ -60,7 +60,9 @@ export const bootstrapLazy = (lazyBundles: d.LazyBundlesRuntimeData, options: d.
   }
 
   if (BUILD.hydrateClientSide && BUILD.shadowDom) {
-    hydrateScopedToShadow();
+    const cmpMetas: Pick<d.ComponentRuntimeMeta, '$flags$' | '$tagName$'>[] = [];
+    lazyBundles.map((lazyBundle) => lazyBundle[1].map(([$flags$, $tagName$]) => cmpMetas.push({ $flags$, $tagName$ })));
+    hydrateScopedToShadow(cmpMetas);
   }
 
   let hasSlotRelocation = false;

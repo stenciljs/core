@@ -1,7 +1,12 @@
 import { mockBuildCtx, mockCompilerCtx, mockModule, mockValidatedConfig } from '@stencil/core/testing';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 import ts from 'typescript';
 
 import type * as d from '../../../declarations';
+import { createNodeSys } from '../../../sys/node/node-sys';
+import { transpileSync } from '../../transpile';
 import { mergeExtendedClassMeta, reanchorInheritedTypeReferences } from '../static-to-meta/class-extension';
 import { isStaticGetter } from '../transform-utils';
 
@@ -230,6 +235,48 @@ describe('class-extension', () => {
         path: '../../shared/input/input.types',
         id: 'x::Validator',
       });
+    });
+  });
+
+  describe('transpileSync', () => {
+    let dir: string;
+
+    beforeEach(() => {
+      dir = fs.mkdtempSync(path.join(os.tmpdir(), 'stencil-class-extension-'));
+    });
+
+    afterEach(() => {
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+
+    it('resolves an inheritance chain that spans multiple files', () => {
+      fs.writeFileSync(
+        path.join(dir, 'root-base.ts'),
+        `import { Prop } from '@stencil/core';
+        export class RootBase { @Prop() rootProp: string; }`,
+      );
+      fs.writeFileSync(
+        path.join(dir, 'middle-base.ts'),
+        `import { Prop } from '@stencil/core';
+        import { RootBase } from './root-base';
+        export class MiddleBase extends RootBase { @Prop() middleProp: string; }`,
+      );
+      const file = path.join(dir, 'my-cmp.tsx');
+      const code = `import { Component, h } from '@stencil/core';
+        import { MiddleBase } from './middle-base';
+        @Component({ tag: 'my-cmp' })
+        export class MyCmp extends MiddleBase { render() { return <div />; } }`;
+      fs.writeFileSync(file, code);
+
+      const results = transpileSync(code, {
+        file,
+        currentDirectory: dir,
+        sys: createNodeSys(),
+        componentMetadata: 'compilerstatic',
+        module: 'cjs',
+      });
+
+      expect(results.diagnostics).toEqual([]);
     });
   });
 });

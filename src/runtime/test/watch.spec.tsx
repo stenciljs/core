@@ -327,4 +327,35 @@ describe('watch', () => {
     expect(called.length).toBe(2);
     expect(called[1]).toBe(100);
   });
+
+  it('does not throw when a watched native attribute changes before the lazy instance exists', async () => {
+    const calls: string[] = [];
+    @Component({ tag: 'cmp-a' })
+    class CmpA {
+      @Watch('aria-label')
+      ariaLabelChanged(newValue: string) {
+        calls.push(newValue);
+      }
+    }
+
+    const { doc, waitForChanges } = await newSpecPage({
+      components: [CmpA],
+      html: ``,
+    });
+
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      const el = doc.createElement('cmp-a');
+      doc.body.appendChild(el);
+      // the component's module hasn't loaded yet, so there is no instance to call the watcher on
+      el.setAttribute('aria-label', 'before load');
+      expect(errorSpy).not.toHaveBeenCalled();
+
+      await waitForChanges();
+      el.setAttribute('aria-label', 'after load');
+      expect(calls).toEqual(['after load']);
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 });

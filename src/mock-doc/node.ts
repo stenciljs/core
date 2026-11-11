@@ -239,7 +239,21 @@ export class MockNodeList {
   }
 }
 
-type MockElementInternals = Record<keyof ElementInternals, null>;
+/**
+ * Just enough of `ElementInternals` for form-associated components to run without throwing.
+ * There is no form, validation or accessibility tree to update, so the methods do nothing.
+ */
+class MockElementInternals {
+  states = new Set<string>();
+  setFormValue() {}
+  setValidity() {}
+  checkValidity() {
+    return true;
+  }
+  reportValidity() {
+    return true;
+  }
+}
 
 export class MockElement extends MockNode {
   __namespaceURI: string | null;
@@ -248,19 +262,7 @@ export class MockElement extends MockNode {
   __style: MockCSSStyleDeclaration | null | undefined;
 
   attachInternals(): MockElementInternals {
-    return new Proxy({} as unknown as MockElementInternals, {
-      get: function (_target, prop, _receiver) {
-        /**
-         * only print warning when running in a test environment
-         */
-        if ('process' in globalThis && globalThis.process.env.__STENCIL_SPEC_TESTS__) {
-          console.error(
-            `NOTE: Property ${String(prop)} was accessed on ElementInternals, but this property is not implemented.
-  Testing components with ElementInternals is fully supported in e2e tests.`,
-          );
-        }
-      },
-    });
+    return new MockElementInternals();
   }
 
   constructor(ownerDocument: any, nodeName: string | null, namespaceURI: string | null = null) {
