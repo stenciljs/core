@@ -93,5 +93,31 @@ describe('bootstrap lazy', () => {
 
       rafSpy.mockRestore();
     });
+
+    it('cleans up host references when the global Node is gone by the time the cleanup runs', async () => {
+      @Component({ tag: 'no-node-global-cmp' })
+      class NoNodeGlobalCmp {}
+
+      const { root, waitForChanges } = await newSpecPage({
+        components: [NoNodeGlobalCmp],
+        html: `<no-node-global-cmp></no-node-global-cmp>`,
+      });
+
+      const hostRef = getHostRef(root)!;
+      const originalNode = (global as any).Node;
+
+      try {
+        // test environments (e.g. Vitest's jsdom) delete DOM globals right after
+        // disconnecting elements, before the deferred cleanup runs
+        root.remove();
+        delete (global as any).Node;
+
+        await waitForChanges();
+
+        expect(hostRef.$vnode$?.$elm$).toBeUndefined();
+      } finally {
+        (global as any).Node = originalNode;
+      }
+    });
   });
 });

@@ -197,7 +197,7 @@ export const bootstrapLazy = (
             if (i > -1) {
               deferredConnectedCallbacks.splice(i, 1);
             }
-            if (hostRef?.$vnode$?.$elm$ instanceof Node && !hostRef.$vnode$.$elm$.isConnected) {
+            if (hostRef.$vnode$?.$elm$?.isConnected === false) {
               delete hostRef.$vnode$.$elm$;
             }
           });
