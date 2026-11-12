@@ -71,6 +71,11 @@ export const HOST_FLAGS = {
    * is true while an initialization attempt is merely queued/in-flight.
    */
   hasFailedLoad: 1 << 11,
+  /**
+   * Set while `renderVdom` patches the host, so writes of a serialized reflected value
+   * coming from the runtime's own reflection aren't applied back to the prop.
+   */
+  isReflecting: 1 << 14,
 
   // DEV ONLY
   devOnRender: 1 << 12,

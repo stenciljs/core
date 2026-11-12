@@ -46,6 +46,18 @@ export const setValue = (
   // check our new property value against our internal value
   const hostRef = getHostRef(ref);
 
+  if (
+    BUILD.serializer &&
+    hostRef?.$flags$ & HOST_FLAGS.isReflecting &&
+    hostRef.$serializerValues$.has(propName) &&
+    hostRef.$serializerValues$.get(propName) === newVal
+  ) {
+    // The runtime is reflecting the serialized value back onto the host.
+    // The prop can be intentionally different from the attribute;
+    // updating the underlying prop here can cause an infinite loop.
+    return;
+  }
+
   if (BUILD.signalBacking) {
     const sig = hostRef?.$signalValues$?.get(propName);
     if (sig !== undefined) {
@@ -82,17 +94,6 @@ export const setValue = (
           : `Host element not found for "${cmpMeta.$tagName$}"`,
       );
     }
-    return;
-  }
-
-  if (
-    BUILD.serializer &&
-    hostRef.$serializerValues$.has(propName) &&
-    hostRef.$serializerValues$.get(propName) === newVal
-  ) {
-    // The newValue is the same as a saved serialized value from a prop update.
-    // The prop can be intentionally different from the attribute;
-    // updating the underlying prop here can cause an infinite loop.
     return;
   }
 

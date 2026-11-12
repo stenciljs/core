@@ -245,4 +245,77 @@ describe('attribute serialization', () => {
     expect(root.hasAttribute('json-prop')).toBe(true);
     expect(root.getAttribute('json-prop')).toBe('{"page":"custom"}');
   });
+  describe('input matching serialized value', () => {
+    @Component({ tag: 'cmp-any-serialize' })
+    class CmpAnySerialize {
+      @Prop({ reflect: true }) value: any;
+      @PropSerialize('value')
+      serializeValue(newValue: any) {
+        if (newValue !== null && typeof newValue === 'object') {
+          return null;
+        }
+        return String(newValue);
+      }
+    }
+
+    it('should update a prop when new value is equal to serialized value', async () => {
+      const { root, waitForChanges } = await newSpecPage({
+        components: [CmpAnySerialize],
+        html: `<cmp-any-serialize></cmp-any-serialize>`,
+      });
+
+      root.value = 1;
+      await waitForChanges();
+      expect(root.value).toBe(1);
+      expect(root.getAttribute('value')).toBe('1');
+
+      root.value = '1';
+      await waitForChanges();
+      expect(root.value).toBe('1');
+      expect(root.getAttribute('value')).toBe('1');
+
+      root.value = { id: 1 };
+      await waitForChanges();
+      expect(root.hasAttribute('value')).toBe(false);
+
+      root.value = null;
+      await waitForChanges();
+      expect(root.value).toBe(null);
+    });
+
+    it('should update a prop when a set attribute is equal to serialized value', async () => {
+      const { root, waitForChanges } = await newSpecPage({
+        components: [CmpAnySerialize],
+        html: `<cmp-any-serialize></cmp-any-serialize>`,
+      });
+
+      root.value = 'a';
+      await waitForChanges();
+      expect(root.getAttribute('value')).toBe('a');
+
+      // the serialized value is updated straight away; the attribute on the next render
+      root.value = true;
+      root.setAttribute('value', 'true');
+      await waitForChanges();
+      expect(root.value).toBe('true');
+      expect(root.getAttribute('value')).toBe('true');
+    });
+
+    it('should keep the prop value when its serialized value is reflected with signalBacking', async () => {
+      const { root, waitForChanges } = await newSpecPage({
+        components: [CmpAnySerialize],
+        html: `<cmp-any-serialize></cmp-any-serialize>`,
+        buildFlags: { signalBacking: true, vdomSignals: true },
+      });
+
+      root.value = 1;
+      await waitForChanges();
+      expect(root.value).toBe(1);
+      expect(root.getAttribute('value')).toBe('1');
+
+      root.value = '1';
+      await waitForChanges();
+      expect(root.value).toBe('1');
+    });
+  });
 });
