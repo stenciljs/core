@@ -7,13 +7,24 @@
 
 ## Events
 
-| Event        | Description | Type               |
-| ------------ | ----------- | ------------------ |
-| `myEvent`    |             | `CustomEvent<any>` |
-| `otherEvent` |             | `CustomEvent<any>` |
+| Event           | Description | Type               |
+| --------------- | ----------- | ------------------ |
+| `importedEvent` |             | `CustomEvent<any>` |
+| `myEvent`       |             | `CustomEvent<any>` |
+| `otherEvent`    |             | `CustomEvent<any>` |
 
 
 ## Methods
+
+### `emitImportedEvent() => Promise<void>`
+
+
+
+#### Returns
+
+Type: `Promise<void>`
+
+
 
 ### `emitMyEvent() => Promise<void>`
 
