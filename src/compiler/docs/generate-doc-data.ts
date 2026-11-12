@@ -16,6 +16,18 @@ import { typescriptVersion, version } from '../../version';
 import { getBuildTimestamp } from '../build/build-ctx';
 import { addFileToLibrary, getTypeLibrary } from '../transformers/type-library';
 import { AUTO_GENERATE_COMMENT } from './constants';
+import { convertJsdocLinksToMarkdown, convertJsdocTagsToMarkdown } from './jsdoc-links';
+
+/**
+ * Converts the text and tag texts of a component's JSDoc into markdown, so every
+ * docs field derived from it renders URL-based `{@link}` tags as markdown links.
+ * @param jsdoc the JSDoc to convert
+ * @returns the converted JSDoc
+ */
+const convertCompilerJsDoc = (jsdoc: d.CompilerJsDoc): d.CompilerJsDoc => ({
+  text: convertJsdocLinksToMarkdown(jsdoc.text),
+  tags: convertJsdocTagsToMarkdown(jsdoc.tags),
+});
 
 /**
  * Generate metadata that will be used to generate any given documentation-related
@@ -94,33 +106,36 @@ const getDocsComponents = async (
 
       return moduleFile.cmps
         .filter((cmp: d.ComponentCompilerMeta) => !cmp.internal && !cmp.isCollectionDependency)
-        .map((cmp: d.ComponentCompilerMeta) => ({
-          dirPath,
-          filePath: normalizePath(relative(config.rootDir, filePath), false),
-          fileName: basename(filePath),
-          readmePath,
-          usagesDir,
-          tag: cmp.tagName,
-          readme,
-          overview: cmp.docs.text,
-          usage,
-          docs: generateDocs(readme, cmp.docs),
-          docsTags: cmp.docs.tags,
-          encapsulation: getDocsEncapsulation(cmp),
-          dependents: cmp.directDependents,
-          dependencies: cmp.directDependencies,
-          dependencyGraph: buildDocsDepGraph(cmp, buildCtx.components),
-          deprecation: getDocsDeprecationText(cmp.docs.tags),
+        .map((cmp: d.ComponentCompilerMeta) => {
+          const docs = convertCompilerJsDoc(cmp.docs);
+          return {
+            dirPath,
+            filePath: normalizePath(relative(config.rootDir, filePath), false),
+            fileName: basename(filePath),
+            readmePath,
+            usagesDir,
+            tag: cmp.tagName,
+            readme,
+            overview: docs.text,
+            usage,
+            docs: generateDocs(readme, docs),
+            docsTags: docs.tags,
+            encapsulation: getDocsEncapsulation(cmp),
+            dependents: cmp.directDependents,
+            dependencies: cmp.directDependencies,
+            dependencyGraph: buildDocsDepGraph(cmp, buildCtx.components),
+            deprecation: getDocsDeprecationText(docs.tags),
 
-          props: getDocsProperties(cmp),
-          methods: getDocsMethods(cmp.methods),
-          events: getDocsEvents(cmp.events),
-          styles: getDocsStyles(cmp),
-          slots: getDocsSlots(cmp.htmlSlots, cmp.docs.tags),
-          parts: getDocsParts(cmp.htmlParts, cmp.docs.tags),
-          customStates: getDocsCustomStates(cmp),
-          listeners: getDocsListeners(cmp.listeners),
-        }));
+            props: getDocsProperties(cmp),
+            methods: getDocsMethods(cmp.methods),
+            events: getDocsEvents(cmp.events),
+            styles: getDocsStyles(cmp),
+            slots: getDocsSlots(cmp.htmlSlots, docs.tags),
+            parts: getDocsParts(cmp.htmlParts, docs.tags),
+            customStates: getDocsCustomStates(cmp),
+            listeners: getDocsListeners(cmp.listeners),
+          };
+        });
     }),
   );
 
@@ -190,25 +205,28 @@ const getDocsProperties = (cmpMeta: d.ComponentCompilerMeta): d.JsonDocsProp[] =
 const getRealProperties = (properties: d.ComponentCompilerProperty[]): d.JsonDocsProp[] => {
   return properties
     .filter((member) => !member.internal)
-    .map((member) => ({
-      name: member.name,
-      type: member.complexType.resolved,
-      complexType: member.complexType,
-      mutable: member.mutable,
-      attr: member.attribute,
-      reflectToAttr: !!member.reflect,
-      docs: member.docs.text,
-      docsTags: member.docs.tags,
-      default: member.defaultValue,
-      deprecation: getDocsDeprecationText(member.docs.tags),
-      values: parseTypeIntoValues(member.complexType.resolved),
+    .map((member) => {
+      const docs = convertCompilerJsDoc(member.docs);
+      return {
+        name: member.name,
+        type: member.complexType.resolved,
+        complexType: member.complexType,
+        mutable: member.mutable,
+        attr: member.attribute,
+        reflectToAttr: !!member.reflect,
+        docs: docs.text,
+        docsTags: docs.tags,
+        default: member.defaultValue,
+        deprecation: getDocsDeprecationText(docs.tags),
+        values: parseTypeIntoValues(member.complexType.resolved),
 
-      optional: member.optional,
-      required: member.required,
+        optional: member.optional,
+        required: member.required,
 
-      getter: member.getter,
-      setter: member.setter,
-    }));
+        getter: member.getter,
+        setter: member.setter,
+      };
+    });
 };
 
 /**
@@ -224,7 +242,7 @@ const getVirtualProperties = (virtualProps: d.ComponentCompilerVirtualProperty[]
       mutable: false,
       attr: member.name,
       reflectToAttr: false,
-      docs: member.docs,
+      docs: convertJsdocLinksToMarkdown(member.docs),
       docsTags: [],
       default: undefined,
       deprecation: undefined,
@@ -286,41 +304,44 @@ const parseTypeIntoValues = (type: string): d.JsonDocsValue[] => {
 const getDocsMethods = (methods: d.ComponentCompilerMethod[]): d.JsonDocsMethod[] => {
   return sortBy(methods, (member) => member.name)
     .filter((member) => !member.internal)
-    .map(
-      (member) =>
-        <d.JsonDocsMethod>{
-          name: member.name,
-          returns: {
-            type: member.complexType.return,
-            docs: member.docs.tags
-              .filter((t) => t.name === 'return' || t.name === 'returns')
-              .map((t) => t.text)
-              .join('\n'),
-          },
-          complexType: member.complexType,
-          signature: `${member.name}${member.complexType.signature}`,
-          parameters: member.complexType.parameters,
-          docs: member.docs.text,
-          docsTags: member.docs.tags,
-          deprecation: getDocsDeprecationText(member.docs.tags),
+    .map((member) => {
+      const docs = convertCompilerJsDoc(member.docs);
+      return <d.JsonDocsMethod>{
+        name: member.name,
+        returns: {
+          type: member.complexType.return,
+          docs: docs.tags
+            .filter((t) => t.name === 'return' || t.name === 'returns')
+            .map((t) => t.text)
+            .join('\n'),
         },
-    );
+        complexType: member.complexType,
+        signature: `${member.name}${member.complexType.signature}`,
+        parameters: member.complexType.parameters,
+        docs: docs.text,
+        docsTags: docs.tags,
+        deprecation: getDocsDeprecationText(docs.tags),
+      };
+    });
 };
 
 const getDocsEvents = (events: d.ComponentCompilerEvent[]): d.JsonDocsEvent[] => {
   return sortBy(events, (eventMeta) => eventMeta.name.toLowerCase())
     .filter((eventMeta) => !eventMeta.internal)
-    .map((eventMeta) => ({
-      event: eventMeta.name,
-      detail: eventMeta.complexType.resolved,
-      bubbles: eventMeta.bubbles,
-      complexType: eventMeta.complexType,
-      cancelable: eventMeta.cancelable,
-      composed: eventMeta.composed,
-      docs: eventMeta.docs.text,
-      docsTags: eventMeta.docs.tags,
-      deprecation: getDocsDeprecationText(eventMeta.docs.tags),
-    }));
+    .map((eventMeta) => {
+      const docs = convertCompilerJsDoc(eventMeta.docs);
+      return {
+        event: eventMeta.name,
+        detail: eventMeta.complexType.resolved,
+        bubbles: eventMeta.bubbles,
+        complexType: eventMeta.complexType,
+        cancelable: eventMeta.cancelable,
+        composed: eventMeta.composed,
+        docs: docs.text,
+        docsTags: docs.tags,
+        deprecation: getDocsDeprecationText(docs.tags),
+      };
+    });
 };
 
 /**
@@ -341,7 +362,7 @@ export const getDocsStyles = (cmpMeta: d.ComponentCompilerMeta): d.JsonDocsStyle
     return {
       name: compilerStyleDoc.name,
       annotation: compilerStyleDoc.annotation || '',
-      docs: compilerStyleDoc.docs || '',
+      docs: convertJsdocLinksToMarkdown(compilerStyleDoc.docs || ''),
       mode: compilerStyleDoc.mode && compilerStyleDoc.mode !== DEFAULT_STYLE_MODE ? compilerStyleDoc.mode : undefined,
     };
   });
@@ -452,7 +473,7 @@ export const getUserReadmeContent = async (
  * @returns the generated documentation
  */
 const generateDocs = (readme: string | undefined, jsdoc: d.CompilerJsDoc): string => {
-  const docs = jsdoc.text;
+  const docs = convertJsdocLinksToMarkdown(jsdoc.text);
   if (docs !== '' || !readme) {
     // just return the existing docs if they exist. these would have been captured earlier in the compilation process.
     // if they don't exist, and there's no README to process, return an empty string.
