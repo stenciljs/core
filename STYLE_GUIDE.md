@@ -93,7 +93,7 @@ export class Menu { ... }
 
 ## TypeScript
 
-1. **Follow** [tslint-ionic-rules](https://github.com/ionic-team/tslint-ionic-rules/blob/master/tslint.js)
+1. **Lint and format** with the repo's `oxlint` and `oxfmt` configs (`pnpm lint`, `pnpm format`).
 
 2. **Variable decorators should be inlined.**
 
@@ -249,30 +249,20 @@ export class Something {
   }
 
   /**
-   * 10. hostData() function
-   * Used to dynamically set host element attributes.
-   * Should be placed directly above render()
-   */
-  hostData() {
-    return {
-      attribute: 'navigation',
-      side: this.isRightSide ? 'right' : 'left',
-      type: this.type,
-      class: {
-        'something-is-animating': this.isAnimating
-      }
-    };
-  }
-
-  /**
-   * 11. render() function
+   * 10. render() function
    * Always the last one in the class.
+   * Use <Host> to set host element attributes.
    */
   render() {
     return (
-      <div class='menu-inner page-inner'>
-        <slot></slot>
-      </div>
+      <Host
+        side={this.isRightSide ? 'right' : 'left'}
+        class={{ 'something-is-animating': this.isAnimating }}
+      >
+        <div class='menu-inner page-inner'>
+          <slot></slot>
+        </div>
+      </Host>
     );
   }
 }

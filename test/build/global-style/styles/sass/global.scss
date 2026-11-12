@@ -1,0 +1,7 @@
+@use 'partials/stencil';
+
+$user-color: rebeccapurple;
+
+.user-rule {
+  color: $user-color;
+}

@@ -1,0 +1,1 @@
+import './partial.css';

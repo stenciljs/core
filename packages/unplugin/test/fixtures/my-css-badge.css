@@ -1,0 +1,15 @@
+/**
+ * @component
+ * A CSS-only badge, used to verify @stencil/unplugin's docs/CEM scan picks up
+ * CSS-only components (no .tsx/JS backing) alongside real ones.
+ * @attr {boolean} dismissible - Whether the badge can be dismissed.
+ */
+my-css-badge {
+  /** Inner spacing. */
+  --badge-padding: 4px;
+  padding: var(--badge-padding);
+}
+
+my-css-badge[variant='danger'] {
+  color: red;
+}

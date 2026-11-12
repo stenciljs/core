@@ -44,5 +44,5 @@ jobs:
           script: |
             const fs = require('fs');
             const prNumber = parseInt(fs.readFileSync('pr-number.txt', 'utf-8').trim(), 10);
-            const script = require('./.github/workflows/scripts/post-runtime-benchmark-comment.js');
+            const script = require('./.github/workflows/scripts/post-runtime-benchmark-comment.cjs');
             await script({ github, context, prNumber });

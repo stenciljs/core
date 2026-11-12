@@ -21,7 +21,6 @@ on:
         default: main
         options:
           - main
-          - v3-maintenance
 
 jobs:
   create-stencil-release-pull-request:
@@ -38,7 +37,7 @@ jobs:
         shell: bash
 
       - name: Checkout Code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           # A depth of 0 gets the entire git history, which we'll want for things like checking all git history/tags.
           # We need git history to generate the changelog; however, we don't know how deep to go.
@@ -49,7 +48,6 @@ jobs:
       - name: Get Core Dependencies
         uses: ./.github/workflows/actions/get-core-dependencies
 
-      # TODO(STENCIL-927): Backport changes to the v3 branch
       - name: Run Publish Preparation Script
         run: npm run release.ci.prepare -- --version ${{ inputs.version }}
         shell: bash

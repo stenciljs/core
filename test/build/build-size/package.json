@@ -1,0 +1,11 @@
+{
+  "name": "@stencil-core-tests/all-build-size",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "test": "pnpm --filter \"@stencil-core-tests/build-bundle-size*\" test"
+  },
+  "volta": {
+    "extends": "../../../package.json"
+  }
+}

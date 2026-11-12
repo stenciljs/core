@@ -1,0 +1,12 @@
+:host {
+  display: block;
+  /** Accent color for the styled box. */
+  --my-styled-accent: coral;
+}
+
+.box {
+  background: coral;
+  padding: 1rem;
+  color: white;
+  font-weight: bold;
+}

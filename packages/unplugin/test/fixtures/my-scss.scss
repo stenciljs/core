@@ -1,0 +1,10 @@
+$bg: rebeccapurple;
+
+:host {
+  display: block;
+}
+
+.box {
+  background-color: $bg;
+  padding: 1rem;
+}

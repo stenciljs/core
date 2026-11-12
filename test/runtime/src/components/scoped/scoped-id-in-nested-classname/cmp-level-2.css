@@ -1,0 +1,6 @@
+:host cmp-level-3 {
+  font-weight: 800;
+}
+:host cmp-level-3 #test-element {
+  font-weight: 600;
+}

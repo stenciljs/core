@@ -1,0 +1,18 @@
+/**
+ * @component
+ * A dismissible badge.
+ *
+ * @attr {boolean} dismissible - Whether the badge can be closed.
+ * @prop --badge-color: The badge's text color.
+ * @slot - The badge's label.
+ */
+css-badge {
+  --badge-padding: 4px;
+
+  color: var(--badge-color, black);
+  padding: var(--badge-padding);
+
+  &[variant='danger'] {
+    color: red;
+  }
+}

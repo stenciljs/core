@@ -1,0 +1,59 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.layout {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100%;
+  position: relative;
+}
+
+.tabs {
+  display: flex;
+  overflow-x: auto;
+  background: var(--stencil-playground-tabs-background, #252526);
+  border-bottom: 1px solid var(--stencil-playground-divider-color, #333);
+}
+
+.tab {
+  flex: 0 0 auto;
+  padding: 0.5rem 0.875rem;
+  border: 0;
+  border-right: 1px solid
+    var(--stencil-playground-tab-divider-color, var(--stencil-playground-divider-color, #333));
+  background: transparent;
+  color: var(--stencil-playground-tab-color, #969696);
+  font: var(
+    --stencil-playground-tab-font,
+    0.8rem ui-monospace,
+    'SF Mono',
+    Menlo,
+    Consolas,
+    monospace
+  );
+  cursor: pointer;
+}
+
+.tab.active {
+  background: var(--stencil-playground-tab-active-background, #1e1e1e);
+  color: var(--stencil-playground-tab-active-color, #d4d4d4);
+}
+
+.editor {
+  min-width: 0;
+  min-height: 0;
+}
+
+.loading {
+  position: absolute;
+  inset: 0;
+  top: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--stencil-playground-tab-color, #969696);
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+}

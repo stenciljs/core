@@ -1,0 +1,10 @@
+/* Global styles for assets-global-style test */
+:root {
+  --test-color: blue;
+}
+
+body {
+  font-family: sans-serif;
+}
+
+@import 'stencil-hydrate';

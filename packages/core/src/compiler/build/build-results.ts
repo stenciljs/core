@@ -1,0 +1,66 @@
+import type * as d from '@stencil/core';
+
+import {
+  fromEntries,
+  hasError,
+  isOutputTargetGlobalStyle,
+  isString,
+  join,
+  normalizeDiagnostics,
+} from '../../utils';
+import { getBuildTimestamp } from './build-ctx';
+import { generateHmr } from './build-hmr';
+
+export const generateBuildResults = (
+  config: d.ValidatedConfig,
+  compilerCtx: d.CompilerCtx,
+  buildCtx: d.BuildCtx,
+) => {
+  const componentGraph = buildCtx.componentGraph
+    ? fromEntries(buildCtx.componentGraph.entries())
+    : undefined;
+
+  const buildResults: d.CompilerBuildResults = {
+    buildId: buildCtx.buildId,
+    diagnostics: normalizeDiagnostics(compilerCtx, buildCtx.diagnostics),
+    dirsAdded: buildCtx.dirsAdded.slice().sort(),
+    dirsDeleted: buildCtx.dirsDeleted.slice().sort(),
+    duration: Date.now() - buildCtx.startTime,
+    filesAdded: buildCtx.filesAdded.slice().sort(),
+    filesChanged: buildCtx.filesChanged.slice().sort(),
+    filesDeleted: buildCtx.filesDeleted.slice().sort(),
+    filesUpdated: buildCtx.filesUpdated.slice().sort(),
+    hasError: hasError(buildCtx.diagnostics),
+    hasSuccessfulBuild: compilerCtx.hasSuccessfulBuild,
+    isRebuild: buildCtx.isRebuild,
+    namespace: config.namespace,
+    fsNamespace: config.fsNamespace,
+    outputs: compilerCtx.fs.getBuildOutputs(),
+    globalStyleFiles: [
+      ...(buildCtx.stencilCssFile ? [buildCtx.stencilCssFile] : []),
+      ...config.outputTargets
+        .filter(isOutputTargetGlobalStyle)
+        .filter((o) => o.input)
+        .map((o) => join(o.dir, o.fileName)),
+    ],
+    components: buildCtx.components.slice(),
+    cssOnlyComponents: buildCtx.cssOnlyComponents.slice(),
+    rootDir: config.rootDir,
+    srcDir: config.srcDir,
+    timestamp: getBuildTimestamp(),
+    componentGraph,
+  };
+
+  const hmr = generateHmr(config, compilerCtx, buildCtx);
+  if (hmr != null) {
+    buildResults.hmr = hmr;
+  }
+
+  if (isString(buildCtx.ssrAppFilePath)) {
+    buildResults.ssrAppFilePath = buildCtx.ssrAppFilePath;
+  }
+
+  compilerCtx.lastBuildResults = Object.assign({}, buildResults as any);
+
+  return buildResults;
+};

@@ -1,0 +1,4 @@
+/* No stencil-* imports: everything is auto-prepended to this, the only global-style output */
+.user-rule {
+  color: rebeccapurple;
+}
