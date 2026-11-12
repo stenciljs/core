@@ -218,28 +218,33 @@ function triggerEventListener(elm: any, ev: MockEvent) {
   } else if (elm.parentElement == null && elm.tagName === 'HTML') {
     triggerEventListener(elm.ownerDocument, ev);
   } else {
-    const nextTarget = getNextEventTarget(elm, ev);
+    const { nextTarget, crossedShadowBoundary } = getNextEventTarget(elm, ev);
+    if (crossedShadowBoundary) {
+      // mimic the browser's retargeting behavior: when a composed event crosses a
+      // shadow boundary, listeners outside the shadow tree see the host as the target
+      ev.target = nextTarget;
+    }
     triggerEventListener(nextTarget, ev);
   }
 }
 
-function getNextEventTarget(elm: any, ev: MockEvent) {
+function getNextEventTarget(elm: any, ev: MockEvent): { nextTarget: any; crossedShadowBoundary: boolean } {
   // If current element has a parent, bubble to parent
   if (elm.parentElement) {
-    return elm.parentElement;
+    return { nextTarget: elm.parentElement, crossedShadowBoundary: false };
   }
 
   // If current element is a Shadow Root (has host property), bubble to the host
   if (elm.host && ev.composed) {
-    return elm.host;
+    return { nextTarget: elm.host, crossedShadowBoundary: true };
   }
 
   // If we're at a Shadow Root boundary and event is composed, bubble to Shadow Host
   if (ev.composed && elm.parentNode && elm.parentNode.host) {
-    return elm.parentNode.host;
+    return { nextTarget: elm.parentNode.host, crossedShadowBoundary: true };
   }
 
-  return null;
+  return { nextTarget: null, crossedShadowBoundary: false };
 }
 
 export function dispatchEvent(currentTarget: any, ev: MockEvent) {
