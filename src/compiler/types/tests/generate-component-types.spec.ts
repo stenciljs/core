@@ -1,5 +1,6 @@
 import { ComponentCompilerMeta, ComponentCompilerMethod } from '../../../declarations';
 import { generateComponentTypes } from '../generate-component-types';
+import { stubComponentCompilerEvent } from './ComponentCompilerEvent.stub';
 import { stubComponentCompilerMeta } from './ComponentCompilerMeta.stub';
 import { stubComponentCompilerMethod } from './ComponentCompilerMethod.stub';
 import { stubComponentCompilerProperty } from './ComponentCompilerProperty.stub';
@@ -329,6 +330,136 @@ describe('generateComponentTypes', () => {
       expect(result.jsx.match(/"name"/g)).toHaveLength(1);
       expect(result.jsx.match(/"disabled"/g)).toHaveLength(1);
       expect(result.jsx.match(/"form"/g)).toHaveLength(1);
+    });
+  });
+
+  describe('generic component classes', () => {
+    const genericCmp = (overrides: Partial<ComponentCompilerMeta> = {}): ComponentCompilerMeta =>
+      stubComponentCompilerMeta({
+        tagName: 'my-table',
+        sourceFilePath: '/src/my-table.tsx',
+        typeParameters: [
+          {
+            name: 'T',
+            constraint: 'Row',
+            references: { Row: { location: 'import', path: './row', id: './row.ts::Row' } },
+          },
+          { name: 'K', constraint: 'keyof T', default: 'keyof T', references: {} },
+        ],
+        properties: [
+          stubComponentCompilerProperty({
+            name: 'data',
+            type: 'any',
+            attribute: undefined,
+            complexType: { original: 'T[]', resolved: 'T[]', references: {} },
+          }),
+        ],
+        ...overrides,
+      });
+
+    it('does not add type parameters to non-generic components', () => {
+      const result = generateComponentTypes(stubComponentCompilerMeta({ tagName: 'my-table' }), {}, false);
+
+      expect(result.component).toContain('interface MyTable {');
+      expect(result.jsx).toContain('interface MyTable {');
+      expect(result.element).toContain('interface HTMLMyTableElement extends Components.MyTable, HTMLStencilElement');
+    });
+
+    it('declares generic interfaces with constraints and an `any` fallback default', () => {
+      const result = generateComponentTypes(genericCmp(), {}, false);
+
+      expect(result.component).toContain('interface MyTable<T extends Row = any, K extends keyof T = keyof T> {');
+      expect(result.component).toContain('"data": T[];');
+      expect(result.jsx).toContain('interface MyTable<T extends Row = any, K extends keyof T = keyof T> {');
+      expect(result.jsx).toContain('"data"?: T[];');
+      expect(result.element).toContain(
+        'interface HTMLMyTableElement<T extends Row = any, K extends keyof T = keyof T> extends Components.MyTable<T, K>, HTMLStencilElement {',
+      );
+      // non-generic references fall back to the defaults
+      expect(result.element).toContain('prototype: HTMLMyTableElement;');
+      expect(result.htmlElementName).toBe('HTMLMyTableElement');
+      expect(result.tagNameAsPascal).toBe('MyTable');
+    });
+
+    it('uses the collision-free alias of an imported type in constraints', () => {
+      const result = generateComponentTypes(
+        genericCmp(),
+        { '/src/row': [{ localName: 'Row', originalName: 'Row', importName: 'Row1' }] },
+        false,
+      );
+
+      expect(result.component).toContain('interface MyTable<T extends Row1 = any, K extends keyof T = keyof T> {');
+    });
+
+    it('passes type parameters to the attributes interface', () => {
+      const result = generateComponentTypes(
+        genericCmp({
+          properties: [
+            stubComponentCompilerProperty({
+              name: 'label',
+              type: 'string',
+              attribute: 'label',
+              complexType: { original: 'T', resolved: 'string', references: {} },
+            }),
+          ],
+        }),
+        {},
+        false,
+      );
+
+      expect(result.explicitAttributes).toContain(
+        'interface MyTableAttributes<T extends Row = any, K extends keyof T = keyof T> {',
+      );
+      expect(result.explicitAttributes).toContain('"label": T;');
+    });
+
+    it('passes type parameters to the Omit based element interface', () => {
+      const result = generateComponentTypes(
+        genericCmp({
+          methods: [
+            {
+              ...stubComponentCompilerMethod(),
+              name: 'focus',
+              complexType: {
+                signature: '() => Promise<void>',
+                parameters: [],
+                references: {},
+                return: 'Promise<void>',
+              },
+            },
+          ],
+        }),
+        {},
+        false,
+      );
+
+      expect(result.element).toContain(
+        'interface HTMLMyTableElement<T extends Row = any, K extends keyof T = keyof T> extends Omit<Components.MyTable<T, K>, "focus">, HTMLStencilElement {',
+      );
+    });
+
+    it('passes type parameters to the event map and event listeners', () => {
+      const result = generateComponentTypes(
+        genericCmp({
+          events: [
+            stubComponentCompilerEvent({
+              name: 'rowClick',
+              complexType: { original: 'T', resolved: 'T', references: {} },
+            }),
+          ],
+        }),
+        {},
+        false,
+      );
+
+      expect(result.element).toContain(
+        'interface HTMLMyTableElementEventMap<T extends Row = any, K extends keyof T = keyof T> {',
+      );
+      expect(result.element).toContain('"rowClick": T;');
+      expect(result.element).toContain(
+        'addEventListener<K1 extends keyof HTMLMyTableElementEventMap<T, K>>(type: K1, listener: (this: HTMLMyTableElement<T, K>, ev: MyTableCustomEvent<HTMLMyTableElementEventMap<T, K>[K1], HTMLMyTableElement<T, K>>) => any',
+      );
+      expect(result.jsx).toContain('"onRowClick"?: (event: MyTableCustomEvent<T, HTMLMyTableElement<T, K>>) => void;');
     });
   });
 });
