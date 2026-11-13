@@ -698,9 +698,17 @@ const addSlottedNodes = (
 
   // Loop through the next siblings of the slot node, looking for nodes that match this slot's name
   do {
+    // SSR marks slot assignment with an `s-sn` attribute; the owning host converts it
+    // to the property only once it hydrates itself, possibly after this host. Honor
+    // the attribute so nodes SSR already placed here are collected (#6934).
+    const ssrSlotName =
+      slottedNode && slottedNode.nodeType === NODE_TYPE.ElementNode
+        ? (slottedNode as unknown as Element).getAttribute('s-sn')
+        : null;
     if (
       slottedNode &&
-      (((slottedNode['getAttribute'] && slottedNode.getAttribute('slot')) || slottedNode['s-sn']) === slotName ||
+      (ssrSlotName === slotName ||
+        ((slottedNode['getAttribute'] && slottedNode.getAttribute('slot')) || slottedNode['s-sn']) === slotName ||
         (slotName === '' &&
           !slottedNode['s-sn'] &&
           (!slottedNode['getAttribute'] || !slottedNode.getAttribute('slot')) &&
