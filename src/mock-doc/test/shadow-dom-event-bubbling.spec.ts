@@ -162,10 +162,18 @@ describe('Shadow DOM event bubbling with nested shadow roots', () => {
     wrapperShadow.appendChild(innerHost);
     innerShadow.appendChild(button);
 
+    let targetSeenFromButtonListener: any = null;
+    let targetSeenFromInnerShadowListener: any = null;
     let targetSeenFromShadowListener: any = null;
     let targetSeenFromWrapperListener: any = null;
     let targetSeenFromDocumentListener: any = null;
 
+    button.addEventListener('customclick', (event: any) => {
+      targetSeenFromButtonListener = event.target;
+    });
+    innerShadow.addEventListener('customclick', (event: any) => {
+      targetSeenFromInnerShadowListener = event.target;
+    });
     wrapperShadow.addEventListener('customclick', (event: any) => {
       targetSeenFromShadowListener = event.target;
     });
@@ -178,6 +186,9 @@ describe('Shadow DOM event bubbling with nested shadow roots', () => {
 
     button.dispatchEvent(new Event('customclick', { bubbles: true, composed: true }));
 
+    // listeners in the button's own shadow tree see the button
+    expect(targetSeenFromButtonListener).toBe(button);
+    expect(targetSeenFromInnerShadowListener).toBe(button);
     // listeners inside the wrapper's shadow root see the inner component's host
     expect(targetSeenFromShadowListener).toBe(innerHost);
     // listeners outside both shadow roots see the outermost host
