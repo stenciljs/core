@@ -202,4 +202,31 @@ describe('hydrate scoped', () => {
         </div>
       </cmp-a>`);
   });
+
+  it('adds scope classes to a styled shadow component serialized as scoped', async () => {
+    @Component({
+      tag: 'cmp-a',
+      styles: '.inner { color: red; }',
+      encapsulation: { type: 'shadow' },
+    })
+    class CmpA {
+      render() {
+        return (
+          <div class='inner'>
+            <slot />
+          </div>
+        );
+      }
+    }
+
+    const serverHydrated = await newSpecPage({
+      components: [CmpA],
+      html: `<cmp-a>Hello</cmp-a>`,
+      hydrateServerSide: true,
+      serializeShadowRoot: 'scoped',
+    });
+
+    expect(serverHydrated.root).toHaveClass('sc-cmp-a-h');
+    expect(serverHydrated.root.querySelector('.inner')).toHaveClass('sc-cmp-a');
+  });
 });
