@@ -31,5 +31,23 @@ describe('generate-event-detail-types', () => {
         requiredProps: null,
       });
     });
+
+    it('types the event target for a component class with type parameters', () => {
+      const componentMeta = stubComponentCompilerMeta({
+        tagName: 'my-table',
+        typeParameters: [
+          { name: 'T', references: {} },
+          { name: 'K', constraint: 'keyof T', references: {} },
+        ],
+      });
+
+      const actualEventDetailTypes = generateEventDetailTypes(componentMeta);
+
+      expect(actualEventDetailTypes.component)
+        .toBe(`export interface MyTableCustomEvent<T, E extends HTMLMyTableElement<any, any> = HTMLMyTableElement> extends CustomEvent<T> {
+    detail: T;
+    target: E;
+}`);
+    });
   });
 });

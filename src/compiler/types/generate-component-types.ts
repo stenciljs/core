@@ -58,7 +58,7 @@ export const generateComponentTypes = (
 
   const propAttributes = generatePropTypes(cmp, typeImportData);
   const methodAttributes = generateMethodTypes(cmp, typeImportData);
-  const eventAttributes = generateEventTypes(cmp, typeImportData, tagNameAsPascal);
+  const eventAttributes = generateEventTypes(cmp, typeImportData, tagNameAsPascal, typeParams);
   const { htmlElementEventMap, htmlElementEventListenerProperties } = generateEventListenerTypes(
     cmp,
     typeImportData,

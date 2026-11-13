@@ -457,9 +457,9 @@ describe('generateComponentTypes', () => {
       );
       expect(result.element).toContain('"rowClick": T;');
       expect(result.element).toContain(
-        'addEventListener<K1 extends keyof HTMLMyTableElementEventMap<T, K>>(type: K1, listener: (this: HTMLMyTableElement<T, K>, ev: MyTableCustomEvent<HTMLMyTableElementEventMap<T, K>[K1]>) => any',
+        'addEventListener<K1 extends keyof HTMLMyTableElementEventMap<T, K>>(type: K1, listener: (this: HTMLMyTableElement<T, K>, ev: MyTableCustomEvent<HTMLMyTableElementEventMap<T, K>[K1], HTMLMyTableElement<T, K>>) => any',
       );
-      expect(result.jsx).toContain('"onRowClick"?: (event: MyTableCustomEvent<T>) => void;');
+      expect(result.jsx).toContain('"onRowClick"?: (event: MyTableCustomEvent<T, HTMLMyTableElement<T, K>>) => void;');
     });
   });
 });
