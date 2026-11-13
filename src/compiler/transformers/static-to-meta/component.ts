@@ -86,6 +86,7 @@ export const parseStaticComponentMeta = (
     attachInternalsCustomStates: parseAttachInternalsCustomStates(staticMembers),
     formAssociated: parseFormAssociated(staticMembers),
     tagName: tagName,
+    typeParameters: getStaticValue(staticMembers, 'typeParameters') ?? [],
     excludeFromCollection: moduleFile.excludeFromCollection,
     isCollectionDependency,
     componentClassName: cmpNode.name ? cmpNode.name.text : '',

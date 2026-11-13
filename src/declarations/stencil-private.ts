@@ -686,8 +686,36 @@ export interface ComponentCompilerMeta extends ComponentCompilerFeatures {
   styleDocs: CompilerStyleDoc[];
   styles: StyleCompiler[];
   tagName: string;
+  /**
+   * The type parameters declared on the component class, e.g. `T` in `class MyTable<T> {}`.
+   * Used to generate generic interfaces in `components.d.ts`.
+   */
+  typeParameters: ComponentCompilerTypeParameter[];
   virtualProperties: ComponentCompilerVirtualProperty[];
   watchers: ComponentCompilerChangeHandler[];
+}
+
+/**
+ * A type parameter declared on a component class, e.g. `T extends Row = Row` in
+ * `class MyTable<T extends Row = Row> {}`.
+ */
+export interface ComponentCompilerTypeParameter {
+  /**
+   * The name of the type parameter, e.g. `T`
+   */
+  name: string;
+  /**
+   * The constraint of the type parameter as written in the source, e.g. `Row`
+   */
+  constraint?: string;
+  /**
+   * The default type of the type parameter as written in the source, e.g. `Row`
+   */
+  default?: string;
+  /**
+   * The types referenced by the constraint and the default
+   */
+  references: ComponentCompilerTypeReferences;
 }
 
 /**
@@ -2688,6 +2716,20 @@ export interface TypesModule {
     type: string;
     complexType?: ComponentCompilerProperty['complexType'];
   }> | null;
+}
+
+/**
+ * The type parameters of a component class, rendered for use in generated type declarations
+ */
+export interface TypeParametersInfo {
+  /**
+   * The type parameter declaration, e.g. `<T extends Row = any, U = string>`, or an empty string
+   */
+  declaration: string;
+  /**
+   * The type parameter names for referencing a generic type, e.g. `<T, U>`, or an empty string
+   */
+  usage: string;
 }
 
 export type TypeInfo = {

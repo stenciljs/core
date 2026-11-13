@@ -6,6 +6,7 @@ import { generateEventListenerTypes } from './generate-event-listener-types';
 import { generateEventTypes } from './generate-event-types';
 import { generateMethodTypes } from './generate-method-types';
 import { generatePropTypes } from './generate-prop-types';
+import { generateTypeParameters } from './generate-type-parameters';
 
 /**
  * Attributes automatically available on form-associated custom elements.
@@ -53,11 +54,16 @@ export const generateComponentTypes = (
   const tagName = cmp.tagName.toLowerCase();
   const tagNameAsPascal = dashToPascalCase(tagName);
   const htmlElementName = `HTML${tagNameAsPascal}Element`;
+  const typeParams = generateTypeParameters(cmp, typeImportData);
 
   const propAttributes = generatePropTypes(cmp, typeImportData);
   const methodAttributes = generateMethodTypes(cmp, typeImportData);
   const eventAttributes = generateEventTypes(cmp, typeImportData, tagNameAsPascal);
-  const { htmlElementEventMap, htmlElementEventListenerProperties } = generateEventListenerTypes(cmp, typeImportData);
+  const { htmlElementEventMap, htmlElementEventListenerProperties } = generateEventListenerTypes(
+    cmp,
+    typeImportData,
+    typeParams,
+  );
 
   // Check for method conflicts with HTMLElement
   const conflictingMethods = methodAttributes.filter((method) => HTML_ELEMENT_METHODS.has(method.name));
@@ -85,11 +91,18 @@ export const generateComponentTypes = (
     ? generateElementInterfaceWithConflictResolution(
         htmlElementName,
         tagNameAsPascal,
+        typeParams,
         conflictingMethods,
         htmlElementEventListenerProperties,
         cmp.docs,
       )
-    : generateStandardElementInterface(htmlElementName, tagNameAsPascal, htmlElementEventListenerProperties, cmp.docs);
+    : generateStandardElementInterface(
+        htmlElementName,
+        tagNameAsPascal,
+        typeParams,
+        htmlElementEventListenerProperties,
+        cmp.docs,
+      );
 
   const element = [
     ...htmlElementEventMap,
@@ -147,11 +160,15 @@ export const generateComponentTypes = (
     tagName,
     tagNameAsPascal,
     htmlElementName,
-    component: addDocBlock(`    interface ${tagNameAsPascal} {\n${componentAttributes}    }`, cmp.docs, 4),
-    jsx: `    interface ${tagNameAsPascal} {\n${jsxAttributes}    }`,
+    component: addDocBlock(
+      `    interface ${tagNameAsPascal}${typeParams.declaration} {\n${componentAttributes}    }`,
+      cmp.docs,
+      4,
+    ),
+    jsx: `    interface ${tagNameAsPascal}${typeParams.declaration} {\n${jsxAttributes}    }`,
     element: element.join(`\n`),
     explicitAttributes: hasExplicitAttributes
-      ? `    interface ${tagNameAsPascal}Attributes {\n${explicitAttributes}\n    }`
+      ? `    interface ${tagNameAsPascal}Attributes${typeParams.declaration} {\n${explicitAttributes}\n    }`
       : null,
     explicitProperties: null,
     requiredProps: hasRequiredProps
@@ -168,6 +185,7 @@ export const generateComponentTypes = (
  * Generate element interface when there are no method conflicts
  * @param htmlElementName the name of the HTML element interface
  * @param tagNameAsPascal the component tag name in PascalCase
+ * @param typeParams the type parameters of the component class
  * @param htmlElementEventListenerProperties event listener properties for the element
  * @param docs JSDoc documentation for the component
  * @returns array of interface definition lines
@@ -175,12 +193,13 @@ export const generateComponentTypes = (
 function generateStandardElementInterface(
   htmlElementName: string,
   tagNameAsPascal: string,
+  typeParams: d.TypeParametersInfo,
   htmlElementEventListenerProperties: string[],
   docs: d.CompilerJsDoc | undefined,
 ): string[] {
   return [
     addDocBlock(
-      `    interface ${htmlElementName} extends Components.${tagNameAsPascal}, HTMLStencilElement {`,
+      `    interface ${htmlElementName}${typeParams.declaration} extends Components.${tagNameAsPascal}${typeParams.usage}, HTMLStencilElement {`,
       docs,
       4,
     ),
@@ -193,6 +212,7 @@ function generateStandardElementInterface(
  * Generate element interface with method conflict resolution using intersection types
  * @param htmlElementName the name of the HTML element interface
  * @param tagNameAsPascal the component tag name in PascalCase
+ * @param typeParams the type parameters of the component class
  * @param conflictingMethods array of method metadata that conflicts with HTMLElement methods
  * @param htmlElementEventListenerProperties event listener properties for the element
  * @param docs JSDoc documentation for the component
@@ -201,6 +221,7 @@ function generateStandardElementInterface(
 function generateElementInterfaceWithConflictResolution(
   htmlElementName: string,
   tagNameAsPascal: string,
+  typeParams: d.TypeParametersInfo,
   conflictingMethods: d.TypeInfo,
   htmlElementEventListenerProperties: string[],
   docs: d.CompilerJsDoc | undefined,
@@ -220,7 +241,7 @@ function generateElementInterfaceWithConflictResolution(
 
   return [
     addDocBlock(
-      `    interface ${htmlElementName} extends Omit<Components.${tagNameAsPascal}, ${conflictingMethods.map((m) => `"${m.name}"`).join(' | ')}>, HTMLStencilElement {`,
+      `    interface ${htmlElementName}${typeParams.declaration} extends Omit<Components.${tagNameAsPascal}${typeParams.usage}, ${conflictingMethods.map((m) => `"${m.name}"`).join(' | ')}>, HTMLStencilElement {`,
       docs,
       4,
     ),

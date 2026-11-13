@@ -9,29 +9,44 @@ import { updateTypeIdentifierNames } from './stencil-types';
  *
  * @param cmp The component compiler metadata
  * @param typeImportData locally/imported/globally used type names, which may be used to prevent naming collisions
+ * @param typeParams the type parameters of the component class
  * @returns additional types information to add event listener method overloads for component's html element type
  */
 export const generateEventListenerTypes = (
   cmp: d.ComponentCompilerMeta,
   typeImportData: d.TypesImportData,
+  typeParams: d.TypeParametersInfo = { declaration: '', usage: '' },
 ): { htmlElementEventMap: string[]; htmlElementEventListenerProperties: string[] } => {
   const tagName = cmp.tagName.toLowerCase();
   const tagNameAsPascal = dashToPascalCase(tagName);
   const htmlElementName = `HTML${tagNameAsPascal}Element`;
   const cmpEventInterface = `${tagNameAsPascal}CustomEvent`;
   const htmlElementEventMapName = `${htmlElementName}EventMap`;
+  const eventMap = `${htmlElementEventMapName}${typeParams.usage}`;
+  const element = `${htmlElementName}${typeParams.usage}`;
+  // avoid shadowing a component type parameter of the same name
+  const typeParamNames = new Set((cmp.typeParameters ?? []).map((typeParameter) => typeParameter.name));
+  let key = 'K';
+  for (let i = 1; typeParamNames.has(key); i++) {
+    key = `K${i}`;
+  }
   const cmpEvents = cmp.events.filter((cmpEvent) => cmpEvent.complexType.original);
   if (!cmpEvents.length) {
     return { htmlElementEventMap: [], htmlElementEventListenerProperties: [] };
   }
   return {
-    htmlElementEventMap: getHtmlElementEventMap(cmpEvents, typeImportData, cmp.sourceFilePath, htmlElementEventMapName),
+    htmlElementEventMap: getHtmlElementEventMap(
+      cmpEvents,
+      typeImportData,
+      cmp.sourceFilePath,
+      `${htmlElementEventMapName}${typeParams.declaration}`,
+    ),
     htmlElementEventListenerProperties: [
-      `        addEventListener<K extends keyof ${htmlElementEventMapName}>(type: K, listener: (this: ${htmlElementName}, ev: ${cmpEventInterface}<${htmlElementEventMapName}[K]>) => any, options?: boolean | AddEventListenerOptions): void;`,
+      `        addEventListener<${key} extends keyof ${eventMap}>(type: ${key}, listener: (this: ${element}, ev: ${cmpEventInterface}<${eventMap}[${key}]>) => any, options?: boolean | AddEventListenerOptions): void;`,
       '        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;',
       '        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;',
       '        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;',
-      `        removeEventListener<K extends keyof ${htmlElementEventMapName}>(type: K, listener: (this: ${htmlElementName}, ev: ${cmpEventInterface}<${htmlElementEventMapName}[K]>) => any, options?: boolean | EventListenerOptions): void;`,
+      `        removeEventListener<${key} extends keyof ${eventMap}>(type: ${key}, listener: (this: ${element}, ev: ${cmpEventInterface}<${eventMap}[${key}]>) => any, options?: boolean | EventListenerOptions): void;`,
       '        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;',
       '        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;',
       '        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;',
@@ -46,7 +61,7 @@ export const generateEventListenerTypes = (
  * @param cmpEvents a collection of the compiler metadata for each individual `@Event()`
  * @param typeImportData locally/imported/globally used type names, which may be used to prevent naming collisions
  * @param sourceFilePath the path to the source file being visited
- * @param htmlElementEventMapName the name of the component event map type
+ * @param htmlElementEventMapName the name of the component event map type, including its type parameter declaration
  * @returns map of event names and user implemented event type(s)
  */
 const getHtmlElementEventMap = (
