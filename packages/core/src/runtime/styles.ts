@@ -343,7 +343,7 @@ export const attachStyles = (hostRef: d.HostRef) => {
   if (
     (BUILD.shadowDom || BUILD.scoped) &&
     BUILD.cssAnnotations &&
-    flags & CMP_FLAGS.needsScopedEncapsulation
+    flags & (CMP_FLAGS.needsScopedEncapsulation | CMP_FLAGS.shadowNeedsScopedCss)
   ) {
     // only required when we're NOT using native shadow dom (slot)
     // or this browser doesn't support native shadow dom
