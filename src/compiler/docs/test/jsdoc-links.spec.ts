@@ -22,6 +22,17 @@ describe('convertJsdocLinksToMarkdown', () => {
     );
   });
 
+  it('converts `[label]{@link url}` into a markdown link', () => {
+    expect(convertJsdocLinksToMarkdown('See [GitHub]{@link https://github.com} for details.')).toBe(
+      'See [GitHub](https://github.com) for details.',
+    );
+  });
+
+  it('leaves `[label]{@link symbol}` untouched', () => {
+    const text = 'See [the foo property]{@link MyClass#foo}.';
+    expect(convertJsdocLinksToMarkdown(text)).toBe(text);
+  });
+
   it('converts a URL-only `{@link}` tag, using the URL as label', () => {
     expect(convertJsdocLinksToMarkdown('Docs: {@link https://stenciljs.com}')).toBe(
       'Docs: [https://stenciljs.com](https://stenciljs.com)',

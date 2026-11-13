@@ -1,8 +1,8 @@
 /**
- * Matches JSDoc inline link tags that reference a URL, in either the
- * `{@link url|label}` or `{@link url label}` form.
+ * Matches JSDoc inline link tags that reference a URL, in the
+ * `[label]{@link url}`, `{@link url|label}` or `{@link url label}` form.
  */
-const JSDOC_URL_LINK_REGEX = /\{@link\s+(https?:\/\/[^\s|}]+)(?:\s*[|\s]\s*([^}]*?))?\s*\}/g;
+const JSDOC_URL_LINK_REGEX = /(?:\[([^\]]*)\])?\{@link\s+(https?:\/\/[^\s|}]+)(?:\s*[|\s]\s*([^}]*?))?\s*\}/g;
 
 /**
  * Converts JSDoc inline link tags that reference a URL into markdown links.
@@ -21,8 +21,8 @@ export const convertJsdocLinksToMarkdown = (text: string): string => {
   if (!text || !text.includes('{@link')) {
     return text;
   }
-  return text.replace(JSDOC_URL_LINK_REGEX, (_match, url: string, label: string) => {
-    return `[${label?.trim() || url}](${url})`;
+  return text.replace(JSDOC_URL_LINK_REGEX, (_match, prefixLabel: string, url: string, label: string) => {
+    return `[${prefixLabel?.trim() || label?.trim() || url}](${url})`;
   });
 };
 
@@ -33,6 +33,6 @@ export const convertJsdocLinksToMarkdown = (text: string): string => {
  * @param tags the JSDoc tag infos to convert
  * @returns new tag infos with URL-based `{@link}` tags converted to markdown links
  */
-export const convertJsdocTagsToMarkdown = <T extends { text: string }>(tags: readonly T[]): T[] => {
+export const convertJsdocTagsToMarkdown = <T extends { text?: string }>(tags: readonly T[]): T[] => {
   return tags.map((tag) => ({ ...tag, text: convertJsdocLinksToMarkdown(tag.text) }));
 };

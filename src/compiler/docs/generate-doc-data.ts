@@ -473,7 +473,7 @@ export const getUserReadmeContent = async (
  * @returns the generated documentation
  */
 const generateDocs = (readme: string | undefined, jsdoc: d.CompilerJsDoc): string => {
-  const docs = convertJsdocLinksToMarkdown(jsdoc.text);
+  const docs = jsdoc.text;
   if (docs !== '' || !readme) {
     // just return the existing docs if they exist. these would have been captured earlier in the compilation process.
     // if they don't exist, and there's no README to process, return an empty string.
