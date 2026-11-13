@@ -1,6 +1,7 @@
 import { NODE_NAMES } from './constants';
 import { MockDocument } from './document';
 import { MockElement } from './node';
+import { getProxyElement } from './proxy-element';
 import { MockWindow } from './window';
 
 export class MockEvent {
@@ -221,8 +222,10 @@ function triggerEventListener(elm: any, ev: MockEvent) {
     const { nextTarget, crossedShadowBoundary } = getNextEventTarget(elm, ev);
     if (crossedShadowBoundary) {
       // mimic the browser's retargeting behavior: when a composed event crosses a
-      // shadow boundary, listeners outside the shadow tree see the host as the target
-      ev.target = nextTarget;
+      // shadow boundary, listeners outside the shadow tree see the host as the target.
+      // unregistered custom elements are wrapped in a proxy (see ./proxy-element);
+      // resolve it so the target is the object user code holds
+      ev.target = getProxyElement(nextTarget) ?? nextTarget;
     }
     triggerEventListener(nextTarget, ev);
   }

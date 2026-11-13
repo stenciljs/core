@@ -185,3 +185,37 @@ describe('Shadow DOM event bubbling with nested shadow roots', () => {
     expect(targetSeenFromDocumentListener).toBe(wrapperHost);
   });
 });
+
+describe('Shadow DOM event retargeting with custom element hosts', () => {
+  let win: MockWindow;
+  let doc: MockDocument;
+
+  beforeEach(() => {
+    win = new MockWindow();
+    doc = win.document as unknown as MockDocument;
+  });
+
+  it('retargets composed events to the object user code holds for unregistered custom elements', () => {
+    // createElement for unregistered custom elements returns a proxy wrapper; the
+    // retargeted event target must be that same object so tests can assert identity
+    const wrapperHost = doc.createElement('my-wrapper-component');
+    const wrapperShadow = wrapperHost.attachShadow({ mode: 'open' });
+
+    const innerHost = doc.createElement('my-component');
+    const innerShadow = innerHost.attachShadow({ mode: 'open' });
+    const button = doc.createElement('button');
+
+    doc.body.appendChild(wrapperHost);
+    wrapperShadow.appendChild(innerHost);
+    innerShadow.appendChild(button);
+
+    let targetSeenFromWrapperListener: any = null;
+    wrapperHost.addEventListener('customclick', (event: any) => {
+      targetSeenFromWrapperListener = event.target;
+    });
+
+    button.dispatchEvent(new Event('customclick', { bubbles: true, composed: true }));
+
+    expect(targetSeenFromWrapperListener).toBe(wrapperHost);
+  });
+});
