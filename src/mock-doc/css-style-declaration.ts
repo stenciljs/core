@@ -41,7 +41,7 @@ export class MockCSSStyleDeclaration {
       return;
     }
 
-    cssText.split(';').forEach((rule) => {
+    splitDeclarations(cssText).forEach((rule) => {
       rule = rule.trim();
       if (rule.length > 0) {
         const splt = rule.split(':');
@@ -55,6 +55,54 @@ export class MockCSSStyleDeclaration {
       }
     });
   }
+}
+
+/**
+ * Splits a CSS declaration list at its top-level semicolons. A semicolon inside
+ * parentheses (e.g. the `;base64,` in `url(data:image/png;base64,...)`) or inside
+ * a quoted string does not end a declaration.
+ *
+ * @param cssText the declaration list, such as the value of a `style` attribute
+ * @returns the individual declarations, without their separating semicolons
+ */
+function splitDeclarations(cssText: string): string[] {
+  const declarations: string[] = [];
+  let current = '';
+  let depth = 0;
+  let quote = '';
+
+  for (let i = 0; i < cssText.length; i++) {
+    const char = cssText[i];
+
+    if (char === '\\' && i + 1 < cssText.length) {
+      // keep an escaped character (and the backslash) as-is
+      current += char + cssText[++i];
+      continue;
+    }
+
+    if (quote) {
+      if (char === quote) {
+        quote = '';
+      }
+    } else if (char === '"' || char === "'") {
+      quote = char;
+    } else if (char === '(') {
+      depth++;
+    } else if (char === ')') {
+      if (depth > 0) {
+        depth--;
+      }
+    } else if (char === ';' && depth === 0) {
+      declarations.push(current);
+      current = '';
+      continue;
+    }
+
+    current += char;
+  }
+
+  declarations.push(current);
+  return declarations;
 }
 
 export function createCSSStyleDeclaration() {
