@@ -1,3 +1,12 @@
+## 🏃 [4.45.4](https://github.com/stenciljs/core/compare/v4.45.3...v4.45.4) (2026-11-17)
+
+
+### Bug Fixes
+
+* **runtime:** clean up host refs even when the global Node unavailable ([#7006](https://github.com/stenciljs/core/issues/7006)) ([f4fe940](https://github.com/stenciljs/core/commit/f4fe940f22dacce709e4cb81410e47860660ece6))
+
+
+
 ## 😜 [4.45.3](https://github.com/stenciljs/core/compare/v4.45.2...v4.45.3) (2026-11-11)
 
 
