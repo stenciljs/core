@@ -94,6 +94,7 @@ export const BUILD: BuildConditionals = {
   devTools: false,
   shadowDelegatesFocus: true,
   shadowSlotAssignmentManual: false,
+  shadowClonable: true,
   initializeNextTick: false,
   asyncLoading: true,
   asyncQueue: false,

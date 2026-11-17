@@ -185,6 +185,48 @@ describe('serializeNodeToHtml', () => {
     `);
   });
 
+  it('shadow root to template with clonable', () => {
+    const elm = doc.createElement('cmp-a');
+    expect(elm.shadowRoot).toEqual(null);
+
+    const shadowRoot = elm.attachShadow({ mode: 'open', clonable: true } as ShadowRootInit & { clonable?: boolean });
+    expect(shadowRoot.nodeType).toEqual(11);
+    expect(elm.shadowRoot.nodeType).toEqual(11);
+
+    expect(shadowRoot.host).toEqual(elm);
+    expect(elm.outerHTML).toContain('<template shadowrootmode="open" shadowrootclonable');
+  });
+
+  it('shadow root with clonable matches toEqualHtml', () => {
+    const elm = doc.createElement('my-tag');
+    const shadowRoot = elm.attachShadow({ mode: 'open', clonable: true } as ShadowRootInit & { clonable?: boolean });
+
+    const div = doc.createElement('div');
+    div.innerHTML = 'test content';
+    shadowRoot.appendChild(div);
+
+    // Test that the serialized output matches the expected format
+    // This ensures shadowrootclonable appears without ="" when compared
+    expect(elm).toEqualHtml(`
+      <my-tag>
+        <mock:shadow-root shadowrootclonable>
+          <div>test content</div>
+        </mock:shadow-root>
+      </my-tag>
+    `);
+  });
+
+  it('shadow root serializes both delegatesFocus and clonable', () => {
+    const elm = doc.createElement('cmp-a');
+    elm.attachShadow({ mode: 'open', delegatesFocus: true, clonable: true } as ShadowRootInit & {
+      clonable?: boolean;
+    });
+
+    expect(elm.outerHTML).toContain(
+      '<template shadowrootmode="open" shadowrootdelegatesfocus shadowrootclonable',
+    );
+  });
+
   it('style', () => {
     const input = `<style>     \n    text   \n\n</style>`;
     doc.body.innerHTML = input;

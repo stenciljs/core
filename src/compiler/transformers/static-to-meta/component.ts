@@ -11,7 +11,7 @@ import { parseAttachInternals, parseAttachInternalsCustomStates } from './attach
 import { parseCallExpression } from './call-expression';
 import { parseClassMethods } from './class-methods';
 import { parseStaticElementRef } from './element-ref';
-import { parseStaticEncapsulation, parseStaticShadowDelegatesFocus, parseStaticSlotAssignment } from './encapsulation';
+import { parseStaticEncapsulation, parseStaticShadowClonable, parseStaticShadowDelegatesFocus, parseStaticSlotAssignment } from './encapsulation';
 import { parseFormAssociated } from './form-associated';
 import { parseStringLiteral } from './string-literal';
 import { parseStaticStyles } from './styles';
@@ -92,6 +92,7 @@ export const parseStaticComponentMeta = (
     elementRef: parseStaticElementRef(staticMembers),
     encapsulation,
     shadowDelegatesFocus: !!parseStaticShadowDelegatesFocus(encapsulation, staticMembers),
+    shadowClonable: !!parseStaticShadowClonable(encapsulation, staticMembers),
     slotAssignment: parseStaticSlotAssignment(encapsulation, staticMembers),
     properties,
     virtualProperties: parseVirtualProps(docs),

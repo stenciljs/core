@@ -29,6 +29,9 @@ export const formatComponentRuntimeMeta = (
     if (compilerMeta.slotAssignment === 'manual') {
       flags |= CMP_FLAGS.shadowSlotAssignmentManual;
     }
+    if (compilerMeta.shadowClonable) {
+      flags |= CMP_FLAGS.shadowClonable;
+    }
   } else if (compilerMeta.encapsulation === 'scoped') {
     flags |= CMP_FLAGS.scopedCssEncapsulation;
   }

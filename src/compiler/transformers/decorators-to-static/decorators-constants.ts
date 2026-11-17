@@ -49,6 +49,7 @@ export const STATIC_GETTER_NAMES = [
   'assetsDirs',
   'attachInternalsCustomStates',
   'attachInternalsMemberName',
+  'clonable',
   'cmpMeta',
   'delegatesFocus',
   'elementRef',
