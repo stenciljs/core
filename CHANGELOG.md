@@ -3,6 +3,7 @@
 
 ### Bug Fixes
 
+* **runtime:** insert slot text as text nodes ([GHSA-3rxf-98fr-h6x3](https://github.com/stenciljs/core/security/advisories/GHSA-3rxf-98fr-h6x3)) ([e68a5ae](https://github.com/stenciljs/core/commit/e68a5ae86a1ab570928f14c27ef9a7a574771f72))
 * **runtime:** clean up host refs even when the global Node unavailable ([#7006](https://github.com/stenciljs/core/issues/7006)) ([f4fe940](https://github.com/stenciljs/core/commit/f4fe940f22dacce709e4cb81410e47860660ece6))
 
 
