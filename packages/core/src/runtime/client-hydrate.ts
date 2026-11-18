@@ -59,7 +59,11 @@ export const initializeClientHydrate = (
   let scopeId: string;
   if (BUILD.scoped) {
     const cmpMeta = hostRef.$cmpMeta$;
-    if (cmpMeta && cmpMeta.$flags$ & CMP_FLAGS.needsScopedEncapsulation && hostElm['s-sc']) {
+    if (
+      cmpMeta &&
+      cmpMeta.$flags$ & (CMP_FLAGS.needsScopedEncapsulation | CMP_FLAGS.shadowNeedsScopedCss) &&
+      hostElm['s-sc']
+    ) {
       scopeId = hostElm['s-sc'];
       hostElm.classList.add(scopeId + '-h');
     } else if (hostElm['s-sc']) {
