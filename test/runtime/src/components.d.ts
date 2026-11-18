@@ -226,6 +226,10 @@ export namespace Components {
     }
     interface ConnectedCallbackRaceParent {
     }
+    interface ConnectedCallbackRaceShadowChild {
+    }
+    interface ConnectedCallbackRaceShadowParent {
+    }
     interface CrossDocumentStyle {
     }
     interface CspNonceCmp {
@@ -1691,6 +1695,18 @@ declare global {
     var HTMLConnectedCallbackRaceParentElement: {
         prototype: HTMLConnectedCallbackRaceParentElement;
         new (): HTMLConnectedCallbackRaceParentElement;
+    };
+    interface HTMLConnectedCallbackRaceShadowChildElement extends Components.ConnectedCallbackRaceShadowChild, HTMLStencilElement {
+    }
+    var HTMLConnectedCallbackRaceShadowChildElement: {
+        prototype: HTMLConnectedCallbackRaceShadowChildElement;
+        new (): HTMLConnectedCallbackRaceShadowChildElement;
+    };
+    interface HTMLConnectedCallbackRaceShadowParentElement extends Components.ConnectedCallbackRaceShadowParent, HTMLStencilElement {
+    }
+    var HTMLConnectedCallbackRaceShadowParentElement: {
+        prototype: HTMLConnectedCallbackRaceShadowParentElement;
+        new (): HTMLConnectedCallbackRaceShadowParentElement;
     };
     interface HTMLCrossDocumentStyleElement extends Components.CrossDocumentStyle, HTMLStencilElement {
     }
@@ -3268,6 +3284,8 @@ declare global {
         "connected-callback-race-deferred-child": HTMLConnectedCallbackRaceDeferredChildElement;
         "connected-callback-race-deferred-parent": HTMLConnectedCallbackRaceDeferredParentElement;
         "connected-callback-race-parent": HTMLConnectedCallbackRaceParentElement;
+        "connected-callback-race-shadow-child": HTMLConnectedCallbackRaceShadowChildElement;
+        "connected-callback-race-shadow-parent": HTMLConnectedCallbackRaceShadowParentElement;
         "cross-document-style": HTMLCrossDocumentStyleElement;
         "csp-nonce-cmp": HTMLCspNonceCmpElement;
         "css-cmp": HTMLCssCmpElement;
@@ -3689,6 +3707,10 @@ declare namespace LocalJSX {
     interface ConnectedCallbackRaceDeferredParent {
     }
     interface ConnectedCallbackRaceParent {
+    }
+    interface ConnectedCallbackRaceShadowChild {
+    }
+    interface ConnectedCallbackRaceShadowParent {
     }
     interface CrossDocumentStyle {
     }
@@ -5032,6 +5054,8 @@ declare namespace LocalJSX {
         "connected-callback-race-deferred-child": ConnectedCallbackRaceDeferredChild;
         "connected-callback-race-deferred-parent": ConnectedCallbackRaceDeferredParent;
         "connected-callback-race-parent": ConnectedCallbackRaceParent;
+        "connected-callback-race-shadow-child": ConnectedCallbackRaceShadowChild;
+        "connected-callback-race-shadow-parent": ConnectedCallbackRaceShadowParent;
         "cross-document-style": CrossDocumentStyle;
         "csp-nonce-cmp": CspNonceCmp;
         "css-cmp": CssCmp;
@@ -5302,6 +5326,8 @@ declare module "@stencil/core" {
             "connected-callback-race-deferred-child": LocalJSX.IntrinsicElements["connected-callback-race-deferred-child"] & JSXBase.HTMLAttributes<HTMLConnectedCallbackRaceDeferredChildElement>;
             "connected-callback-race-deferred-parent": LocalJSX.IntrinsicElements["connected-callback-race-deferred-parent"] & JSXBase.HTMLAttributes<HTMLConnectedCallbackRaceDeferredParentElement>;
             "connected-callback-race-parent": LocalJSX.IntrinsicElements["connected-callback-race-parent"] & JSXBase.HTMLAttributes<HTMLConnectedCallbackRaceParentElement>;
+            "connected-callback-race-shadow-child": LocalJSX.IntrinsicElements["connected-callback-race-shadow-child"] & JSXBase.HTMLAttributes<HTMLConnectedCallbackRaceShadowChildElement>;
+            "connected-callback-race-shadow-parent": LocalJSX.IntrinsicElements["connected-callback-race-shadow-parent"] & JSXBase.HTMLAttributes<HTMLConnectedCallbackRaceShadowParentElement>;
             "cross-document-style": LocalJSX.IntrinsicElements["cross-document-style"] & JSXBase.HTMLAttributes<HTMLCrossDocumentStyleElement>;
             "csp-nonce-cmp": LocalJSX.IntrinsicElements["csp-nonce-cmp"] & JSXBase.HTMLAttributes<HTMLCspNonceCmpElement>;
             "css-cmp": LocalJSX.IntrinsicElements["css-cmp"] & JSXBase.HTMLAttributes<HTMLCssCmpElement>;

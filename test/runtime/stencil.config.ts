@@ -20,6 +20,12 @@ export const config: Config = {
       customElementsExportBehavior: 'auto-define-custom-elements',
       skipInDev: false,
     },
+    {
+      type: 'standalone',
+      dir: 'dist/custom-elements-bundle',
+      customElementsExportBehavior: 'bundle',
+      skipInDev: false,
+    },
   ],
   plugins: [
     sass({

@@ -31,4 +31,19 @@ describe('connected-callback-race', () => {
     expect(logs[1]).toHaveTextContent('deferred-child-connectedCallback');
     expect(logs[2]).toHaveTextContent('deferred-parent-componentWillLoad saw-child=true');
   });
+
+  it("shadow parent's componentWillLoad observes a slotted child's connectedCallback", async () => {
+    const { waitForChanges } = await render(
+      '<div><ol id="connected-callback-race-shadow-log"></ol><connected-callback-race-shadow-parent><connected-callback-race-shadow-child></connected-callback-race-shadow-child></connected-callback-race-shadow-parent></div>',
+    );
+
+    await waitForChanges();
+    await waitForStable('#connected-callback-race-shadow-log');
+
+    const logs = document.querySelectorAll('#connected-callback-race-shadow-log li');
+    expect(logs).toHaveLength(3);
+    expect(logs[0]).toHaveTextContent('shadow-parent-connectedCallback');
+    expect(logs[1]).toHaveTextContent('shadow-child-connectedCallback');
+    expect(logs[2]).toHaveTextContent('shadow-parent-componentWillLoad saw-child=true');
+  });
 });

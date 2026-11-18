@@ -36,29 +36,35 @@ export const markFirstConnected = (hostRef: d.HostRef) => {
 };
 
 /**
- * Wait for `ancestorElm` to be defined and its real `connectedCallback` to have completed.
- * Shared by the lazy ({@link initializeComponent}) and standalone (`bootstrap-standalone.ts`)
- * `connectedCallback` paths so a component never connects before its nearest Stencil
- * ancestor, regardless of load order. Both call sites already check `BUILD.asyncLoading` and
- * that an ancestor exists before calling this. Lazy's proxy classes are always pre-defined,
- * so the `whenDefined` wait is a no-op there - it only does real work for standalone's
- * autoloader, where the ancestor tag may not be defined yet.
+ * Get a promise for `ancestorElm` to be defined and its real `connectedCallback` to have
+ * completed, or `undefined` if it already has. Shared by the lazy ({@link initializeComponent})
+ * and standalone (`bootstrap-standalone.ts`) `connectedCallback` paths so a component never
+ * connects before its nearest Stencil ancestor, regardless of load order. Callers only `await`
+ * a returned promise, so a component whose ancestor is already connected carries on
+ * synchronously instead of losing a microtask. Lazy's proxy classes are always pre-defined, so
+ * the `whenDefined` wait only does real work for standalone's autoloader, where the ancestor
+ * tag may not be defined yet.
  *
  * @param ancestorElm the nearest Stencil ancestor element
  * @param registry the registry the waiting component is defined in
+ * @returns a promise to await, or `undefined` if there's nothing to wait for
  */
-export const awaitAncestorConnected = async (
+export const whenAncestorConnected = (
   ancestorElm: d.HostElement,
   registry: CustomElementRegistry,
-): Promise<void> => {
-  let ancestorHostRef = getHostRef(ancestorElm);
+): Promise<void> | undefined => {
+  const pendingConnect = (hostRef: d.HostRef | undefined) =>
+    hostRef && !(hostRef.$flags$ & HOST_FLAGS.hasFiredConnected)
+      ? ensureFirstConnectPromise(hostRef)
+      : undefined;
+
+  const ancestorHostRef = getHostRef(ancestorElm);
   if (!BUILD.lazyLoad && !ancestorHostRef) {
-    await registry.whenDefined(ancestorElm.tagName.toLowerCase());
-    ancestorHostRef = getHostRef(ancestorElm);
+    return registry
+      .whenDefined(ancestorElm.tagName.toLowerCase())
+      .then(() => pendingConnect(getHostRef(ancestorElm)));
   }
-  if (ancestorHostRef && !(ancestorHostRef.$flags$ & HOST_FLAGS.hasFiredConnected)) {
-    await ensureFirstConnectPromise(ancestorHostRef);
-  }
+  return pendingConnect(ancestorHostRef);
 };
 
 export const attachToAncestor = (hostRef: d.HostRef, ancestorComponent?: d.HostElement) => {
@@ -105,13 +111,16 @@ export const scheduleUpdate = (
   if (isInitialLoad) {
     // `s-pc` holds pending children's first-connect promises (registered via
     // `attachToAncestor`). `componentWillLoad` must not fire before a pending child's real
-    // `connectedCallback` has, regardless of which module resolves first.
-    const pendingConnects = BUILD.asyncLoading ? hostRef.$hostElement$['s-pc'] : undefined;
-    if (pendingConnects && pendingConnects.length > 0) {
-      return Promise.all(pendingConnects).then(dispatch).catch(dispatch);
-    }
+    // `connectedCallback` has, regardless of which module resolves first. Read it in the
+    // microtask, not now: children upgraded in the same task (e.g. a pre-defined tree inserted
+    // via `innerHTML`) only register after this component's own `connectedCallback`.
     queueMicrotask(() => {
-      dispatch();
+      const pendingConnects = BUILD.asyncLoading ? hostRef.$hostElement$['s-pc'] : undefined;
+      if (pendingConnects && pendingConnects.length > 0) {
+        Promise.all(pendingConnects).then(dispatch, dispatch);
+      } else {
+        dispatch();
+      }
     });
     return;
   }

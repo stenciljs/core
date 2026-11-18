@@ -90,7 +90,9 @@ export const getBundleOptions = (
   const conditionals = getStandaloneBuildConditionals(config, buildCtx.components);
   mergeCollectionBuildFlags(conditionals, compilerCtx.collections);
   return {
-    id: 'customElements',
+    // Keys the transpile cache, so it must vary with anything that changes the transformers'
+    // output - otherwise a second `standalone` target reuses the first's transpiled modules.
+    id: `customElements-${outputTarget.customElementsExportBehavior ?? 'default'}`,
     platform: 'client',
     conditionals,
     customBeforeTransformers: getCustomBeforeTransformers(
