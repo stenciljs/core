@@ -38,7 +38,7 @@ import { getHostRegistry } from './registry';
 import { PLATFORM_FLAGS } from './runtime-constants';
 import { PROXY_FLAGS } from './runtime-constants';
 import { attachStyles, getScopeId, hydrateScopedToShadow, registerStyle } from './styles';
-import { awaitAncestorConnected, markFirstConnected } from './update-component';
+import { markFirstConnected, whenAncestorConnected } from './update-component';
 
 export const defineCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMetaCompact) => {
   const tag = transformTag(compactMeta[1]);
@@ -171,14 +171,20 @@ export const proxyCustomElement = (Cstr: any, compactMeta: d.ComponentRuntimeMet
 
         if (BUILD.asyncLoading && hostRef && hostRef.$ancestorComponent$) {
           // Never fire before our nearest Stencil ancestor's real connectedCallback,
-          // regardless of load order. Gated on having an ancestor since `awaitAncestorConnected`
-          // is `async` - calling it unconditionally would cost every component a wasted tick.
-          await awaitAncestorConnected(hostRef.$ancestorComponent$, getHostRegistry(this));
+          // regardless of load order. Only suspend when there's something to wait for -
+          // otherwise run synchronously, as a native custom element would.
+          const ancestorConnected = whenAncestorConnected(
+            hostRef.$ancestorComponent$,
+            getHostRegistry(this),
+          );
+          if (ancestorConnected) {
+            await ancestorConnected;
 
-          // If disconnected while suspended above, `disconnectedCallback` already ran - firing
-          // the author's callback now would leak, with no matching disconnect left to follow.
-          if (!this.isConnected) {
-            return;
+            // If disconnected while suspended above, `disconnectedCallback` already ran - firing
+            // the author's callback now would leak, with no matching disconnect left to follow.
+            if (!this.isConnected) {
+              return;
+            }
           }
         }
 

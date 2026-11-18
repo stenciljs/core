@@ -113,7 +113,7 @@ export * from '${USER_INDEX_ENTRY_ID}';
       const options = getBundleOptions(config, buildCtx, compilerCtx, {
         type: STANDALONE,
       });
-      expect(options.id).toBe('customElements');
+      expect(options.id).toBe('customElements-default');
       expect(options.platform).toBe('client');
       expect(options.inlineWorkers).toBe(true);
       expect(options.inputs).toEqual({
@@ -121,6 +121,21 @@ export * from '${USER_INDEX_ENTRY_ID}';
       });
       expect(options.loader).toEqual({});
       expect(options.preserveEntrySignatures).toEqual('allow-extension');
+    });
+
+    it('should give targets with different export behaviors different ids', () => {
+      const { config, buildCtx, compilerCtx } = setup();
+      const autoDefine = getBundleOptions(config, buildCtx, compilerCtx, {
+        type: STANDALONE,
+        customElementsExportBehavior: 'auto-define-custom-elements',
+      });
+      const bundle = getBundleOptions(config, buildCtx, compilerCtx, {
+        type: STANDALONE,
+        customElementsExportBehavior: 'bundle',
+      });
+      // `id` keys the shared transpile cache; a collision serves one target the other's output
+      expect(autoDefine.id).not.toBe(bundle.id);
+      expect(autoDefine.id).not.toContain(':');
     });
 
     it.each([true, false, undefined])(

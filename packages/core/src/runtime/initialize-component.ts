@@ -13,10 +13,10 @@ import { PROXY_FLAGS, MAX_LAZY_LOAD_RETRIES } from './runtime-constants';
 import { initializeEffects, initializeSignals } from './signals';
 import { getScopeId, registerStyle } from './styles';
 import {
-  awaitAncestorConnected,
   markFirstConnected,
   safeCall,
   scheduleUpdate,
+  whenAncestorConnected,
 } from './update-component';
 
 /**
@@ -111,11 +111,15 @@ export const initializeComponent = async (
         endNewInstance();
 
         if (BUILD.asyncLoading && hostRef.$ancestorComponent$) {
-          // Only call through (and thus only ever suspend) when there's actually an
-          // ancestor to wait on - `awaitAncestorConnected` is itself `async`, so awaiting
-          // it unconditionally would cost every component an extra microtask tick even
-          // when there's nothing to wait for.
-          await awaitAncestorConnected(hostRef.$ancestorComponent$, getHostRegistry(elm));
+          // Only suspend when the ancestor hasn't connected yet - an unconditional `await`
+          // would cost every component a microtask tick even when there's nothing to wait for.
+          const ancestorConnected = whenAncestorConnected(
+            hostRef.$ancestorComponent$,
+            getHostRegistry(elm),
+          );
+          if (ancestorConnected) {
+            await ancestorConnected;
+          }
         }
 
         // For components that relocate slots, defer connectedCallback to the next microtask

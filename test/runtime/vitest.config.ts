@@ -43,6 +43,25 @@ export default defineVitestConfig({
           },
         },
       },
+      // Tests against bundled 'dist-custom-elements' output, with every component defined up front
+      {
+        test: {
+          name: 'standalone-predefined',
+          include: ['src/**/*.spec.{ts,tsx}'],
+          exclude: ['src/scer/**'],
+          setupFiles: ['./vitest-setup-custom-elements-predefined.ts'],
+          retry: 2,
+          env: {
+            TEST_PROJECT: 'custom-elements-predefined',
+          },
+          browser: {
+            enabled: true,
+            provider: playwright(),
+            headless: true,
+            instances: [{ browser: 'chromium' }],
+          },
+        },
+      },
       // Scoped Custom Element Registry tests - lazy loader
       {
         test: {
