@@ -2152,6 +2152,15 @@ export interface TestingConfig extends JestConfig {
   browserExecutablePath?: string;
 
   /**
+   * Maximum time in milliseconds to wait for the browser to start when running e2e tests.
+   * Increase this value if the browser intermittently fails to start with a
+   * "Timed out ... while trying to connect to the browser" error, e.g. on a heavily loaded CI machine.
+   * Pass `0` to disable the timeout. Has no effect when `browserWSEndpoint` is used.
+   * @default 30000
+   */
+  browserLaunchTimeout?: number;
+
+  /**
    * Url of remote Chrome instance to use instead of local Chrome.
    */
   browserWSEndpoint?: string;
