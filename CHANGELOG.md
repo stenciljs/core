@@ -1,3 +1,7 @@
+## 🐋 [4.45.5](https://github.com/stenciljs/core/compare/v4.45.4...v4.45.5) (2026-11-19)
+
+
+
 ## 🏃 [4.45.4](https://github.com/stenciljs/core/compare/v4.45.3...v4.45.4) (2026-11-17)
 
 
