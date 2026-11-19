@@ -1,3 +1,12 @@
+## 🐋 [4.45.5](https://github.com/stenciljs/core/compare/v4.45.4...v4.45.5) (2026-11-19)
+
+
+### Bug Fixes
+
+* **mock-doc:** escape style attribute on serialize ([GHSA-r3wg-x9p9-6rq8](https://github.com/stenciljs/core/security/advisories/GHSA-r3wg-x9p9-6rq8)) ([75fa653](https://github.com/stenciljs/core/commit/75fa65374edbdd53b86754ef3bde6c0411eaca8d))
+
+
+
 ## 🏃 [4.45.4](https://github.com/stenciljs/core/compare/v4.45.3...v4.45.4) (2026-11-17)
 
 
