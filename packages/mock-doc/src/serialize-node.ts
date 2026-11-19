@@ -288,10 +288,10 @@ function* streamToHtml(
           opts.approximateLineWidth > 0 &&
           output.currentLineWidth + cssText.length + 10 > opts.approximateLineWidth
         ) {
-          yield `\nstyle="${cssText}">`;
+          yield `\nstyle="${escapeString(cssText, true)}">`;
           output.currentLineWidth = 0;
         } else {
-          yield ` style="${cssText}">`;
+          yield ` style="${escapeString(cssText, true)}">`;
           output.currentLineWidth += cssText.length + 10;
         }
       } else {
