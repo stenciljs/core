@@ -8,6 +8,7 @@ import {
   relativeImport,
 } from '../../../utils';
 import { generateRolldownOutput } from '../../app-core/bundle-app-core';
+import { cjsImportMetaUrlPlugin } from './cjs-import-meta-url-plugin';
 import { generateLazyModules } from './generate-lazy-module';
 import { lazyBundleIdPlugin } from './lazy-bundleid-plugin';
 
@@ -28,7 +29,10 @@ export const generateCjs = async (
       entryFileNames: '[name].cjs',
       assetFileNames: '[name]-[hash][extname]',
       ...getRolldownSourceMapOptions(config),
-      plugins: [lazyBundleIdPlugin(buildCtx, config, false, 8, '.cjs')],
+      plugins: [
+        lazyBundleIdPlugin(buildCtx, config, false, 8, '.cjs'),
+        cjsImportMetaUrlPlugin(!!config.sourceMap),
+      ],
     };
 
     // Note: interop and dynamicImportInCjs options are not supported in Rolldown
@@ -59,11 +63,28 @@ export const generateCjs = async (
       );
 
       await generateShortcuts(compilerCtx, results, cjsOutputs);
+      await writeCjsPackageJson(compilerCtx, cjsOutputs);
     }
   }
 
   return { name: 'cjs', buildCtx };
 };
+
+/**
+ * Chunks and lazy entries in the CJS dir keep a `.js` extension, so scope them as CommonJS
+ * in case the consuming package sets `"type": "module"`.
+ * @param compilerCtx the current compiler context
+ * @param outputTargets the output targets with a CJS dir
+ * @returns a promise that resolves once each `package.json` is written
+ */
+const writeCjsPackageJson = (compilerCtx: d.CompilerCtx, outputTargets: d.OutputTargetDistLazy[]) =>
+  Promise.all(
+    outputTargets.map((o) =>
+      compilerCtx.fs.writeFile(join(o.cjsDir, 'package.json'), `{"type":"commonjs"}\n`, {
+        outputTargetType: o.type,
+      }),
+    ),
+  );
 
 const generateShortcuts = (
   compilerCtx: d.CompilerCtx,
