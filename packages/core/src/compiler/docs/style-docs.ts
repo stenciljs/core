@@ -2,7 +2,8 @@ import postcss from 'postcss';
 import type * as d from '@stencil/core';
 
 import {
-  isJsDocComment,
+  CSS_PROP_ANNOTATION_RE,
+  isDeclarationDocComment,
   normalizeJsDocText,
   parseCustomPropertyTag,
   parsePropertyAtRuleDescriptors,
@@ -109,7 +110,7 @@ function parseScopedAndNativeStyleDocs(
           continue;
         }
         const prev = children[i - 1];
-        if (!prev || prev.type !== 'comment' || !isJsDocComment(prev.text)) {
+        if (!prev || prev.type !== 'comment' || !isDeclarationDocComment(prev.text)) {
           continue; // undocumented custom property - not collected
         }
         styleDocs.push({
@@ -131,7 +132,7 @@ function parseScopedAndNativeStyleDocs(
     const { syntax, initialValue } = parsePropertyAtRuleDescriptors(node);
     const prev = node.prev();
     const docs =
-      prev && prev.type === 'comment' && isJsDocComment(prev.text)
+      prev && prev.type === 'comment' && isDeclarationDocComment(prev.text)
         ? normalizeJsDocText(prev.text)
         : '';
 
@@ -209,9 +210,3 @@ const CSS_DOC_START = /\/\*(\*|!)/;
  * Closing syntax for a CSS docstring
  */
 const CSS_DOC_END = '*/';
-/**
- * The `@prop` annotation we support within CSS docstrings. `@cssprop`/`@cssproperty` are also
- * recognized as synonyms (the more common names in other web-component-analyzer/docgen
- * ecosystems).
- */
-const CSS_PROP_ANNOTATION_RE = /@(?:cssproperty|cssprop|prop)\b/;

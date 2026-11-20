@@ -164,6 +164,22 @@ describe('parseCssComponentFile', () => {
     ]);
   });
 
+  it('does not treat an @prop annotation block as the doc comment of the declaration after it', async () => {
+    const { defs } = await parseCssComponentFile(
+      '/src/my-badge.css',
+      `
+      /**
+       * @component
+       */
+      my-badge {
+        /** @prop --badge-color: Text color */
+        --badge-internal: 0px;
+      }
+      `,
+    );
+    expect(defs[0].properties.map((p) => p.name)).not.toContain('--badge-internal');
+  });
+
   it('collects auto-detected --custom-property declarations inside a resolved nested rule', async () => {
     const { defs } = await parseCssComponentFile(
       '/src/my-badge.css',

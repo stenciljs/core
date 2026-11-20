@@ -5,6 +5,7 @@ import type * as d from '@stencil/core';
 
 import { buildError, buildWarn, validateComponentTag } from '../../utils';
 import {
+  isDeclarationDocComment,
   isJsDocComment,
   normalizeJsDocLines,
   normalizeJsDocText,
@@ -220,7 +221,7 @@ export const parseCssComponentFile = async (
 
     const prev = nodes[i - 1];
     const docs =
-      prev && prev.type === 'comment' && isJsDocComment(prev.text)
+      prev && prev.type === 'comment' && isDeclarationDocComment(prev.text)
         ? normalizeJsDocText(prev.text)
         : '';
 
@@ -462,7 +463,7 @@ const collectAutoDetectedCustomProperties = (
       continue; // explicit @prop/@cssprop annotation already wins
     }
     const prev = children[i - 1];
-    if (!prev || prev.type !== 'comment' || !isJsDocComment(prev.text)) {
+    if (!prev || prev.type !== 'comment' || !isDeclarationDocComment(prev.text)) {
       continue; // undocumented custom property - not collected
     }
     def.properties.push({

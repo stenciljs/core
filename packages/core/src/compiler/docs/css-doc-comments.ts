@@ -10,6 +10,23 @@ export const isJsDocComment = (commentText: string): boolean =>
   commentText.startsWith('*') || commentText.startsWith('!');
 
 /**
+ * An explicit `@prop` annotation tag in a CSS docstring. `@cssprop`/`@cssproperty` are also
+ * recognized as synonyms (the more common names in other web-component-analyzer/docgen
+ * ecosystems).
+ */
+export const CSS_PROP_ANNOTATION_RE = /@(?:cssproperty|cssprop|prop)\b/;
+
+/**
+ * Whether a comment documents the custom-property declaration or `@property` at-rule
+ * immediately following it. A comment holding explicit `@prop` annotations documents the
+ * properties it names instead.
+ * @param commentText a postcss `Comment` node's `.text`
+ * @returns `true` if the comment is a JSDoc-style doc comment for the next node
+ */
+export const isDeclarationDocComment = (commentText: string): boolean =>
+  isJsDocComment(commentText) && !CSS_PROP_ANNOTATION_RE.test(commentText);
+
+/**
  * Strip the leading `*`/`!` marker and per-line `*` prefixes, returning trimmed lines.
  * @param commentText a postcss `Comment` node's `.text`
  * @returns the comment's lines, delimiters and leading `*`s stripped
