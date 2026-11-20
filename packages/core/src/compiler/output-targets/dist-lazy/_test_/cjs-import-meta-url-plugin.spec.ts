@@ -1,3 +1,5 @@
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { rolldown } from 'rolldown';
 import { describe, expect, it } from 'vitest';
 
@@ -38,12 +40,14 @@ describe('cjsImportMetaUrlPlugin', () => {
   it('produces a URL that evaluates under CommonJS', async () => {
     const code = await bundleCjs(source);
     const module = { exports: {} as { url?: string } };
+    const filename = resolve('/pkg/dist/cjs/loader.cjs');
     new Function('module', 'exports', 'require', '__filename', code)(
       module,
       module.exports,
       require,
-      '/pkg/dist/cjs/loader.cjs',
+      filename,
     );
-    expect(module.exports.url).toBe('file:///pkg/dist/assets/');
+    // resolved per platform (Windows adds a drive letter)
+    expect(module.exports.url).toBe(pathToFileURL(resolve('/pkg/dist/assets')).href + '/');
   });
 });
