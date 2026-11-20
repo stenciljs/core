@@ -340,6 +340,22 @@ describe('parseCssComponentFile', () => {
     ]);
   });
 
+  it('does not take an annotation block as the description of the attribute rule after it', async () => {
+    const { defs } = await parseCssComponentFile(
+      '/src/my-badge.css',
+      `
+      /** @component */
+      my-badge {
+        /** @prop --badge-color: Text color */
+        &[pill] {}
+      }
+      `,
+    );
+    expect(defs[0].attributes).toEqual([
+      expect.objectContaining({ name: 'pill', docs: '', source: 'auto' }),
+    ]);
+  });
+
   it('parses a native @property at-rule and applies it (as non-explicit) to the component in the same file', async () => {
     const { defs, diagnostics } = await parseCssComponentFile(
       '/src/my-badge.css',
@@ -554,6 +570,20 @@ describe('parseCssComponentFile', () => {
           { name: 'something-else', docs: '', source: 'auto' },
         ]),
       );
+    });
+
+    it('does not take an annotation block as the description of the slot rule after it', async () => {
+      const { defs } = await parseCssComponentFile(
+        '/src/my-badge.css',
+        `
+        /** @component */
+        my-badge {
+          /** @prop --badge-gap: Gap between items */
+          [slot="icon-end"] {}
+        }
+        `,
+      );
+      expect(defs[0].slots).toEqual([{ name: 'icon-end', docs: '', source: 'auto' }]);
     });
 
     it('does NOT auto-detect a [slot="x"] selector belonging to a nested custom element, only the component\'s own direct nesting', async () => {

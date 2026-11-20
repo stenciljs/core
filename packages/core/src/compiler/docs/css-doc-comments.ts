@@ -17,14 +17,19 @@ export const isJsDocComment = (commentText: string): boolean =>
 export const CSS_PROP_ANNOTATION_RE = /@(?:cssproperty|cssprop|prop)\b/;
 
 /**
- * Whether a comment documents the custom-property declaration or `@property` at-rule
- * immediately following it. A comment holding explicit `@prop` annotations documents the
- * properties it names instead.
- * @param commentText a postcss `Comment` node's `.text`
- * @returns `true` if the comment is a JSDoc-style doc comment for the next node
+ * An annotation tag that documents something by name (`@prop --x`, `@slot name`, ...) rather
+ * than describing the node below its comment.
  */
-export const isDeclarationDocComment = (commentText: string): boolean =>
-  isJsDocComment(commentText) && !CSS_PROP_ANNOTATION_RE.test(commentText);
+const CSS_ANNOTATION_TAG_RE = /@(?:component|cssproperty|cssprop|prop|attr|slot)\b/;
+
+/**
+ * Whether a comment describes the node immediately following it (a declaration, rule or
+ * at-rule). A comment holding annotation tags documents the things it names instead.
+ * @param commentText a postcss `Comment` node's `.text`
+ * @returns `true` if the comment is a JSDoc-style description of the next node
+ */
+export const isNodeDocComment = (commentText: string): boolean =>
+  isJsDocComment(commentText) && !CSS_ANNOTATION_TAG_RE.test(commentText);
 
 /**
  * Strip the leading `*`/`!` marker and per-line `*` prefixes, returning trimmed lines.

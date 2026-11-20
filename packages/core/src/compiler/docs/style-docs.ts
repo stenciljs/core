@@ -3,7 +3,7 @@ import type * as d from '@stencil/core';
 
 import {
   CSS_PROP_ANNOTATION_RE,
-  isDeclarationDocComment,
+  isNodeDocComment,
   normalizeJsDocText,
   parseCustomPropertyTag,
   parsePropertyAtRuleDescriptors,
@@ -110,7 +110,7 @@ function parseScopedAndNativeStyleDocs(
           continue;
         }
         const prev = children[i - 1];
-        if (!prev || prev.type !== 'comment' || !isDeclarationDocComment(prev.text)) {
+        if (!prev || prev.type !== 'comment' || !isNodeDocComment(prev.text)) {
           continue; // undocumented custom property - not collected
         }
         styleDocs.push({
@@ -132,7 +132,7 @@ function parseScopedAndNativeStyleDocs(
     const { syntax, initialValue } = parsePropertyAtRuleDescriptors(node);
     const prev = node.prev();
     const docs =
-      prev && prev.type === 'comment' && isDeclarationDocComment(prev.text)
+      prev && prev.type === 'comment' && isNodeDocComment(prev.text)
         ? normalizeJsDocText(prev.text)
         : '';
 

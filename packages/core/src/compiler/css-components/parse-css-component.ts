@@ -5,7 +5,7 @@ import type * as d from '@stencil/core';
 
 import { buildError, buildWarn, validateComponentTag } from '../../utils';
 import {
-  isDeclarationDocComment,
+  isNodeDocComment,
   isJsDocComment,
   normalizeJsDocLines,
   normalizeJsDocText,
@@ -221,7 +221,7 @@ export const parseCssComponentFile = async (
 
     const prev = nodes[i - 1];
     const docs =
-      prev && prev.type === 'comment' && isDeclarationDocComment(prev.text)
+      prev && prev.type === 'comment' && isNodeDocComment(prev.text)
         ? normalizeJsDocText(prev.text)
         : '';
 
@@ -278,7 +278,7 @@ const collectAutoDetectedSlots = (container: postcss.Container, def: CssOnlyComp
       }
       const prev = nested.prev();
       const docs =
-        prev && prev.type === 'comment' && isJsDocComment(prev.text)
+        prev && prev.type === 'comment' && isNodeDocComment(prev.text)
           ? normalizeJsDocText(prev.text)
           : '';
       def.slots.push({ name, docs, source: 'auto' });
@@ -411,7 +411,7 @@ const collectAttributeRuleDocs = (
 ) => {
   for (const node of container.nodes) {
     const prev = node.prev();
-    if (node.type !== 'rule' || prev?.type !== 'comment' || !isJsDocComment(prev.text)) {
+    if (node.type !== 'rule' || prev?.type !== 'comment' || !isNodeDocComment(prev.text)) {
       continue;
     }
     let selectors: ParsedSelector[];
@@ -463,7 +463,7 @@ const collectAutoDetectedCustomProperties = (
       continue; // explicit @prop/@cssprop annotation already wins
     }
     const prev = children[i - 1];
-    if (!prev || prev.type !== 'comment' || !isDeclarationDocComment(prev.text)) {
+    if (!prev || prev.type !== 'comment' || !isNodeDocComment(prev.text)) {
       continue; // undocumented custom property - not collected
     }
     def.properties.push({
