@@ -13,10 +13,10 @@ import { ImportAliasMap } from './import-alias-map';
 import { listenDecoratorsToStatic } from './listen-decorator';
 import { methodDecoratorsToStatic, validateMethods } from './method-decorator';
 import { propDecoratorsToStatic } from './prop-decorator';
+import { serializeDecoratorsToStatic } from './serialize-decorators';
 import { stateDecoratorsToStatic } from './state-decorator';
 import { typeParametersToStatic } from './type-parameters';
 import { watchDecoratorsToStatic } from './watch-decorator';
-import { serializeDecoratorsToStatic } from './serialize-decorators';
 
 /**
  * Create a {@link ts.TransformerFactory} which will handle converting any
