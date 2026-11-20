@@ -1,5 +1,6 @@
 import { NODE_TYPES } from './constants';
 import { MockHTMLElement, MockNode } from './node';
+import { getProxyTarget, hasProxyElement, resetProxyElement, setProxyElement } from './proxy-element';
 
 export class MockCustomElementRegistry implements CustomElementRegistry {
   private __registry: Map<string, { cstr: any; options: any }>;
@@ -47,8 +48,8 @@ export class MockCustomElementRegistry implements CustomElementRegistry {
 
           tempDisableCallbacks.delete(doc);
 
-          if (proxyElements.has(host)) {
-            proxyElements.set(host, upgradedCmp);
+          if (hasProxyElement(host)) {
+            resetProxyElement(host, upgradedCmp, getProxyTarget(host));
           }
         }
 
@@ -127,14 +128,14 @@ export function createCustomElement(customElements: MockCustomElementRegistry, o
     {},
     {
       get(obj: any, prop: string) {
-        const elm = proxyElements.get(host);
+        const elm = getProxyTarget(host);
         if (elm != null) {
           return elm[prop];
         }
         return obj[prop];
       },
       set(obj: any, prop: string, val: any) {
-        const elm = proxyElements.get(host);
+        const elm = getProxyTarget(host);
         if (elm != null) {
           elm[prop] = val;
         } else {
@@ -143,7 +144,7 @@ export function createCustomElement(customElements: MockCustomElementRegistry, o
         return true;
       },
       has(obj: any, prop: string) {
-        const elm = proxyElements.get(host);
+        const elm = getProxyTarget(host);
         if (prop in elm) {
           return true;
         }
@@ -157,12 +158,10 @@ export function createCustomElement(customElements: MockCustomElementRegistry, o
 
   const elm = new MockHTMLElement(ownerDocument, tagName);
 
-  proxyElements.set(host, elm);
+  setProxyElement(host, elm);
 
   return host;
 }
-
-const proxyElements = new WeakMap();
 
 const upgradedElements = new WeakSet();
 
