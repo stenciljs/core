@@ -296,6 +296,17 @@ describe('style-docs', () => {
       expect(styleDocs).toEqual([]);
     });
 
+    it('does not collect an @internal custom property', () => {
+      const styleText = `
+        :host {
+          /** @internal Reset for nested safe areas. */
+          --ion-safe-area-left: 0px;
+        }
+      `;
+      parseStyleDocs(styleDocs, styleText, undefined, 'my-cmp', 'shadow');
+      expect(styleDocs).toEqual([]);
+    });
+
     it('does not treat an @prop annotation block as the doc comment of the declaration after it', () => {
       const styleText = `
         :host {
@@ -398,6 +409,38 @@ describe('style-docs', () => {
           docs: `Corner radius.`,
           annotation: 'prop',
           mode: undefined,
+          syntax: `<length>`,
+          default: `4px`,
+        },
+      ]);
+    });
+
+    it('does not collect an @internal @property at-rule', () => {
+      const styleText = `
+        /** @internal */
+        @property --my-radius {
+          syntax: "<length>";
+        }
+      `;
+      parseStyleDocs(styleDocs, styleText);
+      expect(styleDocs).toEqual([]);
+    });
+
+    it('still merges an @internal @property into a property documented elsewhere', () => {
+      const styleText = `
+        /** @prop --my-radius: Corner radius */
+        /** @internal */
+        @property --my-radius {
+          syntax: "<length>";
+          initial-value: 4px;
+        }
+      `;
+      parseStyleDocs(styleDocs, styleText);
+      expect(styleDocs).toEqual([
+        {
+          name: `--my-radius`,
+          docs: `Corner radius`,
+          annotation: 'prop',
           syntax: `<length>`,
           default: `4px`,
         },

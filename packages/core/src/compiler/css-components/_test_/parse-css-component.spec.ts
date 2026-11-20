@@ -340,6 +340,60 @@ describe('parseCssComponentFile', () => {
     ]);
   });
 
+  it('excludes @internal custom properties, @property at-rules and attribute variants', async () => {
+    const { defs } = await parseCssComponentFile(
+      '/src/my-badge.css',
+      `
+      /** @internal */
+      @property --badge-hidden-reg {
+        syntax: "<length>";
+      }
+      /** @component */
+      my-badge {
+        /** @internal */
+        --badge-hidden: 0px;
+        /** Public spacing. */
+        --badge-padding: 4px;
+
+        /** @internal */
+        &[debug] {}
+        /** Pill shape. */
+        &[pill] {}
+      }
+      /** A later, documented rule for an internal attribute doesn't resurface it. */
+      my-badge[debug] {}
+      `,
+    );
+    expect(defs[0].properties.map((p) => p.name)).toEqual(['--badge-padding']);
+    expect(defs[0].attributes.map((a) => a.name)).toEqual(['pill']);
+  });
+
+  it('still merges an @internal @property into a property documented elsewhere', async () => {
+    const { defs } = await parseCssComponentFile(
+      '/src/my-badge.css',
+      `
+      /** @component */
+      my-badge {
+        /** Badge height. */
+        --badge-size: 20px;
+      }
+      /** @internal */
+      @property --badge-size {
+        syntax: "<length>";
+        initial-value: 20px;
+      }
+      `,
+    );
+    expect(defs[0].properties).toEqual([
+      expect.objectContaining({
+        name: '--badge-size',
+        docs: 'Badge height.',
+        syntax: '<length>',
+        default: '20px',
+      }),
+    ]);
+  });
+
   it('does not take an annotation block as the description of the attribute rule after it', async () => {
     const { defs } = await parseCssComponentFile(
       '/src/my-badge.css',
@@ -570,6 +624,23 @@ describe('parseCssComponentFile', () => {
           { name: 'something-else', docs: '', source: 'auto' },
         ]),
       );
+    });
+
+    it('excludes an @internal [slot="x"] rule, including later occurrences of the same slot', async () => {
+      const { defs } = await parseCssComponentFile(
+        '/src/my-badge.css',
+        `
+        /** @component */
+        my-badge {
+          /** @internal */
+          [slot="debug"] {}
+          /** Documented later. */
+          [slot="debug"]:hover {}
+          [slot="icon-end"] {}
+        }
+        `,
+      );
+      expect(defs[0].slots).toEqual([{ name: 'icon-end', docs: '', source: 'auto' }]);
     });
 
     it('does not take an annotation block as the description of the slot rule after it', async () => {

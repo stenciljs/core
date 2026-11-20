@@ -3,6 +3,7 @@ import type * as d from '@stencil/core';
 
 import {
   CSS_PROP_ANNOTATION_RE,
+  isInternalDocComment,
   isNodeDocComment,
   normalizeJsDocText,
   parseCustomPropertyTag,
@@ -129,8 +130,9 @@ function parseScopedAndNativeStyleDocs(
       return;
     }
 
-    const { syntax, initialValue } = parsePropertyAtRuleDescriptors(node);
     const prev = node.prev();
+    const isInternal = prev?.type === 'comment' && isInternalDocComment(prev.text);
+    const { syntax, initialValue } = parsePropertyAtRuleDescriptors(node);
     const docs =
       prev && prev.type === 'comment' && isNodeDocComment(prev.text)
         ? normalizeJsDocText(prev.text)
@@ -143,6 +145,9 @@ function parseScopedAndNativeStyleDocs(
       if (syntax) existing.syntax ??= syntax;
       if (initialValue) existing.default ??= initialValue;
       return;
+    }
+    if (isInternal) {
+      return; // still supplies type info above, but never creates an entry of its own
     }
 
     styleDocs.push({

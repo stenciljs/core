@@ -5,6 +5,7 @@ import type * as d from '@stencil/core';
 
 import { buildError, buildWarn, validateComponentTag } from '../../utils';
 import {
+  isInternalDocComment,
   isNodeDocComment,
   isJsDocComment,
   normalizeJsDocLines,
@@ -74,7 +75,8 @@ export const parseCssComponentFile = async (
   const rawNodes = rawRoot.nodes;
   // Doc comments above attribute-variant rules, read from the un-flattened tree (nesting
   // resolution moves `&[x]` rules away from their comments).
-  const attributeRuleDocs = new Map<CssOnlyComponentDef, Map<string, string>>();
+  // `null` marks an attribute as `@internal`.
+  const attributeRuleDocs = new Map<CssOnlyComponentDef, Map<string, string | null>>();
 
   // Pass 1: find @component-marked top-level rules and establish one CssOnlyComponentDef per tag.
   for (let i = 0; i < rawNodes.length; i++) {
@@ -186,6 +188,9 @@ export const parseCssComponentFile = async (
 
   collectAttributeRuleDocs(rawRoot, (selector) => defs.get(selector.tag ?? ''), attributeRuleDocs);
   for (const [def, docsByName] of attributeRuleDocs) {
+    def.attributes = def.attributes.filter(
+      (attr) => attr.source !== 'auto' || docsByName.get(attr.name) !== null,
+    );
     for (const attr of def.attributes) {
       if (attr.source === 'auto') {
         attr.docs = docsByName.get(attr.name) ?? attr.docs;
@@ -217,9 +222,9 @@ export const parseCssComponentFile = async (
       continue;
     }
 
-    const { syntax, initialValue } = parsePropertyAtRuleDescriptors(node);
-
     const prev = nodes[i - 1];
+    const isInternal = prev?.type === 'comment' && isInternalDocComment(prev.text);
+    const { syntax, initialValue } = parsePropertyAtRuleDescriptors(node);
     const docs =
       prev && prev.type === 'comment' && isNodeDocComment(prev.text)
         ? normalizeJsDocText(prev.text)
@@ -233,6 +238,9 @@ export const parseCssComponentFile = async (
         if (syntax) existing.syntax ??= syntax;
         if (initialValue) existing.default ??= initialValue;
         continue;
+      }
+      if (isInternal) {
+        continue; // still supplies type info above, but never creates an entry of its own
       }
       const prop: CssOnlyPropertyDoc = {
         name: propName,
@@ -256,6 +264,7 @@ export const parseCssComponentFile = async (
  * @param def the CSS-only component definition the found slots belong to
  */
 const collectAutoDetectedSlots = (container: postcss.Container, def: CssOnlyComponentDef): void => {
+  const internal = new Set<string>();
   for (const nested of container.nodes) {
     if (nested.type !== 'rule') {
       continue;
@@ -272,11 +281,16 @@ const collectAutoDetectedSlots = (container: postcss.Container, def: CssOnlyComp
     } catch {
       continue; // malformed selector - skip
     }
+    const prev = nested.prev();
+    const isInternal = prev?.type === 'comment' && isInternalDocComment(prev.text);
     for (const name of names) {
-      if (def.slots.some((s) => s.name === name)) {
+      if (internal.has(name) || def.slots.some((s) => s.name === name)) {
         continue; // explicit @slot, or an earlier auto-detected occurrence, already wins
       }
-      const prev = nested.prev();
+      if (isInternal) {
+        internal.add(name);
+        continue;
+      }
       const docs =
         prev && prev.type === 'comment' && isNodeDocComment(prev.text)
           ? normalizeJsDocText(prev.text)
@@ -398,8 +412,8 @@ const collectAutoDetectedAttributes = (selector: ParsedSelector, def: CssOnlyCom
 
 /**
  * Record the JSDoc comment directly above each of `container`'s child rules as the description
- * of the attributes in that rule's leading compound selector. The first documented rule for an
- * attribute wins.
+ * of the attributes in that rule's leading compound selector, or `null` for an `@internal`
+ * comment. The first documented rule for an attribute wins.
  * @param container a container whose direct child rules to scan
  * @param defFor the component a child rule's selector belongs to, if any
  * @param out collected descriptions, per component, by attribute name
@@ -407,11 +421,15 @@ const collectAutoDetectedAttributes = (selector: ParsedSelector, def: CssOnlyCom
 const collectAttributeRuleDocs = (
   container: postcss.Container,
   defFor: (selector: ParsedSelector) => CssOnlyComponentDef | undefined,
-  out: Map<CssOnlyComponentDef, Map<string, string>>,
+  out: Map<CssOnlyComponentDef, Map<string, string | null>>,
 ) => {
   for (const node of container.nodes) {
     const prev = node.prev();
-    if (node.type !== 'rule' || prev?.type !== 'comment' || !isNodeDocComment(prev.text)) {
+    if (node.type !== 'rule' || prev?.type !== 'comment') {
+      continue;
+    }
+    const isInternal = isInternalDocComment(prev.text);
+    if (!isInternal && !isNodeDocComment(prev.text)) {
       continue;
     }
     let selectors: ParsedSelector[];
@@ -420,13 +438,13 @@ const collectAttributeRuleDocs = (
     } catch {
       continue; // malformed selector - skip
     }
-    const docs = normalizeJsDocText(prev.text);
+    const docs = isInternal ? null : normalizeJsDocText(prev.text);
     for (const selector of selectors) {
       const def = defFor(selector);
       if (!def) {
         continue;
       }
-      const docsByName = out.get(def) ?? new Map<string, string>();
+      const docsByName = out.get(def) ?? new Map<string, string | null>();
       out.set(def, docsByName);
       for (const attr of selector.attributes) {
         if (!docsByName.has(attr.name)) {
