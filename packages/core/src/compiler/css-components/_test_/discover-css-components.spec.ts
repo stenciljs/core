@@ -181,6 +181,72 @@ describe('discoverCssOnlyComponents', () => {
       expect(addWatchFileSpy).toHaveBeenCalledWith('/src/_variables.scss');
     });
 
+    it('does not preprocess files whose raw source has no @component marker', async () => {
+      const { config, compilerCtx, buildCtx } = setup();
+      const transform = vi.fn(() => {
+        throw new Error('Undefined variable: $badge-color');
+      });
+      config.plugins = [{ name: 'throwing-sass', pluginType: 'css', transform }];
+      config.sys.glob = vi.fn().mockResolvedValue(['badge.vars.scss']);
+      vi.spyOn(compilerCtx.fs, 'readFile').mockResolvedValue(`
+        $badge-padding: $badge-color;
+      `);
+
+      await discoverCssOnlyComponents(config, compilerCtx, buildCtx);
+
+      expect(transform).not.toHaveBeenCalled();
+      expect(buildCtx.cssOnlyComponents).toEqual([]);
+      expect(buildCtx.diagnostics).toEqual([]);
+    });
+
+    it('only attributes a definition to the file that literally contains it, not its importers', async () => {
+      const { config, compilerCtx, buildCtx } = setup();
+      // emits the imported file's rules, as a real sass compile would
+      config.plugins = [
+        {
+          name: 'inlining-sass',
+          pluginType: 'css',
+          transform: (sourceText, id) =>
+            id.endsWith('index.scss') ? `/** @component */\nmy-badge { color: red; }` : sourceText,
+        },
+      ];
+      config.sys.glob = vi.fn().mockResolvedValue(['index.scss', 'my-badge.scss']);
+      vi.spyOn(compilerCtx.fs, 'readFile').mockImplementation(async (p: string) =>
+        p.endsWith('index.scss')
+          ? `@use 'my-badge';`
+          : `/** @component */\nmy-badge { color: red; }`,
+      );
+
+      await discoverCssOnlyComponents(config, compilerCtx, buildCtx);
+
+      expect(buildCtx.cssOnlyComponents).toHaveLength(1);
+      expect(buildCtx.cssOnlyComponents[0].sourceFilePath).toBe('/src/my-badge.scss');
+      expect(buildCtx.diagnostics).toEqual([]);
+    });
+
+    it('warns when the preprocessor strips the @component marker', async () => {
+      const { config, compilerCtx, buildCtx } = setup();
+      config.plugins = [
+        {
+          name: 'compressing-sass',
+          pluginType: 'css',
+          transform: () => 'my-badge{color:red}',
+        },
+      ];
+      config.sys.glob = vi.fn().mockResolvedValue(['my-badge.scss']);
+      vi.spyOn(compilerCtx.fs, 'readFile').mockResolvedValue(`
+        /** @component */
+        my-badge { color: red; }
+      `);
+
+      await discoverCssOnlyComponents(config, compilerCtx, buildCtx);
+
+      expect(buildCtx.cssOnlyComponents).toEqual([]);
+      expect(buildCtx.diagnostics).toHaveLength(1);
+      expect(buildCtx.diagnostics[0].level).toBe('warn');
+      expect(buildCtx.diagnostics[0].messageText).toContain('stripping comments');
+    });
+
     it('reports a parse diagnostic for an unrecognized extension with no matching plugin', async () => {
       const { config, compilerCtx, buildCtx } = setup();
       config.sys.glob = vi.fn().mockResolvedValue(['my-badge.scss']);
