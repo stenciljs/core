@@ -164,6 +164,22 @@ describe('parseCssComponentFile', () => {
     ]);
   });
 
+  it('does not treat an @prop annotation block as the doc comment of the declaration after it', async () => {
+    const { defs } = await parseCssComponentFile(
+      '/src/my-badge.css',
+      `
+      /**
+       * @component
+       */
+      my-badge {
+        /** @prop --badge-color: Text color */
+        --badge-internal: 0px;
+      }
+      `,
+    );
+    expect(defs[0].properties.map((p) => p.name)).not.toContain('--badge-internal');
+  });
+
   it('collects auto-detected --custom-property declarations inside a resolved nested rule', async () => {
     const { defs } = await parseCssComponentFile(
       '/src/my-badge.css',
@@ -321,6 +337,22 @@ describe('parseCssComponentFile', () => {
     );
     expect(defs[0].attributes).toEqual([
       { name: 'pill', type: 'boolean', docs: 'From the annotation.', source: 'explicit' },
+    ]);
+  });
+
+  it('does not take an annotation block as the description of the attribute rule after it', async () => {
+    const { defs } = await parseCssComponentFile(
+      '/src/my-badge.css',
+      `
+      /** @component */
+      my-badge {
+        /** @prop --badge-color: Text color */
+        &[pill] {}
+      }
+      `,
+    );
+    expect(defs[0].attributes).toEqual([
+      expect.objectContaining({ name: 'pill', docs: '', source: 'auto' }),
     ]);
   });
 
@@ -538,6 +570,20 @@ describe('parseCssComponentFile', () => {
           { name: 'something-else', docs: '', source: 'auto' },
         ]),
       );
+    });
+
+    it('does not take an annotation block as the description of the slot rule after it', async () => {
+      const { defs } = await parseCssComponentFile(
+        '/src/my-badge.css',
+        `
+        /** @component */
+        my-badge {
+          /** @prop --badge-gap: Gap between items */
+          [slot="icon-end"] {}
+        }
+        `,
+      );
+      expect(defs[0].slots).toEqual([{ name: 'icon-end', docs: '', source: 'auto' }]);
     });
 
     it('does NOT auto-detect a [slot="x"] selector belonging to a nested custom element, only the component\'s own direct nesting', async () => {

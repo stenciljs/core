@@ -296,6 +296,21 @@ describe('style-docs', () => {
       expect(styleDocs).toEqual([]);
     });
 
+    it('does not treat an @prop annotation block as the doc comment of the declaration after it', () => {
+      const styleText = `
+        :host {
+          /**
+           * @prop --background: Background of the card
+           */
+          --ion-safe-area-left: 0px;
+        }
+      `;
+      parseStyleDocs(styleDocs, styleText, undefined, 'my-cmp', 'shadow');
+      expect(styleDocs).toEqual([
+        { name: `--background`, docs: `Background of the card`, annotation: 'prop' },
+      ]);
+    });
+
     it('an explicit @prop annotation wins over an auto-detected declaration of the same name', () => {
       const styleText = `
         /**
@@ -386,6 +401,20 @@ describe('style-docs', () => {
           syntax: `<length>`,
           default: `4px`,
         },
+      ]);
+    });
+
+    it('does not take an @prop annotation block as the description of the @property after it', () => {
+      const styleText = `
+        /** @prop --other: Something else */
+        @property --my-radius {
+          syntax: "<length>";
+        }
+      `;
+      parseStyleDocs(styleDocs, styleText);
+      expect(styleDocs).toEqual([
+        { name: `--other`, docs: `Something else`, annotation: 'prop' },
+        { name: `--my-radius`, docs: ``, annotation: 'prop', mode: undefined, syntax: `<length>` },
       ]);
     });
 
