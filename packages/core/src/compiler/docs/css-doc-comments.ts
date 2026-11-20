@@ -22,14 +22,28 @@ export const CSS_PROP_ANNOTATION_RE = /@(?:cssproperty|cssprop|prop)\b/;
  */
 const CSS_ANNOTATION_TAG_RE = /@(?:component|cssproperty|cssprop|prop|attr|slot)\b/;
 
+const INTERNAL_TAG_RE = /@internal\b/;
+
+/**
+ * Whether a comment marks the node immediately following it as internal - excluded from docs,
+ * matching `@internal` on component members.
+ * @param commentText a postcss `Comment` node's `.text`
+ * @returns `true` if the comment is a JSDoc-style comment holding an `@internal` tag
+ */
+export const isInternalDocComment = (commentText: string): boolean =>
+  isJsDocComment(commentText) && INTERNAL_TAG_RE.test(commentText);
+
 /**
  * Whether a comment describes the node immediately following it (a declaration, rule or
- * at-rule). A comment holding annotation tags documents the things it names instead.
+ * at-rule). A comment holding annotation tags documents the things it names instead, and an
+ * `@internal` comment hides the node.
  * @param commentText a postcss `Comment` node's `.text`
  * @returns `true` if the comment is a JSDoc-style description of the next node
  */
 export const isNodeDocComment = (commentText: string): boolean =>
-  isJsDocComment(commentText) && !CSS_ANNOTATION_TAG_RE.test(commentText);
+  isJsDocComment(commentText) &&
+  !CSS_ANNOTATION_TAG_RE.test(commentText) &&
+  !INTERNAL_TAG_RE.test(commentText);
 
 /**
  * Strip the leading `*`/`!` marker and per-line `*` prefixes, returning trimmed lines.
