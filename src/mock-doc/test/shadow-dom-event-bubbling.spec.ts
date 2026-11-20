@@ -207,8 +207,8 @@ describe('Shadow DOM event retargeting with custom element hosts', () => {
   });
 
   it('retargets composed events to the object user code holds for unregistered custom elements', () => {
-    // createElement for unregistered custom elements returns a proxy wrapper; the
-    // retargeted event target must be that same object so tests can assert identity
+    // createElement for unregistered custom elements returns a proxy wrapper; after
+    // retargeting, the event target must be that same object so tests can assert identity
     const wrapperHost = doc.createElement('my-wrapper-component');
     const wrapperShadow = wrapperHost.attachShadow({ mode: 'open' });
 
