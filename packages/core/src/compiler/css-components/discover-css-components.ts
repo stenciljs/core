@@ -1,6 +1,6 @@
 import type * as d from '@stencil/core';
 
-import { buildError, join, normalizePath, STYLE_EXT } from '../../utils';
+import { buildError, buildWarn, join, normalizePath, relative, STYLE_EXT } from '../../utils';
 import { runPluginTransforms } from '../plugin/plugin';
 import { createCssOnlyComponentMeta } from './css-component-meta';
 import { parseCssComponentFile } from './parse-css-component';
@@ -103,16 +103,20 @@ const scanFiles = async (
 };
 
 /**
- * Load a CSS-only component source file's text. A plain `.css` file is read as-is; any other
- * `STYLE_EXT` extension is run through the configured `plugins` first (e.g. `@stencil/sass`
- * compiling `.scss` to CSS) - the same pipeline `collectCssOnlyComponentStyles` uses to emit
- * this file's CSS, so discovery parses exactly what gets shipped.
+ * Load a CSS-only component source file's text. Only files whose raw source contains
+ * `@component` are considered - a definition belongs to the file that literally contains it,
+ * so preprocessor partials and importers are never compiled standalone here. A plain `.css`
+ * file is returned as-is; any other `STYLE_EXT` extension is run through the configured
+ * `plugins` first (e.g. `@stencil/sass` compiling `.scss` to CSS) - the same pipeline
+ * `collectCssOnlyComponentStyles` uses to emit this file's CSS, so discovery parses exactly
+ * what gets shipped.
  *
  * @param config the validated Stencil config
  * @param compilerCtx the compiler context, used to read the file and register watch files
  * @param buildCtx the current build context, used for plugin transform diagnostics
  * @param filePath absolute path to the source file to load
- * @returns the (possibly preprocessed) CSS text, or `null` if the file couldn't be loaded
+ * @returns the (possibly preprocessed) CSS text, or `null` if the file couldn't be loaded or
+ * has no `@component` marker
  */
 const loadCssOnlyComponentSource = async (
   config: d.ValidatedConfig,
@@ -120,25 +124,35 @@ const loadCssOnlyComponentSource = async (
   buildCtx: d.BuildCtx,
   filePath: string,
 ): Promise<string | null> => {
+  let rawText: string;
+  try {
+    rawText = await compilerCtx.fs.readFile(filePath);
+  } catch {
+    return null;
+  }
+  if (!rawText.includes('@component')) {
+    return null;
+  }
   if (filePath.toLowerCase().endsWith('.css')) {
-    try {
-      return await compilerCtx.fs.readFile(filePath);
-    } catch {
-      return null;
-    }
+    return rawText;
   }
 
   const transformResults = await runPluginTransforms(config, compilerCtx, buildCtx, filePath);
   if (!transformResults) {
     return null;
   }
-  if (typeof transformResults === 'string') {
-    return transformResults;
+  const code = typeof transformResults === 'string' ? transformResults : transformResults.code;
+  if (typeof transformResults !== 'string') {
+    for (const dep of transformResults.dependencies ?? []) {
+      compilerCtx.addWatchFile(dep);
+    }
   }
-  for (const dep of transformResults.dependencies ?? []) {
-    compilerCtx.addWatchFile(dep);
+  if (code != null && !code.includes('@component')) {
+    const warn = buildWarn(buildCtx.diagnostics);
+    warn.messageText = `"${relative(config.rootDir, filePath)}" contains "@component" but its preprocessed output does not, so no CSS-only components were discovered in it. Is the preprocessor stripping comments (e.g. sass \`outputStyle: 'compressed'\`)?`;
+    warn.absFilePath = filePath;
   }
-  return transformResults.code ?? null;
+  return code ?? null;
 };
 
 const flattenCache = (cache: Map<string, d.ComponentCompilerMeta[]>): d.ComponentCompilerMeta[] =>
