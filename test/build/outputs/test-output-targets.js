@@ -1,4 +1,6 @@
+import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -23,6 +25,21 @@ fs.accessSync(path.join(loaderBundleDir, 'index.js'));
 fs.accessSync(path.join(loaderBundleDir, 'loader', 'index.js'));
 fs.accessSync(path.join(loaderBundleDir, 'loader', 'index.cjs'));
 fs.accessSync(path.join(loaderBundleDir, 'loader', 'index.d.ts'));
+
+// cjs chunks / lazy entries keep `.js`; they must still load as CJS under this `"type": "module"` package
+const cjsDir = path.join(loaderBundleDir, 'cjs');
+const requireCjs = createRequire(path.join(cjsDir, 'noop.cjs'));
+const cjsJsFiles = fs.readdirSync(cjsDir).filter((f) => f.endsWith('.js'));
+const runtimeChunk = cjsJsFiles.find((f) => f.startsWith('runtime-'));
+const lazyEntry = cjsJsFiles.find((f) => f.endsWith('.entry.js'));
+assert.ok(runtimeChunk, 'expected a cjs runtime chunk');
+assert.ok(lazyEntry, 'expected a cjs lazy entry');
+assert.equal(typeof requireCjs(`./${runtimeChunk}`).bootstrapLazy, 'function');
+assert.ok(Object.keys(requireCjs(`./${lazyEntry}`)).length > 0, `${lazyEntry} has no exports`);
+// loader sets an asset path from `import.meta.url` at module scope
+const cjsLoader = requireCjs('../loader/index.cjs');
+assert.equal(typeof cjsLoader.defineCustomElements, 'function');
+assert.equal(typeof cjsLoader.setAssetPath, 'function');
 
 // collection output (was collection)
 const collectionDir = path.join(distDir, 'collection');

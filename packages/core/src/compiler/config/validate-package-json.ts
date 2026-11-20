@@ -580,7 +580,7 @@ const validateFilesField = async (
 
         const hasAccess = await compilerCtx.fs.access(absPath);
         if (!hasAccess) {
-          const msg = `Unable to find "${pkgFile}" within the package.json "files" array.`;
+          const msg = `"${pkgFile}" is listed in the package.json "files" array but could not be found on disk.`;
           packageJsonError(config, compilerCtx, buildCtx, msg, `"${pkgFile}"`);
         }
       }

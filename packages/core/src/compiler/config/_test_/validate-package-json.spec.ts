@@ -607,6 +607,19 @@ describe('validateBuildPackageJson', () => {
       expect(filesWarning).toBeUndefined();
     });
 
+    it('should error when a "files" entry does not exist on disk', async () => {
+      compilerCtx.fs.access = async (p: string) => !p.endsWith('missing.js');
+      buildCtx.packageJson.files = ['dist', 'missing.js'];
+
+      await validateBuildPackageJson(config, compilerCtx, buildCtx);
+
+      const filesError = buildCtx.diagnostics.find((d) => d.messageText.includes('missing.js'));
+      expect(filesError?.level).toBe('error');
+      expect(filesError?.messageText).toBe(
+        '"missing.js" is listed in the package.json "files" array but could not be found on disk.',
+      );
+    });
+
     it('should warn when "files" does not cover the Custom Elements Manifest', async () => {
       compilerCtx.fs.access = async () => true;
       config.outputTargets.push({

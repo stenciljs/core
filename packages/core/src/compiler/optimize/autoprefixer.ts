@@ -88,6 +88,15 @@ export const autoprefixCss = async (
       diagnostic.messageText = e.message;
     }
 
+    if (e.data?.type === 'SelectorError' && e.loc && typeof e.loc.line === 'number') {
+      diagnostic.messageText = getSelectorErrorMessage(
+        typeof e.source === 'string' ? e.source : cssText,
+        e.loc,
+        diagnostic.messageText,
+        e.data.value?.type,
+      );
+    }
+
     // Extract file path from lightningcss error
     if (filePath) {
       diagnostic.absFilePath = filePath;
@@ -129,6 +138,44 @@ export const autoprefixCss = async (
   }
 
   return output;
+};
+
+/**
+ * Lightning CSS selector errors (e.g. `Invalid state`) don't name the selector, and for
+ * preprocessed styles the reported line is in the compiled CSS, not the source file.
+ * @param sourceText the CSS that failed to parse
+ * @param loc the 1-based error location reported by Lightning CSS
+ * @param loc.line the error line
+ * @param loc.column the error column
+ * @param message the original error message
+ * @param errorType the Lightning CSS selector error type
+ * @returns a message that includes the offending selector
+ */
+const getSelectorErrorMessage = (
+  sourceText: string,
+  loc: { line: number; column?: number },
+  message: string,
+  errorType?: string,
+) => {
+  const lines = sourceText.split('\n');
+  const offset =
+    lines.slice(0, loc.line - 1).reduce((acc, line) => acc + line.length + 1, 0) +
+    (loc.column ?? 1) -
+    1;
+  const start = Math.max(
+    sourceText.lastIndexOf('{', offset),
+    sourceText.lastIndexOf('}', offset),
+    sourceText.lastIndexOf(';', offset),
+  );
+  const end = sourceText.indexOf('{', offset);
+  const selector = sourceText.slice(start + 1, end === -1 ? undefined : end).trim();
+  if (!selector) return message;
+
+  const hint =
+    errorType === 'InvalidState'
+      ? ` A pseudo-class can't follow a pseudo-element (e.g. \`::before:dir(rtl)\`); move it before (\`:dir(rtl)::before\`).`
+      : '';
+  return `Invalid CSS selector "${selector}": ${message}.${hint}`;
 };
 
 /**
