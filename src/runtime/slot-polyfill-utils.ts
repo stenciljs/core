@@ -93,6 +93,7 @@ export function getHostSlotNodes(childNodes: NodeListOf<ChildNode>, hostName?: s
     // `internalCall`, not `childNode.childNodes`: a patched nested custom element's `childNodes`
     // accessor returns slotted content only, hiding the `s-sr` nodes this recursion needs.
     slottedNodes = [...slottedNodes, ...getHostSlotNodes(internalCall(childNode, 'childNodes'), hostName, slotName)];
+    if (typeof slotName !== 'undefined' && slottedNodes.length) return slottedNodes;
   }
   return slottedNodes;
 }

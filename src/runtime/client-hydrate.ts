@@ -333,7 +333,8 @@ const clientHydrate = (
 
   if (node.nodeType === NODE_TYPE.ElementNode) {
     childNodeType = (node as HTMLElement).getAttribute(HYDRATE_CHILD_ID);
-    if (childNodeType) {
+    // The host's child ID belongs to its enclosing component and must remain available for that component's hydration.
+    if (childNodeType && node !== hostElm) {
       // Node data from the element's attribute:
       // `${hostId}.${nodeId}.${depth}.${index}`
       childIdSplt = childNodeType.split('.');
@@ -697,9 +698,13 @@ const addSlottedNodes = (
 
   // Loop through the next siblings of the slot node, looking for nodes that match this slot's name
   do {
+    // SSR serializes slot assignment as an `s-sn` attribute, which the owning host only
+    // converts to the `s-sn` property when it hydrates - possibly after this host does.
+    const ssrSlotName = slottedNode && slottedNode['getAttribute'] && slottedNode.getAttribute('s-sn');
     if (
       slottedNode &&
-      (((slottedNode['getAttribute'] && slottedNode.getAttribute('slot')) || slottedNode['s-sn']) === slotName ||
+      (ssrSlotName === slotName ||
+        ((slottedNode['getAttribute'] && slottedNode.getAttribute('slot')) || slottedNode['s-sn']) === slotName ||
         (slotName === '' &&
           !slottedNode['s-sn'] &&
           (!slottedNode['getAttribute'] || !slottedNode.getAttribute('slot')) &&

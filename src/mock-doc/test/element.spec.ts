@@ -309,6 +309,18 @@ describe('element', () => {
     });
   });
 
+  describe('hidden', () => {
+    it('reflects booleans and until-found to the attribute', () => {
+      const elm = doc.createElement('div');
+      elm.hidden = true;
+      expect(elm.getAttribute('hidden')).toBe('');
+      elm.hidden = 'until-found';
+      expect(elm.getAttribute('hidden')).toBe('until-found');
+      elm.hidden = false;
+      expect(elm.hasAttribute('hidden')).toBe(false);
+    });
+  });
+
   describe('append', () => {
     it('nothing', () => {
       const elm = doc.createElement('div') as Element;

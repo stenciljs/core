@@ -94,4 +94,48 @@ describe('testing a `scoped="true"` component `insertBefore` method', () => {
     expect(startSlot.children.length).toBe(1);
     expect(endSlot.children.length).toBe(1);
   });
+
+  describe('a host created without slotted content', () => {
+    let freshHost: HTMLScopedSlotInsertBeforeElement;
+
+    beforeEach(async () => {
+      freshHost = document.createElement('scoped-slot-insertbefore');
+      document.body.appendChild(freshHost);
+      await freshHost.componentOnReady();
+    });
+
+    afterEach(() => freshHost.remove());
+
+    it('slots a node inserted before `null`', async () => {
+      const el = document.createElement('p');
+      el.innerText = 'Content 1. ';
+      freshHost.insertBefore(el, null);
+
+      expect(freshHost.querySelector('#parentDiv .default-slot').textContent).toBe('Default slot is here:Content 1. ');
+    });
+
+    it('appends a node inserted before `null` once, whatever the number of slotted nodes', async () => {
+      freshHost.append(document.createElement('p'), document.createElement('p'));
+      const originalAppendChild = freshHost.appendChild;
+      let appendChildCalls = 0;
+      freshHost.appendChild = function <T extends Node>(node: T) {
+        appendChildCalls++;
+        return originalAppendChild.call(this, node);
+      };
+
+      freshHost.insertBefore(document.createElement('p'), null);
+
+      expect(appendChildCalls).toBe(1);
+      expect(freshHost.querySelector('#parentDiv .default-slot').children.length).toBe(4);
+    });
+  });
+
+  it('removes a node assigned to a slot the component does not render', async () => {
+    const el = document.createElement('p');
+    el.slot = 'missing-slot';
+    host.appendChild(el);
+
+    expect(host.removeChild(el)).toBe(el);
+    expect(el.isConnected).toBe(false);
+  });
 });
