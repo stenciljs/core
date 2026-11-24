@@ -78,6 +78,21 @@ describe('enable-import-injection-default migration', () => {
       expect(result).toContain("namespace: 'MyApp'");
     });
 
+    it('keeps the config valid when the removed extras is followed by another option', () => {
+      const source = `export const config: Config = {
+  namespace: 'MyApp',
+  extras: { enableImportInjection: true },
+  taskQueue: 'async',
+};`;
+      const sourceFile = parse(source);
+      const matches = enableImportInjectionDefaultRule.detect(sourceFile);
+      const result = enableImportInjectionDefaultRule.transform(sourceFile, matches);
+      expect(result).toBe(`export const config: Config = {
+  namespace: 'MyApp',
+  taskQueue: 'async',
+};`);
+    });
+
     it('returns unchanged source when no matches', () => {
       const source = `export const config: Config = { namespace: 'App' };`;
       const sourceFile = parse(source);

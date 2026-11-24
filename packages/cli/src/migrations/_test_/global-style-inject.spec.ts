@@ -232,6 +232,22 @@ export const config: Config = {
       expect(result).not.toContain('extras');
     });
 
+    it('should keep the config valid when the removed extras is followed by another option', () => {
+      const source = `export const config: Config = {
+  namespace: 'app',
+  extras: { addGlobalStyleToComponents: false },
+  taskQueue: 'async',
+};`;
+      const sourceFile = ts.createSourceFile('test.ts', source, ts.ScriptTarget.Latest, true);
+      const matches = globalStyleInjectRule.detect(sourceFile);
+      const result = globalStyleInjectRule.transform(sourceFile, matches);
+
+      expect(result).toBe(`export const config: Config = {
+  namespace: 'app',
+  taskQueue: 'async',
+};`);
+    });
+
     it('should preserve other extras options after removal', () => {
       const source = `export const config: Config = {
   outputTargets: [

@@ -1,5 +1,6 @@
 import ts from 'typescript';
 
+import { removeEmptyExtras } from '../utils';
 import type { MigrationMatch, MigrationRule } from '../index';
 
 /**
@@ -138,7 +139,7 @@ export const globalStyleInjectRule: MigrationRule = {
     }
 
     // Check if extras object is now empty and remove it if so
-    return cleanupEmptyExtras(text);
+    return removeEmptyExtras(text);
   },
 };
 
@@ -267,15 +268,4 @@ function insertionOfOutputTarget(
     end: insertPos,
     text: (hasTrailingComma ? '' : ',') + '\n' + indent + newTarget,
   };
-}
-
-/**
- * Clean up empty extras object after removing addGlobalStyleToComponents.
- * @param text The source text to clean up
- * @returns The cleaned up text with empty extras removed
- */
-function cleanupEmptyExtras(text: string): string {
-  // Match extras: { } or extras: {\n  } with only whitespace inside
-  const emptyExtrasRegex = /,?\s*extras\s*:\s*\{\s*\},?/g;
-  return text.replace(emptyExtrasRegex, '');
 }

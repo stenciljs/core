@@ -1,5 +1,6 @@
 import ts from 'typescript';
 
+import { removeEmptyExtras } from '../utils';
 import type { MigrationMatch, MigrationRule } from '../index';
 
 /**
@@ -81,11 +82,6 @@ export const enableImportInjectionDefaultRule: MigrationRule = {
       text = text.slice(0, start) + text.slice(end);
     }
 
-    text = cleanupEmptyExtras(text);
-    return text;
+    return removeEmptyExtras(text);
   },
 };
-
-function cleanupEmptyExtras(text: string): string {
-  return text.replace(/,?\s*extras\s*:\s*\{\s*\},?/g, '');
-}
