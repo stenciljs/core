@@ -307,6 +307,10 @@ export namespace Components {
     }
     interface EventListenerCapture {
     }
+    interface ExcludeComponentRoot {
+    }
+    interface ExcludedComponent {
+    }
     interface ExtendedCmp {
         /**
           * @default 'getter default value'
@@ -720,6 +724,12 @@ export namespace Components {
     interface FormAssociated {
     }
     interface FormAssociatedPropCheck {
+        "disabled": boolean;
+    }
+    interface FormAssociatedReflect {
+        /**
+          * @default false
+         */
         "disabled": boolean;
     }
     interface GlobalScriptTest {
@@ -1887,6 +1897,18 @@ declare global {
         prototype: HTMLEventListenerCaptureElement;
         new (): HTMLEventListenerCaptureElement;
     };
+    interface HTMLExcludeComponentRootElement extends Components.ExcludeComponentRoot, HTMLStencilElement {
+    }
+    var HTMLExcludeComponentRootElement: {
+        prototype: HTMLExcludeComponentRootElement;
+        new (): HTMLExcludeComponentRootElement;
+    };
+    interface HTMLExcludedComponentElement extends Components.ExcludedComponent, HTMLStencilElement {
+    }
+    var HTMLExcludedComponentElement: {
+        prototype: HTMLExcludedComponentElement;
+        new (): HTMLExcludedComponentElement;
+    };
     interface HTMLExtendedCmpElement extends Components.ExtendedCmp, HTMLStencilElement {
     }
     var HTMLExtendedCmpElement: {
@@ -2166,6 +2188,12 @@ declare global {
     var HTMLFormAssociatedPropCheckElement: {
         prototype: HTMLFormAssociatedPropCheckElement;
         new (): HTMLFormAssociatedPropCheckElement;
+    };
+    interface HTMLFormAssociatedReflectElement extends Components.FormAssociatedReflect, HTMLStencilElement {
+    }
+    var HTMLFormAssociatedReflectElement: {
+        prototype: HTMLFormAssociatedReflectElement;
+        new (): HTMLFormAssociatedReflectElement;
     };
     interface HTMLGlobalScriptTestElement extends Components.GlobalScriptTest, HTMLStencilElement {
     }
@@ -3314,6 +3342,8 @@ declare global {
         "event-basic": HTMLEventBasicElement;
         "event-custom-type": HTMLEventCustomTypeElement;
         "event-listener-capture": HTMLEventListenerCaptureElement;
+        "exclude-component-root": HTMLExcludeComponentRootElement;
+        "excluded-component": HTMLExcludedComponentElement;
         "extended-cmp": HTMLExtendedCmpElement;
         "extended-cmp-cmp": HTMLExtendedCmpCmpElement;
         "extends-abstract": HTMLExtendsAbstractElement;
@@ -3345,6 +3375,7 @@ declare global {
         "factory-jsx": HTMLFactoryJsxElement;
         "form-associated": HTMLFormAssociatedElement;
         "form-associated-prop-check": HTMLFormAssociatedPropCheckElement;
+        "form-associated-reflect": HTMLFormAssociatedReflectElement;
         "global-script-test": HTMLGlobalScriptTestElement;
         "global-styles": HTMLGlobalStylesElement;
         "host-attr-override": HTMLHostAttrOverrideElement;
@@ -3792,6 +3823,10 @@ declare namespace LocalJSX {
     }
     interface EventListenerCapture {
     }
+    interface ExcludeComponentRoot {
+    }
+    interface ExcludedComponent {
+    }
     interface ExtendedCmp {
         /**
           * @default 'getter default value'
@@ -4125,6 +4160,20 @@ declare namespace LocalJSX {
         "name"?: string;
     }
     interface FormAssociatedPropCheck {
+        "disabled"?: boolean;
+        /**
+          * The `id` of a `<form>` element to associate this element with.
+         */
+        "form"?: string;
+        /**
+          * The name of the element, used when submitting an HTML form.
+         */
+        "name"?: string;
+    }
+    interface FormAssociatedReflect {
+        /**
+          * @default false
+         */
         "disabled"?: boolean;
         /**
           * The `id` of a `<form>` element to associate this element with.
@@ -4868,6 +4917,9 @@ declare namespace LocalJSX {
     interface FormAssociatedPropCheckAttributes {
         "disabled": boolean;
     }
+    interface FormAssociatedReflectAttributes {
+        "disabled": boolean;
+    }
     interface ImportAliasingAttributes {
         "user": string;
     }
@@ -5085,6 +5137,8 @@ declare namespace LocalJSX {
         "event-basic": EventBasic;
         "event-custom-type": EventCustomType;
         "event-listener-capture": EventListenerCapture;
+        "exclude-component-root": ExcludeComponentRoot;
+        "excluded-component": ExcludedComponent;
         "extended-cmp": Omit<ExtendedCmp, keyof ExtendedCmpAttributes> & { [K in keyof ExtendedCmp & keyof ExtendedCmpAttributes]?: ExtendedCmp[K] } & { [K in keyof ExtendedCmp & keyof ExtendedCmpAttributes as `attr:${K}`]?: ExtendedCmpAttributes[K] } & { [K in keyof ExtendedCmp & keyof ExtendedCmpAttributes as `prop:${K}`]?: ExtendedCmp[K] };
         "extended-cmp-cmp": Omit<ExtendedCmpCmp, keyof ExtendedCmpCmpAttributes> & { [K in keyof ExtendedCmpCmp & keyof ExtendedCmpCmpAttributes]?: ExtendedCmpCmp[K] } & { [K in keyof ExtendedCmpCmp & keyof ExtendedCmpCmpAttributes as `attr:${K}`]?: ExtendedCmpCmpAttributes[K] } & { [K in keyof ExtendedCmpCmp & keyof ExtendedCmpCmpAttributes as `prop:${K}`]?: ExtendedCmpCmp[K] };
         "extends-abstract": Omit<ExtendsAbstract, keyof ExtendsAbstractAttributes> & { [K in keyof ExtendsAbstract & keyof ExtendsAbstractAttributes]?: ExtendsAbstract[K] } & { [K in keyof ExtendsAbstract & keyof ExtendsAbstractAttributes as `attr:${K}`]?: ExtendsAbstractAttributes[K] } & { [K in keyof ExtendsAbstract & keyof ExtendsAbstractAttributes as `prop:${K}`]?: ExtendsAbstract[K] };
@@ -5116,6 +5170,7 @@ declare namespace LocalJSX {
         "factory-jsx": FactoryJsx;
         "form-associated": FormAssociated;
         "form-associated-prop-check": Omit<FormAssociatedPropCheck, keyof FormAssociatedPropCheckAttributes> & { [K in keyof FormAssociatedPropCheck & keyof FormAssociatedPropCheckAttributes]?: FormAssociatedPropCheck[K] } & { [K in keyof FormAssociatedPropCheck & keyof FormAssociatedPropCheckAttributes as `attr:${K}`]?: FormAssociatedPropCheckAttributes[K] } & { [K in keyof FormAssociatedPropCheck & keyof FormAssociatedPropCheckAttributes as `prop:${K}`]?: FormAssociatedPropCheck[K] };
+        "form-associated-reflect": Omit<FormAssociatedReflect, keyof FormAssociatedReflectAttributes> & { [K in keyof FormAssociatedReflect & keyof FormAssociatedReflectAttributes]?: FormAssociatedReflect[K] } & { [K in keyof FormAssociatedReflect & keyof FormAssociatedReflectAttributes as `attr:${K}`]?: FormAssociatedReflectAttributes[K] } & { [K in keyof FormAssociatedReflect & keyof FormAssociatedReflectAttributes as `prop:${K}`]?: FormAssociatedReflect[K] };
         "global-script-test": GlobalScriptTest;
         "global-styles": GlobalStyles;
         "host-attr-override": HostAttrOverride;
@@ -5357,6 +5412,8 @@ declare module "@stencil/core" {
             "event-basic": LocalJSX.IntrinsicElements["event-basic"] & JSXBase.HTMLAttributes<HTMLEventBasicElement>;
             "event-custom-type": LocalJSX.IntrinsicElements["event-custom-type"] & JSXBase.HTMLAttributes<HTMLEventCustomTypeElement>;
             "event-listener-capture": LocalJSX.IntrinsicElements["event-listener-capture"] & JSXBase.HTMLAttributes<HTMLEventListenerCaptureElement>;
+            "exclude-component-root": LocalJSX.IntrinsicElements["exclude-component-root"] & JSXBase.HTMLAttributes<HTMLExcludeComponentRootElement>;
+            "excluded-component": LocalJSX.IntrinsicElements["excluded-component"] & JSXBase.HTMLAttributes<HTMLExcludedComponentElement>;
             "extended-cmp": LocalJSX.IntrinsicElements["extended-cmp"] & JSXBase.HTMLAttributes<HTMLExtendedCmpElement>;
             "extended-cmp-cmp": LocalJSX.IntrinsicElements["extended-cmp-cmp"] & JSXBase.HTMLAttributes<HTMLExtendedCmpCmpElement>;
             /**
@@ -5471,6 +5528,7 @@ declare module "@stencil/core" {
             "factory-jsx": LocalJSX.IntrinsicElements["factory-jsx"] & JSXBase.HTMLAttributes<HTMLFactoryJsxElement>;
             "form-associated": LocalJSX.IntrinsicElements["form-associated"] & JSXBase.HTMLAttributes<HTMLFormAssociatedElement>;
             "form-associated-prop-check": LocalJSX.IntrinsicElements["form-associated-prop-check"] & JSXBase.HTMLAttributes<HTMLFormAssociatedPropCheckElement>;
+            "form-associated-reflect": LocalJSX.IntrinsicElements["form-associated-reflect"] & JSXBase.HTMLAttributes<HTMLFormAssociatedReflectElement>;
             "global-script-test": LocalJSX.IntrinsicElements["global-script-test"] & JSXBase.HTMLAttributes<HTMLGlobalScriptTestElement>;
             "global-styles": LocalJSX.IntrinsicElements["global-styles"] & JSXBase.HTMLAttributes<HTMLGlobalStylesElement>;
             "host-attr-override": LocalJSX.IntrinsicElements["host-attr-override"] & JSXBase.HTMLAttributes<HTMLHostAttrOverrideElement>;

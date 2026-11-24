@@ -3,7 +3,8 @@ import { consoleError } from 'virtual:platform';
 import type * as d from '@stencil/core';
 
 import { HOST_FLAGS, MEMBER_FLAGS, WATCH_FLAGS } from '../utils/constants';
-import { effect, signal } from './signals-core';
+import { getReflectedValue, reflectProp } from './set-value';
+import { effect, signal, untracked } from './signals-core';
 import { scheduleUpdate } from './update-component';
 
 // Explicit `unique symbol` annotation is required so this can be used as a typed property key
@@ -79,6 +80,18 @@ export const initializeSignals = (
         prevScheduleVal = newVal;
       }),
     );
+
+    // Reflection effect - registered before the watcher effects, so it runs first
+    if (BUILD.reflect && memberFlags & MEMBER_FLAGS.ReflectAttr) {
+      let prevAttrVal = getReflectedValue(hostRef, memberName, sig.peek());
+      disposers.push(
+        effect(() => {
+          const attrVal = getReflectedValue(hostRef, memberName, sig.value);
+          untracked(() => reflectProp(hostRef, cmpMeta, elm, memberName, prevAttrVal, attrVal));
+          prevAttrVal = attrVal;
+        }),
+      );
+    }
 
     // Watcher effects
     if (BUILD.propChangeCallback && cmpMeta.$watchers$?.[memberName]) {

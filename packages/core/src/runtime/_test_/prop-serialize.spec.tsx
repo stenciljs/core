@@ -293,12 +293,29 @@ describe('attribute serialization', () => {
       await waitForChanges();
       expect(root.getAttribute('value')).toBe('a');
 
-      // the serialized value is updated straight away; the attribute on the next render
       root.value = true;
-      root.setAttribute('value', 'true');
-      await waitForChanges();
-      expect(root.value).toBe('true');
       expect(root.getAttribute('value')).toBe('true');
+
+      // an external write still goes through
+      root.setAttribute('value', 'b');
+      await waitForChanges();
+      expect(root.value).toBe('b');
+      expect(root.getAttribute('value')).toBe('b');
+    });
+
+    it('should reflect the serialized value when the prop changes, before the next render', async () => {
+      const { root } = await newSpecPage({
+        components: [CmpAnySerialize],
+        html: `<cmp-any-serialize></cmp-any-serialize>`,
+      });
+
+      root.value = 1;
+      expect(root.getAttribute('value')).toBe('1');
+      expect(root.value).toBe(1);
+
+      root.value = { id: 1 };
+      expect(root.hasAttribute('value')).toBe(false);
+      expect(root.value).toEqual({ id: 1 });
     });
 
     it('should keep the prop value when its serialized value is reflected with signalBacking', async () => {

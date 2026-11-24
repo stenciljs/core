@@ -2,9 +2,56 @@ import { BUILD } from 'virtual:app-data';
 import { consoleDevWarn, consoleError, getHostRef } from 'virtual:platform';
 import type * as d from '@stencil/core';
 
-import { HOST_FLAGS, WATCH_FLAGS } from '../utils/constants';
+import { HOST_FLAGS, MEMBER_FLAGS, WATCH_FLAGS } from '../utils/constants';
 import { parsePropertyValue } from './parse-property-value';
+import { VNODE_FLAGS } from './runtime-constants';
 import { scheduleUpdate } from './update-component';
+import { setAccessor } from './vdom/set-accessor';
+
+/**
+ * The value a reflected prop writes to its attribute: the serialized value if it has one.
+ * @param hostRef the component's host ref
+ * @param propName the prop
+ * @param val the prop's value
+ * @returns the value to reflect
+ */
+export const getReflectedValue = (hostRef: d.HostRef, propName: string, val: any) =>
+  BUILD.serializer && hostRef.$serializerValues$.has(propName)
+    ? hostRef.$serializerValues$.get(propName)
+    : val;
+
+/**
+ * Write a reflected prop's attribute as soon as the prop changes, like native elements do,
+ * so it agrees with the prop before watchers run. Until the first render, rendering reflects it.
+ * @param hostRef the component's host ref
+ * @param cmpMeta the component's runtime metadata
+ * @param elm the host element
+ * @param propName the prop that changed
+ * @param oldAttrVal the previously reflected value
+ * @param newAttrVal the value to reflect
+ */
+export const reflectProp = (
+  hostRef: d.HostRef,
+  cmpMeta: d.ComponentRuntimeMeta,
+  elm: d.HostElement,
+  propName: string,
+  oldAttrVal: any,
+  newAttrVal: any,
+) => {
+  if (
+    !(hostRef.$flags$ & HOST_FLAGS.hasRendered) ||
+    !(cmpMeta.$members$[propName][0] & MEMBER_FLAGS.ReflectAttr)
+  ) {
+    return;
+  }
+  const attrName = cmpMeta.$attrsToReflect$?.find(([p]) => p === propName)?.[1];
+  if (!attrName) return;
+
+  // lets attribute -> prop sync recognize the runtime's own write
+  if (BUILD.serializer) hostRef.$flags$ |= HOST_FLAGS.isReflecting;
+  setAccessor(elm, attrName, oldAttrVal, newAttrVal, false, VNODE_FLAGS.isHost);
+  if (BUILD.serializer) hostRef.$flags$ &= ~HOST_FLAGS.isReflecting;
+};
 
 export const applySerializers = (
   hostRef: d.HostRef,
@@ -113,6 +160,7 @@ export const setValue = (
     // gadzooks! the property's value has changed!!
     // set our new value!
     hostRef.$instanceValues$.set(propName, newVal);
+    const oldAttrVal = BUILD.reflect && getReflectedValue(hostRef, propName, oldVal);
 
     if (
       BUILD.serializer &&
@@ -121,6 +169,17 @@ export const setValue = (
       cmpMeta.$serializers$?.[propName]
     ) {
       applySerializers(hostRef, cmpMeta, propName, newVal, instance);
+    }
+
+    if (BUILD.reflect) {
+      reflectProp(
+        hostRef,
+        cmpMeta,
+        elm,
+        propName,
+        oldAttrVal,
+        getReflectedValue(hostRef, propName, newVal),
+      );
     }
 
     if (BUILD.isDev) {
