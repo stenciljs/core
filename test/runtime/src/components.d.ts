@@ -722,6 +722,12 @@ export namespace Components {
     interface FormAssociatedPropCheck {
         "disabled": boolean;
     }
+    interface FormAssociatedReflect {
+        /**
+          * @default false
+         */
+        "disabled": boolean;
+    }
     interface GlobalScriptTest {
     }
     interface GlobalStyles {
@@ -2167,6 +2173,12 @@ declare global {
         prototype: HTMLFormAssociatedPropCheckElement;
         new (): HTMLFormAssociatedPropCheckElement;
     };
+    interface HTMLFormAssociatedReflectElement extends Components.FormAssociatedReflect, HTMLStencilElement {
+    }
+    var HTMLFormAssociatedReflectElement: {
+        prototype: HTMLFormAssociatedReflectElement;
+        new (): HTMLFormAssociatedReflectElement;
+    };
     interface HTMLGlobalScriptTestElement extends Components.GlobalScriptTest, HTMLStencilElement {
     }
     var HTMLGlobalScriptTestElement: {
@@ -3345,6 +3357,7 @@ declare global {
         "factory-jsx": HTMLFactoryJsxElement;
         "form-associated": HTMLFormAssociatedElement;
         "form-associated-prop-check": HTMLFormAssociatedPropCheckElement;
+        "form-associated-reflect": HTMLFormAssociatedReflectElement;
         "global-script-test": HTMLGlobalScriptTestElement;
         "global-styles": HTMLGlobalStylesElement;
         "host-attr-override": HTMLHostAttrOverrideElement;
@@ -4135,6 +4148,20 @@ declare namespace LocalJSX {
          */
         "name"?: string;
     }
+    interface FormAssociatedReflect {
+        /**
+          * @default false
+         */
+        "disabled"?: boolean;
+        /**
+          * The `id` of a `<form>` element to associate this element with.
+         */
+        "form"?: string;
+        /**
+          * The name of the element, used when submitting an HTML form.
+         */
+        "name"?: string;
+    }
     interface GlobalScriptTest {
     }
     interface GlobalStyles {
@@ -4868,6 +4895,9 @@ declare namespace LocalJSX {
     interface FormAssociatedPropCheckAttributes {
         "disabled": boolean;
     }
+    interface FormAssociatedReflectAttributes {
+        "disabled": boolean;
+    }
     interface ImportAliasingAttributes {
         "user": string;
     }
@@ -5116,6 +5146,7 @@ declare namespace LocalJSX {
         "factory-jsx": FactoryJsx;
         "form-associated": FormAssociated;
         "form-associated-prop-check": Omit<FormAssociatedPropCheck, keyof FormAssociatedPropCheckAttributes> & { [K in keyof FormAssociatedPropCheck & keyof FormAssociatedPropCheckAttributes]?: FormAssociatedPropCheck[K] } & { [K in keyof FormAssociatedPropCheck & keyof FormAssociatedPropCheckAttributes as `attr:${K}`]?: FormAssociatedPropCheckAttributes[K] } & { [K in keyof FormAssociatedPropCheck & keyof FormAssociatedPropCheckAttributes as `prop:${K}`]?: FormAssociatedPropCheck[K] };
+        "form-associated-reflect": Omit<FormAssociatedReflect, keyof FormAssociatedReflectAttributes> & { [K in keyof FormAssociatedReflect & keyof FormAssociatedReflectAttributes]?: FormAssociatedReflect[K] } & { [K in keyof FormAssociatedReflect & keyof FormAssociatedReflectAttributes as `attr:${K}`]?: FormAssociatedReflectAttributes[K] } & { [K in keyof FormAssociatedReflect & keyof FormAssociatedReflectAttributes as `prop:${K}`]?: FormAssociatedReflect[K] };
         "global-script-test": GlobalScriptTest;
         "global-styles": GlobalStyles;
         "host-attr-override": HostAttrOverride;
@@ -5471,6 +5502,7 @@ declare module "@stencil/core" {
             "factory-jsx": LocalJSX.IntrinsicElements["factory-jsx"] & JSXBase.HTMLAttributes<HTMLFactoryJsxElement>;
             "form-associated": LocalJSX.IntrinsicElements["form-associated"] & JSXBase.HTMLAttributes<HTMLFormAssociatedElement>;
             "form-associated-prop-check": LocalJSX.IntrinsicElements["form-associated-prop-check"] & JSXBase.HTMLAttributes<HTMLFormAssociatedPropCheckElement>;
+            "form-associated-reflect": LocalJSX.IntrinsicElements["form-associated-reflect"] & JSXBase.HTMLAttributes<HTMLFormAssociatedReflectElement>;
             "global-script-test": LocalJSX.IntrinsicElements["global-script-test"] & JSXBase.HTMLAttributes<HTMLGlobalScriptTestElement>;
             "global-styles": LocalJSX.IntrinsicElements["global-styles"] & JSXBase.HTMLAttributes<HTMLGlobalStylesElement>;
             "host-attr-override": LocalJSX.IntrinsicElements["host-attr-override"] & JSXBase.HTMLAttributes<HTMLHostAttrOverrideElement>;

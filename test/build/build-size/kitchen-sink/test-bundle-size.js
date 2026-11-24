@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const distDir = path.join(__dirname, 'dist', 'loader-bundle', 'bundlesize-kitchen-sink');
-const maxBundleSize = 31 * 1024 + 512; // ~31.5KB minified (~11.7KB gzipped)
+const maxBundleSize = 32 * 1024 + 512; // ~32.5KB minified (~12KB gzipped)
 
 console.log('\nChecking bundle size (kitchen-sink)...');
 

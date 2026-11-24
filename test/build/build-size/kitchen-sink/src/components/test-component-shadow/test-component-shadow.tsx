@@ -8,7 +8,7 @@ import { Component, Prop, h } from '@stencil/core';
 })
 export class TestComponent {
   /** The text to display */
-  @Prop() t: string;
+  @Prop({ reflect: true }) t: string;
   render() {
     return (
       <div>

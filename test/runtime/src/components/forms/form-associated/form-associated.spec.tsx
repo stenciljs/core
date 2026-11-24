@@ -1,4 +1,4 @@
-import { render, h, describe, it, expect, waitForStable, waitForExist } from '@stencil/vitest';
+import { render, h, describe, it, expect, vi, waitForStable, waitForExist } from '@stencil/vitest';
 
 describe('form associated', () => {
   it('should render without errors', async () => {
@@ -126,5 +126,28 @@ describe('form associated prop check', () => {
     await waitForChanges();
     expect(cmp.disabled).toBe(false);
     expect(p).toHaveTextContent('Disabled prop value: false');
+  });
+});
+
+describe('form associated reflected prop', () => {
+  it('updates `:disabled` and `click()` as soon as the prop changes', async () => {
+    const { root } = await render(<form-associated-reflect disabled />);
+    await waitForExist('form-associated-reflect.hydrated');
+
+    const cmp = root as HTMLFormAssociatedReflectElement;
+    const onClick = vi.fn();
+    cmp.addEventListener('click', onClick);
+    expect(cmp.matches(':disabled')).toBe(true);
+
+    // no render in between: the browser reads the reflected attribute
+    cmp.disabled = false;
+    expect(cmp.matches(':disabled')).toBe(false);
+    cmp.click();
+    expect(onClick).toHaveBeenCalledTimes(1);
+
+    cmp.disabled = true;
+    expect(cmp.matches(':disabled')).toBe(true);
+    cmp.click();
+    expect(onClick).toHaveBeenCalledTimes(1);
   });
 });

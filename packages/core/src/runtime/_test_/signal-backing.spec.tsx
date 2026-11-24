@@ -1,4 +1,4 @@
-import { Component, h, Method, Prop, State, Watch } from '@stencil/core';
+import { Component, Element, h, Method, Prop, State, Watch } from '@stencil/core';
 import { expect, describe, it, vi } from '@stencil/vitest';
 
 import { Effect, computed, getSignal, STENCIL_SIGNALS_SYMBOL } from '../../signals';
@@ -681,6 +681,35 @@ describe('getSignal', () => {
     (root as any).count = 42;
     await waitForChanges();
     expect(sig!.value).toBe(42);
+  });
+
+  it('writes a reflected attribute when the prop changes, before watchers run', async () => {
+    const seen: (string | null)[] = [];
+
+    @Component({ tag: 'cmp-a' })
+    class CmpA {
+      @Element() el: HTMLElement;
+      @Prop({ reflect: true }) selected = false;
+
+      @Watch('selected')
+      onSelected() {
+        seen.push(this.el.getAttribute('selected'));
+      }
+
+      render() {
+        return <span />;
+      }
+    }
+
+    const { root } = await newSpecPage({ ...SIG, components: [CmpA], html: `<cmp-a></cmp-a>` });
+
+    (root as any).selected = true;
+    expect(root.getAttribute('selected')).toBe('');
+
+    (root as any).selected = false;
+    expect(root.hasAttribute('selected')).toBe(false);
+
+    expect(seen).toEqual(['', null]);
   });
 
   it('returns null for an unknown prop name', async () => {

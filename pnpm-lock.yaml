@@ -574,6 +574,8 @@ importers:
         specifier: ^2.3.0
         version: 2.3.0
 
+  test/integration/e2e/dist/loader-bundle/cjs: {}
+
   test/integration/ionic-app:
     dependencies:
       '@ionic/core':
@@ -825,6 +827,8 @@ importers:
       file-saver:
         specifier: ^2.0.5
         version: 2.0.5
+
+  test/wdio/dist/hydrate: {}
 
   test/wdio/hydrate: {}
 

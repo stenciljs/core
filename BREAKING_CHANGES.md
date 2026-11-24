@@ -26,6 +26,7 @@ Stencil recently had its 10th birthday - this release is a consolidation, organi
   - [Internal Package Restructuring](#internal-package-restructuring)
   - [`openBrowser` Defaults to `false`](#openbrowser-defaults-to-false)
   - [`@Watch` Handlers No Longer Fire Before the Component Has Rendered](#watch-handlers-no-longer-fire-before-the-component-has-rendered)
+  - [Reflected Attributes Update When the Prop Changes](#reflected-attributes-update-when-the-prop-changes)
   - [`componentShouldUpdate` Batching](#componentshouldupdate-batching)
   - [`slotchange` in `scoped` / `none` Components Matches Native Slots](#slotchange-in-scoped--none-components-matches-native-slots)
   - [Shadow Roots of Parser-Created Elements Attach on Connect](#shadow-roots-of-parser-created-elements-attach-on-connect)
@@ -178,6 +179,12 @@ To migrate, if you relied on the previous auto-open behavior, pass `--open` on t
 Per [Stencil's documented lifecycle](https://stenciljs.com/docs/component-lifecycle#component-lifecycle-methods), `@Watch()` handlers should not fire until a component has fully rendered for the first time. Previously - especially in the `loader-bundle` output - watch methods could be called during earlier lifecycle stages. In v5, `@Watch` now adheres to the documented behavior. This is technically a bug fix, but the previous behavior was long-standing enough that some codebases may have come to rely on it.
 
 To migrate, if you need a watcher to run before the component has finished rendering, call it manually from an earlier lifecycle method, or use `@Watch('propName', { immediate: true })`.
+
+#### Reflected Attributes Update When the Prop Changes
+
+After a component's first render, a `@Prop({ reflect: true })` now writes its attribute as soon as the prop changes, like native elements (`button.disabled = true`), rather than on the next render. `@Watch` handlers, event listeners, CSS selectors and the browser (e.g. `:disabled` on form-associated components) see the attribute and prop agree straight away.
+
+To migrate, nothing is needed unless code relied on the attribute still holding the previous value until the next render. If you wrote reflected attributes by hand in a `@Watch` to work around the delay, that code can be removed.
 
 #### `slotchange` in `scoped` / `none` Components Matches Native Slots
 

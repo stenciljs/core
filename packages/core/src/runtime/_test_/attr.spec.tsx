@@ -1,4 +1,4 @@
-import { Component, Element, h, Host, Prop } from '@stencil/core';
+import { Component, Element, h, Host, Prop, Watch } from '@stencil/core';
 import { expect, describe, it } from '@stencil/vitest';
 
 import { newSpecPage } from '../../testing';
@@ -387,6 +387,87 @@ describe('attribute', () => {
       expect(root).toEqualHtml(`
         <cmp-a str="second" nu="-12.2" dynamic-str="value" dynamic-nu="123" get-set="prop set via setter" undef="no undef" null="no null" bool></cmp-a>
       `);
+    });
+
+    describe('when the prop changes, before the next render', () => {
+      it('writes the attribute', async () => {
+        @Component({ tag: 'cmp-sync-reflect' })
+        class CmpSyncReflect {
+          @Prop({ reflect: true }) str = 'a';
+          @Prop({ reflect: true }) nu = 1;
+          @Prop({ reflect: true }) bool = false;
+          @Prop({ reflect: true }) anyVal: any = 'x';
+        }
+
+        const { root, waitForChanges } = await newSpecPage({
+          components: [CmpSyncReflect],
+          html: `<cmp-sync-reflect></cmp-sync-reflect>`,
+        });
+
+        root.str = 'b';
+        root.nu = 2;
+        root.bool = true;
+        root.anyVal = true;
+
+        expect(root.getAttribute('str')).toBe('b');
+        expect(root.getAttribute('nu')).toBe('2');
+        expect(root.getAttribute('bool')).toBe('');
+        expect(root.getAttribute('any-val')).toBe('');
+        // the attribute write must not feed back into the props
+        expect(root.nu).toBe(2);
+        expect(root.anyVal).toBe(true);
+
+        root.bool = false;
+        root.anyVal = null;
+        expect(root.hasAttribute('bool')).toBe(false);
+        expect(root.hasAttribute('any-val')).toBe(false);
+
+        await waitForChanges();
+        expect(root).toEqualHtml(`<cmp-sync-reflect str="b" nu="2"></cmp-sync-reflect>`);
+      });
+
+      it('writes the attribute before watchers run', async () => {
+        const seen: (string | null)[] = [];
+
+        @Component({ tag: 'cmp-sync-reflect-watch' })
+        class CmpSyncReflectWatch {
+          @Element() el: HTMLElement;
+          @Prop({ reflect: true }) selected = false;
+
+          @Watch('selected')
+          onSelected() {
+            seen.push(this.el.getAttribute('selected'));
+          }
+        }
+
+        const { root } = await newSpecPage({
+          components: [CmpSyncReflectWatch],
+          html: `<cmp-sync-reflect-watch></cmp-sync-reflect-watch>`,
+        });
+
+        root.selected = true;
+        root.selected = false;
+        expect(seen).toEqual(['', null]);
+      });
+
+      it('ends on the latest value when it changes back within one render', async () => {
+        @Component({ tag: 'cmp-sync-reflect-revert' })
+        class CmpSyncReflectRevert {
+          @Prop({ reflect: true }) str = 'a';
+        }
+
+        const { root, waitForChanges } = await newSpecPage({
+          components: [CmpSyncReflectRevert],
+          html: `<cmp-sync-reflect-revert></cmp-sync-reflect-revert>`,
+        });
+
+        root.str = 'b';
+        root.str = 'a';
+        expect(root.getAttribute('str')).toBe('a');
+
+        await waitForChanges();
+        expect(root.getAttribute('str')).toBe('a');
+      });
     });
 
     it('should remove a reflected boolean attribute when set to false, even if pre-existing markup wrote it as a literal string', async () => {
