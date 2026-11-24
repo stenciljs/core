@@ -326,6 +326,50 @@ export class MyCounter extends Mixin(Countable) {
     expect(result).toEqual({ ok: true, message: undefined });
   });
 
+  test('resolves resolveVar() event names imported from another file', async ({ page }) => {
+    // `resolveVar()` reads the value off the type checker, so the transpile program has to follow
+    // the import through `resolveImport` - in a browser, without touching `ts.sys`.
+    const result = await mount(page, [
+      {
+        name: 'events.ts',
+        content: `export const EVENTS = { MY_EMITTER: { PING: 'myEmitterPing' } } as const;
+`,
+      },
+      {
+        name: 'my-emitter.tsx',
+        content: `import { Component, Event, EventEmitter, Listen, h, resolveVar } from '@stencil/core';
+import { EVENTS } from './events';
+
+@Component({ tag: 'my-emitter' })
+export class MyEmitter {
+  @Event({ eventName: resolveVar(EVENTS.MY_EMITTER.PING) }) ping: EventEmitter<void>;
+
+  @Listen(resolveVar(EVENTS.MY_EMITTER.PING))
+  onPing(ev: Event) {
+    (window as any).pingedAs = ev.type;
+  }
+
+  componentDidLoad() {
+    this.ping.emit();
+  }
+
+  render() {
+    return <div>emitter</div>;
+  }
+}
+`,
+      },
+      {
+        name: 'index.html',
+        content: `<script type="module" src="./my-emitter.tsx"></script>
+<my-emitter></my-emitter>
+`,
+      },
+    ]);
+    expect(result).toEqual({ ok: true, message: undefined });
+    await expect.poll(() => previewFlag(page, 'pingedAs')).toBe('myEmitterPing');
+  });
+
   test('resolves a bare `@stencil/core` import that survives compilation', async ({ page }) => {
     // Regression test: `@Component` is always elided by the static transform, and an *invoked*
     // `Mixin(...)` is rewritten away, but a real runtime symbol like `Host` (or a merely

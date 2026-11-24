@@ -21,7 +21,11 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { cmpMetaToDocsComponent, transpileSync } from '@stencil/core/compiler';
-import type { BuildOverrides, JsonDocsComponent } from '@stencil/core/compiler';
+import type {
+  BuildOverrides,
+  JsonDocsComponent,
+  ResolveImportContext,
+} from '@stencil/core/compiler';
 import type { SupportedFramework } from 'unplugin';
 
 import { collectStyleDocsForComponent } from './css.js';
@@ -304,12 +308,18 @@ function buildHmrSnippet(
  * raw source, giving the plugin a chance to pre-transform and cache the file
  * before the bundler's resolveId hook fires for it. */
 function makeResolver(onBaseClass?: (absPath: string, rawCode: string) => void) {
-  return (specifier: string, currentImporter: string): { code: string; path: string } | null => {
+  return (
+    specifier: string,
+    currentImporter: string,
+    context?: ResolveImportContext,
+  ): { code: string; path: string } | null => {
     const absPath = resolveSpecifier(specifier, currentImporter);
     if (!absPath) return null;
 
     const code = readFileSync(absPath, 'utf-8');
-    onBaseClass?.(absPath, code);
+    // 'type-info' lookups (e.g. a `resolveVar()` constant) are not part of an inheritance
+    // chain - registering them would swap the real module for a virtual base-class one.
+    if (context?.kind !== 'type-info') onBaseClass?.(absPath, code);
     return { code, path: absPath };
   };
 }
