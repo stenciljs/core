@@ -187,7 +187,13 @@ const visitClassDeclaration = (
   validateMethods(diagnostics, classMembers);
 
   const currentDecorators = retrieveTsDecorators(classNode);
-  const updatedClassFields: ts.ClassElement[] = updateConstructor(classNode, filteredMethodsAndFields, []);
+  const updatedClassFields: ts.ClassElement[] = updateConstructor(
+    classNode,
+    filteredMethodsAndFields,
+    [],
+    undefined,
+    'forward',
+  );
 
   return ts.factory.updateClassDeclaration(
     classNode,

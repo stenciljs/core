@@ -319,4 +319,45 @@ describe('serializeNodeToHtml', () => {
     const html = serializeNodeToHtml(elm, { prettyHtml: true });
     expect(html).toBe(`<${voidElm}>`);
   });
+
+  describe('style attribute', () => {
+    it('escapes double quotes in a style value', () => {
+      const elm = doc.createElement('div');
+      const p = doc.createElement('p');
+      p.style.fontFamily = '"Open Sans", sans-serif';
+      elm.appendChild(p);
+
+      const html = serializeNodeToHtml(elm);
+      expect(html).toBe(`<p style="font-family: &quot;Open Sans&quot;, sans-serif;"></p>`);
+    });
+
+    it('escapes double quotes in a style value that wraps onto its own line', () => {
+      const elm = doc.createElement('div');
+      const p = doc.createElement('p');
+      p.style.fontFamily = '"Open Sans", sans-serif';
+      elm.appendChild(p);
+
+      const html = serializeNodeToHtml(elm, { approximateLineWidth: 10 });
+      expect(html).toBe(`<p\nstyle="font-family: &quot;Open Sans&quot;, sans-serif;"></p>`);
+    });
+
+    it('keeps escaped quotes from parsed HTML inside the style attribute', () => {
+      const elm = doc.createElement('div');
+      elm.innerHTML = `<p style="font-family: x&quot;&gt;&lt;img src=x onerror=alert(1)&gt;">text</p>`;
+
+      const html = serializeNodeToHtml(elm);
+      expect(html).toBe(`<p style="font-family: x&quot;><img src=x onerror=alert(1)>;">text</p>`);
+      expect(elm.querySelector('img')).toBeNull();
+    });
+
+    it('escapes ampersands in a style value', () => {
+      const elm = doc.createElement('div');
+      const p = doc.createElement('p');
+      p.style.backgroundImage = 'url("a.png?x=1&y=2")';
+      elm.appendChild(p);
+
+      const html = serializeNodeToHtml(elm);
+      expect(html).toBe(`<p style="background-image: url(&quot;a.png?x=1&amp;y=2&quot;);"></p>`);
+    });
+  });
 });

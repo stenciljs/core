@@ -187,6 +187,45 @@ describe('scoped-slot-child-insert-adjacent', () => {
     });
   });
 
+  describe('insertAdjacentText with markup', () => {
+    const markup = '<img src="x" onerror="window.__insertAdjacentTextXss = true"><b>bold</b>';
+
+    afterEach(() => {
+      delete (window as any).__insertAdjacentTextXss;
+    });
+
+    for (const position of ['afterbegin', 'beforeend'] as const) {
+      it(`slots markup as text w/ "${position}" position`, async () => {
+        host.insertAdjacentText(position, markup);
+        // give a parsed <img> time to fire its error handler
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        expect(host.querySelector('img')).toBeNull();
+        expect(host.querySelector('b')).toBeNull();
+        expect((window as any).__insertAdjacentTextXss).toBeUndefined();
+        expect(parentDiv.textContent).toBe(
+          position === 'afterbegin'
+            ? `Here is my slot. It is red.${markup}I am slotted and will receive a red background`
+            : `Here is my slot. It is red.I am slotted and will receive a red background${markup}`,
+        );
+      });
+    }
+
+    for (const position of ['beforebegin', 'afterend'] as const) {
+      it(`inserts markup as text w/ "${position}" position`, async () => {
+        host.insertAdjacentText(position, markup);
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        const sibling = position === 'beforebegin' ? host.previousSibling : host.nextSibling;
+        expect(sibling.nodeType).toBe(Node.TEXT_NODE);
+        expect(sibling.nodeValue).toBe(markup);
+        expect(host.parentElement.querySelector('img')).toBeNull();
+        expect((window as any).__insertAdjacentTextXss).toBeUndefined();
+        sibling.remove();
+      });
+    }
+  });
+
   describe('insertAdjacentElement', () => {
     it('slots elements w/ "beforeend" position', async () => {
       expect(parentDiv).toBeDefined();
