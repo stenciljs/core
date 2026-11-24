@@ -179,7 +179,7 @@ export const patchSlotPrepend = (HostElementPrototype: HTMLElement) => {
         newChild.hidden = true;
       }
 
-      return (HostElementPrototype as any).__prepend(newChild);
+      return (HostElementPrototype as any).__prepend.call(this, newChild);
     });
   };
 };
@@ -237,13 +237,23 @@ export const patchSlotInsertAdjacentHTML = (HostElementPrototype: HTMLElement) =
 /**
  * Patches the `insertAdjacentText` method for a slotted node inside a scoped component. Specifically,
  * we only need to patch the behavior for the specific `beforeend` and `afterbegin` positions so the text node
- * gets inserted into the DOM in the correct location.
+ * gets inserted into the DOM in the correct location. The text is always inserted as a text node, never parsed as HTML.
  *
  * @param HostElementPrototype the `Element` to be patched
  */
 export const patchSlotInsertAdjacentText = (HostElementPrototype: HTMLElement) => {
+  if ((HostElementPrototype as any).__insertAdjacentText) return;
+  const originalInsertAdjacentText = ((HostElementPrototype as any).__insertAdjacentText =
+    HostElementPrototype.insertAdjacentText);
+
   HostElementPrototype.insertAdjacentText = function (this: d.HostElement, position: InsertPosition, text: string) {
-    this.insertAdjacentHTML(position, text);
+    if (position === 'afterbegin') {
+      this.prepend(this.ownerDocument.createTextNode(String(text)));
+    } else if (position === 'beforeend') {
+      this.append(this.ownerDocument.createTextNode(String(text)));
+    } else {
+      originalInsertAdjacentText.call(this, position, text);
+    }
   };
 };
 
@@ -364,7 +374,10 @@ export const patchTextContent = (hostElementPrototype: HTMLElement): void => {
     },
     set: function (value) {
       removeSlottedNodes(this);
-      this.insertAdjacentHTML('beforeend', value);
+      // a text node, never parsed as HTML
+      if (value != null && value !== '') {
+        this.append(this.ownerDocument.createTextNode(String(value)));
+      }
     },
   });
 };

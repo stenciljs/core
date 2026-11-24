@@ -1,7 +1,7 @@
 import { Component, h, Host } from '@stencil/core';
 import { newSpecPage, SpecPage } from '@stencil/core/testing';
 
-import { patchPseudoShadowDom, patchSlottedNode } from '../../runtime/dom-extras';
+import { patchPseudoShadowDom, patchSlotPrepend, patchSlottedNode } from '../../runtime/dom-extras';
 
 describe('dom-extras - patches for non-shadow dom methods and accessors', () => {
   let specPage: SpecPage;
@@ -89,6 +89,102 @@ describe('dom-extras - patches for non-shadow dom methods and accessors', () => 
     expect(specPage.root.textContent.replace(/\s+/g, ' ').trim()).toBe(
       `Some default slot, slotted text a default slot, slotted element a second slot, slotted element nested element in the second slot`,
     );
+  });
+
+  // slot placement for `textContent` and the `afterbegin` / `beforeend` positions is covered in
+  // test/wdio/text-content-patch and test/wdio/scoped-slot-child-insert-adjacent
+  describe('insertAdjacentText inserts text, never HTML', () => {
+    const markup = '<img src="x" onerror="window.__xss = true"><b>bold</b>';
+
+    it.each(['beforebegin', 'afterend'] as const)(
+      'inserts `insertAdjacentText` %s content as text outside the host',
+      async (position) => {
+        specPage.root.insertAdjacentText(position, markup);
+
+        const parent = specPage.root.parentNode as Element;
+        expect(parent.querySelector('img')).toBeNull();
+        expect(parent.querySelector('b')).toBeNull();
+
+        const sibling = position === 'beforebegin' ? specPage.root.previousSibling : specPage.root.nextSibling;
+        expect(sibling.nodeType).toBe(3);
+        expect(sibling.nodeValue).toBe(markup);
+      },
+    );
+
+    it.each(['afterbegin', 'beforeend'] as const)(
+      'inserts `insertAdjacentText` %s content as text inside the host',
+      async (position) => {
+        specPage.root.insertAdjacentText(position, markup);
+
+        expect(specPage.root.querySelector('img')).toBeNull();
+        expect(specPage.root.querySelector('b')).toBeNull();
+        expect(specPage.root.outerHTML).toContain('&lt;img src="x"');
+      },
+    );
+  });
+
+  describe('on a host with no light DOM', () => {
+    const markup = '<img src="x" onerror="window.__xss = true"><b>bold</b>';
+    let emptyPage: SpecPage;
+
+    beforeEach(async () => {
+      @Component({
+        tag: 'cmp-b',
+        scoped: true,
+      })
+      class CmpB {
+        render() {
+          return (
+            <div>
+              <slot />
+            </div>
+          );
+        }
+      }
+
+      emptyPage = await newSpecPage({
+        components: [CmpB],
+        html: `<cmp-b></cmp-b>`,
+      });
+    });
+
+    it('patches the `textContent` setter to insert text, never HTML', async () => {
+      patchPseudoShadowDom(emptyPage.root);
+      emptyPage.root.textContent = markup;
+
+      expect(emptyPage.root.querySelector('img')).toBeNull();
+      expect(emptyPage.root.querySelector('b')).toBeNull();
+      // serialized as escaped text, not as an <img> element
+      expect(emptyPage.root.outerHTML).toContain('&lt;img src="x"');
+      expect(emptyPage.root.outerHTML).not.toContain('<img');
+    });
+
+    it('clears slotted content when `textContent` is set to null or an empty string', async () => {
+      patchPseudoShadowDom(emptyPage.root);
+
+      emptyPage.root.textContent = 'some text';
+      emptyPage.root.textContent = null;
+      expect(emptyPage.root.childNodes.length).toBe(0);
+
+      emptyPage.root.textContent = 'some text';
+      emptyPage.root.textContent = '';
+      expect(emptyPage.root.childNodes.length).toBe(0);
+    });
+
+    it('calls the original `prepend` on the host when no slot matches', async () => {
+      // patch a prototype rather than the instance, like the runtime does
+      const host = emptyPage.root;
+      const proto = Object.create(Object.getPrototypeOf(host));
+      patchSlotPrepend(proto);
+      Object.setPrototypeOf(host, proto);
+
+      const elm = emptyPage.doc.createElement('span');
+      elm.setAttribute('slot', 'no-such-slot');
+
+      expect(() => host.prepend(elm)).not.toThrow();
+      expect(elm.parentNode).toBe(host);
+      expect(host.firstChild).toBe(elm);
+    });
   });
 
   it('firstChild', async () => {
