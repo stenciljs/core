@@ -1,7 +1,31 @@
+import { setTagTransformer } from '@platform';
+
 import type * as d from '../../../declarations';
 import { h, newVNode } from '../h';
 
 describe('h()', () => {
+  describe('tag transformer', () => {
+    beforeEach(() => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+      setTagTransformer((tag) => `${tag}-sample`);
+    });
+
+    afterEach(() => {
+      setTagTransformer(undefined);
+      jest.restoreAllMocks();
+    });
+
+    it('transforms custom element tags', () => {
+      expect(h('my-cmp', null).$tag$).toBe('my-cmp-sample');
+    });
+
+    it('does not transform native element tags', () => {
+      const vnode = h('div', null, h('span', null), h('slot', null), h('input', null), h('my-cmp', null));
+      expect(vnode.$tag$).toBe('div');
+      expect(vnode.$children$.map((child) => child.$tag$)).toEqual(['span', 'slot', 'input', 'my-cmp-sample']);
+    });
+  });
+
   it('should render nested functional components', () => {
     const FunctionalCmp1 = () => h('fn-cmp', null);
     const FunctionalCmp2 = () => h(FunctionalCmp1, null);
