@@ -202,3 +202,103 @@ describe('transpileSync() - serializers with resolveImport', () => {
     expect(code).toContain('"deserializeItems": 0');
   });
 });
+
+describe('transpileSync() - resolveVar() with imported constants', () => {
+  const files: Record<string, string> = {
+    '/base.events.ts': `export const BASE_EVENTS = { PING: 'myPing' } as const;`,
+    '/events.ts': `import { BASE_EVENTS } from './base.events';
+      export const EVENTS = { MY: { ...BASE_EVENTS, PONG: 'myPong' } } as const;
+      export const LOOSE = { PING: 'loosePing' };
+      export const SINGLE = 'singleEvent';`,
+    '/broken.ts': `export const = ;`,
+  };
+  const resolveImport = (specifier: string) => {
+    const path = `/${specifier.replace(/^\.\//, '')}.ts`;
+    return files[path] ? { code: files[path], path } : null;
+  };
+  const component = (imports: string, members: string) =>
+    `import { Component, Event, EventEmitter, Listen, resolveVar } from '@stencil/core';
+    ${imports}
+    @Component({ tag: 'my-cmp' })
+    export class MyCmp {
+      ${members}
+    }`;
+
+  it('resolves an imported `as const` catalog, through a re-export chain', () => {
+    const { code, diagnostics } = transpileSync(
+      component(
+        `import { EVENTS, SINGLE } from './events';`,
+        `@Event({ eventName: resolveVar(EVENTS.MY.PING) }) ping: EventEmitter<void>;
+        @Listen(resolveVar(EVENTS.MY.PONG)) onPong() {}
+        @Listen(resolveVar(SINGLE)) onSingle() {}`,
+      ),
+      { file: '/my-cmp.tsx', componentExport: 'customelement', resolveImport },
+    );
+    expect(diagnostics).toEqual([]);
+    expect(code).toContain('"myPing"');
+    expect(code).toContain('"myPong"');
+    expect(code).toContain('"singleEvent"');
+  });
+
+  it('only emits the component file, and ignores errors in imported files', () => {
+    const { code, diagnostics } = transpileSync(
+      component(
+        `import { EVENTS } from './events'; import './broken';`,
+        `@Listen(resolveVar(EVENTS.MY.PONG)) onPong() {}`,
+      ),
+      { file: '/my-cmp.tsx', componentExport: 'customelement', resolveImport },
+    );
+    expect(diagnostics).toEqual([]);
+    expect(code).not.toContain('BASE_EVENTS');
+    expect(code).not.toContain('loosePing');
+  });
+
+  it('rejects a widened (non `as const`) object property, matching a full build', () => {
+    const { diagnostics } = transpileSync(
+      component(`import { LOOSE } from './events';`, `@Listen(resolveVar(LOOSE.PING)) onPing() {}`),
+      { file: '/my-cmp.tsx', componentExport: 'customelement', resolveImport },
+    );
+    expect(diagnostics.map((d) => d.messageText).join('\n')).toContain(
+      'resolveVar() cannot resolve',
+    );
+  });
+
+  it('only follows imports for files that use resolveVar(), flagged as type-info', () => {
+    const calls: Array<[string, unknown]> = [];
+    const spy = (specifier: string, _importer: string, context?: unknown) => {
+      calls.push([specifier, context]);
+      return resolveImport(specifier);
+    };
+    transpileSync(
+      component(
+        `import { EVENTS } from './events';`,
+        `@Listen(resolveVar(EVENTS.MY.PONG)) onPong() {}`,
+      ),
+      { file: '/my-cmp.tsx', componentExport: 'customelement', resolveImport: spy },
+    );
+    expect(calls).toContainEqual(['./events', { kind: 'type-info' }]);
+    expect(calls).toContainEqual(['./base.events', { kind: 'type-info' }]);
+
+    calls.length = 0;
+    transpileSync(
+      component(`import { EVENTS } from './events';`, `@Listen('plain') onPlain() {}`),
+      {
+        file: '/my-cmp.tsx',
+        componentExport: 'customelement',
+        resolveImport: spy,
+      },
+    );
+    expect(calls).toEqual([]);
+  });
+
+  it('still cannot see imports without a resolveImport callback', () => {
+    const { diagnostics } = transpileSync(
+      component(
+        `import { EVENTS } from './events';`,
+        `@Listen(resolveVar(EVENTS.MY.PONG)) onPong() {}`,
+      ),
+      { file: '/my-cmp.tsx', componentExport: 'customelement' },
+    );
+    expect(diagnostics.map((d) => d.messageText).join('\n')).toContain('resolveVar()');
+  });
+});

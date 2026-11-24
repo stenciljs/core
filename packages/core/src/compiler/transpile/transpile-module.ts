@@ -104,10 +104,44 @@ export const transpileModule = (
 
   const sourceFile = ts.createSourceFile(sourceFilePath, input, tsCompilerOptions.target);
 
+  // `resolveVar()` reads its value off the type checker, so with a `resolveImport` callback let
+  // the program follow imports through it - `resolveVar(EVENTS.FOO)` with `EVENTS` imported from
+  // another module then sees the same declarations a full `stencil build` would. Only files that
+  // use `resolveVar(` pay for this; everything else stays single-file (`noResolve`) as before.
+  const importedSources = new Map<string, ts.SourceFile>();
+  const resolveImport = input.includes('resolveVar(') ? transformOpts.resolveImport : undefined;
+  const resolveViaCallback = (specifier: string, containingFile: string) => {
+    let resolved: ReturnType<NonNullable<typeof resolveImport>> = null;
+    try {
+      resolved = resolveImport!(specifier, containingFile, { kind: 'type-info' });
+    } catch {
+      // treat a throwing resolver the same as an unresolved import
+    }
+    if (!resolved) return undefined;
+    const extension = getResolvedExtension(resolved.path);
+    if (!extension) return undefined;
+    const resolvedFileName = normalizePath(resolved.path.split('?')[0]);
+    if (
+      resolvedFileName !== normalizePath(sourceFilePath) &&
+      !importedSources.has(resolvedFileName)
+    ) {
+      importedSources.set(
+        resolvedFileName,
+        ts.createSourceFile(resolvedFileName, resolved.code, tsCompilerOptions.target!, true),
+      );
+    }
+    return { resolvedFileName, extension, isExternalLibraryImport: false };
+  };
+  if (resolveImport) {
+    tsCompilerOptions.noResolve = false;
+  }
+
   // Create a compilerHost object to allow the compiler to read and write files
   const compilerHost: ts.CompilerHost = {
     getSourceFile: (fileName) =>
-      normalizePath(fileName) === normalizePath(sourceFilePath) ? sourceFile : undefined,
+      normalizePath(fileName) === normalizePath(sourceFilePath)
+        ? sourceFile
+        : importedSources.get(normalizePath(fileName)),
     writeFile: (name, text) => {
       if (name.endsWith('.js.map') || name.endsWith('.mjs.map')) {
         results.map = text;
@@ -123,10 +157,20 @@ export const transpileModule = (
     getCurrentDirectory: () =>
       transformOpts.currentDirectory || (typeof process !== 'undefined' ? process.cwd() : '/'),
     getNewLine: () => (ts.sys && ts.sys.newLine) || '\n',
-    fileExists: (fileName) => normalizePath(fileName) === normalizePath(sourceFilePath),
+    fileExists: (fileName) =>
+      normalizePath(fileName) === normalizePath(sourceFilePath) ||
+      importedSources.has(normalizePath(fileName)),
     readFile: () => '',
     directoryExists: () => true,
     getDirectories: () => [],
+    ...(resolveImport
+      ? {
+          resolveModuleNameLiterals: (moduleLiterals, containingFile) =>
+            moduleLiterals.map((literal) => ({
+              resolvedModule: resolveViaCallback(literal.text, containingFile),
+            })),
+        }
+      : {}),
   };
 
   const program = ts.createProgram([sourceFilePath], tsCompilerOptions, compilerHost);
@@ -171,7 +215,8 @@ export const transpileModule = (
     transformers.after.push(lazyComponentTransform(compilerCtx, transformOpts, buildCtx));
   }
 
-  program.emit(undefined, undefined, undefined, false, transformers);
+  // Only ever emit the file being transpiled - imported sources are there for type info only.
+  program.emit(sourceFile, undefined, undefined, false, transformers);
 
   if (transformOpts.buildOverrides && results.code) {
     const mutations = Object.entries(transformOpts.buildOverrides)
@@ -185,7 +230,7 @@ export const transpileModule = (
     }
   }
 
-  const tsDiagnostics = [...program.getSyntacticDiagnostics()] as ts.Diagnostic[];
+  const tsDiagnostics = [...program.getSyntacticDiagnostics(sourceFile)] as ts.Diagnostic[];
 
   if (config.validateTypes) {
     tsDiagnostics.push(...program.getOptionsDiagnostics());
@@ -198,6 +243,26 @@ export const transpileModule = (
   results.moduleFile = compilerCtx.moduleMap.get(results.sourceFilePath)!;
 
   return results;
+};
+
+/**
+ * Maps a `resolveImport` result path to the TypeScript extension the program should parse it
+ * as. Only TypeScript sources are taken - `noLib`/no `allowJs` means anything else would be
+ * dropped by the program anyway, so it stays unresolved exactly as it did before.
+ *
+ * @param path the resolved path returned by the `resolveImport` callback
+ * @returns the matching `ts.Extension`, or `undefined` if the file can't add type info
+ */
+const getResolvedExtension = (path: string): ts.Extension | undefined => {
+  const bare = path.split('?')[0];
+  if (bare.endsWith('.d.ts')) return ts.Extension.Dts;
+  if (bare.endsWith('.d.mts')) return ts.Extension.Dmts;
+  if (bare.endsWith('.d.cts')) return ts.Extension.Dcts;
+  if (bare.endsWith('.tsx')) return ts.Extension.Tsx;
+  if (bare.endsWith('.mts')) return ts.Extension.Mts;
+  if (bare.endsWith('.cts')) return ts.Extension.Cts;
+  if (bare.endsWith('.ts')) return ts.Extension.Ts;
+  return undefined;
 };
 
 const getScriptTargetKind = (transformOpts: d.TransformOptions) => {

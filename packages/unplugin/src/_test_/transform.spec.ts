@@ -209,3 +209,38 @@ describe('transformStencil', () => {
     });
   });
 });
+
+describe('resolveVar() with imported constants', () => {
+  it('inlines an imported event name without registering the catalog as a base class', async () => {
+    const { mkdtempSync, rmSync, writeFileSync } = await import('node:fs');
+    const { tmpdir } = await import('node:os');
+    const { join } = await import('node:path');
+    const dir = mkdtempSync(join(tmpdir(), 'unplugin-resolve-var-'));
+    try {
+      writeFileSync(
+        join(dir, 'events.ts'),
+        `export const EVENTS = { MY: { PING: 'myPing' } } as const;\n`,
+      );
+      const id = join(dir, 'my-emitter.tsx').replace(/\\/g, '/');
+      const baseClasses: string[] = [];
+      const result = await transformStencil(
+        `import { Component, Event, EventEmitter, Listen, resolveVar } from '@stencil/core';
+        import { EVENTS } from './events';
+        @Component({ tag: 'my-emitter' })
+        export class MyEmitter {
+          @Event({ eventName: resolveVar(EVENTS.MY.PING) }) ping: EventEmitter<void>;
+          @Listen(resolveVar(EVENTS.MY.PING)) onPing() {}
+        }`,
+        id,
+        {},
+        false,
+        '',
+        (absPath) => baseClasses.push(absPath),
+      );
+      expect(result!.code).toContain('"myPing"');
+      expect(baseClasses).toEqual([]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});

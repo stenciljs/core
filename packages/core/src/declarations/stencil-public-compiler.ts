@@ -3077,10 +3077,18 @@ export interface TranspileOptions {
    */
   additionalTagTransformers?: boolean;
   /**
-   * Callback used to resolve parent-class source for inheritance-chain analysis.
-   * Called when a component's `extends` clause references a class from another
-   * module.  Return the resolved absolute path and source text of that module,
-   * or `null` to skip inheritance resolution for that specifier.
+   * Callback used to resolve imported source during a single-file transpile.
+   * Return the resolved absolute path and source text of that module, or `null`
+   * to leave the specifier unresolved.
+   *
+   * It is called in two situations, told apart by `context.kind`:
+   * - **inheritance** (`context` is `undefined`): a component's `extends` clause
+   *   references a class from another module, so the compiler can merge the
+   *   parent's metadata.
+   * - **`'type-info'`**: the file uses `resolveVar()`, so the compiler follows its
+   *   imports (and theirs) to read constants declared elsewhere. The returned
+   *   module is only used for type information - it is never emitted or treated
+   *   as a base class.
    *
    * @example
    * ```ts
@@ -3092,7 +3100,11 @@ export interface TranspileOptions {
    * });
    * ```
    */
-  resolveImport?: (specifier: string, importer: string) => { code: string; path: string } | null;
+  resolveImport?: (
+    specifier: string,
+    importer: string,
+    context?: ResolveImportContext,
+  ) => { code: string; path: string } | null;
 
   /**
    * When `true` class declarations at the end of a `@Component` inheritance chain
@@ -3180,13 +3192,28 @@ export interface TransformOptions {
   /**
    * @see {@link TranspileOptions.resolveImport}
    */
-  resolveImport?: (specifier: string, importer: string) => { code: string; path: string } | null;
+  resolveImport?: (
+    specifier: string,
+    importer: string,
+    context?: ResolveImportContext,
+  ) => { code: string; path: string } | null;
 
   /** @see {@link TranspileOptions.transformAsBaseClass} */
   transformAsBaseClass?: boolean;
 
   /** @see {@link TranspileOptions.buildOverrides} */
   buildOverrides?: BuildOverrides;
+}
+
+/**
+ * Extra information passed as the third argument of {@link TranspileOptions.resolveImport}.
+ */
+export interface ResolveImportContext {
+  /**
+   * `'type-info'` when the module is only needed for type information (e.g. `resolveVar()`
+   * reading a constant declared in another file).
+   */
+  kind: 'type-info';
 }
 
 export interface CompileScriptMinifyOptions {
