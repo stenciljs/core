@@ -51,13 +51,11 @@ describe('SSR > Client hydration of light-DOM slot projection', () => {
         ),
     );
 
-    const projectedDiv = doc.querySelector('div.inner-projected') as HTMLElement;
-    await browser.waitUntil(async () => !!projectedDiv);
-
+    const page = doc.querySelector('ssr-light-slot-page-cmp');
     const wrapper = doc.querySelector('ssr-light-slot-wrap-cmp');
-    await browser.waitUntil(async () => wrapper.classList.contains('hydrated'));
-    await browser.pause(200);
+    await browser.waitUntil(async () => page.classList.contains('hydrated') && wrapper.classList.contains('hydrated'));
 
+    const projectedDiv = doc.querySelector('div.inner-projected') as HTMLElement;
     expect(projectedDiv.hidden).toBe(false);
 
     stage.remove();

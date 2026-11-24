@@ -3,10 +3,8 @@ import { Component, h, Host, Prop } from '@stencil/core';
 import { newSpecPage } from '@stencil/core/testing';
 
 /**
- * Pins the behavior introduced by #6514: for `scoped` components, content
- * without a matching slot is hidden, and toggling a slot in re-renders updates
- * that visibility. The `addSlottedNodes` change in #6934 must not affect this
- * client-only path (there, nodes never carry an `s-sn` attribute).
+ * For `scoped` components, content without a matching slot is hidden, and
+ * toggling a slot in re-renders updates that visibility.
  */
 describe('scoped dynamic slot visibility', () => {
   it('hides content without a slot and reveals it when a slot appears', async () => {
