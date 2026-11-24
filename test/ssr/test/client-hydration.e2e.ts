@@ -404,6 +404,45 @@ test.describe('client hydration', () => {
       expect(classes.withClass).toEqual(['child-disabled', 'child-own', 'parent-set']);
       expect(classes.withoutClass).toEqual(['child-disabled', 'child-own']);
     });
+
+    test('keeps content an unencapsulated parent renders into an unencapsulated child slot visible', async ({
+      page,
+    }) => {
+      const { html } = await renderToString('<light-slot-page-cmp></light-slot-page-cmp>', {
+        fullDocument: true,
+        serializeShadowRoot: 'declarative-shadow-dom',
+      });
+      expect(html || '').toContain('projected content');
+
+      // the slot-owning child hydrates first, before its parent has turned the SSR `s-sn`
+      // attribute on the projected node into a property
+      const body = (html || '').replace(
+        '</body>',
+        `<script type="module">
+          import { defineCustomElement as defineWrap } from '/standalone/light-slot-wrap-cmp.js';
+          import { defineCustomElement as definePage } from '/standalone/light-slot-page-cmp.js';
+          defineWrap();
+          definePage();
+        </script></body>`,
+      );
+      await page.route('**/ssr-light-slot-hydration', (route) =>
+        route.fulfill({ status: 200, contentType: 'text/html', body }),
+      );
+      await page.goto('/ssr-light-slot-hydration');
+
+      await page.evaluate(async () => {
+        await customElements.whenDefined('light-slot-page-cmp');
+        await Promise.all(
+          ['light-slot-wrap-cmp', 'light-slot-page-cmp'].map((tag) =>
+            (document.querySelector(tag) as any).componentOnReady(),
+          ),
+        );
+      });
+
+      const projected = page.locator('light-slot-wrap-cmp div.projected');
+      await expect(projected).toHaveCount(1);
+      await expect(projected).toBeVisible();
+    });
   });
   /**
    * Slotted content of components that don't render into a native shadow root (scoped, or no

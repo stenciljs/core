@@ -993,6 +993,7 @@ export namespace Components {
     interface ReparentStyleWithVars {
     }
     interface ResolveVarEvents {
+        "emitImportedEvent": () => Promise<void>;
         "emitMyEvent": () => Promise<void>;
         "emitOtherEvent": () => Promise<void>;
     }
@@ -2668,6 +2669,7 @@ declare global {
     interface HTMLResolveVarEventsElementEventMap {
         "myEvent": any;
         "otherEvent": any;
+        "importedEvent": any;
     }
     interface HTMLResolveVarEventsElement extends Components.ResolveVarEvents, HTMLStencilElement {
         addEventListener<K extends keyof HTMLResolveVarEventsElementEventMap>(type: K, listener: (this: HTMLResolveVarEventsElement, ev: ResolveVarEventsCustomEvent<HTMLResolveVarEventsElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -4417,6 +4419,7 @@ declare namespace LocalJSX {
     interface ReparentStyleWithVars {
     }
     interface ResolveVarEvents {
+        "onImportedEvent"?: (event: ResolveVarEventsCustomEvent<any>) => void;
         "onMyEvent"?: (event: ResolveVarEventsCustomEvent<any>) => void;
         "onOtherEvent"?: (event: ResolveVarEventsCustomEvent<any>) => void;
     }

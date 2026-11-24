@@ -76,6 +76,16 @@ export namespace Components {
          */
         "slotchanges": number[];
     }
+    /**
+     * No encapsulation; renders its own content into `light-slot-wrap-cmp`'s default slot.
+     */
+    interface LightSlotPageCmp {
+    }
+    /**
+     * No encapsulation, with a default slot directly under the host.
+     */
+    interface LightSlotWrapCmp {
+    }
     interface MyCmp {
         /**
           * bar prop
@@ -428,6 +438,24 @@ declare global {
         prototype: HTMLHydratedSlotchangeElement;
         new (): HTMLHydratedSlotchangeElement;
     };
+    /**
+     * No encapsulation; renders its own content into `light-slot-wrap-cmp`'s default slot.
+     */
+    interface HTMLLightSlotPageCmpElement extends Components.LightSlotPageCmp, HTMLStencilElement {
+    }
+    var HTMLLightSlotPageCmpElement: {
+        prototype: HTMLLightSlotPageCmpElement;
+        new (): HTMLLightSlotPageCmpElement;
+    };
+    /**
+     * No encapsulation, with a default slot directly under the host.
+     */
+    interface HTMLLightSlotWrapCmpElement extends Components.LightSlotWrapCmp, HTMLStencilElement {
+    }
+    var HTMLLightSlotWrapCmpElement: {
+        prototype: HTMLLightSlotWrapCmpElement;
+        new (): HTMLLightSlotWrapCmpElement;
+    };
     interface HTMLMyCmpElement extends Components.MyCmp, HTMLStencilElement {
     }
     var HTMLMyCmpElement: {
@@ -754,6 +782,8 @@ declare global {
         "dsd-listen-cmp": HTMLDsdListenCmpElement;
         "hydrated-sibling-accessors": HTMLHydratedSiblingAccessorsElement;
         "hydrated-slotchange": HTMLHydratedSlotchangeElement;
+        "light-slot-page-cmp": HTMLLightSlotPageCmpElement;
+        "light-slot-wrap-cmp": HTMLLightSlotWrapCmpElement;
         "my-cmp": HTMLMyCmpElement;
         "my-jsx-cmp": HTMLMyJsxCmpElement;
         "nested-child-cmp": HTMLNestedChildCmpElement;
@@ -870,6 +900,16 @@ declare namespace LocalJSX {
           * @default []
          */
         "slotchanges"?: number[];
+    }
+    /**
+     * No encapsulation; renders its own content into `light-slot-wrap-cmp`'s default slot.
+     */
+    interface LightSlotPageCmp {
+    }
+    /**
+     * No encapsulation, with a default slot directly under the host.
+     */
+    interface LightSlotWrapCmp {
     }
     interface MyCmp {
         /**
@@ -1211,6 +1251,8 @@ declare namespace LocalJSX {
         "dsd-listen-cmp": DsdListenCmp;
         "hydrated-sibling-accessors": HydratedSiblingAccessors;
         "hydrated-slotchange": HydratedSlotchange;
+        "light-slot-page-cmp": LightSlotPageCmp;
+        "light-slot-wrap-cmp": LightSlotWrapCmp;
         "my-cmp": Omit<MyCmp, keyof MyCmpAttributes> & { [K in keyof MyCmp & keyof MyCmpAttributes]?: MyCmp[K] } & { [K in keyof MyCmp & keyof MyCmpAttributes as `attr:${K}`]?: MyCmpAttributes[K] } & { [K in keyof MyCmp & keyof MyCmpAttributes as `prop:${K}`]?: MyCmp[K] };
         "my-jsx-cmp": Omit<MyJsxCmp, keyof MyJsxCmpAttributes> & { [K in keyof MyJsxCmp & keyof MyJsxCmpAttributes]?: MyJsxCmp[K] } & { [K in keyof MyJsxCmp & keyof MyJsxCmpAttributes as `attr:${K}`]?: MyJsxCmpAttributes[K] } & { [K in keyof MyJsxCmp & keyof MyJsxCmpAttributes as `prop:${K}`]?: MyJsxCmp[K] };
         "nested-child-cmp": NestedChildCmp;
@@ -1278,6 +1320,14 @@ declare module "@stencil/core" {
             "dsd-listen-cmp": LocalJSX.IntrinsicElements["dsd-listen-cmp"] & JSXBase.HTMLAttributes<HTMLDsdListenCmpElement>;
             "hydrated-sibling-accessors": LocalJSX.IntrinsicElements["hydrated-sibling-accessors"] & JSXBase.HTMLAttributes<HTMLHydratedSiblingAccessorsElement>;
             "hydrated-slotchange": LocalJSX.IntrinsicElements["hydrated-slotchange"] & JSXBase.HTMLAttributes<HTMLHydratedSlotchangeElement>;
+            /**
+             * No encapsulation; renders its own content into `light-slot-wrap-cmp`'s default slot.
+             */
+            "light-slot-page-cmp": LocalJSX.IntrinsicElements["light-slot-page-cmp"] & JSXBase.HTMLAttributes<HTMLLightSlotPageCmpElement>;
+            /**
+             * No encapsulation, with a default slot directly under the host.
+             */
+            "light-slot-wrap-cmp": LocalJSX.IntrinsicElements["light-slot-wrap-cmp"] & JSXBase.HTMLAttributes<HTMLLightSlotWrapCmpElement>;
             "my-cmp": LocalJSX.IntrinsicElements["my-cmp"] & JSXBase.HTMLAttributes<HTMLMyCmpElement>;
             "my-jsx-cmp": LocalJSX.IntrinsicElements["my-jsx-cmp"] & JSXBase.HTMLAttributes<HTMLMyJsxCmpElement>;
             "nested-child-cmp": LocalJSX.IntrinsicElements["nested-child-cmp"] & JSXBase.HTMLAttributes<HTMLNestedChildCmpElement>;
