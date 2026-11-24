@@ -14,6 +14,7 @@ describe('textContent patch', () => {
             Slot content
             <p slot="suffix">Suffix content</p>
           </text-content-patch-scoped-with-slot>
+          <text-content-patch-scoped-named-slot></text-content-patch-scoped-named-slot>
         </>
       ),
     });
@@ -55,6 +56,81 @@ Bottom content`);
       );
 
       await expect(await elm.getText()).toBe(`New slot content`);
+    });
+  });
+
+  describe('text setters', () => {
+    const markup = '<img src="x" onerror="window.__textContentXss = true"><b>bold</b>';
+
+    afterEach(() => {
+      delete (window as any).__textContentXss;
+    });
+
+    it('should insert `textContent` markup as a text node in the default slot', async () => {
+      await $('text-content-patch-scoped-with-slot').waitForExist();
+      const host = document.querySelector('text-content-patch-scoped-with-slot');
+      host.textContent = markup;
+      // give a parsed <img> time to fire its error handler
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      expect(host.querySelector('img')).toBeNull();
+      expect(host.querySelector('b')).toBeNull();
+      expect((window as any).__textContentXss).toBeUndefined();
+      expect(host.textContent).toBe(markup);
+      expect(host.childNodes.length).toBe(1);
+      expect(host.childNodes[0].nodeType).toBe(Node.TEXT_NODE);
+      // the text is relocated into the default slot, between the two rendered paragraphs
+      const realChildNodes = Array.from((host as any).__childNodes as NodeListOf<ChildNode>);
+      const textIndex = realChildNodes.findIndex((n) => n.nodeType === Node.TEXT_NODE && n.nodeValue === markup);
+      const topIndex = realChildNodes.findIndex((n) => n.textContent === 'Top content');
+      const bottomIndex = realChildNodes.findIndex((n) => n.textContent === 'Bottom content');
+      expect(topIndex).toBeLessThan(textIndex);
+      expect(textIndex).toBeLessThan(bottomIndex);
+      await expect(await $('text-content-patch-scoped-with-slot').getText()).toContain(markup);
+    });
+
+    it('should clear slotted content when `textContent` is set to an empty string or null', async () => {
+      await $('text-content-patch-scoped-with-slot').waitForExist();
+      const host = document.querySelector('text-content-patch-scoped-with-slot');
+
+      host.textContent = '';
+      expect(host.childNodes.length).toBe(0);
+      expect(host.textContent).toBe('');
+
+      host.textContent = 'something';
+      host.textContent = null;
+      expect(host.childNodes.length).toBe(0);
+    });
+
+    // with no default slot the nodes stay in the host's light DOM, so these check the real child nodes
+    const realTextNodes = (host: Element) =>
+      Array.from((host as any).__childNodes as NodeListOf<ChildNode>)
+        .filter((n) => n.nodeType === Node.TEXT_NODE)
+        .map((n) => n.nodeValue);
+
+    it('should insert markup as text on a host with only a named slot', async () => {
+      await $('text-content-patch-scoped-named-slot').waitForExist();
+      const host = document.querySelector('text-content-patch-scoped-named-slot');
+
+      host.textContent = markup;
+      host.insertAdjacentText('afterbegin', `${markup} (afterbegin)`);
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      expect(host.querySelector('img')).toBeNull();
+      expect(host.querySelector('b')).toBeNull();
+      expect((window as any).__textContentXss).toBeUndefined();
+      expect(realTextNodes(host)).toContain(markup);
+      expect(realTextNodes(host)).toContain(`${markup} (afterbegin)`);
+    });
+
+    it('should prepend to a host with only a named slot', async () => {
+      await $('text-content-patch-scoped-named-slot').waitForExist();
+      const host = document.querySelector('text-content-patch-scoped-named-slot');
+
+      // no default slot, so `prepend` takes the native fallback path
+      host.prepend('prepended');
+
+      expect(realTextNodes(host)).toContain('prepended');
     });
   });
 });
