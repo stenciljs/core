@@ -165,6 +165,36 @@ describe('attributes', () => {
     expect(img.draggable).toEqual(false);
   });
 
+  describe('toggleAttribute', () => {
+    it('adds a missing attribute and removes a present one', () => {
+      const element = new MockHTMLElement(doc, 'div');
+
+      expect(element.toggleAttribute('data-active')).toBe(true);
+      expect(element.getAttribute('data-active')).toBe('');
+
+      expect(element.toggleAttribute('data-active')).toBe(false);
+      expect(element.hasAttribute('data-active')).toBe(false);
+    });
+
+    it('keeps the attribute when forced on and leaves it absent when forced off', () => {
+      const element = new MockHTMLElement(doc, 'div');
+      element.setAttribute('data-active', 'yes');
+
+      expect(element.toggleAttribute('data-active', true)).toBe(true);
+      expect(element.getAttribute('data-active')).toBe('yes');
+
+      expect(element.toggleAttribute('data-other', false)).toBe(false);
+      expect(element.hasAttribute('data-other')).toBe(false);
+    });
+
+    it('lowercases the name on HTML elements', () => {
+      const element = new MockHTMLElement(doc, 'div');
+
+      element.toggleAttribute('Data-Active');
+      expect(Array.from(element.attributes).map((attr) => attr.name)).toEqual(['data-active']);
+    });
+  });
+
   describe('getAttributeNode', () => {
     it('should return an attribute node if the attribute exists', () => {
       const div = doc.createElement('div');
