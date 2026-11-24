@@ -6,7 +6,12 @@ import { mockBuildCtx, mockCompilerCtx } from '../../../testing/compiler';
 import { DEFAULT_STYLE_MODE, getComponentsFromModules } from '../../../utils';
 import { stubComponentCompilerMeta } from '../../types/_tests_/ComponentCompilerMeta.stub';
 import { AUTO_GENERATE_COMMENT } from '../constants';
-import { generateDocData, getDocsSlots, getDocsStyles } from '../generate-doc-data';
+import {
+  cmpMetaToDocsComponent,
+  generateDocData,
+  getDocsSlots,
+  getDocsStyles,
+} from '../generate-doc-data';
 
 describe('generate-doc-data', () => {
   describe('getDocsComponents', () => {
@@ -566,6 +571,26 @@ auto-generated content
       const generatedDocData = await generateDocData(validatedConfig, compilerCtx, buildCtx);
 
       expect(generatedDocData.components[0].readme).toBe('Hand-written docs.\n');
+    });
+  });
+
+  describe('JSDoc URL links', () => {
+    it('converts URL-based {@link} tags into markdown links in every docs field', () => {
+      const link = '{@link https://example.com Example}';
+      const docs = cmpMetaToDocsComponent(
+        stubComponentCompilerMeta({
+          docs: { text: `Component ${link}`, tags: [{ name: 'deprecated', text: `Use ${link}` }] },
+          attachInternalsCustomStates: [
+            { name: 'open', initialValue: false, docs: `State ${link}` },
+          ],
+        }),
+        '/src/my-cmp.tsx',
+        '/',
+      );
+
+      expect(docs.docs).toBe('Component [Example](https://example.com)');
+      expect(docs.deprecation).toBe('Use [Example](https://example.com)');
+      expect(docs.customStates[0].docs).toBe('State [Example](https://example.com)');
     });
   });
 });

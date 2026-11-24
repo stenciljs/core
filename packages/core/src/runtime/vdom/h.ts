@@ -15,7 +15,8 @@ import { isComplexType } from '../../utils/helpers';
 import { isSignalLike } from '../signals';
 
 export const h = (nodeName: any, vnodeData: d.PropsType, ...children: d.ChildType[]): d.VNode => {
-  if (typeof nodeName === 'string') {
+  // custom element names must contain a hyphen; native elements are never transformed
+  if (typeof nodeName === 'string' && nodeName.includes('-')) {
     nodeName = transformTag(nodeName);
   }
   let child = null;

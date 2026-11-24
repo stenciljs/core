@@ -1019,6 +1019,20 @@ export class MockElement extends MockNode {
     this.setAttributeNS(null, 'title', value);
   }
 
+  toggleAttribute(attrName: string, force?: boolean) {
+    const has = this.hasAttribute(attrName);
+    if (force ?? !has) {
+      if (!has) {
+        this.setAttribute(attrName, '');
+      }
+      return true;
+    }
+    if (has) {
+      this.removeAttribute(attrName);
+    }
+    return false;
+  }
+
   animate() {
     /**/
   }

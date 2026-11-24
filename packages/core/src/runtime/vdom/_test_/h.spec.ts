@@ -1,9 +1,44 @@
-import { expect, describe, it } from '@stencil/vitest';
+import { expect, describe, it, beforeEach, afterEach, vi } from '@stencil/vitest';
+import { setTagTransformer } from 'virtual:platform';
 import type * as d from '@stencil/core';
 
 import { h, newVNode } from '../h';
 
 describe('h()', () => {
+  describe('tag transformer', () => {
+    beforeEach(() => {
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
+      setTagTransformer((tag) => `${tag}-sample`);
+    });
+
+    afterEach(() => {
+      setTagTransformer(undefined);
+      vi.restoreAllMocks();
+    });
+
+    it('transforms custom element tags', () => {
+      expect(h('my-cmp', null).$tag$).toBe('my-cmp-sample');
+    });
+
+    it('does not transform native element tags', () => {
+      const vnode = h(
+        'div',
+        null,
+        h('span', null),
+        h('slot', null),
+        h('input', null),
+        h('my-cmp', null),
+      );
+      expect(vnode.$tag$).toBe('div');
+      expect(vnode.$children$.map((child) => child.$tag$)).toEqual([
+        'span',
+        'slot',
+        'input',
+        'my-cmp-sample',
+      ]);
+    });
+  });
+
   it('should render nested functional components', () => {
     const FunctionalCmp1 = () => h('fn-cmp', null);
     const FunctionalCmp2 = () => h(FunctionalCmp1, null);

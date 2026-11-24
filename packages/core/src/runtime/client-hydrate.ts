@@ -720,7 +720,11 @@ const addSlottedNodes = (
   // slottedNode is guaranteed truthy here (checked above) and at each while re-entry (checked by while condition)
   do {
     const sa = slottedNode['getAttribute'] && slottedNode.getAttribute('slot');
+    // SSR serializes slot assignment as an `s-sn` attribute, which the owning host only
+    // converts to the `s-sn` property when it hydrates - possibly after this host does.
+    const ssrSlotName = slottedNode['getAttribute'] && slottedNode.getAttribute('s-sn');
     if (
+      ssrSlotName === slotName ||
       (sa || slottedNode['s-sn']) === slotName ||
       (slotName === '' &&
         !slottedNode['s-sn'] &&

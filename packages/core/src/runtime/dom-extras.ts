@@ -192,7 +192,7 @@ export const patchSlotPrepend = (HostElementPrototype: HTMLElement) => {
         newChild.hidden = true;
       }
 
-      return (HostElementPrototype as any).__prepend(newChild);
+      return (HostElementPrototype as any).__prepend.call(this, newChild);
     });
   };
 };

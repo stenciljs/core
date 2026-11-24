@@ -1,3 +1,22 @@
+## 🐋 [4.45.5](https://github.com/stenciljs/core/compare/v4.45.4...v4.45.5) (2026-11-19)
+
+
+### Bug Fixes
+
+* **mock-doc:** escape style attribute on serialize ([GHSA-r3wg-x9p9-6rq8](https://github.com/stenciljs/core/security/advisories/GHSA-r3wg-x9p9-6rq8)) ([75fa653](https://github.com/stenciljs/core/commit/75fa65374edbdd53b86754ef3bde6c0411eaca8d))
+
+
+
+## 🏃 [4.45.4](https://github.com/stenciljs/core/compare/v4.45.3...v4.45.4) (2026-11-17)
+
+
+### Bug Fixes
+
+* **runtime:** insert slot text as text nodes ([GHSA-3rxf-98fr-h6x3](https://github.com/stenciljs/core/security/advisories/GHSA-3rxf-98fr-h6x3)) ([e68a5ae](https://github.com/stenciljs/core/commit/e68a5ae86a1ab570928f14c27ef9a7a574771f72))
+* **runtime:** clean up host refs even when the global Node unavailable ([#7006](https://github.com/stenciljs/core/issues/7006)) ([f4fe940](https://github.com/stenciljs/core/commit/f4fe940f22dacce709e4cb81410e47860660ece6))
+
+
+
 ## 😜 [4.45.3](https://github.com/stenciljs/core/compare/v4.45.2...v4.45.3) (2026-11-11)
 
 

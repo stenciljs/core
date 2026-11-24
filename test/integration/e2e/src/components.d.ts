@@ -212,10 +212,6 @@ export namespace Components {
          */
         "mode"?: any;
     }
-    interface ResolveVarEvents {
-        "emitMyEvent": () => Promise<void>;
-        "emitOtherEvent": () => Promise<void>;
-    }
     interface RuntimeDecorators {
         /**
           * @default 'basicProp'
@@ -293,10 +289,6 @@ export interface CarListCustomEvent<T> extends CustomEvent<T> {
 export interface EventCmpCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLEventCmpElement;
-}
-export interface ResolveVarEventsCustomEvent<T> extends CustomEvent<T> {
-    detail: T;
-    target: HTMLResolveVarEventsElement;
 }
 export interface ScopedCarListCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -590,24 +582,6 @@ declare global {
         prototype: HTMLPropCmpElement;
         new (): HTMLPropCmpElement;
     };
-    interface HTMLResolveVarEventsElementEventMap {
-        "myEvent": any;
-        "otherEvent": any;
-    }
-    interface HTMLResolveVarEventsElement extends Components.ResolveVarEvents, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLResolveVarEventsElementEventMap>(type: K, listener: (this: HTMLResolveVarEventsElement, ev: ResolveVarEventsCustomEvent<HTMLResolveVarEventsElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
-        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
-        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
-        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLResolveVarEventsElementEventMap>(type: K, listener: (this: HTMLResolveVarEventsElement, ev: ResolveVarEventsCustomEvent<HTMLResolveVarEventsElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
-        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
-        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
-    }
-    var HTMLResolveVarEventsElement: {
-        prototype: HTMLResolveVarEventsElement;
-        new (): HTMLResolveVarEventsElement;
-    };
     interface HTMLRuntimeDecoratorsElement extends Components.RuntimeDecorators, HTMLStencilElement {
     }
     var HTMLRuntimeDecoratorsElement: {
@@ -778,7 +752,6 @@ declare global {
         "path-alias-cmp": HTMLPathAliasCmpElement;
         "prerender-cmp": HTMLPrerenderCmpElement;
         "prop-cmp": HTMLPropCmpElement;
-        "resolve-var-events": HTMLResolveVarEventsElement;
         "runtime-decorators": HTMLRuntimeDecoratorsElement;
         "scoped-car-detail": HTMLScopedCarDetailElement;
         "scoped-car-list": HTMLScopedCarListElement;
@@ -982,10 +955,6 @@ declare namespace LocalJSX {
          */
         "mode"?: any;
     }
-    interface ResolveVarEvents {
-        "onMyEvent"?: (event: ResolveVarEventsCustomEvent<any>) => void;
-        "onOtherEvent"?: (event: ResolveVarEventsCustomEvent<any>) => void;
-    }
     interface RuntimeDecorators {
         /**
           * @default 'basicProp'
@@ -1162,7 +1131,6 @@ declare namespace LocalJSX {
         "path-alias-cmp": PathAliasCmp;
         "prerender-cmp": PrerenderCmp;
         "prop-cmp": Omit<PropCmp, keyof PropCmpAttributes> & { [K in keyof PropCmp & keyof PropCmpAttributes]?: PropCmp[K] } & { [K in keyof PropCmp & keyof PropCmpAttributes as `attr:${K}`]?: PropCmpAttributes[K] } & { [K in keyof PropCmp & keyof PropCmpAttributes as `prop:${K}`]?: PropCmp[K] };
-        "resolve-var-events": ResolveVarEvents;
         "runtime-decorators": Omit<RuntimeDecorators, keyof RuntimeDecoratorsAttributes> & { [K in keyof RuntimeDecorators & keyof RuntimeDecoratorsAttributes]?: RuntimeDecorators[K] } & { [K in keyof RuntimeDecorators & keyof RuntimeDecoratorsAttributes as `attr:${K}`]?: RuntimeDecoratorsAttributes[K] } & { [K in keyof RuntimeDecorators & keyof RuntimeDecoratorsAttributes as `prop:${K}`]?: RuntimeDecorators[K] };
         "scoped-car-detail": Omit<ScopedCarDetail, keyof ScopedCarDetailAttributes> & { [K in keyof ScopedCarDetail & keyof ScopedCarDetailAttributes]?: ScopedCarDetail[K] } & { [K in keyof ScopedCarDetail & keyof ScopedCarDetailAttributes as `attr:${K}`]?: ScopedCarDetailAttributes[K] } & { [K in keyof ScopedCarDetail & keyof ScopedCarDetailAttributes as `prop:${K}`]?: ScopedCarDetail[K] };
         "scoped-car-list": Omit<ScopedCarList, keyof ScopedCarListAttributes> & { [K in keyof ScopedCarList & keyof ScopedCarListAttributes]?: ScopedCarList[K] } & { [K in keyof ScopedCarList & keyof ScopedCarListAttributes as `attr:${K}`]?: ScopedCarListAttributes[K] } & { [K in keyof ScopedCarList & keyof ScopedCarListAttributes as `prop:${K}`]?: ScopedCarList[K] };
@@ -1235,7 +1203,6 @@ declare module "@stencil/core" {
             "path-alias-cmp": LocalJSX.IntrinsicElements["path-alias-cmp"] & JSXBase.HTMLAttributes<HTMLPathAliasCmpElement>;
             "prerender-cmp": LocalJSX.IntrinsicElements["prerender-cmp"] & JSXBase.HTMLAttributes<HTMLPrerenderCmpElement>;
             "prop-cmp": LocalJSX.IntrinsicElements["prop-cmp"] & JSXBase.HTMLAttributes<HTMLPropCmpElement>;
-            "resolve-var-events": LocalJSX.IntrinsicElements["resolve-var-events"] & JSXBase.HTMLAttributes<HTMLResolveVarEventsElement>;
             "runtime-decorators": LocalJSX.IntrinsicElements["runtime-decorators"] & JSXBase.HTMLAttributes<HTMLRuntimeDecoratorsElement>;
             "scoped-car-detail": LocalJSX.IntrinsicElements["scoped-car-detail"] & JSXBase.HTMLAttributes<HTMLScopedCarDetailElement>;
             /**
