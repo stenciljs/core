@@ -303,4 +303,26 @@ describe('scoped', () => {
       expect(monitorText).toContain('Changes detected: 3');
     });
   });
+
+  it('matches toEqualHtml for an empty non-shadow component with a slot', async () => {
+    @Component({
+      tag: 'cmp-a',
+      shadow: false,
+    })
+    class CmpA {
+      render() {
+        return (
+          <Host>
+            <slot></slot>
+          </Host>
+        );
+      }
+    }
+    const page = await newSpecPage({
+      components: [CmpA],
+      html: `<cmp-a></cmp-a>`,
+    });
+
+    expect(page.root).toEqualHtml(`<cmp-a></cmp-a>`);
+  });
 });
