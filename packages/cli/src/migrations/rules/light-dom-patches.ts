@@ -1,5 +1,6 @@
 import ts from 'typescript';
 
+import { removeEmptyExtras } from '../utils';
 import type { MigrationMatch, MigrationRule } from '../index';
 
 /**
@@ -134,6 +135,13 @@ export const lightDomPatchesRule: MigrationRule = {
       let start = node.getStart();
       let end = node.getEnd();
 
+      if (!replacementInserted && replacement !== null) {
+        // Replace only the property, its commas are still needed
+        text = text.slice(0, start) + replacement + text.slice(end);
+        replacementInserted = true;
+        continue;
+      }
+
       // Include trailing comma if present
       const afterNode = text.slice(end);
       const trailingComma = afterNode.match(/^(\s*,)/);
@@ -148,19 +156,9 @@ export const lightDomPatchesRule: MigrationRule = {
         }
       }
 
-      if (!replacementInserted && replacement !== null) {
-        text = text.slice(0, start) + replacement + text.slice(end);
-        replacementInserted = true;
-      } else {
-        text = text.slice(0, start) + text.slice(end);
-      }
+      text = text.slice(0, start) + text.slice(end);
     }
 
-    text = cleanupEmptyExtras(text);
-    return text;
+    return removeEmptyExtras(text);
   },
 };
-
-function cleanupEmptyExtras(text: string): string {
-  return text.replace(/,?\s*extras\s*:\s*\{\s*\},?/g, '');
-}
