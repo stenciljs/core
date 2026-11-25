@@ -281,6 +281,42 @@ describe('lifecycle sync', () => {
     });
   });
 
+  describe.each([
+    ['setValue', {}],
+    ['signalBacking', { buildFlags: { signalBacking: true, vdomSignals: true } }],
+  ] as const)('componentShouldUpdate oldVal (%s)', (_, opts) => {
+    it.each([undefined, null])(
+      'is the rendered value (%s) when assigned more than once',
+      async (initial) => {
+        const seen: unknown[] = [];
+
+        @Component({ tag: 'cmp-a' })
+        class CmpA {
+          @Prop() config: { label: string } | null | undefined = initial;
+
+          componentShouldUpdate(changes: ComponentShouldUpdateChanges<this>) {
+            seen.push(changes.config.oldVal);
+            return true;
+          }
+
+          render() {}
+        }
+
+        const { root, waitForChanges } = await newSpecPage({
+          ...opts,
+          components: [CmpA],
+          template: () => <cmp-a></cmp-a>,
+        });
+
+        root.config = { label: 'a' };
+        root.config = { label: 'b' };
+        await waitForChanges();
+
+        expect(seen).toEqual([initial]);
+      },
+    );
+  });
+
   describe('componentShouldUpdate does not see changes already rendered', () => {
     it('ignores changes made in componentWillUpdate', async () => {
       const seen: string[][] = [];
