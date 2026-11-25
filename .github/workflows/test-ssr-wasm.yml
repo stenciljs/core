@@ -42,10 +42,14 @@ jobs:
         run: brew install binaryen
 
       - name: Install extism-js
+        shell: bash
+        env:
+          # Passing a tag skips install.sh's unauthenticated GitHub API lookup (rate-limited on shared runners)
+          EXTISM_JS_VERSION: v1.7.0
         run: |
           mkdir -p "$HOME/.local/bin"
           export PATH="$HOME/.local/bin:$PATH"
-          curl -fsSL https://raw.githubusercontent.com/extism/js-pdk/main/install.sh | bash
+          curl -fsSL "https://raw.githubusercontent.com/extism/js-pdk/$EXTISM_JS_VERSION/install.sh" | bash -s -- "$EXTISM_JS_VERSION"
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: SSR WASM Tests
