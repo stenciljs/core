@@ -32,7 +32,7 @@ declare global {
     /**
      * A CSS-only badge, used to verify `@import "stencil-css-components"` end-to-end alongside the existing `@import "stencil-component-globals"`/`@import "stencil-hydrate"` coverage in this fixture.
      */
-    interface HTMLCssBadgeElement extends Components.CssBadge, HTMLStencilElement {
+    interface HTMLCssBadgeElement extends HTMLElement {
     }
     var HTMLCssBadgeElement: {
         prototype: HTMLCssBadgeElement;

@@ -34,7 +34,7 @@ declare global {
     /**
      * A CSS-only badge - no JS class, no shadow DOM, never registered via `customElements.define()`. Verifies docs-json/CEM output for this kind of component.
      */
-    interface HTMLCssOnlyBadgeElement extends Components.CssOnlyBadge, HTMLStencilElement {
+    interface HTMLCssOnlyBadgeElement extends HTMLElement {
     }
     var HTMLCssOnlyBadgeElement: {
         prototype: HTMLCssOnlyBadgeElement;
