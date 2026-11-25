@@ -204,11 +204,18 @@ const dispatchHooks = (hostRef: d.HostRef, isInitialLoad: boolean): Promise<void
     // declared above to hold a possible 'queueing' Promise
     maybePromise = safeCall(instance, 'componentWillLoad', undefined, elm);
   } else {
+    // cleared once the render consumes it (see `callRender`)
+    const isUpdateForced = hostRef.$flags$ & HOST_FLAGS.isUpdateForced;
     if (BUILD.updatable && hostRef.$queuedPropChanges$) {
       const changes = hostRef.$queuedPropChanges$;
       hostRef.$queuedPropChanges$ = undefined;
-      if (safeCall(instance, 'componentShouldUpdate', changes, elm) === false) {
+      if (safeCall(instance, 'componentShouldUpdate', changes, elm) === false && !isUpdateForced) {
         hostRef.$flags$ &= ~HOST_FLAGS.isQueuedForUpdate;
+        // release the ancestor waiting on this update (registered by `attachToAncestor`)
+        if (BUILD.asyncLoading && hostRef.$onRenderResolve$) {
+          hostRef.$onRenderResolve$();
+          hostRef.$onRenderResolve$ = undefined;
+        }
         return;
       }
     }
@@ -415,7 +422,10 @@ const callRender = (
     instance = allRenderFn ? instance.render() : instance.render && instance.render();
 
     if (updatable) {
-      hostRef.$flags$ &= ~HOST_FLAGS.isQueuedForUpdate;
+      // changes / forceUpdates made since `dispatchHooks` (e.g. in `componentWillUpdate`) are
+      // covered by this render, so they must not carry over into the next update
+      hostRef.$flags$ &= ~(HOST_FLAGS.isQueuedForUpdate | HOST_FLAGS.isUpdateForced);
+      hostRef.$queuedPropChanges$ = undefined;
     }
 
     if (updatable || lazyLoad) {
@@ -546,12 +556,11 @@ export const forceUpdate = (ref: any) => {
   if (BUILD.updatable && (Build.isBrowser || Build.isTesting)) {
     const hostRef = getHostRef(ref);
     const isConnected = hostRef?.$hostElement$?.isConnected;
-    if (
-      isConnected &&
-      (hostRef.$flags$ & (HOST_FLAGS.hasRendered | HOST_FLAGS.isQueuedForUpdate)) ===
-        HOST_FLAGS.hasRendered
-    ) {
-      scheduleUpdate(hostRef, false);
+    if (isConnected && hostRef.$flags$ & HOST_FLAGS.hasRendered) {
+      hostRef.$flags$ |= HOST_FLAGS.isUpdateForced;
+      if (!(hostRef.$flags$ & HOST_FLAGS.isQueuedForUpdate)) {
+        scheduleUpdate(hostRef, false);
+      }
     }
     // Returns "true" when the forced update was successfully scheduled
     return isConnected;

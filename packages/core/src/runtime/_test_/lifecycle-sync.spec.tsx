@@ -186,6 +186,210 @@ describe('lifecycle sync', () => {
     expect(rootInstance.renders).toBe(2);
   });
 
+  it('parent finishes updating when a child componentShouldUpdate returns false', async () => {
+    const log: string[] = [];
+
+    @Component({ tag: 'cmp-child' })
+    class CmpChild {
+      @Prop() data: { value: number };
+
+      componentShouldUpdate(changes: ComponentShouldUpdateChanges<this>) {
+        const { newVal, oldVal } = changes.data;
+        return JSON.stringify(newVal) !== JSON.stringify(oldVal);
+      }
+
+      render() {
+        log.push('child render');
+      }
+    }
+
+    @Component({ tag: 'cmp-parent' })
+    class CmpParent {
+      @Prop() count = 0;
+
+      componentDidUpdate() {
+        log.push(`parent componentDidUpdate ${this.count}`);
+      }
+
+      render() {
+        return <cmp-child data={{ value: 1 }}></cmp-child>;
+      }
+    }
+
+    const { root, waitForChanges } = await newSpecPage({
+      components: [CmpParent, CmpChild],
+      template: () => <cmp-parent></cmp-parent>,
+    });
+    log.length = 0;
+
+    for (let i = 1; i <= 3; i++) {
+      root.count = i;
+      await waitForChanges();
+    }
+
+    expect(log).toEqual([
+      'parent componentDidUpdate 1',
+      'parent componentDidUpdate 2',
+      'parent componentDidUpdate 3',
+    ]);
+  });
+
+  describe('forceUpdate overrides componentShouldUpdate returning false', () => {
+    @Component({ tag: 'cmp-a' })
+    class CmpA {
+      renders = 0;
+      @Prop() value = 0;
+
+      componentShouldUpdate() {
+        return false;
+      }
+
+      render() {
+        this.renders++;
+      }
+    }
+
+    it('assign, then forceUpdate', async () => {
+      const { root, rootInstance, waitForChanges } = await newSpecPage({
+        components: [CmpA],
+        template: () => <cmp-a></cmp-a>,
+      });
+      expect(rootInstance.renders).toBe(1);
+
+      root.value = 1;
+      forceUpdate(root);
+      await waitForChanges();
+      expect(rootInstance.renders).toBe(2);
+    });
+
+    it('forceUpdate, then assign', async () => {
+      const { root, rootInstance, waitForChanges } = await newSpecPage({
+        components: [CmpA],
+        template: () => <cmp-a></cmp-a>,
+      });
+      expect(rootInstance.renders).toBe(1);
+
+      forceUpdate(root);
+      root.value = 1;
+      await waitForChanges();
+      expect(rootInstance.renders).toBe(2);
+
+      // the forced flag must not leak into the next update
+      root.value = 2;
+      await waitForChanges();
+      expect(rootInstance.renders).toBe(2);
+    });
+  });
+
+  describe('componentShouldUpdate does not see changes already rendered', () => {
+    it('ignores changes made in componentWillUpdate', async () => {
+      const seen: string[][] = [];
+
+      @Component({ tag: 'cmp-a' })
+      class CmpA {
+        @Prop() a = 0;
+        @Prop() b = 0;
+
+        componentShouldUpdate(changes: ComponentShouldUpdateChanges<this>) {
+          seen.push(Object.keys(changes));
+          return true;
+        }
+
+        componentWillUpdate() {
+          if (this.a === 1) this.b = 1;
+        }
+
+        render() {}
+      }
+
+      const { root, waitForChanges } = await newSpecPage({
+        components: [CmpA],
+        template: () => <cmp-a></cmp-a>,
+      });
+
+      root.a = 1;
+      await waitForChanges();
+      root.a = 2;
+      await waitForChanges();
+
+      expect(seen).toEqual([['a'], ['a']]);
+    });
+
+    it('ignores changes made while an async componentWillUpdate is pending', async () => {
+      const seen: string[][] = [];
+      let resolveWillUpdate: () => void;
+
+      @Component({ tag: 'cmp-a' })
+      class CmpA {
+        @Prop() a = 0;
+        @Prop() b = 0;
+
+        componentShouldUpdate(changes: ComponentShouldUpdateChanges<this>) {
+          seen.push(Object.keys(changes));
+          return true;
+        }
+
+        componentWillUpdate() {
+          if (this.a === 1) return new Promise<void>((r) => (resolveWillUpdate = r));
+        }
+
+        render() {}
+      }
+
+      const { root, waitForChanges } = await newSpecPage({
+        components: [CmpA],
+        template: () => <cmp-a></cmp-a>,
+      });
+
+      root.a = 1;
+      const flushing = waitForChanges();
+      await new Promise((r) => setTimeout(r));
+      expect(resolveWillUpdate).toBeDefined();
+      root.b = 1;
+      resolveWillUpdate();
+      await flushing;
+      await waitForChanges();
+      root.a = 2;
+      await waitForChanges();
+
+      expect(seen).toEqual([['a'], ['a']]);
+    });
+  });
+
+  it('forceUpdate inside componentWillUpdate does not force the next update', async () => {
+    @Component({ tag: 'cmp-a' })
+    class CmpA {
+      @Element() el: HTMLElement;
+      renders = 0;
+      @Prop() value = 0;
+
+      componentShouldUpdate() {
+        return this.value === 1;
+      }
+
+      componentWillUpdate() {
+        forceUpdate(this.el);
+      }
+
+      render() {
+        this.renders++;
+      }
+    }
+
+    const { root, rootInstance, waitForChanges } = await newSpecPage({
+      components: [CmpA],
+      template: () => <cmp-a></cmp-a>,
+    });
+
+    root.value = 1;
+    await waitForChanges();
+    expect(rootInstance.renders).toBe(2);
+
+    root.value = 2;
+    await waitForChanges();
+    expect(rootInstance.renders).toBe(2);
+  });
+
   describe('childrens', () => {
     it('sync', async () => {
       const log: string[] = [];
