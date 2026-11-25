@@ -14,6 +14,7 @@ import { initializeEffects, initializeSignals } from './signals';
 import { getScopeId, registerStyle } from './styles';
 import {
   markFirstConnected,
+  resolveAncestorWait,
   safeCall,
   scheduleUpdate,
   whenAncestorConnected,
@@ -246,10 +247,7 @@ export const initializeComponent = async (
     // Ensure we release the parent component even if this child failed to initialize.
     // Without this, a failed child would cause its parent to hang forever waiting
     // for all children to resolve before completing hydration.
-    if (BUILD.asyncLoading && hostRef.$onRenderResolve$) {
-      hostRef.$onRenderResolve$();
-      hostRef.$onRenderResolve$ = undefined;
-    }
+    resolveAncestorWait(hostRef);
     // Same idea, but for a pending ancestor's `s-pc` wait (see `scheduleUpdate`) or a
     // pending descendant's own connectedCallback-ordering wait (see the `s-pc` block
     // above): a component that fails to initialize can still never fire its real
