@@ -90,6 +90,18 @@ export const attachToAncestor = (hostRef: d.HostRef, ancestorComponent?: d.HostE
   }
 };
 
+/**
+ * Release the ancestor waiting on this component's update (registered by {@link attachToAncestor}).
+ *
+ * @param hostRef the component's host reference
+ */
+export const resolveAncestorWait = (hostRef: d.HostRef) => {
+  if (BUILD.asyncLoading && hostRef.$onRenderResolve$) {
+    hostRef.$onRenderResolve$();
+    hostRef.$onRenderResolve$ = undefined;
+  }
+};
+
 export const scheduleUpdate = (
   hostRef: d.HostRef,
   isInitialLoad: boolean,
@@ -207,8 +219,13 @@ const dispatchHooks = (hostRef: d.HostRef, isInitialLoad: boolean): Promise<void
     if (BUILD.updatable && hostRef.$queuedPropChanges$) {
       const changes = hostRef.$queuedPropChanges$;
       hostRef.$queuedPropChanges$ = undefined;
-      if (safeCall(instance, 'componentShouldUpdate', changes, elm) === false) {
+      if (
+        safeCall(instance, 'componentShouldUpdate', changes, elm) === false &&
+        // `isUpdateForced` is cleared once the render consumes it (see `callRender`)
+        !(hostRef.$flags$ & HOST_FLAGS.isUpdateForced)
+      ) {
         hostRef.$flags$ &= ~HOST_FLAGS.isQueuedForUpdate;
+        resolveAncestorWait(hostRef);
         return;
       }
     }
@@ -415,7 +432,10 @@ const callRender = (
     instance = allRenderFn ? instance.render() : instance.render && instance.render();
 
     if (updatable) {
-      hostRef.$flags$ &= ~HOST_FLAGS.isQueuedForUpdate;
+      // changes / forceUpdates made since `dispatchHooks` (e.g. in `componentWillUpdate`) are
+      // covered by this render, so they must not carry over into the next update
+      hostRef.$flags$ &= ~(HOST_FLAGS.isQueuedForUpdate | HOST_FLAGS.isUpdateForced);
+      hostRef.$queuedPropChanges$ = undefined;
     }
 
     if (updatable || lazyLoad) {
@@ -528,10 +548,7 @@ export const postUpdateComponent = (hostRef: d.HostRef) => {
   // load events fire from bottom to top
   // the deepest elements load first then bubbles up
   if (BUILD.asyncLoading) {
-    if (hostRef.$onRenderResolve$) {
-      hostRef.$onRenderResolve$();
-      hostRef.$onRenderResolve$ = undefined;
-    }
+    resolveAncestorWait(hostRef);
     if (hostRef.$flags$ & HOST_FLAGS.needsRerender) {
       nextTick(() => scheduleUpdate(hostRef, false));
     }
@@ -546,12 +563,11 @@ export const forceUpdate = (ref: any) => {
   if (BUILD.updatable && (Build.isBrowser || Build.isTesting)) {
     const hostRef = getHostRef(ref);
     const isConnected = hostRef?.$hostElement$?.isConnected;
-    if (
-      isConnected &&
-      (hostRef.$flags$ & (HOST_FLAGS.hasRendered | HOST_FLAGS.isQueuedForUpdate)) ===
-        HOST_FLAGS.hasRendered
-    ) {
-      scheduleUpdate(hostRef, false);
+    if (isConnected && hostRef.$flags$ & HOST_FLAGS.hasRendered) {
+      hostRef.$flags$ |= HOST_FLAGS.isUpdateForced;
+      if (!(hostRef.$flags$ & HOST_FLAGS.isQueuedForUpdate)) {
+        scheduleUpdate(hostRef, false);
+      }
     }
     // Returns "true" when the forced update was successfully scheduled
     return isConnected;

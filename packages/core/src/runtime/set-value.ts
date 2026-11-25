@@ -238,10 +238,9 @@ export const setValue = (
 
     if (BUILD.updatable && flags & HOST_FLAGS.hasRendered) {
       if (instance.componentShouldUpdate) {
-        // queue the change for a single batched `componentShouldUpdate` call
-        // right before the pending render, rather than calling it here per-prop
-        const changes = (hostRef.$queuedPropChanges$ ||= {});
-        changes[propName] = { newVal, oldVal: changes[propName]?.oldVal ?? oldVal };
+        // batched for one `componentShouldUpdate` call before the next render;
+        // `oldVal` stays the rendered value
+        ((hostRef.$queuedPropChanges$ ||= {})[propName] ||= { oldVal, newVal }).newVal = newVal;
       }
 
       // looks like this value actually changed, so we've got work to do!

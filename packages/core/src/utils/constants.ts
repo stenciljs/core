@@ -76,9 +76,13 @@ export const HOST_FLAGS = {
    * coming from the runtime's own reflection aren't applied back to the prop.
    */
   isReflecting: 1 << 14,
+  /**
+   * Set by `forceUpdate()` so the next update renders even if `componentShouldUpdate` returns `false`.
+   */
+  isUpdateForced: 1 << 12,
 
-  // DEV ONLY
-  devOnRender: 1 << 12,
+  // DEV ONLY - kept on the highest bits so prod flags get the shorter literals
+  devOnRender: 1 << 15,
   devOnDidLoad: 1 << 13,
 } as const;
 
