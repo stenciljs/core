@@ -139,7 +139,7 @@ export const getAssetsToWrite = (results: d.RolldownResult[]): d.RolldownAssetRe
  * @param rolldownChunkResults the results of running Rolldown across a Stencil project
  * @param bundleModules lazy-loadable modules that can be resolved at runtime
  */
-const addStaticImports = (
+export const addStaticImports = (
   rolldownChunkResults: d.RolldownChunkResult[],
   bundleModules: d.BundleModule[],
 ): void => {
@@ -210,9 +210,9 @@ const generateCaseClause = (bundleId: string): string => {
 const generateCaseClauseCjs = (bundleId: string): string => {
   return `
                 case '${bundleId}':
-                    return Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(
+                    return Promise.resolve().then(function () { return require(
                         /* webpackMode: "lazy" */
-                        './${bundleId}.entry.js')); }).then(onLoad, onError);`;
+                        './${bundleId}.entry.js'); }).then(onLoad, onError);`;
 };
 
 const generateLazyEntryModule = async (
