@@ -91,6 +91,7 @@ export const createCssOnlyComponentMeta = (def: CssOnlyComponentDef): d.Componen
   internal: false,
   isCollectionDependency: false,
   isPlain: false,
+  isCssOnly: true,
   isUpdateable: false,
   jsFilePath: '',
   listeners: [],

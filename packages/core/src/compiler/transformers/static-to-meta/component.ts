@@ -212,6 +212,7 @@ export const parseStaticComponentMeta = (
     hasSignalsImport: false,
     hasWatchCallback: false,
     isPlain: false,
+    isCssOnly: false,
     htmlAttrNames: [],
     htmlTagNames: [],
     htmlParts: [],

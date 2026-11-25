@@ -663,6 +663,11 @@ interface ComponentCompilerFeatures {
    */
   isPlain: boolean;
   /**
+   * `true` for a CSS-only component: a `@component`-marked stylesheet with no backing JS
+   * class. The element is never defined/upgraded, so it only has the attributes its CSS reads.
+   */
+  isCssOnly: boolean;
+  /**
    * A collection of tag names of web components that a component references in its JSX/h() function
    */
   potentialCmpRefs: string[];

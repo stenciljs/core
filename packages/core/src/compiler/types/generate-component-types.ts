@@ -97,23 +97,26 @@ export const generateComponentTypes = (
     areTypesInternal,
   );
 
-  // Generate the element interface with method conflict resolution
-  const elementInterface = hasMethodConflicts
-    ? generateElementInterfaceWithConflictResolution(
-        htmlElementName,
-        tagNameAsPascal,
-        conflictingMethods,
-        htmlElementEventListenerProperties,
-        cmp.docs,
-      )
-    : generateStandardElementInterface(
-        htmlElementName,
-        tagNameAsPascal,
-        htmlElementEventListenerProperties,
-        cmp.docs,
-      );
+  // A CSS-only element is never upgraded: its props are attribute-only (JSX side) and it has no
+  // `componentOnReady()`, so its element interface is a bare `HTMLElement`.
+  const elementInterface = cmp.isCssOnly
+    ? [addDocBlock(`    interface ${htmlElementName} extends HTMLElement {`, cmp.docs, 4), `    }`]
+    : hasMethodConflicts
+      ? generateElementInterfaceWithConflictResolution(
+          htmlElementName,
+          tagNameAsPascal,
+          conflictingMethods,
+          htmlElementEventListenerProperties,
+          cmp.docs,
+        )
+      : generateStandardElementInterface(
+          htmlElementName,
+          tagNameAsPascal,
+          htmlElementEventListenerProperties,
+          cmp.docs,
+        );
 
-  if (signalBacking && cmp.properties.length > 0) {
+  if (signalBacking && !cmp.isCssOnly && cmp.properties.length > 0) {
     const signalsPropNames = (
       areTypesInternal ? cmp.properties : cmp.properties.filter((p) => !p.internal)
     )

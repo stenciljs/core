@@ -86,6 +86,7 @@ export const stubComponentCompilerMeta = (
   internal: false,
   isCollectionDependency: false,
   isPlain: false,
+  isCssOnly: false,
   isUpdateable: false,
   jsFilePath: '/some/stubbed/path/my-component.js',
   listeners: [],

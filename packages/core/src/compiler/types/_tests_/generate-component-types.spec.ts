@@ -463,4 +463,45 @@ describe('generateComponentTypes', () => {
       expect(result.jsx).not.toContain('"disabled"?: boolean | ReadonlySignal');
     });
   });
+
+  describe('CSS-only components', () => {
+    const cssOnlyMeta = (): ComponentCompilerMeta => ({
+      ...stubComponentCompilerMeta(),
+      tagName: 'my-badge',
+      componentClassName: '',
+      isCssOnly: true,
+      properties: [
+        stubComponentCompilerProperty({
+          name: 'variant',
+          attribute: 'variant',
+          type: 'string',
+          complexType: {
+            original: '"danger" | "info"',
+            resolved: '"danger" | "info"',
+            references: {},
+          },
+        }),
+      ],
+    });
+
+    it('types the element as a bare HTMLElement, without props or componentOnReady', () => {
+      const result = generateComponentTypes(cssOnlyMeta(), {}, false);
+
+      expect(result.element).toContain('interface HTMLMyBadgeElement extends HTMLElement {');
+      expect(result.element).not.toContain('Components.MyBadge');
+      expect(result.element).not.toContain('HTMLStencilElement');
+    });
+
+    it('keeps props on the JSX interface', () => {
+      const result = generateComponentTypes(cssOnlyMeta(), {}, false);
+
+      expect(result.jsx).toContain('"variant"?: "danger" | "info";');
+    });
+
+    it('omits the signals map in signal-backed builds', () => {
+      const result = generateComponentTypes(cssOnlyMeta(), {}, false, true);
+
+      expect(result.element).not.toContain('STENCIL_SIGNALS_SYMBOL');
+    });
+  });
 });
