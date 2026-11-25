@@ -1,8 +1,8 @@
-import { describe, expect, it, beforeEach } from 'vitest';
+import { describe, expect, it, beforeEach, vi } from 'vitest';
 import type * as d from '@stencil/core';
 
 import { stubComponentCompilerMeta } from '../../../types/_tests_/ComponentCompilerMeta.stub';
-import { getAssetsToWrite, sortBundleComponents } from '../generate-lazy-module';
+import { addStaticImports, getAssetsToWrite, sortBundleComponents } from '../generate-lazy-module';
 
 describe('generate-lazy-module', () => {
   describe('sortBundleComponents', () => {
@@ -326,6 +326,46 @@ describe('generate-lazy-module', () => {
       const orphanMap = asset('worker.js.map');
       const results = [chunk('p-abc.js'), asset('p-abc.js.map'), other, orphanMap];
       expect(getAssetsToWrite(results)).toEqual([other, orphanMap]);
+    });
+  });
+
+  describe('addStaticImports', () => {
+    const loaderCode = `(function (bundleId, hmrVersionId, onLoad, onError) {
+      /*!__STENCIL_STATIC_IMPORT_SWITCH__*/
+      return 'fallthrough';
+    })`;
+    const bundleModules = [{ output: { bundleId: 'my-cmp' } }] as d.BundleModule[];
+    const coreChunk = (moduleFormat: string) =>
+      ({
+        isCore: true,
+        isComponent: false,
+        moduleFormat,
+        code: loaderCode,
+      }) as d.RolldownChunkResult;
+
+    it('loads cjs bundles with a bare require, needing no injected helpers', async () => {
+      const chunk = coreChunk('cjs');
+      addStaticImports([chunk], bundleModules);
+
+      const cmpModule = { my_cmp: class {} };
+      const require = vi.fn(() => cmpModule);
+      const loader = new Function('require', 'BUILD', `return ${chunk.code}`)(require, {});
+      const onError = vi.fn();
+
+      await expect(loader('my-cmp', undefined, (m: unknown) => m, onError)).resolves.toBe(
+        cmpModule,
+      );
+      expect(require).toHaveBeenCalledWith('./my-cmp.entry.js');
+      expect(onError).not.toHaveBeenCalled();
+    });
+
+    it('loads esm bundles with a dynamic import', () => {
+      const chunk = coreChunk('es');
+      addStaticImports([chunk], bundleModules);
+      expect(chunk.code).toContain(`case 'my-cmp':`);
+      expect(chunk.code).toMatch(
+        /import\(\s*\/\* webpackMode: "lazy" \*\/\s*'\.\/my-cmp\.entry\.js'\)/,
+      );
     });
   });
 });
