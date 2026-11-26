@@ -1111,6 +1111,8 @@ export namespace JSXBase {
   export interface CanvasHTMLAttributes<T> extends HTMLAttributes<T> {
     height?: number | string;
     width?: number | string;
+    onContextLost?: (event: Event) => void;
+    onContextRestored?: (event: Event) => void;
   }
 
   export interface ColHTMLAttributes<T> extends HTMLAttributes<T> {
@@ -1549,6 +1551,7 @@ export namespace JSXBase {
     src?: string;
     srcLang?: string;
     srclang?: string;
+    onCueChange?: (event: Event) => void;
   }
 
   export interface VideoHTMLAttributes<T> extends MediaHTMLAttributes<T> {
@@ -1592,6 +1595,15 @@ export namespace JSXBase {
     popover?: string | null;
     focusgroup?: string;
     focusgroupstart?: boolean;
+    virtualKeyboardPolicy?: 'auto' | 'manual' | (string & {});
+    virtualkeyboardpolicy?: 'auto' | 'manual' | (string & {});
+    writingSuggestions?: 'true' | 'false' | (string & {});
+    writingsuggestions?: 'true' | 'false' | (string & {});
+    anchor?: string;
+    containertiming?: string;
+    containertimingignore?: boolean;
+    headingoffset?: number | string;
+    headingreset?: boolean;
 
     // Unknown
     inputMode?: string;
@@ -1914,6 +1926,14 @@ export namespace JSXBase {
     zoomAndPan?: string;
   }
 
+  /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CommandEvent) */
+  export interface CommandEvent extends Event {
+    /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CommandEvent/command) */
+    readonly command: string;
+    /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/CommandEvent/source) */
+    readonly source: globalThis.Element | null;
+  }
+
   /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ToggleEvent) */
   export interface ToggleEvent extends Event {
     /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/ToggleEvent/newState) */
@@ -1956,6 +1976,14 @@ export namespace JSXBase {
     onBeforeToggleCapture?: (event: ToggleEvent) => void;
     onToggle?: (event: ToggleEvent) => void;
     onToggleCapture?: (event: ToggleEvent) => void;
+    onBeforeMatch?: (event: Event) => void;
+    onBeforeMatchCapture?: (event: Event) => void;
+    onContentVisibilityAutoStateChange?: (event: Event) => void;
+    onContentVisibilityAutoStateChangeCapture?: (event: Event) => void;
+
+    // Invoker Command Events
+    onCommand?: (event: CommandEvent) => void;
+    onCommandCapture?: (event: CommandEvent) => void;
 
     // Focus Events
     onFocus?: (event: FocusEvent) => void;
@@ -1968,8 +1996,12 @@ export namespace JSXBase {
     onBlurCapture?: (event: FocusEvent) => void;
 
     // Form Events
+    onBeforeInput?: (event: InputEvent) => void;
+    onBeforeInputCapture?: (event: InputEvent) => void;
     onChange?: (event: Event) => void;
     onChangeCapture?: (event: Event) => void;
+    onFormData?: (event: FormDataEvent) => void;
+    onFormDataCapture?: (event: FormDataEvent) => void;
     onInput?: (event: InputEvent) => void;
     onInputCapture?: (event: InputEvent) => void;
     onReset?: (event: Event) => void;
@@ -1978,6 +2010,23 @@ export namespace JSXBase {
     onSubmitCapture?: (event: Event) => void;
     onInvalid?: (event: Event) => void;
     onInvalidCapture?: (event: Event) => void;
+
+    // Selection Events
+    onSelectionChange?: (event: Event) => void;
+    onSelectionChangeCapture?: (event: Event) => void;
+    onSelectStart?: (event: Event) => void;
+    onSelectStartCapture?: (event: Event) => void;
+
+    // Fullscreen Events
+    // not on `window`, so the runtime keeps the case: must stay lowercase
+    onFullscreenchange?: (event: Event) => void;
+    onFullscreenchangeCapture?: (event: Event) => void;
+    onFullscreenerror?: (event: Event) => void;
+    onFullscreenerrorCapture?: (event: Event) => void;
+
+    // Security Events
+    onSecurityPolicyViolation?: (event: SecurityPolicyViolationEvent) => void;
+    onSecurityPolicyViolationCapture?: (event: SecurityPolicyViolationEvent) => void;
 
     // Image Events
     onLoad?: (event: Event) => void;
@@ -2061,16 +2110,26 @@ export namespace JSXBase {
     onGotPointerCaptureCapture?: (event: PointerEvent) => void;
     onLostPointerCapture?: (event: PointerEvent) => void;
     onLostPointerCaptureCapture?: (event: PointerEvent) => void;
+    onPointerRawUpdate?: (event: PointerEvent) => void;
+    onPointerRawUpdateCapture?: (event: PointerEvent) => void;
 
     // UI Events
     onScroll?: (event: UIEvent) => void;
     onScrollCapture?: (event: UIEvent) => void;
+    onScrollEnd?: (event: Event) => void;
+    onScrollEndCapture?: (event: Event) => void;
+    onScrollSnapChange?: (event: Event) => void;
+    onScrollSnapChangeCapture?: (event: Event) => void;
+    onScrollSnapChanging?: (event: Event) => void;
+    onScrollSnapChangingCapture?: (event: Event) => void;
 
     // Wheel Events
     onWheel?: (event: WheelEvent) => void;
     onWheelCapture?: (event: WheelEvent) => void;
 
     // Animation Events
+    onAnimationCancel?: (event: AnimationEvent) => void;
+    onAnimationCancelCapture?: (event: AnimationEvent) => void;
     onAnimationStart?: (event: AnimationEvent) => void;
     onAnimationStartCapture?: (event: AnimationEvent) => void;
     onAnimationEnd?: (event: AnimationEvent) => void;
