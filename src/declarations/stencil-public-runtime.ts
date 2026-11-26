@@ -1112,7 +1112,9 @@ export namespace JSXBase {
     height?: number | string;
     width?: number | string;
     onContextLost?: (event: Event) => void;
+    onContextLostCapture?: (event: Event) => void;
     onContextRestored?: (event: Event) => void;
+    onContextRestoredCapture?: (event: Event) => void;
   }
 
   export interface ColHTMLAttributes<T> extends HTMLAttributes<T> {
@@ -1552,6 +1554,7 @@ export namespace JSXBase {
     srcLang?: string;
     srclang?: string;
     onCueChange?: (event: Event) => void;
+    onCueChangeCapture?: (event: Event) => void;
   }
 
   export interface VideoHTMLAttributes<T> extends MediaHTMLAttributes<T> {
@@ -1599,7 +1602,6 @@ export namespace JSXBase {
     virtualkeyboardpolicy?: 'auto' | 'manual' | (string & {});
     writingSuggestions?: 'true' | 'false' | (string & {});
     writingsuggestions?: 'true' | 'false' | (string & {});
-    anchor?: string;
     containertiming?: string;
     containertimingignore?: boolean;
     headingoffset?: number | string;
@@ -1978,8 +1980,8 @@ export namespace JSXBase {
     onToggleCapture?: (event: ToggleEvent) => void;
     onBeforeMatch?: (event: Event) => void;
     onBeforeMatchCapture?: (event: Event) => void;
-    onContentVisibilityAutoStateChange?: (event: Event) => void;
-    onContentVisibilityAutoStateChangeCapture?: (event: Event) => void;
+    onContentVisibilityAutoStateChange?: (event: ContentVisibilityAutoStateChangeEvent) => void;
+    onContentVisibilityAutoStateChangeCapture?: (event: ContentVisibilityAutoStateChangeEvent) => void;
 
     // Invoker Command Events
     onCommand?: (event: CommandEvent) => void;
