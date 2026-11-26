@@ -23,6 +23,22 @@ const resolveStaticStringValue = (expr: ts.Expression, typeChecker?: ts.TypeChec
   return undefined;
 };
 
+/**
+ * Get the outward-facing part names of an `exportparts` value, e.g. `"label, icon: btn-icon"`
+ * exposes `label` and `btn-icon`.
+ *
+ * @param value the `exportparts` attribute value
+ * @returns the part names exposed to the outside
+ */
+const parseExportParts = (value: string): string[] =>
+  value
+    .split(',')
+    .map((mapping) => {
+      const [innerName, outerName] = mapping.split(':');
+      return (outerName ?? innerName).trim();
+    })
+    .filter((part) => part.length > 0);
+
 export const gatherVdomMeta = (
   m: d.Module | d.ComponentCompilerMeta,
   args: ts.NodeArray<ts.Expression>,
@@ -33,7 +49,8 @@ export const gatherVdomMeta = (
   // Parse vdom tag
   const hTag = args[0];
   const isSlotTag = ts.isStringLiteral(hTag) && hTag.text === 'slot';
-  if (!ts.isStringLiteral(hTag) && (!ts.isIdentifier(hTag) || hTag.text !== 'Host')) {
+  const isHostTag = ts.isIdentifier(hTag) && hTag.text === 'Host';
+  if (!ts.isStringLiteral(hTag) && !isHostTag) {
     m.hasVdomFunctional = true;
   }
 
@@ -86,6 +103,13 @@ export const gatherVdomMeta = (
             const partValue = resolveStaticStringValue(prop.initializer, typeChecker);
             if (partValue !== undefined) {
               m.htmlParts.push(...partValue.split(' ').filter((part) => part.length > 0));
+            }
+          }
+          // on `<Host>`, `exportparts` re-exports this component's own parts to its parent's scope
+          if (attrName === 'exportparts' && !isHostTag && ts.isPropertyAssignment(prop)) {
+            const exportPartsValue = resolveStaticStringValue(prop.initializer, typeChecker);
+            if (exportPartsValue !== undefined) {
+              m.htmlParts.push(...parseExportParts(exportPartsValue));
             }
           }
           if (isSlotTag && attrName === 'name' && ts.isPropertyAssignment(prop)) {
