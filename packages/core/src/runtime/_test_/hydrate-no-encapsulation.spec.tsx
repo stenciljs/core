@@ -26,6 +26,7 @@ describe('hydrate no encapsulation', () => {
         <script c-id="1.0.0.0">
           console.log('script')
         </script>
+        <!--e.1-->
       </cmp-a>
     `);
   });
@@ -53,6 +54,7 @@ describe('hydrate no encapsulation', () => {
           <!--t.1.1.1.0-->
           Hello
         </p>
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -92,6 +94,7 @@ describe('hydrate no encapsulation', () => {
         <!--r.1-->
         <!--t.1.0.0.0-->
         Hello
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -141,6 +144,7 @@ describe('hydrate no encapsulation', () => {
         </p>
         <!--t.1.3.0.2-->
         bottom
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -200,7 +204,9 @@ describe('hydrate no encapsulation', () => {
           <!--t.1.1.1.0-->
           light-dom
           <footer c-id="2.1.0.1"></footer>
+          <!--e.2-->
         </cmp-b>
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -260,7 +266,9 @@ describe('hydrate no encapsulation', () => {
           <!--t.1.1.1.0-->
           light-dom
           <footer c-id="2.1.0.1"></footer>
+          <!--e.2-->
         </cmp-b>
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -321,7 +329,9 @@ describe('hydrate no encapsulation', () => {
           <!--s.2.1.0.1.-->
           <!--t.1.1.1.0-->
           light-dom
+          <!--e.2-->
         </cmp-b>
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -383,7 +393,9 @@ describe('hydrate no encapsulation', () => {
           <!--t.1.1.1.0-->
           light-dom
           <footer c-id="2.2.0.2"></footer>
+          <!--e.2-->
         </cmp-b>
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -464,7 +476,9 @@ describe('hydrate no encapsulation', () => {
             bottom light-dom
           </div>
           <footer c-id="2.4.0.4"></footer>
+          <!--e.2-->
         </cmp-b>
+        <!--e.1-->
       </cmp-a>
     `);
 

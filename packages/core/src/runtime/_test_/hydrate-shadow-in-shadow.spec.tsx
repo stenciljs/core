@@ -45,7 +45,9 @@ describe('hydrate, shadow in shadow', () => {
           <!--s.1.1.1.0.-->
           <!--t.0.1-->
           light-dom
+          <!--e.2-->
         </cmp-b>
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -112,7 +114,9 @@ describe('hydrate, shadow in shadow', () => {
           <!--s.2.0.0.0.-->
           <!--t.1.1.1.0-->
           light-dom
+          <!--e.2-->
         </cmp-b>
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -173,7 +177,9 @@ describe('hydrate, shadow in shadow', () => {
           <!--r.2-->
           <header c-id="2.0.0.0"></header>
           <!--s.2.1.0.1.-->
+          <!--e.2-->
         </cmp-b>
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -234,7 +240,9 @@ describe('hydrate, shadow in shadow', () => {
           <!--t.2.0.0.0-->
           shadow-header
           <!--s.2.1.0.1.-->
+          <!--e.2-->
         </cmp-b>
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -297,7 +305,9 @@ describe('hydrate, shadow in shadow', () => {
           <!--s.2.1.0.1.-->
           <!--t.1.1.1.0-->
           light-dom
+          <!--e.2-->
         </cmp-b>
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -362,7 +372,9 @@ describe('hydrate, shadow in shadow', () => {
             <!--t.2.2.1.0-->
             shadow-footer
           </footer>
+          <!--e.2-->
         </cmp-b>
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -429,7 +441,9 @@ describe('hydrate, shadow in shadow', () => {
           <!--t.1.1.1.0-->
           light-dom
           <footer c-id="2.2.0.2"></footer>
+          <!--e.2-->
         </cmp-b>
+        <!--e.1-->
       </cmp-a>
     `);
 

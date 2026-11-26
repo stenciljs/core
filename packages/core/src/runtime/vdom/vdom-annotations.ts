@@ -5,6 +5,7 @@ import {
   COMMENT_NODE_ID,
   CONTENT_REF_ID,
   DEFAULT_DOC_DATA,
+  HOST_END_ID,
   HYDRATE_CHILD_ID,
   HYDRATE_ID,
   NODE_TYPE,
@@ -177,6 +178,9 @@ const insertVNodeAnnotations = (
         hostElm['s-cr'].nodeValue = `${CONTENT_REF_ID}.${hostId}`;
       }
     }
+
+    // last child, so the client's parse gate knows when the parser has finished the host
+    hostElm.appendChild(doc.createComment(`${HOST_END_ID}.${hostId}`));
 
     if (vnode.$children$ != null) {
       const depth = 0;

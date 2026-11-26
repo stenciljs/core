@@ -1,6 +1,7 @@
 import { cloneAttributes } from './attribute';
 import {
   CONTENT_REF_ID,
+  HOST_END_ID,
   HYDRATE_ID,
   ORG_LOCATION_ID,
   SLOT_NODE_ID,
@@ -617,7 +618,8 @@ function isRemovedComment(node: Node | MockNode, opts: SerializeNodeToHtmlOption
     nodeValue?.startsWith(CONTENT_REF_ID + '.') ||
     nodeValue?.startsWith(ORG_LOCATION_ID + '.') ||
     nodeValue?.startsWith(SLOT_NODE_ID + '.') ||
-    nodeValue?.startsWith(TEXT_NODE_ID + '.');
+    nodeValue?.startsWith(TEXT_NODE_ID + '.') ||
+    nodeValue?.startsWith(HOST_END_ID + '.');
   return !isHydrateAnnotation;
 }
 

@@ -1,7 +1,7 @@
 import { win } from 'virtual:platform';
 import type * as d from '@stencil/core';
 
-import { HYDRATE_ID, NODE_TYPE } from './runtime-constants';
+import { HOST_END_ID, HYDRATE_ID, NODE_TYPE } from './runtime-constants';
 
 /**
  * SSR hosts connected while the HTML parser is still inside them (streamed documents),
@@ -9,6 +9,8 @@ import { HYDRATE_ID, NODE_TYPE } from './runtime-constants';
  * parsed so hydration sees its declarative shadow root and children.
  */
 const pending = new Set<d.HostElement>();
+/** SSR hosts seen parsed: hydration may since have moved or removed their end marker */
+const parsed = new WeakSet<Element>();
 let observer: MutationObserver | undefined;
 
 const parentOf = (node: Node) =>
@@ -16,16 +18,22 @@ const parentOf = (node: Node) =>
   (node.nodeType === NODE_TYPE.DocumentFragment ? (node as ShadowRoot).host : null);
 
 /**
- * The parser has finished with `elm` once it, or any ancestor, has a following sibling.
- * @param elm the element to check
- * @returns whether the element's subtree is fully parsed
+ * The server writes a `HOST_END_ID` comment as an SSR host's last child, so the parser has
+ * finished with the host once it's there (only whitespace, e.g. from `prettyHtml`, may follow -
+ * as a single text node, since the parser merges adjacent text).
+ * Hosts without one (e.g. from an older server) are held until the document has loaded.
+ * @param elm the SSR host
+ * @returns whether the host's subtree is fully parsed
  */
-const isParsed = (elm: Node) => {
-  if (win.document.readyState !== 'loading') return true;
-  for (let n: Node | null = elm; n; n = parentOf(n)) {
-    if (n.nextSibling) return true;
-  }
-  return false;
+const isParsed = (elm: Element) => {
+  if (parsed.has(elm) || win.document.readyState !== 'loading') return true;
+  let n = elm.lastChild;
+  if (n?.nodeType === NODE_TYPE.TextNode) n = n.previousSibling;
+  return (
+    n?.nodeType === NODE_TYPE.CommentNode &&
+    n.nodeValue === `${HOST_END_ID}.${elm.getAttribute(HYDRATE_ID)}` &&
+    !!parsed.add(elm)
+  );
 };
 
 const hasPendingAncestor = (elm: Node) => {

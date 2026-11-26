@@ -3,11 +3,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { gzipSync } from 'node:zlib';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const distDir = path.join(__dirname, 'dist', 'loader-bundle', 'bundlesize-shadow');
-const maxBundleSize = 13 * 1024 + 64; // 13KB in bytes (~12KB non-gzipped, ~5KB gzipped)
+const maxGzipSize = 5 * 1024 + 768; // 5.75KB;
 
 console.log('\nChecking bundle size (shadow)...');
 
@@ -23,27 +24,27 @@ if (!indexFile) {
   process.exit(1);
 }
 
-const bundlePath = path.join(distDir, indexFile);
-const stats = fs.statSync(bundlePath);
-const bundleSize = stats.size;
-const bundleSizeKB = (bundleSize / 1024).toFixed(2);
-const maxSizeKB = (maxBundleSize / 1024).toFixed(2);
+const bundle = fs.readFileSync(path.join(distDir, indexFile));
+const gzipSize = gzipSync(bundle).length;
+const kb = (bytes) => `${(bytes / 1024).toFixed(2)} KB`;
 
 console.log(`Bundle: ${indexFile}`);
-console.log(`Size: ${bundleSize} bytes (${bundleSizeKB} KB)`);
-console.log(`Max allowed: ${maxSizeKB} KB`);
+console.log(`Size: ${kb(gzipSize)} gzipped (${gzipSize} bytes; ${kb(bundle.length)} minified)`);
+console.log(`Max allowed: ${kb(maxGzipSize)} gzipped`);
 
-if (bundleSizeKB >= maxSizeKB) {
-  console.error(`\n❌ FAIL: Bundle size ${bundleSizeKB} KB exceeds maximum ${maxSizeKB} KB`);
+if (gzipSize > maxGzipSize) {
+  console.error(
+    `\n❌ FAIL: Bundle size ${kb(gzipSize)} exceeds maximum ${kb(maxGzipSize)} (gzipped)`,
+  );
   console.error('This indicates a regression - the runtime bundle has gotten larger.');
   process.exit(1);
 }
 
-if (maxSizeKB - bundleSizeKB > 1) {
+if (maxGzipSize - gzipSize > 512) {
   console.log(
-    `\n✅ PASS: Bundle size is under ${maxSizeKB} KB and has shrunk 🎉! Consider updating the maxBundleSize.`,
+    `\n✅ PASS: Bundle size is under ${kb(maxGzipSize)} and has shrunk 🎉! Consider updating maxGzipSize.`,
   );
 } else {
-  console.log(`\n✅ PASS: Bundle size is under ${maxSizeKB} KB`);
+  console.log(`\n✅ PASS: Bundle size is under ${kb(maxGzipSize)}`);
 }
 process.exit(0);

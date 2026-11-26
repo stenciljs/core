@@ -19,7 +19,11 @@ interface Streamed {
   /** top-level tags; the body is held until they're defined */
   tags: string[];
   loader: Loader;
+  /** a page script keeps appending to `<body>` while the document loads, as portals / toasts do */
+  mutate?: boolean;
 }
+
+const mutateScript = `<script>const t = setInterval(() => document.readyState === 'loading' ? document.body?.append(document.createElement('div')) : clearInterval(t), 20)</script>`;
 
 const loaderScript = ({ loader, tags }: Streamed) =>
   loader === 'lazy'
@@ -53,6 +57,7 @@ const startServer = (page: Streamed, delay = 150) => {
       res.write(
         `<!doctype html><html><head>` +
           loaderScript(page) +
+          (page.mutate ? mutateScript : '') +
           `<script>Promise.all(${JSON.stringify(page.tags)}.map((t) => customElements.whenDefined(t))).then(() => fetch('/go'))</script>` +
           `</head><body>`,
       );
@@ -147,8 +152,48 @@ for (const loader of ['lazy', 'standalone'] as const) {
       await expect(button).toHaveText('Count me: 6!');
     });
 
-    for (const serializeShadowRoot of ['declarative-shadow-dom', 'scoped'] as const) {
-      test(`nested shadow / scoped components hydrate the same as a buffered page (${serializeShadowRoot})`, async ({
+    for (const splitAt of ['<template shadowrootmode', '<p', '<span>Slotted']) {
+      test(`holds a host split before \`${splitAt}\` while a script appends to the document`, async ({
+        page,
+      }) => {
+        const { html } = await renderToString(
+          '<stream-children-cmp><span>Slotted</span></stream-children-cmp>',
+          { serializeShadowRoot: 'declarative-shadow-dom', fullDocument: false },
+        );
+        const started = await startServer({
+          tags: ['stream-children-cmp'],
+          loader,
+          mutate: true,
+          chunks: splitBefore(html!, [splitAt]),
+        });
+        server = started.server;
+
+        const messages: string[] = [];
+        page.on('console', (m) => messages.push(m.text()));
+        page.on('pageerror', (e) => messages.push(e.message));
+
+        await page.goto(started.url);
+        const host = page.locator('stream-children-cmp');
+        await expect(host).toHaveAttribute('custom-hydrate-flag');
+        await page.waitForLoadState('load');
+
+        expect(messages.filter((m) => /declarative shadow root|error/i.test(m))).toEqual([]);
+        expect(
+          await host.evaluate((el) => ({
+            light: [...el.childNodes].map((n) => n.nodeName),
+            shadow: [...el.shadowRoot!.querySelectorAll('p')].map((p) => p.textContent),
+          })),
+        ).toEqual({ light: ['SPAN'], shadow: ['children: 1'] });
+      });
+    }
+
+    for (const [serializeShadowRoot, mutate] of [
+      ['declarative-shadow-dom', false],
+      ['scoped', false],
+      ['declarative-shadow-dom', true],
+      ['scoped', true],
+    ] as const) {
+      test(`nested shadow / scoped components hydrate the same as a buffered page (${serializeShadowRoot}${mutate ? ', script appends to the document' : ''})`, async ({
         page,
       }) => {
         const markup = `
@@ -182,6 +227,7 @@ for (const loader of ['lazy', 'standalone'] as const) {
         const started = await startServer({
           tags,
           loader,
+          mutate,
           chunks: splitBefore(html!, hostStarts).flatMap((c) => {
             // split again just after each host start tag
             const end = c.indexOf('>');

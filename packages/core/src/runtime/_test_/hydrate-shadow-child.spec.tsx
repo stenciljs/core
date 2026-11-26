@@ -29,6 +29,7 @@ describe('hydrate, shadow child', () => {
           <!--t.1.1.1.0-->
           Hello
         </p>
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -88,7 +89,9 @@ describe('hydrate, shadow child', () => {
           <!--s.2.0.0.0.-->
           <!--t.1.1.1.0-->
           light-dom
+          <!--e.2-->
         </cmp-b>
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -148,7 +151,9 @@ describe('hydrate, shadow child', () => {
           <!--r.2-->
           <header c-id="2.0.0.0"></header>
           <!--s.2.1.0.1.-->
+          <!--e.2-->
         </cmp-b>
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -209,7 +214,9 @@ describe('hydrate, shadow child', () => {
           <!--t.2.0.0.0-->
           shadow-header
           <!--s.2.1.0.1.-->
+          <!--e.2-->
         </cmp-b>
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -272,7 +279,9 @@ describe('hydrate, shadow child', () => {
           <!--s.2.1.0.1.-->
           <!--t.1.1.1.0-->
           light-dom
+          <!--e.2-->
         </cmp-b>
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -337,7 +346,9 @@ describe('hydrate, shadow child', () => {
             <!--t.2.2.1.0-->
             shadow-footer
           </footer>
+          <!--e.2-->
         </cmp-b>
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -404,7 +415,9 @@ describe('hydrate, shadow child', () => {
           <!--t.1.1.1.0-->
           light-dom
           <footer c-id="2.2.0.2"></footer>
+          <!--e.2-->
         </cmp-b>
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -497,9 +510,12 @@ describe('hydrate, shadow child', () => {
                 <!--t.3.1.1.0-->
                 cmp-c
               </article>
+              <!--e.3-->
             </cmp-c>
           </section>
+          <!--e.2-->
         </cmp-b>
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -582,6 +598,7 @@ describe('hydrate, shadow child', () => {
         <!-- another comment -->
         <!--t.0.7-->
         Another text node
+        <!--e.1-->
       </cmp-a>
     `);
 

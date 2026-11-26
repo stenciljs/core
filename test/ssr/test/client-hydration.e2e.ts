@@ -282,6 +282,7 @@ test.describe('client hydration', () => {
           <!--s.3.1.1.0.-->
           <slot c-id="1.2.2.0" s-sn=""></slot>
         </div>
+        <!--e.3-->
       </nested-scope-cmp>
     </div>
   </template>
@@ -295,7 +296,9 @@ test.describe('client hydration', () => {
       </div>
     </template>
     Hello World
+    <!--e.2-->
   </nested-child-cmp>
+  <!--e.1-->
 </nested-cmp-parent>`);
     });
   });

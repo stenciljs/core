@@ -321,6 +321,11 @@ export namespace Components {
     }
     interface SsrStyleShadowCmp {
     }
+    /**
+     * Renders its light DOM child count, so hydrating before the children are parsed shows.
+     */
+    interface StreamChildrenCmp {
+    }
     interface WrapSsrShadowCmp {
         "selected": boolean;
     }
@@ -763,6 +768,15 @@ declare global {
         prototype: HTMLSsrStyleShadowCmpElement;
         new (): HTMLSsrStyleShadowCmpElement;
     };
+    /**
+     * Renders its light DOM child count, so hydrating before the children are parsed shows.
+     */
+    interface HTMLStreamChildrenCmpElement extends Components.StreamChildrenCmp, HTMLStencilElement {
+    }
+    var HTMLStreamChildrenCmpElement: {
+        prototype: HTMLStreamChildrenCmpElement;
+        new (): HTMLStreamChildrenCmpElement;
+    };
     interface HTMLWrapSsrShadowCmpElement extends Components.WrapSsrShadowCmp, HTMLStencilElement {
     }
     var HTMLWrapSsrShadowCmpElement: {
@@ -826,6 +840,7 @@ declare global {
         "ssr-style-light-cmp": HTMLSsrStyleLightCmpElement;
         "ssr-style-scoped-cmp": HTMLSsrStyleScopedCmpElement;
         "ssr-style-shadow-cmp": HTMLSsrStyleShadowCmpElement;
+        "stream-children-cmp": HTMLStreamChildrenCmpElement;
         "wrap-ssr-shadow-cmp": HTMLWrapSsrShadowCmpElement;
     }
 }
@@ -1144,6 +1159,11 @@ declare namespace LocalJSX {
     }
     interface SsrStyleShadowCmp {
     }
+    /**
+     * Renders its light DOM child count, so hydrating before the children are parsed shows.
+     */
+    interface StreamChildrenCmp {
+    }
     interface WrapSsrShadowCmp {
         "selected"?: boolean;
     }
@@ -1295,6 +1315,7 @@ declare namespace LocalJSX {
         "ssr-style-light-cmp": SsrStyleLightCmp;
         "ssr-style-scoped-cmp": SsrStyleScopedCmp;
         "ssr-style-shadow-cmp": SsrStyleShadowCmp;
+        "stream-children-cmp": StreamChildrenCmp;
         "wrap-ssr-shadow-cmp": Omit<WrapSsrShadowCmp, keyof WrapSsrShadowCmpAttributes> & { [K in keyof WrapSsrShadowCmp & keyof WrapSsrShadowCmpAttributes]?: WrapSsrShadowCmp[K] } & { [K in keyof WrapSsrShadowCmp & keyof WrapSsrShadowCmpAttributes as `attr:${K}`]?: WrapSsrShadowCmpAttributes[K] } & { [K in keyof WrapSsrShadowCmp & keyof WrapSsrShadowCmpAttributes as `prop:${K}`]?: WrapSsrShadowCmp[K] };
     }
 }
@@ -1414,6 +1435,10 @@ declare module "@stencil/core" {
             "ssr-style-light-cmp": LocalJSX.IntrinsicElements["ssr-style-light-cmp"] & JSXBase.HTMLAttributes<HTMLSsrStyleLightCmpElement>;
             "ssr-style-scoped-cmp": LocalJSX.IntrinsicElements["ssr-style-scoped-cmp"] & JSXBase.HTMLAttributes<HTMLSsrStyleScopedCmpElement>;
             "ssr-style-shadow-cmp": LocalJSX.IntrinsicElements["ssr-style-shadow-cmp"] & JSXBase.HTMLAttributes<HTMLSsrStyleShadowCmpElement>;
+            /**
+             * Renders its light DOM child count, so hydrating before the children are parsed shows.
+             */
+            "stream-children-cmp": LocalJSX.IntrinsicElements["stream-children-cmp"] & JSXBase.HTMLAttributes<HTMLStreamChildrenCmpElement>;
             "wrap-ssr-shadow-cmp": LocalJSX.IntrinsicElements["wrap-ssr-shadow-cmp"] & JSXBase.HTMLAttributes<HTMLWrapSsrShadowCmpElement>;
         }
     }

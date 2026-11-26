@@ -68,6 +68,7 @@ describe('hydrate prop types', () => {
         <!--r.1-->
         <!--t.1.0.0.0-->
         false-hello world-101-101-10
+        <!--e.1-->
       </cmp-a>
     `);
 
