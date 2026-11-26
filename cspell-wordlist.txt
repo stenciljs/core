@@ -70,6 +70,7 @@ docstring
 docstrings
 dups
 endtoend
+exportparts
 expressjs
 extname
 filesize

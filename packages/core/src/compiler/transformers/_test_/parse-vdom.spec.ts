@@ -304,6 +304,61 @@ describe('parse vdom', () => {
     expect(t.cmp.htmlParts).toEqual(['my-part']);
   });
 
+  it('htmlParts captures the outward-facing names from exportparts', () => {
+    const t = transpileModule(`
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        render() {
+          return <some-cmp exportparts="label, icon : btn-icon,"/>
+        }
+      }
+    `);
+
+    expect(t.cmp.htmlParts).toEqual(['label', 'btn-icon']);
+  });
+
+  it('htmlParts ignores exportparts on Host', () => {
+    const t = transpileModule(`
+      import { Host } from '@stencil/core';
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        render() {
+          return <Host exportparts="label"><some-cmp exportparts="icon"/></Host>
+        }
+      }
+    `);
+
+    expect(t.cmp.htmlParts).toEqual(['icon']);
+  });
+
+  it('htmlParts ignores part on Host', () => {
+    const t = transpileModule(`
+      import { Host } from '@stencil/core';
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        render() {
+          return <Host part="outer"><div part="inner"/></Host>
+        }
+      }
+    `);
+
+    expect(t.cmp.htmlParts).toEqual(['inner']);
+  });
+
+  it('htmlParts does not capture exportparts that cannot be resolved statically', () => {
+    const t = transpileModule(`
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        exported = 'label';
+        render() {
+          return <some-cmp exportparts={this.exported}/>
+        }
+      }
+    `);
+
+    expect(t.cmp.htmlParts).toEqual([]);
+  });
+
   it('hasSvg', () => {
     const t = transpileModule(`
       @Component({tag: 'cmp-a'})

@@ -25,6 +25,22 @@ const resolveStaticStringValue = (
   return undefined;
 };
 
+/**
+ * Get the outward-facing part names of an `exportparts` value, e.g. `"label, icon: btn-icon"`
+ * exposes `label` and `btn-icon`.
+ *
+ * @param value the `exportparts` attribute value
+ * @returns the part names exposed to the outside
+ */
+const parseExportParts = (value: string): string[] =>
+  value
+    .split(',')
+    .map((mapping) => {
+      const [innerName, outerName] = mapping.split(':');
+      return (outerName ?? innerName).trim();
+    })
+    .filter((part) => part.length > 0);
+
 export const gatherVdomMeta = (
   m: d.Module | d.ComponentCompilerMeta,
   args: ts.NodeArray<ts.Expression>,
@@ -35,7 +51,8 @@ export const gatherVdomMeta = (
   // Parse vdom tag
   const hTag = args[0];
   const isSlotTag = ts.isStringLiteral(hTag) && hTag.text === 'slot';
-  if (!ts.isStringLiteral(hTag) && (!ts.isIdentifier(hTag) || hTag.text !== 'Host')) {
+  const isHostTag = ts.isIdentifier(hTag) && hTag.text === 'Host';
+  if (!ts.isStringLiteral(hTag) && !isHostTag) {
     m.hasVdomFunctional = true;
   }
 
@@ -87,10 +104,13 @@ export const gatherVdomMeta = (
           } else {
             m.hasVdomPropOrAttr = true;
           }
-          if (attrName === 'part' && ts.isPropertyAssignment(prop)) {
-            const partValue = resolveStaticStringValue(prop.initializer, typeChecker);
-            if (partValue !== undefined) {
-              m.htmlParts.push(...partValue.split(' ').filter((part) => part.length > 0));
+          // `part` / `exportparts` on `<Host>` belong to the parent's scope, not this component's parts
+          if ((attrName === 'part' || attrName === 'exportparts') && !isHostTag && ts.isPropertyAssignment(prop)) {
+            const value = resolveStaticStringValue(prop.initializer, typeChecker);
+            if (value !== undefined) {
+              m.htmlParts.push(
+                ...(attrName === 'part' ? value.split(' ').filter((part) => part.length > 0) : parseExportParts(value)),
+              );
             }
           }
           if (isSlotTag && attrName === 'name' && ts.isPropertyAssignment(prop)) {
