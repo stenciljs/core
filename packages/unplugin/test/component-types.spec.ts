@@ -16,21 +16,33 @@ const typesCmp = (prop: string) =>
   `import { Component, Prop, h } from '@stencil/core';\n` +
   `@Component({ tag: 'types-cmp' })\n` +
   `export class TypesCmp {\n  @Prop() ${prop}: string;\n  render() { return <div />; }\n}\n`;
+// a prop typed with an interface declared in the component's own file (`location: 'local'`)
+const typesCmpLocalType =
+  `import { Component, Prop, h } from '@stencil/core';\n` +
+  `export interface TypesCmpConfig {\n  size: 'small' | 'large';\n}\n` +
+  `@Component({ tag: 'types-cmp' })\n` +
+  `export class TypesCmp {\n  @Prop() config: TypesCmpConfig;\n  render() { return <div />; }\n}\n`;
+const localTypeImport = /import \{ TypesCmpConfig \} from "[^"]*types-cmp";/;
+const localTypeProp = /interface TypesCmp \{\s*"config": TypesCmpConfig;/;
+
+const createTypesServer = async () => {
+  // the project scan runs from cwd (this package's fixtures); only the output goes to srcDir
+  // canonical path - Windows' temp dir can be an 8.3 short path (`RUNNER~1`), which Vite
+  // resolves to the long form, so the id it resolves wouldn't match the file it loads
+  const srcDir = realpathSync.native(mkdtempSync(join(tmpdir(), 'stencil-unplugin-types-')));
+  const server = await createServer({
+    root: srcDir,
+    configFile: false,
+    logLevel: 'silent',
+    plugins: [stencilVite({ types: true, stencilConfig: { srcDir } })],
+    server: { middlewareMode: true, hmr: false, watch: null },
+  });
+  return { srcDir, server, dtsPath: join(srcDir, 'components.d.ts') };
+};
 
 describe('components.d.ts generation (`types: true`) under Vite', () => {
   it('writes it at startup and keeps it current as components come, change and go', async () => {
-    // the project scan runs from cwd (this package's fixtures); only the output goes to srcDir
-    // canonical path - Windows' temp dir can be an 8.3 short path (`RUNNER~1`), which Vite
-    // resolves to the long form, so the id it resolves wouldn't match the file it loads
-    const srcDir = realpathSync.native(mkdtempSync(join(tmpdir(), 'stencil-unplugin-types-')));
-    const dtsPath = join(srcDir, 'components.d.ts');
-    const server = await createServer({
-      root: srcDir,
-      configFile: false,
-      logLevel: 'silent',
-      plugins: [stencilVite({ types: true, stencilConfig: { srcDir } })],
-      server: { middlewareMode: true, hmr: false, watch: null },
-    });
+    const { srcDir, server, dtsPath } = await createTypesServer();
     const plugin = server.config.plugins.find((p) => p.name === '@stencil/unplugin') as Plugin;
     const handleHotUpdate = plugin.handleHotUpdate as (ctx: HmrContext) => Promise<unknown>;
     const hotUpdate = (file: string) =>
@@ -60,11 +72,31 @@ describe('components.d.ts generation (`types: true`) under Vite', () => {
       await hotUpdate(typesCmpPath);
       expect(readFileSync(dtsPath, 'utf-8')).toMatch(/interface TypesCmp \{\s*"renamed": string;/);
 
+      writeFileSync(typesCmpPath, typesCmpLocalType);
+      await hotUpdate(typesCmpPath);
+      expect(readFileSync(dtsPath, 'utf-8')).toMatch(localTypeImport);
+      expect(readFileSync(dtsPath, 'utf-8')).toMatch(localTypeProp);
+
       rmSync(typesCmpPath, { force: true });
       await hotUpdate(typesCmpPath);
       expect(readFileSync(dtsPath, 'utf-8')).toBe(initial);
     } finally {
       rmSync(typesBadgePath, { force: true });
+      rmSync(typesCmpPath, { force: true });
+      await server.close();
+      rmSync(srcDir, { recursive: true, force: true });
+    }
+  });
+
+  it('imports types a component declares in its own file, found by the startup scan', async () => {
+    writeFileSync(typesCmpPath, typesCmpLocalType);
+    const { srcDir, server, dtsPath } = await createTypesServer();
+    try {
+      await server.pluginContainer.buildStart({});
+      const dts = readFileSync(dtsPath, 'utf-8');
+      expect(dts).toMatch(localTypeImport);
+      expect(dts).toMatch(localTypeProp);
+    } finally {
       rmSync(typesCmpPath, { force: true });
       await server.close();
       rmSync(srcDir, { recursive: true, force: true });

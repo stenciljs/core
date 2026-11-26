@@ -214,6 +214,27 @@ export async function refreshComponentDocs(tag: string, filePath: string): Promi
 }
 
 /**
+ * Transpile a component source file and return its components' compiler metadata, ready for
+ * `componentMetaRegistry` and core's `generateComponentTypesFile()`.
+ *
+ * `transpile()` returns the *public* metadata, which drops `sourceFilePath` (it is also what gets
+ * baked into the `COMPILER_META` static). The types generator needs it, though: it is the import
+ * path for any type the component declares in its own file (`location: 'local'`), and without it
+ * generation throws so put back the path the compiler itself used.
+ * @param code the file's source
+ * @param abs absolute path to the file
+ * @returns the compiler metadata for each component the file defines
+ */
+async function transpileComponentMeta(code: string, abs: string): Promise<ComponentCompilerMeta[]> {
+  const result = await transpile(code, { file: abs, componentExport: 'customelement' });
+  const sourceFilePath = result.inputFilePath ?? abs;
+  return ((result.data ?? []) as ComponentCompilerMeta[]).map((item) => ({
+    ...item,
+    sourceFilePath,
+  }));
+}
+
+/**
  * Re-derive a changed (or added, or deleted) `.tsx`/`.ts` file's compiler metadata - replacing
  * whatever it defined before, so a removed or renamed component stops being typed.
  * @param file absolute path to the source file
@@ -231,8 +252,7 @@ export async function refreshComponentMeta(file: string): Promise<boolean> {
   let items: ComponentCompilerMeta[] = [];
   if (COMPONENT_DECORATOR_RE.test(code)) {
     try {
-      const result = await transpile(code, { file: abs, componentExport: 'customelement' });
-      items = ((result.data ?? []) as ComponentCompilerMeta[]).filter((item) => item.tagName);
+      items = (await transpileComponentMeta(code, abs)).filter((item) => item.tagName);
     } catch {
       return previous.length > 0; // stale types are acceptable on transpile error
     }
@@ -288,8 +308,7 @@ export async function scanDocs(
         return;
       }
       if (!COMPONENT_DECORATOR_RE.test(code)) return;
-      const result = await transpile(code, { file: abs, componentExport: 'customelement' });
-      for (const item of (result.data ?? []) as ComponentCompilerMeta[]) {
+      for (const item of await transpileComponentMeta(code, abs)) {
         if (!item.tagName) continue;
         if (collectStyleDocs) await collectStyleDocsForComponent(item, abs);
         const component = cmpMetaToDocsComponent(item, abs);
