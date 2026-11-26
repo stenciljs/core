@@ -221,7 +221,7 @@ export const generateCustomElementType = (
   const tagNameAsPascal = dashToPascalCase(cmp.tagName);
   const o: string[] = [
     `import type { Components, JSX } from "${componentsDtsRelPath}";`,
-    `import type { HTMLStencilElement } from "@stencil/core/runtime";`,
+    `import type { HTMLStencilElement } from "${dirname(componentsDtsRelPath)}/stencil-public-runtime";`,
     ``,
     `interface ${tagNameAsPascal} extends Components.${tagNameAsPascal}, HTMLStencilElement {}`,
     `export const ${tagNameAsPascal}: {`,

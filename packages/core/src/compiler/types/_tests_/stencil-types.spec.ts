@@ -11,7 +11,7 @@ vi.mock('../../../utils', async () => {
   };
 });
 
-import { updateTypeIdentifierNames } from '../stencil-types';
+import { updateStencilTypesImports, updateTypeIdentifierNames } from '../stencil-types';
 import { stubComponentCompilerMeta } from './ComponentCompilerMeta.stub';
 import { stubComponentCompilerTypeReference } from './ComponentCompilerTypeReference.stub';
 import { stubTypesImportData } from './TypesImportData.stub';
@@ -339,5 +339,32 @@ describe('stencil-types', () => {
 
       expect(actualTypeName).toBe(expectedType);
     };
+  });
+
+  describe('updateStencilTypesImports', () => {
+    it.each([
+      ['@stencil/core/runtime', 'double', '"'],
+      ['@stencil/core/runtime', 'single', "'"],
+      ['@stencil/core', 'double', '"'],
+    ])('rewrites `%s` (%s quotes) to the copied public runtime', (specifier, _label, q) => {
+      const dts = `import { HTMLStencilElement, JSXBase } from ${q}${specifier}${q};`;
+      expect(updateStencilTypesImports('/dist/types', '/dist/types/components.d.ts', dts)).toBe(
+        `import { HTMLStencilElement, JSXBase } from ${q}./stencil-public-runtime${q};`,
+      );
+    });
+
+    it('resolves the public runtime relative to nested declaration files', () => {
+      const dts = `import { type ComponentInterface } from '@stencil/core';`;
+      expect(
+        updateStencilTypesImports('/dist/types', '/dist/types/components/my-cmp/my-cmp.d.ts', dts),
+      ).toBe(`import { type ComponentInterface } from '../../stencil-public-runtime';`);
+    });
+
+    it('leaves other `@stencil/core` subpaths untouched', () => {
+      const dts = `import { x } from '@stencil/core/runtime/client';`;
+      expect(updateStencilTypesImports('/dist/types', '/dist/types/components.d.ts', dts)).toBe(
+        dts,
+      );
+    });
   });
 });

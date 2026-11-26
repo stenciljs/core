@@ -30,7 +30,7 @@ export const updateStencilTypesImports = (
   coreDtsPath = normalizePath(coreDtsPath);
   if (dtsContent.includes('@stencil/core')) {
     dtsContent = dtsContent.replace(
-      /(from\s*(:?'|"))@stencil\/core\/internal('|")/g,
+      /(from\s*(:?'|"))@stencil\/core\/runtime('|")/g,
       `$1${coreDtsPath}$2`,
     );
     dtsContent = dtsContent.replace(/(from\s*(:?'|"))@stencil\/core('|")/g, `$1${coreDtsPath}$2`);
