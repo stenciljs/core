@@ -41,6 +41,7 @@ describe('hydrate, slot fallback', () => {
             </strong>
           </slot-fb>
         </article>
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -102,6 +103,7 @@ describe('hydrate, slot fallback', () => {
               </strong>
             </slot-fb>
           </article>
+          <!--e.1-->
         </cmp-a>
     `);
 
@@ -185,12 +187,14 @@ describe('hydrate, slot fallback', () => {
                 Non slot based content
               </p>
             </section>
+            <!--e.2-->
           </cmp-b>
           <p c-id="1.3.1.1">
             <!--t.1.4.2.0-->
             Non slot based content
           </p>
         </article>
+        <!--e.1-->
       </cmp-a>  
     `);
 
@@ -284,12 +288,14 @@ describe('hydrate, slot fallback', () => {
                 Non slot based content
               </p>
             </section>
+            <!--e.2-->
           </cmp-b>
           <p c-id="1.3.1.1">
             <!--t.1.4.2.0-->
             Non slot based content 
           </p>
         </article>
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -399,8 +405,10 @@ describe('hydrate, slot fallback', () => {
                 slotted item 3
               </p>
             </section>
+            <!--e.2-->
           </cmp-b>
         </article>
+        <!--e.1-->
       </cmp-a>  
     `);
 
@@ -496,8 +504,10 @@ describe('hydrate, slot fallback', () => {
                 Fallback content parent - should be hidden
               </slot-fb>
             </section>
+            <!--e.2-->
           </cmp-b>
         </article>
+        <!--e.1-->
       </cmp-a>  
     `);
 

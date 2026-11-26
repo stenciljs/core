@@ -22,6 +22,7 @@ describe('hydrate style element', () => {
         <style c-id="1.0.0.0">
           div { color: red; }
         </style>
+        <!--e.1-->
       </cmp-a>
     `);
 

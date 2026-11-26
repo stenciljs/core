@@ -34,6 +34,7 @@ describe('attachInternals', () => {
       <cmp-a class="hydrated" s-id="1">
         <!--r.1-->
         <div data-loaded="true" c-id="1.0.0.0"></div>
+        <!--e.1-->
       </cmp-a>
     `);
   });

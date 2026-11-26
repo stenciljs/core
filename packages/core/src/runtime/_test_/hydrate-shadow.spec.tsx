@@ -45,7 +45,9 @@ describe('hydrate, shadow', () => {
             <!--t.1.1.1.0-->
             CmpALightDom
           </article>
+          <!--e.2-->
         </cmp-b>
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -136,6 +138,7 @@ describe('hydrate, shadow', () => {
             </div>
           </section>
         </article>
+        <!--e.1-->
       </cmp-a>
     `);
 

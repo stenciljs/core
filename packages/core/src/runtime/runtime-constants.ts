@@ -61,6 +61,8 @@ export const ORG_LOCATION_ID = 'o';
 export const SLOT_NODE_ID = 's';
 export const TEXT_NODE_ID = 't';
 export const COMMENT_NODE_ID = 'c';
+/** Last child of an SSR host: the parser has finished the host once it's there. */
+export const HOST_END_ID = 'e';
 
 export const HYDRATE_ID = 's-id';
 export const HYDRATED_STYLE_ID = 'sty-id';

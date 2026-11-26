@@ -33,6 +33,7 @@ describe('hydrate scoped', () => {
           <!--t.0.1-->
           88mph
         </article>
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -83,6 +84,7 @@ describe('hydrate scoped', () => {
           <!--t.0.1-->
           88mph
         </article>
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -132,6 +134,7 @@ describe('hydrate scoped', () => {
           <!--t.1.1.1.0-->
           Hello
         </p>
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -183,6 +186,7 @@ describe('hydrate scoped', () => {
             <!--s.1.2.2.0.-->
           </p>
         </div>
+        <!--e.1-->
       </cmp-a>`);
 
     const clientHydrated = await newSpecPage({

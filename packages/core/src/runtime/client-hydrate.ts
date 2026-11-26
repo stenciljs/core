@@ -9,6 +9,7 @@ import { createTime } from './profile';
 import {
   COMMENT_NODE_ID,
   CONTENT_REF_ID,
+  HOST_END_ID,
   HYDRATE_CHILD_ID,
   HYDRATE_ID,
   NODE_TYPE,
@@ -543,6 +544,9 @@ const clientHydrate = (
             hostElm['s-cr'] = node;
             node['s-cn'] = true;
           }
+        } else if (childNodeType === HOST_END_ID) {
+          // `${HOST_END_ID}.${hostId}`; only needed by the parse gate
+          node.remove();
         }
       }
     }
@@ -729,7 +733,9 @@ const addSlottedNodes = (
       (slotName === '' &&
         !slottedNode['s-sn'] &&
         !sa &&
-        (slottedNode.nodeType === NODE_TYPE.CommentNode ||
+        ((slottedNode.nodeType === NODE_TYPE.CommentNode &&
+          // a nested host's end marker stays with that host
+          !slottedNode.nodeValue?.startsWith(HOST_END_ID + '.')) ||
           slottedNode.nodeType === NODE_TYPE.TextNode))
     ) {
       // Looking for nodes that match this slot's name,

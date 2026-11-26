@@ -60,6 +60,7 @@ describe("hydrated components' slotted node order", () => {
         <!--c.0.6-->
         <!-- another comment -->
       </main>
+      <!--e.1-->
     </cmp-a>`);
 
     const clientHydrated = await newSpecPage({
@@ -152,6 +153,7 @@ describe("hydrated components' slotted node order", () => {
           <!-- another comment node -->
         </section>
       </main>
+      <!--e.1-->
     </cmp-a>`);
 
     const clientHydrated = await newSpecPage({
@@ -263,8 +265,10 @@ describe("hydrated components' slotted node order", () => {
             <!--c.0.9-->
             <!-- another comment b-->
           </section>
+          <!--e.2-->
         </cmp-b>
       </main>
+      <!--e.1-->
     </cmp-a>`);
 
     const clientHydrated = await newSpecPage({
@@ -335,6 +339,7 @@ describe("hydrated components' slotted node order", () => {
         <!--c.0.6-->
         <!-- another comment -->
       </main>
+      <!--e.1-->
     </cmp-a>`);
 
     const clientHydrated = await newSpecPage({
@@ -429,6 +434,7 @@ describe("hydrated components' slotted node order", () => {
           <!-- another comment node -->
         </section>
       </main>
+      <!--e.1-->
     </cmp-a>`);
 
     const clientHydrated = await newSpecPage({
@@ -522,8 +528,10 @@ describe("hydrated components' slotted node order", () => {
             <!--c.0.9-->
             <!-- another comment b-->
           </section>
+          <!--e.2-->
         </cmp-b>
       </main>
+      <!--e.1-->
     </cmp-a>`);
 
     const clientHydrated = await newSpecPage({

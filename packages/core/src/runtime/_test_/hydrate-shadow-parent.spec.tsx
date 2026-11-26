@@ -39,6 +39,7 @@ describe('hydrate, shadow parent', () => {
           <!--t.0.1-->
           middle
         </div>
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -99,6 +100,7 @@ describe('hydrate, shadow parent', () => {
         middle
         <!--t.1.2.0.2-->
         bottom
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -147,6 +149,7 @@ describe('hydrate, shadow parent', () => {
         <!--r.1-->
         <!--t.1.0.0.0-->
         shadow-text
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -201,6 +204,7 @@ describe('hydrate, shadow parent', () => {
           <!--s.1.1.1.0.-->
         </div>
         <!--s.1.2.0.1.fixed-->
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -261,7 +265,9 @@ describe('hydrate, shadow parent', () => {
           <!--s.2.0.0.0.-->
           <!--t.1.1.1.0-->
           cmp-a-light-dom
+          <!--e.2-->
         </cmp-b>
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -333,6 +339,7 @@ describe('hydrate, shadow parent', () => {
           <!--s.1.5.1.3.primary-->
           <!--s.1.6.1.4.end-->
         </section>
+        <!--e.1-->
       </cmp-a>
     `);
 
@@ -419,11 +426,14 @@ describe('hydrate, shadow parent', () => {
             <!--s.2.0.0.0.-->
             <!--t.0.4-->
             root-text
+            <!--e.2-->
           </ion-badge>
           <ion-ripple-effect class="hydrated" c-id="1.2.1.1" s-id="3">
             <!--r.3-->
+            <!--e.3-->
           </ion-ripple-effect>
         </a>
+        <!--e.1-->
       </ion-tab-button>
     `);
 
@@ -491,7 +501,9 @@ describe('hydrate, shadow parent', () => {
           <!--s.2.0.0.0.-->
           <!--t.0.2-->
           cmp-a-light-dom
+          <!--e.2-->
         </cmp-b>
+        <!--e.1-->
       </cmp-a>
     `);
 

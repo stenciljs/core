@@ -205,6 +205,8 @@ To support streamed SSR, a `shadow` component created by the HTML parser while t
 
 Elements created any other way (after load, upgraded when their definition arrives, or via `document.createElement` once the document has loaded) still attach in the constructor.
 
+To tell when the parser has finished a host, the server now writes a `<!--e.{id}-->` comment as the last child of every hydratable host; it's removed on hydration. Expect it in `renderToString()` / `streamToString()` output snapshots.
+
 To migrate, don't read `this.el.shadowRoot` in a component's constructor; use `connectedCallback` or a later lifecycle method.
 
 #### `componentShouldUpdate` Batching
