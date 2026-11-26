@@ -1,5 +1,5 @@
 import { BUILD } from '@app-data';
-import { getHostRef, registerHost } from '@platform';
+import { getHostRef, plt, registerHost } from '@platform';
 
 import { HOST_FLAGS } from '../../../utils/constants';
 import { VNODE_FLAGS } from '../../runtime-constants';
@@ -148,6 +148,56 @@ describe('setAccessor for custom elements', () => {
       expect(addEventSpy).toHaveBeenCalledTimes(1);
       expect(addEventSpy).toHaveBeenCalledWith('click', orgValue, true);
       expect(removeEventSpy).toHaveBeenCalledWith('click', orgValue, true);
+    });
+  });
+
+  describe('multi-word capture event listener', () => {
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it.each([
+      ['onKeyDownCapture', 'keydown'],
+      ['onMouseDownCapture', 'mousedown'],
+      ['onPointerDownCapture', 'pointerdown'],
+      ['onGotPointerCaptureCapture', 'gotpointercapture'],
+    ])('should lowercase the standard event name of %s', (memberName, eventName) => {
+      const addEventSpy = jest.spyOn(plt, 'ael');
+      const removeEventSpy = jest.spyOn(plt, 'rel');
+
+      const handler = () => {
+        /**/
+      };
+
+      setAccessor(elm, memberName, undefined, handler, false, 0);
+      setAccessor(elm, memberName, handler, undefined, false, 0);
+
+      expect(addEventSpy).toHaveBeenCalledWith(elm, eventName, handler, true);
+      expect(removeEventSpy).toHaveBeenCalledWith(elm, eventName, handler, true);
+    });
+
+    it('should not treat a standard event ending in "capture" as a capture listener', () => {
+      const addEventSpy = jest.spyOn(plt, 'ael');
+
+      const handler = () => {
+        /**/
+      };
+
+      setAccessor(elm, 'onGotPointerCapture', undefined, handler, false, 0);
+
+      expect(addEventSpy).toHaveBeenCalledWith(elm, 'gotpointercapture', handler, false);
+    });
+
+    it('should keep the case of a custom event with a capture suffix', () => {
+      const addEventSpy = jest.spyOn(plt, 'ael');
+
+      const handler = () => {
+        /**/
+      };
+
+      setAccessor(elm, 'onMyCustomEventCapture', undefined, handler, false, 0);
+
+      expect(addEventSpy).toHaveBeenCalledWith(elm, 'myCustomEvent', handler, true);
     });
   });
 
