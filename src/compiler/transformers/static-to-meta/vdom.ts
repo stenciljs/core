@@ -99,17 +99,13 @@ export const gatherVdomMeta = (
             m.hasVdomPropOrAttr = true;
           }
           ts.SyntaxKind.StringLiteral;
-          if (attrName === 'part' && ts.isPropertyAssignment(prop)) {
-            const partValue = resolveStaticStringValue(prop.initializer, typeChecker);
-            if (partValue !== undefined) {
-              m.htmlParts.push(...partValue.split(' ').filter((part) => part.length > 0));
-            }
-          }
-          // on `<Host>`, `exportparts` re-exports this component's own parts to its parent's scope
-          if (attrName === 'exportparts' && !isHostTag && ts.isPropertyAssignment(prop)) {
-            const exportPartsValue = resolveStaticStringValue(prop.initializer, typeChecker);
-            if (exportPartsValue !== undefined) {
-              m.htmlParts.push(...parseExportParts(exportPartsValue));
+          // `part` / `exportparts` on `<Host>` belong to the parent's scope, not this component's parts
+          if ((attrName === 'part' || attrName === 'exportparts') && !isHostTag && ts.isPropertyAssignment(prop)) {
+            const value = resolveStaticStringValue(prop.initializer, typeChecker);
+            if (value !== undefined) {
+              m.htmlParts.push(
+                ...(attrName === 'part' ? value.split(' ').filter((part) => part.length > 0) : parseExportParts(value)),
+              );
             }
           }
           if (isSlotTag && attrName === 'name' && ts.isPropertyAssignment(prop)) {

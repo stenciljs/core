@@ -287,6 +287,20 @@ describe('parse vdom', () => {
     expect(t.cmp.htmlParts).toEqual(['icon']);
   });
 
+  it('htmlParts ignores part on Host', () => {
+    const t = transpileModule(`
+      import { Host } from '@stencil/core';
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        render() {
+          return <Host part="outer"><div part="inner"/></Host>
+        }
+      }
+    `);
+
+    expect(t.cmp.htmlParts).toEqual(['inner']);
+  });
+
   it('htmlParts does not capture exportparts that cannot be resolved statically', () => {
     const t = transpileModule(`
       @Component({tag: 'cmp-a'})
