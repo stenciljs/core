@@ -10,7 +10,7 @@ import { HOST_END_ID, HYDRATE_ID, NODE_TYPE } from './runtime-constants';
  */
 const pending = new Set<d.HostElement>();
 /** SSR hosts seen parsed: hydration may since have moved or removed their end marker */
-const parsed = new WeakSet<Element>();
+const parsedHosts = new WeakSet<Element>();
 let observer: MutationObserver | undefined;
 
 const parentOf = (node: Node) =>
@@ -26,13 +26,13 @@ const parentOf = (node: Node) =>
  * @returns whether the host's subtree is fully parsed
  */
 const isParsed = (elm: Element) => {
-  if (parsed.has(elm) || win.document.readyState !== 'loading') return true;
+  if (parsedHosts.has(elm) || win.document.readyState !== 'loading') return true;
   let n = elm.lastChild;
   if (n?.nodeType === NODE_TYPE.TextNode) n = n.previousSibling;
   return (
     n?.nodeType === NODE_TYPE.CommentNode &&
     n.nodeValue === `${HOST_END_ID}.${elm.getAttribute(HYDRATE_ID)}` &&
-    !!parsed.add(elm)
+    !!parsedHosts.add(elm)
   );
 };
 

@@ -105,11 +105,17 @@ export const gatherVdomMeta = (
             m.hasVdomPropOrAttr = true;
           }
           // `part` / `exportparts` on `<Host>` belong to the parent's scope, not this component's parts
-          if ((attrName === 'part' || attrName === 'exportparts') && !isHostTag && ts.isPropertyAssignment(prop)) {
+          if (
+            (attrName === 'part' || attrName === 'exportparts') &&
+            !isHostTag &&
+            ts.isPropertyAssignment(prop)
+          ) {
             const value = resolveStaticStringValue(prop.initializer, typeChecker);
             if (value !== undefined) {
               m.htmlParts.push(
-                ...(attrName === 'part' ? value.split(' ').filter((part) => part.length > 0) : parseExportParts(value)),
+                ...(attrName === 'part'
+                  ? value.split(' ').filter((part) => part.length > 0)
+                  : parseExportParts(value)),
               );
             }
           }

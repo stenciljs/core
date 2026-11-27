@@ -2248,7 +2248,9 @@ export namespace JSXBase {
     onBeforeMatch?: (event: Event) => void;
     onBeforeMatchCapture?: (event: Event) => void;
     onContentVisibilityAutoStateChange?: (event: ContentVisibilityAutoStateChangeEvent) => void;
-    onContentVisibilityAutoStateChangeCapture?: (event: ContentVisibilityAutoStateChangeEvent) => void;
+    onContentVisibilityAutoStateChangeCapture?: (
+      event: ContentVisibilityAutoStateChangeEvent,
+    ) => void;
 
     // Invoker Command Events
     onCommand?: (event: CommandEvent) => void;
