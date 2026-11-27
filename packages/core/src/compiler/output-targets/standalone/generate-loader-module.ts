@@ -42,7 +42,7 @@ export const generateLoaderModule = (
 import { transformTag, getRegistry } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';
 // The same platform setters as the output's index.js. With \`autoStart: false\`, call them before
 // start() - e.g. setRegistry() for a scoped registry - without importing every component.
-export { setNonce, setRegistry, setTagTransformer, setPlatformOptions } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';
+export { setNonce, setRegistry, setTagTransformer, transformTag, setPlatformOptions } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';
 ${assetPathImport}${assetPathInit}
 
 /**
