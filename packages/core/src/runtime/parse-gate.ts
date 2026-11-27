@@ -6,12 +6,12 @@ import { HOST_END_ID, HYDRATE_ID, NODE_TYPE } from './runtime-constants';
 /**
  * SSR hosts connected while the HTML parser is still inside them (streamed documents),
  * in connection order - which is document order. Each is held until its subtree is
- * parsed so hydration sees its declarative shadow root and children.
+ * parsed so hydration sees its declarative shadow root and children, and watched for
+ * its end marker arriving (wherever it is - a document observer can't see into shadow roots).
  */
-const pending = new Set<d.HostElement>();
+const pending = new Map<d.HostElement, MutationObserver>();
 /** SSR hosts seen parsed: hydration may since have moved or removed their end marker */
 const parsedHosts = new WeakSet<Element>();
-let observer: MutationObserver | undefined;
 
 const parentOf = (node: Node) =>
   node.parentNode ??
@@ -43,24 +43,25 @@ const hasPendingAncestor = (elm: Node) => {
   return false;
 };
 
+const drop = (elm: d.HostElement) => {
+  pending.get(elm)?.disconnect();
+  pending.delete(elm);
+};
+
 const flush = () => {
   // every parsed host gets its shadow root before any is released, so a released
   // ancestor sees its descendants' roots
-  for (const elm of pending) {
-    if (!elm.isConnected) pending.delete(elm);
+  for (const elm of pending.keys()) {
+    if (!elm.isConnected) drop(elm);
     else if (isParsed(elm)) elm.__attachShadow?.();
   }
   // ancestors are released before descendants, so hydration runs parent-first
   // just as it does for a fully parsed document
-  for (const elm of pending) {
+  for (const elm of pending.keys()) {
     if (isParsed(elm) && !hasPendingAncestor(elm)) {
-      pending.delete(elm);
+      drop(elm);
       elm.connectedCallback?.();
     }
-  }
-  if (!pending.size) {
-    observer?.disconnect();
-    observer = undefined;
   }
 };
 
@@ -85,15 +86,15 @@ export const deferUntilParsed = (elm: d.HostElement) => {
   if (pending.has(elm)) return true;
   if (!win.document || !elm.hasAttribute(HYDRATE_ID)) return false;
 
-  const parsed = isParsed(elm);
-  if (parsed && !hasPendingAncestor(elm)) return false;
-  if (parsed) elm.__attachShadow?.();
+  const done = isParsed(elm);
+  if (done && !hasPendingAncestor(elm)) return false;
+  if (done) elm.__attachShadow?.();
 
-  pending.add(elm);
-  if (!observer) {
-    observer = new MutationObserver(flush);
-    observer.observe(win.document, { childList: true, subtree: true });
-    win.document.addEventListener('DOMContentLoaded', flush, { once: true });
-  }
+  const observer = new MutationObserver(flush);
+  observer.observe(elm, { childList: true });
+  pending.set(elm, observer);
+  // releases hosts whose end marker never arrives (e.g. from an older server);
+  // the browser ignores re-adding the same listener
+  win.document.addEventListener('DOMContentLoaded', flush, { once: true });
   return true;
 };

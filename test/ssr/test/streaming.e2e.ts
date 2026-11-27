@@ -152,6 +152,50 @@ for (const loader of ['lazy', 'standalone'] as const) {
       await expect(button).toHaveText('Count me: 6!');
     });
 
+    test('hydrates a host inside a declarative shadow root it does not own while the document loads', async ({
+      page,
+    }) => {
+      const { html } = await renderToString('<cmp-dsd initial-counter="5"></cmp-dsd>', {
+        serializeShadowRoot: 'declarative-shadow-dom',
+        fullDocument: false,
+      });
+      // nothing changes the document's light DOM until the tail arrives
+      const started = await startServer(
+        {
+          tags: ['cmp-dsd'],
+          loader,
+          chunks: [
+            `<section><template shadowrootmode="open">${html}</template></section>`,
+            '<p>tail</p>',
+          ],
+        },
+        1000,
+      );
+      server = started.server;
+
+      // timed in the page: Playwright's own polling can stall until the stream moves on
+      await page.addInitScript(() => {
+        const w = window as unknown as Record<string, number>;
+        const timer = setInterval(() => {
+          const host = document.querySelector('section')?.shadowRoot?.querySelector('cmp-dsd');
+          if (host && !host.hasAttribute('s-id')) {
+            w.hydratedAt = performance.now();
+            clearInterval(timer);
+          }
+        }, 10);
+        new MutationObserver(() => {
+          if (!w.tailAt && document.body?.querySelector('p')) w.tailAt = performance.now();
+        }).observe(document, { childList: true, subtree: true });
+      });
+      await page.goto(started.url);
+
+      const { hydratedAt, tailAt } = await page.evaluate(() => {
+        const w = window as unknown as Record<string, number>;
+        return { hydratedAt: w.hydratedAt, tailAt: w.tailAt };
+      });
+      expect(hydratedAt).toBeLessThan(tailAt);
+    });
+
     for (const splitAt of ['<template shadowrootmode', '<p', '<span>Slotted']) {
       test(`holds a host split before \`${splitAt}\` while a script appends to the document`, async ({
         page,
