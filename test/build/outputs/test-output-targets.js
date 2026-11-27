@@ -30,7 +30,8 @@ fs.accessSync(path.join(loaderBundleDir, 'loader', 'index.d.ts'));
 const cjsDir = path.join(loaderBundleDir, 'cjs');
 const requireCjs = createRequire(path.join(cjsDir, 'noop.cjs'));
 const cjsJsFiles = fs.readdirSync(cjsDir).filter((f) => f.endsWith('.js'));
-const runtimeChunk = cjsJsFiles.find((f) => f.startsWith('runtime-'));
+// a component tagged `runtime-*` also emits a `runtime-*.entry.js`
+const runtimeChunk = cjsJsFiles.find((f) => f.startsWith('runtime-') && !f.endsWith('.entry.js'));
 const lazyEntry = cjsJsFiles.find((f) => f.endsWith('.entry.js'));
 assert.ok(runtimeChunk, 'expected a cjs runtime chunk');
 assert.ok(lazyEntry, 'expected a cjs lazy entry');
