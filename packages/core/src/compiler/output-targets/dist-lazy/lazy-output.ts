@@ -256,7 +256,7 @@ function createEntryModule(cmps: d.ComponentCompilerMeta[]): d.EntryModule {
 
 const getLazyEntry = (isBrowser: boolean, assetPath?: string, externalRuntime = false): string => {
   const s = new MagicString(``);
-  const platformExports = ['setNonce', 'setRegistry', 'setTagTransformer'];
+  const platformExports = ['setNonce', 'setRegistry', 'setTagTransformer', 'transformTag'];
   // Exported (when there's a path to override) on both builds
   if (assetPath) {
     platformExports.push('setAssetPath');

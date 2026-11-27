@@ -87,7 +87,7 @@ describe('Custom Elements output target', () => {
       });
 
       expect(entryPoint).toEqual(`import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';
-export { setNonce, setRegistry, setTagTransformer, setPlatformOptions } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';
+export { setNonce, setRegistry, setTagTransformer, transformTag, setPlatformOptions } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';
 export * from '${USER_INDEX_ENTRY_ID}';
 
 globalScripts();
@@ -101,7 +101,7 @@ globalScripts();
       });
 
       expect(entryPoint)
-        .toEqual(`export { setNonce, setRegistry, setTagTransformer, setPlatformOptions } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';
+        .toEqual(`export { setNonce, setRegistry, setTagTransformer, transformTag, setPlatformOptions } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';
 export * from '${USER_INDEX_ENTRY_ID}';
 `);
     });
@@ -207,7 +207,7 @@ export * from '${USER_INDEX_ENTRY_ID}';
         );
         expect(bundleOptions.loader['\0core']).toEqual(
           `import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';
-export { setNonce, setRegistry, setTagTransformer, setPlatformOptions } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';
+export { setNonce, setRegistry, setTagTransformer, transformTag, setPlatformOptions } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';
 export * from '${USER_INDEX_ENTRY_ID}';
 
 globalScripts();
@@ -245,7 +245,7 @@ globalScripts();
         );
         expect(bundleOptions.loader['\0core']).toEqual(
           `import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';
-export { setNonce, setRegistry, setTagTransformer, setPlatformOptions } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';
+export { setNonce, setRegistry, setTagTransformer, transformTag, setPlatformOptions } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';
 export * from '${USER_INDEX_ENTRY_ID}';
 export { StubCmp, defineCustomElement as defineCustomElementStubCmp } from '\0StubCmp';
 export { MyBestComponent, defineCustomElement as defineCustomElementMyBestComponent } from '\0MyBestComponent';
@@ -277,7 +277,7 @@ globalScripts();
         );
         expect(bundleOptions.loader['\0core']).toEqual(
           `import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';
-export { setNonce, setRegistry, setTagTransformer, setPlatformOptions } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';
+export { setNonce, setRegistry, setTagTransformer, transformTag, setPlatformOptions } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';
 export * from '${USER_INDEX_ENTRY_ID}';
 export { ComponentWithJsx, defineCustomElement as defineCustomElementComponentWithJsx } from '\0ComponentWithJsx';
 
@@ -318,7 +318,7 @@ globalScripts();
 import { transformTag } from '@stencil/core/runtime/client/standalone';
 import { StubCmp } from '\0StubCmp';
 import { MyBestComponent } from '\0MyBestComponent';
-export { setNonce, setRegistry, setTagTransformer, setPlatformOptions } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';
+export { setNonce, setRegistry, setTagTransformer, transformTag, setPlatformOptions } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';
 export * from '${USER_INDEX_ENTRY_ID}';
 
 globalScripts();
@@ -416,7 +416,7 @@ export const defineCustomElements = (opts) => {
 
         const loaderContent = bundleOptions.loader['\0loader'];
         expect(loaderContent).toContain(
-          `export { setNonce, setRegistry, setTagTransformer, setPlatformOptions } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';`,
+          `export { setNonce, setRegistry, setTagTransformer, transformTag, setPlatformOptions } from '${STENCIL_INTERNAL_STANDALONE_CLIENT_PLATFORM_ID}';`,
         );
         const startBody = loaderContent.slice(loaderContent.indexOf('export function start('));
         expect(startBody).toContain(

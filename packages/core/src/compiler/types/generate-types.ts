@@ -142,6 +142,12 @@ export type TagTransformer = (tag: string) => string;
  * Useful for namespacing (e.g. \`my-button\` → \`acme-button\`) in multi-library pages.
  */
 export declare function setTagTransformer(transformer: TagTransformer): void;
+
+/**
+ * Pass a tag name through the installed tag transformer (returns it unchanged if none is set).
+ * Useful for framework wrappers and imperative code that creates components by tag name.
+ */
+export declare function transformTag(tag: string): string;
 ${
   hasAssets
     ? `
@@ -202,6 +208,12 @@ export type TagTransformer = (tag: string) => string;
  * Useful for namespacing (e.g. \`my-button\` → \`acme-button\`) in multi-library pages.
  */
 export declare const setTagTransformer: (transformer: TagTransformer) => void;
+
+/**
+ * Pass a tag name through the installed tag transformer (returns it unchanged if none is set).
+ * Useful for framework wrappers and imperative code that creates components by tag name.
+ */
+export declare const transformTag: (tag: string) => string;
 
 export interface SetPlatformOptions {
   raf?: (c: FrameRequestCallback) => number;

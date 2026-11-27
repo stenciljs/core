@@ -40,7 +40,7 @@ describe('outputLazy', () => {
 
       const entry = getLoaderEntry(vi.mocked(bundleOutput).mock.calls[0], LAZY_EXTERNAL_ENTRY_ID);
       expect(entry).toContain(
-        `export { setNonce, setRegistry, setTagTransformer } from '${STENCIL_CORE_ID}';`,
+        `export { setNonce, setRegistry, setTagTransformer, transformTag } from '${STENCIL_CORE_ID}';`,
       );
       expect(entry).toContain('export const defineCustomElements');
     });
@@ -81,7 +81,7 @@ describe('outputLazy', () => {
 
       const entry = getLoaderEntry(vi.mocked(bundleOutput).mock.calls[0], LAZY_EXTERNAL_ENTRY_ID);
       expect(entry).toContain(
-        `export { setNonce, setRegistry, setTagTransformer, setAssetPath } from '${STENCIL_CORE_ID}';`,
+        `export { setNonce, setRegistry, setTagTransformer, transformTag, setAssetPath } from '${STENCIL_CORE_ID}';`,
       );
     });
 
@@ -156,7 +156,7 @@ describe('outputLazy', () => {
         // IIFE's first `await` - before the importing script's own code runs, so a
         // consumer can override it via `import {setAssetPath} from '.../index.esm.js'`
         expect(entry).toContain(
-          `export { setNonce, setRegistry, setTagTransformer, setAssetPath } from '${STENCIL_CORE_ID}';`,
+          `export { setNonce, setRegistry, setTagTransformer, transformTag, setAssetPath } from '${STENCIL_CORE_ID}';`,
         );
       });
 
