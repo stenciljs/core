@@ -226,11 +226,14 @@ export class E2EElement extends MockHTMLElement implements pd.E2EElementInternal
     });
   }
 
-  toggleAttribute(name: string, force?: boolean) {
+  override toggleAttribute(name: string, force?: boolean): boolean {
     this._queueAction({
       toggleAttributeName: name,
       toggleAttributeForce: force,
     });
+    // The toggle runs in the browser on `page.waitForChanges()`, so there is no
+    // result yet. The public `E2EElement` type still declares this as `void`.
+    return undefined as unknown as boolean;
   }
 
   override get classList() {

@@ -1,3 +1,21 @@
+## 🛩 [4.45.6](https://github.com/stenciljs/core/compare/v4.45.5...v4.45.6) (2026-11-27)
+
+
+### Bug Fixes
+
+* **docs:** convert JSDoc URL links to markdown links in doc output ([#7009](https://github.com/stenciljs/core/issues/7009)) ([e115673](https://github.com/stenciljs/core/commit/e115673db7321f704e14de632ab1d097f3f7ae8b))
+* **docs:** include `exportparts` in component parts ([#7047](https://github.com/stenciljs/core/issues/7047)) ([c65971f](https://github.com/stenciljs/core/commit/c65971f34765935cf1c9f553f283dbc3d92578c7))
+* **mock-doc:** implement Element.toggleAttribute() ([#7019](https://github.com/stenciljs/core/issues/7019)) ([0ec1375](https://github.com/stenciljs/core/commit/0ec137556b2b1f36dc6c5d81db8931bf6b585175)), closes [#7015](https://github.com/stenciljs/core/issues/7015)
+* **mock-doc:** split cssText only at top-level semicolons ([#7018](https://github.com/stenciljs/core/issues/7018)) ([cc3415a](https://github.com/stenciljs/core/commit/cc3415ac389c3e8277bacfaebb10446d210cb0a4))
+* **mock-doc:** treat removed comments as empty content ([#6986](https://github.com/stenciljs/core/issues/6986)) ([1801e92](https://github.com/stenciljs/core/commit/1801e92c7f83c6967d1c8892af04048d2453a6cc)), closes [#3218](https://github.com/stenciljs/core/issues/3218)
+* **runtime:**  only pass `custom-elements` tags to `transformTag()` ([#7032](https://github.com/stenciljs/core/issues/7032)) ([2fb3997](https://github.com/stenciljs/core/commit/2fb39977123a92e36b00e474dfa9eb337d949e3c))
+* **runtime:** fire multi-word capture listeners ([#7045](https://github.com/stenciljs/core/issues/7045)) ([6be7dd8](https://github.com/stenciljs/core/commit/6be7dd8710f4aa248376837b5ee9867f6936d192))
+* **runtime:** keep SSR slot content visible across hydration order ([#7013](https://github.com/stenciljs/core/issues/7013)) ([d49c70c](https://github.com/stenciljs/core/commit/d49c70c8f0d992783a6ee6cd5419aecf317b0bf2))
+* **testing:** add browserLaunchTimeout option for e2e tests ([#7028](https://github.com/stenciljs/core/issues/7028)) ([ad90d01](https://github.com/stenciljs/core/commit/ad90d0193310fb0eead9df0abe678f7d3193d041)), closes [#4498](https://github.com/stenciljs/core/issues/4498)
+* **types:** add missing global attributes and event handlers ([#7046](https://github.com/stenciljs/core/issues/7046)) ([bfca447](https://github.com/stenciljs/core/commit/bfca447068fbe56058e6d5bea3ebaa8038418b18))
+
+
+
 ## 🐋 [4.45.5](https://github.com/stenciljs/core/compare/v4.45.4...v4.45.5) (2026-11-19)
 
 

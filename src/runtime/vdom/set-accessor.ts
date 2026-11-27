@@ -129,6 +129,12 @@ export const setAccessor = (
       // member name "onmouseover" is on the window's prototype
       // so let's add the listener "mouseover", which is all lowercased
       memberName = ln.slice(2);
+    } else if (
+      memberName.endsWith(CAPTURE_EVENT_SUFFIX) &&
+      isMemberInElement(win, ln.slice(0, -CAPTURE_EVENT_SUFFIX.length))
+    ) {
+      // standard event with "Capture" suffix: "onKeyDownCapture" listens for "keydown"
+      memberName = ln.slice(2, -CAPTURE_EVENT_SUFFIX.length) + CAPTURE_EVENT_SUFFIX;
     } else {
       // custom event
       // the JSX attribute could have been "onMyCustomEvent"

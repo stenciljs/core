@@ -1801,6 +1801,21 @@
           "members": [
             {
               "kind": "method",
+              "name": "emitImportedEvent",
+              "return": {
+                "type": {
+                  "text": "Promise<void>",
+                  "references": [
+                    {
+                      "name": "Promise",
+                      "package": "global:"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "kind": "method",
               "name": "emitMyEvent",
               "return": {
                 "type": {
@@ -1831,6 +1846,12 @@
             }
           ],
           "events": [
+            {
+              "name": "importedEvent",
+              "type": {
+                "text": "CustomEvent<any>"
+              }
+            },
             {
               "name": "myEvent",
               "type": {

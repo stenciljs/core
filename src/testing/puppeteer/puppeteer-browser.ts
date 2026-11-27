@@ -47,6 +47,10 @@ export async function startPuppeteerBrowser(config: ValidatedConfig) {
     config.logger.debug(`puppeteer slowMo: ${config.testing.browserSlowMo}`);
   }
 
+  if (typeof config.testing.browserLaunchTimeout === 'number') {
+    config.logger.debug(`puppeteer launch timeout: ${config.testing.browserLaunchTimeout}`);
+  }
+
   // connection options will be used regardless whether a new browser instance is created or we attach to a
   // pre-existing instance
   const connectOpts: ConnectOptions = {
@@ -65,6 +69,7 @@ export async function startPuppeteerBrowser(config: ValidatedConfig) {
       channel: config.testing.browserChannel,
       headless: config.testing.browserHeadless,
       devtools: config.testing.browserDevtools,
+      timeout: config.testing.browserLaunchTimeout,
       ...connectOpts,
     };
     try {
