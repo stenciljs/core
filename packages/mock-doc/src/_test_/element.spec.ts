@@ -913,6 +913,18 @@ describe('element', () => {
       expect(labels).toContain(label2);
     });
 
+    it('input.labels supports NodeList item()', () => {
+      const label = doc.createElement('label');
+      const input = doc.createElement('input');
+
+      label.appendChild(input);
+      doc.body.appendChild(label);
+
+      expect(input.labels.item(0)).toBe(label);
+      expect(input.labels.item(1)).toBe(null);
+      expect(Object.keys(input.labels)).toEqual(['0']);
+    });
+
     it('input.labels returns empty array when no associated labels', () => {
       const input = doc.createElement('input');
       doc.body.appendChild(input);
