@@ -14,5 +14,7 @@ export {
   setErrorHandler,
   setMode,
   setPlatformHelpers,
+  setTagTransformer,
+  transformTag,
   writeTask,
 } from '../client/index.js';
