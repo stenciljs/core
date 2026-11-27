@@ -711,7 +711,9 @@ function fullUrl(elm: MockElement, attrName: string) {
   return val.replace(/\'|\"/g, '').trim();
 }
 
-function getLabelsForElement(elm: MockHTMLElement): MockHTMLElement[] {
+function getLabelsForElement(
+  elm: MockHTMLElement,
+): MockHTMLElement[] & { item(index: number): MockHTMLElement | null } {
   const labels: MockHTMLElement[] = [];
   const id = elm.id;
   const doc = elm.ownerDocument;
@@ -738,7 +740,12 @@ function getLabelsForElement(elm: MockHTMLElement): MockHTMLElement[] {
     }
   }
 
-  return labels;
+  // `labels` is a NodeList in the browser - keep array semantics but add `item()`
+  Object.defineProperty(labels, 'item', {
+    value: (index: number) => labels[index] ?? null,
+    enumerable: false,
+  });
+  return labels as MockHTMLElement[] & { item(index: number): MockHTMLElement | null };
 }
 
 function patchPropAttributes(prototype: any, attrs: any, defaults: any = {}) {
