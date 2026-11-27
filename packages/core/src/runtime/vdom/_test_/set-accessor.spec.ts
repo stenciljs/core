@@ -204,6 +204,56 @@ describe('setAccessor for custom elements', () => {
     });
   });
 
+  describe('multi-word capture event listener', () => {
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it.each([
+      ['onKeyDownCapture', 'keydown'],
+      ['onMouseDownCapture', 'mousedown'],
+      ['onPointerDownCapture', 'pointerdown'],
+      ['onGotPointerCaptureCapture', 'gotpointercapture'],
+    ])('should lowercase the standard event name of %s', (memberName, eventName) => {
+      const addEventSpy = vi.spyOn(plt, 'ael');
+      const removeEventSpy = vi.spyOn(plt, 'rel');
+
+      const handler = () => {
+        /**/
+      };
+
+      setAccessor(elm, memberName, undefined, handler, false, 0);
+      setAccessor(elm, memberName, handler, undefined, false, 0);
+
+      expect(addEventSpy).toHaveBeenCalledWith(elm, eventName, handler, true);
+      expect(removeEventSpy).toHaveBeenCalledWith(elm, eventName, handler, true);
+    });
+
+    it('should not treat a standard event ending in "capture" as a capture listener', () => {
+      const addEventSpy = vi.spyOn(plt, 'ael');
+
+      const handler = () => {
+        /**/
+      };
+
+      setAccessor(elm, 'onGotPointerCapture', undefined, handler, false, 0);
+
+      expect(addEventSpy).toHaveBeenCalledWith(elm, 'gotpointercapture', handler, false);
+    });
+
+    it('should keep the case of a custom event with a capture suffix', () => {
+      const addEventSpy = vi.spyOn(plt, 'ael');
+
+      const handler = () => {
+        /**/
+      };
+
+      setAccessor(elm, 'onMyCustomEventCapture', undefined, handler, false, 0);
+
+      expect(addEventSpy).toHaveBeenCalledWith(elm, 'myCustomEvent', handler, true);
+    });
+  });
+
   it('should set part as an attribute on a custom element', () => {
     setAccessor(elm, 'part', undefined, 'my-part', false, 0);
     expect(elm.getAttribute('part')).toBe('my-part');
