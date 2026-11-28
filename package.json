@@ -215,7 +215,7 @@
     "postcss-selector-parser": "^7.1.0",
     "prettier": "3.3.1",
     "prompts": "2.4.2",
-    "puppeteer": "^24.1.0",
+    "puppeteer": "^25.17.0",
     "rimraf": "^6.0.1",
     "rollup": "4.44.0",
     "semver": "^7.3.7",
