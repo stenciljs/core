@@ -11,9 +11,7 @@ permissions:
 jobs:
   perf_ssr:
     name: SSR Render Time
-    # Runs on every push (baseline tracking) or on a PR labeled "SSR Performance" - CodSpeed
-    # credits are limited.
-    if: ${{ github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'SSR Performance') }}
+    # Gated by main.yml (push, or a PR labeled "SSR Performance")
     # In-process benchmarks, measured by CPU simulation on a standard runner
     runs-on: ubuntu-latest
     permissions:
