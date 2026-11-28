@@ -1,0 +1,6 @@
+/* The remaining imports live in a partial */
+@import './partials/stencil.css';
+
+.b-rule {
+  color: blue;
+}

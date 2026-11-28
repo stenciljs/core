@@ -1,0 +1,4 @@
+/* Neither stylesheet imports stencil-css-components - ambiguous with two outputs */
+.b-rule {
+  color: blue;
+}

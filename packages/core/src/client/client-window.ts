@@ -1,0 +1,72 @@
+import { BUILD } from 'virtual:app-data';
+import type * as d from '@stencil/core';
+
+interface StencilWindow extends Omit<Window, 'document'> {
+  document?: Document;
+}
+
+export const win = (
+  typeof window !== 'undefined' ? window : ({} as StencilWindow)
+) as StencilWindow;
+
+export const H = ((win as any).HTMLElement || (class {} as any)) as HTMLElement;
+
+export const plt: d.PlatformRuntime = {
+  $flags$: 0,
+  $resourcesUrl$: '',
+  jmp: (h) => h(),
+  raf: (h) => requestAnimationFrame(h),
+  ael: (el, eventName, listener, opts) => el.addEventListener(eventName, listener, opts),
+  rel: (el, eventName, listener, opts) => el.removeEventListener(eventName, listener, opts),
+  ce: (eventName, opts) => new CustomEvent(eventName, opts),
+};
+
+export const setPlatformHelpers = (helpers: {
+  jmp?: (c: any) => any;
+  raf?: (c: any) => number;
+  ael?: (el: any, eventName: string, listener: any, options: any) => void;
+  rel?: (el: any, eventName: string, listener: any, options: any) => void;
+  ce?: (eventName: string, opts?: any) => any;
+}) => {
+  Object.assign(plt, helpers);
+};
+
+export const supportsListenerOptions = /*@__PURE__*/ (() => {
+  let supported = false;
+  try {
+    win.document?.addEventListener(
+      'e',
+      null,
+      Object.defineProperty({}, 'passive', {
+        get() {
+          supported = true;
+        },
+      }),
+    );
+  } catch {}
+  return supported;
+})();
+
+export const promiseResolve = (v?: any) => Promise.resolve(v);
+
+export const supportsConstructableStylesheets = BUILD.constructableCSS
+  ? /*@__PURE__*/ (() => {
+      try {
+        if (!win.document.adoptedStyleSheets) {
+          return false;
+        }
+        const sheet = new CSSStyleSheet();
+        return typeof sheet.replaceSync === 'function';
+      } catch {}
+      return false;
+    })()
+  : false;
+
+// https://github.com/salesforce/lwc/blob/5af18fdd904bc6cfcf7b76f3c539490ff11515b2/packages/%40lwc/engine-dom/src/renderer.ts#L41-L43
+export const supportsMutableAdoptedStyleSheets = supportsConstructableStylesheets
+  ? /*@__PURE__*/ (() =>
+      !!win.document &&
+      Object.getOwnPropertyDescriptor(win.document.adoptedStyleSheets, 'length')!.writable)()
+  : false;
+
+export { H as HTMLElement };

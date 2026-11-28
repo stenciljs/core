@@ -1,0 +1,37 @@
+/* Generated design-system-sized stylesheet for the SSR benchmark. */
+:host {
+  display: block;
+  position: relative;
+  box-sizing: border-box;
+  --ripple-var-0: var(--bench-token-0, 0px);
+  --ripple-var-1: var(--bench-token-1, 2px);
+  --ripple-var-2: var(--bench-token-2, 4px);
+  --ripple-var-3: var(--bench-token-3, 6px);
+  --ripple-var-4: var(--bench-token-4, 8px);
+  --ripple-var-5: var(--bench-token-5, 10px);
+}
+.ripple-effect {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--bench-gap, 8px);
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+@media (any-hover: hover) {
+  :host(:hover) .ripple-effect {
+    opacity: 0.92;
+  }
+}
+@supports (inset-inline-start: 0) {
+  .ripple-effect {
+    inset-inline-start: 0;
+  }
+}
+:host(.disabled) .ripple-effect,
+:host([disabled]) .ripple-effect {
+  cursor: default;
+  opacity: 0.5;
+  pointer-events: none;
+}

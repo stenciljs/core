@@ -1,0 +1,230 @@
+/* Generated design-system-sized stylesheet for the SSR benchmark. */
+:host {
+  display: block;
+  position: relative;
+  box-sizing: border-box;
+  --app-var-0: var(--bench-token-0, 0px);
+  --app-var-1: var(--bench-token-1, 2px);
+  --app-var-2: var(--bench-token-2, 4px);
+  --app-var-3: var(--bench-token-3, 6px);
+  --app-var-4: var(--bench-token-4, 8px);
+  --app-var-5: var(--bench-token-5, 10px);
+  --app-var-6: var(--bench-token-6, 12px);
+  --app-var-7: var(--bench-token-7, 14px);
+  --app-var-8: var(--bench-token-8, 16px);
+  --app-var-9: var(--bench-token-9, 18px);
+  --app-var-10: var(--bench-token-10, 20px);
+  --app-var-11: var(--bench-token-11, 22px);
+  --app-var-12: var(--bench-token-12, 24px);
+  --app-var-13: var(--bench-token-13, 26px);
+  --app-var-14: var(--bench-token-14, 28px);
+  --app-var-15: var(--bench-token-15, 30px);
+  --app-var-16: var(--bench-token-16, 32px);
+  --app-var-17: var(--bench-token-17, 34px);
+  --app-var-18: var(--bench-token-18, 36px);
+  --app-var-19: var(--bench-token-19, 38px);
+}
+:host(.app-primary) .app-header {
+  color: var(--bench-color-primary-contrast, #fff);
+  background: var(--bench-color-primary, #3880ff);
+  border-color: var(--bench-color-primary-shade, #3171e0);
+}
+:host(.app-primary) .app-content {
+  color: var(--bench-color-primary-contrast, #fff);
+  background: var(--bench-color-primary, #3880ff);
+  border-color: var(--bench-color-primary-shade, #3171e0);
+}
+:host(.app-primary:hover) .app-header {
+  background: var(--bench-color-primary-tint, #4c8dff);
+}
+:host-context(.theme-dark):host(.app-primary) .app-header {
+  background: var(--bench-color-primary-dark, #1e2023);
+}
+:host(.app-secondary) .app-header {
+  color: var(--bench-color-secondary-contrast, #fff);
+  background: var(--bench-color-secondary, #3880ff);
+  border-color: var(--bench-color-secondary-shade, #3171e0);
+}
+:host(.app-secondary) .app-content {
+  color: var(--bench-color-secondary-contrast, #fff);
+  background: var(--bench-color-secondary, #3880ff);
+  border-color: var(--bench-color-secondary-shade, #3171e0);
+}
+:host(.app-secondary:hover) .app-header {
+  background: var(--bench-color-secondary-tint, #4c8dff);
+}
+:host-context(.theme-dark):host(.app-secondary) .app-header {
+  background: var(--bench-color-secondary-dark, #1e2023);
+}
+:host(.app-danger) .app-header {
+  color: var(--bench-color-danger-contrast, #fff);
+  background: var(--bench-color-danger, #3880ff);
+  border-color: var(--bench-color-danger-shade, #3171e0);
+}
+:host(.app-danger) .app-content {
+  color: var(--bench-color-danger-contrast, #fff);
+  background: var(--bench-color-danger, #3880ff);
+  border-color: var(--bench-color-danger-shade, #3171e0);
+}
+:host(.app-danger:hover) .app-header {
+  background: var(--bench-color-danger-tint, #4c8dff);
+}
+:host-context(.theme-dark):host(.app-danger) .app-header {
+  background: var(--bench-color-danger-dark, #1e2023);
+}
+:host(.app-success) .app-header {
+  color: var(--bench-color-success-contrast, #fff);
+  background: var(--bench-color-success, #3880ff);
+  border-color: var(--bench-color-success-shade, #3171e0);
+}
+:host(.app-success) .app-content {
+  color: var(--bench-color-success-contrast, #fff);
+  background: var(--bench-color-success, #3880ff);
+  border-color: var(--bench-color-success-shade, #3171e0);
+}
+:host(.app-success:hover) .app-header {
+  background: var(--bench-color-success-tint, #4c8dff);
+}
+:host-context(.theme-dark):host(.app-success) .app-header {
+  background: var(--bench-color-success-dark, #1e2023);
+}
+:host(.app-warning) .app-header {
+  color: var(--bench-color-warning-contrast, #fff);
+  background: var(--bench-color-warning, #3880ff);
+  border-color: var(--bench-color-warning-shade, #3171e0);
+}
+:host(.app-warning) .app-content {
+  color: var(--bench-color-warning-contrast, #fff);
+  background: var(--bench-color-warning, #3880ff);
+  border-color: var(--bench-color-warning-shade, #3171e0);
+}
+:host(.app-warning:hover) .app-header {
+  background: var(--bench-color-warning-tint, #4c8dff);
+}
+:host-context(.theme-dark):host(.app-warning) .app-header {
+  background: var(--bench-color-warning-dark, #1e2023);
+}
+:host(.app-medium) .app-header {
+  color: var(--bench-color-medium-contrast, #fff);
+  background: var(--bench-color-medium, #3880ff);
+  border-color: var(--bench-color-medium-shade, #3171e0);
+}
+:host(.app-medium) .app-content {
+  color: var(--bench-color-medium-contrast, #fff);
+  background: var(--bench-color-medium, #3880ff);
+  border-color: var(--bench-color-medium-shade, #3171e0);
+}
+:host(.app-medium:hover) .app-header {
+  background: var(--bench-color-medium-tint, #4c8dff);
+}
+:host-context(.theme-dark):host(.app-medium) .app-header {
+  background: var(--bench-color-medium-dark, #1e2023);
+}
+:host(.app-light) .app-header {
+  color: var(--bench-color-light-contrast, #fff);
+  background: var(--bench-color-light, #3880ff);
+  border-color: var(--bench-color-light-shade, #3171e0);
+}
+:host(.app-light) .app-content {
+  color: var(--bench-color-light-contrast, #fff);
+  background: var(--bench-color-light, #3880ff);
+  border-color: var(--bench-color-light-shade, #3171e0);
+}
+:host(.app-light:hover) .app-header {
+  background: var(--bench-color-light-tint, #4c8dff);
+}
+:host-context(.theme-dark):host(.app-light) .app-header {
+  background: var(--bench-color-light-dark, #1e2023);
+}
+:host(.app-dark) .app-header {
+  color: var(--bench-color-dark-contrast, #fff);
+  background: var(--bench-color-dark, #3880ff);
+  border-color: var(--bench-color-dark-shade, #3171e0);
+}
+:host(.app-dark) .app-content {
+  color: var(--bench-color-dark-contrast, #fff);
+  background: var(--bench-color-dark, #3880ff);
+  border-color: var(--bench-color-dark-shade, #3171e0);
+}
+:host(.app-dark:hover) .app-header {
+  background: var(--bench-color-dark-tint, #4c8dff);
+}
+:host-context(.theme-dark):host(.app-dark) .app-header {
+  background: var(--bench-color-dark-dark, #1e2023);
+}
+:host(.app-small) .app-header {
+  padding: var(--app-padding-small, 8px 16px);
+  min-height: var(--app-height-small, 36px);
+  font-size: var(--app-font-small, 14px);
+}
+:host(.app-default) .app-header {
+  padding: var(--app-padding-default, 8px 16px);
+  min-height: var(--app-height-default, 36px);
+  font-size: var(--app-font-default, 14px);
+}
+:host(.app-large) .app-header {
+  padding: var(--app-padding-large, 8px 16px);
+  min-height: var(--app-height-large, 36px);
+  font-size: var(--app-font-large, 14px);
+}
+::slotted([slot='header']) {
+  margin-inline-start: var(--slot-header-start, 4px);
+  margin-inline-end: var(--slot-header-end, 4px);
+  flex-shrink: 0;
+}
+:host-context([dir='rtl']) ::slotted([slot='header']) {
+  transform: scaleX(-1);
+}
+::slotted(*) {
+  pointer-events: none;
+}
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--bench-gap, 8px);
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+@media (any-hover: hover) {
+  :host(:hover) .app-header {
+    opacity: 0.92;
+  }
+}
+@supports (inset-inline-start: 0) {
+  .app-header {
+    inset-inline-start: 0;
+  }
+}
+:host(.disabled) .app-header,
+:host([disabled]) .app-header {
+  cursor: default;
+  opacity: 0.5;
+  pointer-events: none;
+}
+.app-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--bench-gap, 8px);
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+@media (any-hover: hover) {
+  :host(:hover) .app-content {
+    opacity: 0.92;
+  }
+}
+@supports (inset-inline-start: 0) {
+  .app-content {
+    inset-inline-start: 0;
+  }
+}
+:host(.disabled) .app-content,
+:host([disabled]) .app-content {
+  cursor: default;
+  opacity: 0.5;
+  pointer-events: none;
+}

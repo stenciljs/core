@@ -1,0 +1,115 @@
+import type postcss from 'postcss';
+
+/**
+ * A JSDoc-style comment is `/** ... *\/` or `/*! ... *\/` - postcss's `Comment.text` already
+ * strips the `/*`/`*\/` delimiters, so this checks the leading `*` or `!` that remains.
+ * @param commentText a postcss `Comment` node's `.text`
+ * @returns `true` if the comment is JSDoc-style
+ */
+export const isJsDocComment = (commentText: string): boolean =>
+  commentText.startsWith('*') || commentText.startsWith('!');
+
+/**
+ * An explicit `@prop` annotation tag in a CSS docstring. `@cssprop`/`@cssproperty` are also
+ * recognized as synonyms (the more common names in other web-component-analyzer/docgen
+ * ecosystems).
+ */
+export const CSS_PROP_ANNOTATION_RE = /@(?:cssproperty|cssprop|prop)\b/;
+
+/**
+ * An annotation tag that documents something by name (`@prop --x`, `@slot name`, ...) rather
+ * than describing the node below its comment.
+ */
+const CSS_ANNOTATION_TAG_RE = /@(?:component|cssproperty|cssprop|prop|attr|slot)\b/;
+
+const INTERNAL_TAG_RE = /@internal\b/;
+
+/**
+ * Whether a comment marks the node immediately following it as internal - excluded from docs,
+ * matching `@internal` on component members.
+ * @param commentText a postcss `Comment` node's `.text`
+ * @returns `true` if the comment is a JSDoc-style comment holding an `@internal` tag
+ */
+export const isInternalDocComment = (commentText: string): boolean =>
+  isJsDocComment(commentText) && INTERNAL_TAG_RE.test(commentText);
+
+/**
+ * Whether a comment describes the node immediately following it (a declaration, rule or
+ * at-rule). A comment holding annotation tags documents the things it names instead, and an
+ * `@internal` comment hides the node.
+ * @param commentText a postcss `Comment` node's `.text`
+ * @returns `true` if the comment is a JSDoc-style description of the next node
+ */
+export const isNodeDocComment = (commentText: string): boolean =>
+  isJsDocComment(commentText) &&
+  !CSS_ANNOTATION_TAG_RE.test(commentText) &&
+  !INTERNAL_TAG_RE.test(commentText);
+
+/**
+ * Strip the leading `*`/`!` marker and per-line `*` prefixes, returning trimmed lines.
+ * @param commentText a postcss `Comment` node's `.text`
+ * @returns the comment's lines, delimiters and leading `*`s stripped
+ */
+export const normalizeJsDocLines = (commentText: string): string[] => {
+  const withoutMarker = commentText.replace(/^[*!]/, '');
+  return withoutMarker
+    .split(/\r?\n/)
+    .map((line) => line.trim().replace(/^\*/, '').trim())
+    .filter((line, i, arr) => !(line === '' && (i === 0 || i === arr.length - 1)));
+};
+
+/**
+ * @param commentText a postcss `Comment` node's `.text`
+ * @returns the comment's lines joined into a single trimmed line of text
+ */
+export const normalizeJsDocText = (commentText: string): string =>
+  normalizeJsDocLines(commentText).filter(Boolean).join(' ').trim();
+
+/**
+ * @param value a CSS descriptor value, possibly quoted (e.g. a `syntax` descriptor's `"<length>"`)
+ * @returns the value with any surrounding quotes removed
+ */
+const stripQuotes = (value: string): string => value.replace(/^['"]|['"]$/g, '');
+
+export interface PropertyAtRuleDescriptors {
+  /** From a native `@property` at-rule's `syntax` descriptor. */
+  syntax?: string;
+  /** From a native `@property` at-rule's `initial-value` descriptor. */
+  initialValue?: string;
+}
+
+/**
+ * Extract the `syntax`/`initial-value` descriptors from a native `@property` at-rule's body.
+ * @param node a postcss `AtRule` node whose `name` is `property`
+ * @returns the extracted descriptors, if present
+ */
+export const parsePropertyAtRuleDescriptors = (node: postcss.AtRule): PropertyAtRuleDescriptors => {
+  let syntax: string | undefined;
+  let initialValue: string | undefined;
+  node.each((child) => {
+    if (child.type !== 'decl') {
+      return;
+    }
+    if (child.prop === 'syntax') {
+      syntax = stripQuotes(child.value);
+    } else if (child.prop === 'initial-value') {
+      initialValue = child.value;
+    }
+  });
+  return { syntax, initialValue };
+};
+
+/** `--name: docs`, `--name - docs` (as `@attr`/`@slot` use) or `--name docs`. */
+const CUSTOM_PROPERTY_TAG_RE = /^(--[\w-]+)\s*(?::|-(?=\s))?(.*)$/;
+
+/**
+ * @param text the text after a `@prop`/`@cssprop` tag
+ * @returns the custom property name and description, or `undefined` if `text` doesn't start
+ * with a custom property name
+ */
+export const parseCustomPropertyTag = (
+  text: string,
+): { name: string; docs: string } | undefined => {
+  const match = text.trim().match(CUSTOM_PROPERTY_TAG_RE);
+  return match ? { name: match[1], docs: match[2].trim() } : undefined;
+};

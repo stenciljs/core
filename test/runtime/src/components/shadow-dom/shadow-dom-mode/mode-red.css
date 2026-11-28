@@ -1,0 +1,8 @@
+:host {
+  display: block;
+  padding: 100px;
+  background: red;
+  color: white;
+  font-weight: bold;
+  font-size: 32px;
+}

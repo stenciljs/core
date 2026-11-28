@@ -1,0 +1,36 @@
+<another-car-list cars="[{&quot;make&quot;:&quot;VW&quot;,&quot;model&quot;:&quot;Vento&quot;,&quot;year&quot;:2024},{&quot;make&quot;:&quot;VW&quot;,&quot;model&quot;:&quot;Beetle&quot;,&quot;year&quot;:2023}]" custom-hydrate-flag="">
+  <template shadowrootmode="open">
+    <style sty-id="sc-another-car-list">
+      :host{display:block;margin:10px;padding:10px;border:1px solid blue}ul{display:block;margin:0;padding:0}li{list-style:none;margin:0;padding:20px}.selected{font-weight:bold;background:rgb(255, 255, 210)}
+    </style>
+    <ul>
+      <li>
+        <another-car-detail custom-hydrate-flag="">
+          <template shadowrootmode="open">
+            <style sty-id="sc-another-car-detail">
+              section{color:green}
+            </style>
+            <section>
+              2024 VW Vento
+            </section>
+          </template>
+          <!---->
+        </another-car-detail>
+      </li>
+      <li>
+        <another-car-detail custom-hydrate-flag="">
+          <template shadowrootmode="open">
+            <style sty-id="sc-another-car-detail">
+              section{color:green}
+            </style>
+            <section>
+              2023 VW Beetle
+            </section>
+          </template>
+          <!---->
+        </another-car-detail>
+      </li>
+    </ul>
+  </template>
+  <!---->
+</another-car-list>

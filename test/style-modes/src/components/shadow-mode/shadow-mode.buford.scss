@@ -1,7 +1,0 @@
-@import "shadow-mode";
-
-:host {
-  background: black; /* _partial should override this */
-}
-
-@import "../../scss/_partial";

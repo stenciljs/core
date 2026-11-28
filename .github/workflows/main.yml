@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - 'main'
-      - 'stencil/v4-dev'
+      - 'v5'
   pull_request:
     branches:
       - '**'
@@ -18,76 +18,124 @@ permissions:
   contents: read
 
 jobs:
-  build_core:
+  # Build runs first
+  build:
     name: Build
     uses: ./.github/workflows/build.yml
 
-  lint_and_format:
-    name: Lint and Format
-    uses: ./.github/workflows/lint-and-format.yml
-
-  type_tests:
-    name: Type Tests
-    needs: [build_core]
-    uses: ./.github/workflows/test-types.yml
-
-  analysis_tests:
-    name: Analysis Tests
-    needs: [build_core]
-    uses: ./.github/workflows/test-analysis.yml
-
-  docs_build_tests:
-    name: Docs Build Tests
-    needs: [build_core]
-    uses: ./.github/workflows/test-docs-build.yml
-
-  bundler_tests:
-    name: Bundler Tests
-    needs: [build_core]
-    uses: ./.github/workflows/test-bundlers.yml
-
-  copytask_tests:
-    name: Copy Task Tests
-    needs: [build_core]
-    uses: ./.github/workflows/test-copytask.yml
-
-  component_starter_tests:
-    name: Component Starter Smoke Test
-    needs: [build_core]
-    uses: ./.github/workflows/test-component-starter.yml
-
-  e2e_tests:
-    name: E2E Tests
-    needs: [build_core]
-    uses: ./.github/workflows/test-e2e.yml
+  # Everything else runs in parallel after build
+  quality:
+    name: Quality
+    needs: [build]
+    uses: ./.github/workflows/quality.yml
 
   unit_tests:
     name: Unit Tests
-    needs: [build_core]
+    needs: [build]
     uses: ./.github/workflows/test-unit.yml
 
-  wdio_tests:
-    name: WebdriverIO Tests
-    needs: [build_core]
-    uses: ./.github/workflows/test-wdio.yml
+  build_tests:
+    name: Build Tests
+    needs: [build]
+    uses: ./.github/workflows/test-build.yml
+
+  integration_tests:
+    name: Integration Tests
+    needs: [build]
+    uses: ./.github/workflows/test-integration.yml
+
+  runtime_tests:
+    name: Runtime Tests
+    needs: [build]
+    uses: ./.github/workflows/test-runtime.yml
+
+  special_config_tests:
+    name: Special Config Tests
+    needs: [build]
+    uses: ./.github/workflows/test-special-config.yml
+
+  ssr_tests:
+    name: SSR Tests
+    needs: [build]
+    uses: ./.github/workflows/test-ssr.yml
+
+  ssr_wasm_tests:
+    name: SSR WASM Tests
+    needs: [build]
+    uses: ./.github/workflows/test-ssr-wasm.yml
+
+  component_starter_tests:
+    name: Component Starter Smoke Test
+    needs: [build]
+    uses: ./.github/workflows/test-component-starter.yml
 
   # Only run on push (post-merge baseline tracking) or on a PR explicitly opted
-  # in via the "Build Performance"/"Runtime Performance" labels - most PRs don't
+  # in via the "Build Performance"/"SSR Performance"/"Runtime Performance" labels - most PRs don't
   # touch perf-sensitive code, and CodSpeed minutes are limited. These run as
   # normal jobs of this workflow: an unlabeled PR just shows them as skipped (a
   # terminal state), so nothing here ever blocks re-running another job in this
   # same run.
+  #
+  # Labels are read from the API, not the event payload: a re-run replays the original payload,
+  # so a label added after the run started would otherwise be missed.
+  perf_labels:
+    name: Perf Benchmark - Labels
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      build: ${{ steps.labels.outputs.build }}
+      ssr: ${{ steps.labels.outputs.ssr }}
+      runtime: ${{ steps.labels.outputs.runtime }}
+    steps:
+      - name: Read Labels
+        id: labels
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          labels=''
+          if [ "$EVENT_NAME" = 'pull_request' ]; then
+            labels=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json labels --jq '.labels[].name') ||
+              { echo '::warning::Could not read PR labels; skipping perf benchmarks'; labels=''; }
+          fi
+          has() { grep -qxF "$1" <<< "$labels" && echo true || echo false; }
+          if [ "$EVENT_NAME" = 'push' ]; then
+            echo 'build=true' >> "$GITHUB_OUTPUT"
+            echo 'ssr=true' >> "$GITHUB_OUTPUT"
+          else
+            echo "build=$(has 'Build Performance')" >> "$GITHUB_OUTPUT"
+            echo "ssr=$(has 'SSR Performance')" >> "$GITHUB_OUTPUT"
+          fi
+          # no base to diff against on push
+          echo "runtime=$(has 'Runtime Performance')" >> "$GITHUB_OUTPUT"
+
   perf_build_benchmark:
     name: Perf Benchmark - Build
-    needs: [build_core]
+    needs: [build, perf_labels]
+    if: ${{ needs.perf_labels.outputs.build == 'true' }}
     uses: ./.github/workflows/test-perf-build.yml
+    permissions:
+      contents: read
+      id-token: write
+
+  perf_ssr_benchmark:
+    name: Perf Benchmark - SSR
+    needs: [build, perf_labels]
+    if: ${{ needs.perf_labels.outputs.ssr == 'true' }}
+    uses: ./.github/workflows/test-perf-ssr.yml
     permissions:
       contents: read
       id-token: write
 
   perf_runtime_benchmark:
     name: Perf Benchmark - Runtime
-    needs: [build_core]
+    needs: [build, perf_labels]
+    if: ${{ needs.perf_labels.outputs.runtime == 'true' }}
     uses: ./.github/workflows/test-perf-runtime.yml
     permissions:
       contents: read

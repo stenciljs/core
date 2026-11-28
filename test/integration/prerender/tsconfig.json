@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.stencil.json",
+  "exclude": ["node_modules"]
+}

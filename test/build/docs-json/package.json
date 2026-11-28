@@ -1,0 +1,50 @@
+{
+  "name": "@stencil-core-tests/build-docs-json",
+  "version": "1.0.0",
+  "description": "A test app for the docs-json output target",
+  "license": "MIT",
+  "files": [
+    "dist/",
+    "dist/collection/",
+    "custom-elements-manifest.json"
+  ],
+  "type": "module",
+  "module": "dist/standalone/index.js",
+  "types": "dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/standalone/index.js"
+    },
+    "./standalone": {
+      "types": "./dist/standalone/index.d.ts",
+      "import": "./dist/standalone/index.js"
+    },
+    "./my-component": {
+      "types": "./dist/standalone/my-component.d.ts",
+      "import": "./dist/standalone/my-component.js"
+    },
+    "./components": {
+      "types": "./dist/types/components.d.ts"
+    },
+    "./assets/*": "./dist/assets/*",
+    "./custom-elements.json": "./custom-elements-manifest.json",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "stencil build && node test-docs-json.js",
+    "build.dev": "stencil build --dev",
+    "start": "stencil build --dev --watch --serve",
+    "test": "pnpm build",
+    "test.watch": "stencil test --spec --e2e --watch",
+    "generate": "stencil generate"
+  },
+  "dependencies": {
+    "@stencil/core": "workspace:*"
+  },
+  "volta": {
+    "extends": "../../../package.json"
+  },
+  "collection": "dist/collection/collection-manifest.json",
+  "customElements": "custom-elements-manifest.json"
+}
