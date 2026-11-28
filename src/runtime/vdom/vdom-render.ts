@@ -122,12 +122,15 @@ const createElm = (oldParentVNode: d.VNode, newParentVNode: d.VNode, childIndex:
           )
     ) as any;
 
-    if (BUILD.svg && isSvgMode && newVNode.$tag$ === 'foreignObject') {
-      isSvgMode = false;
-    }
     // add css classes, attrs, props, listeners, etc.
+    // a <foreignObject> is itself an SVG element, so its own attributes must be
+    // set while still in SVG mode. only its children are HTML content
     if (BUILD.vdomAttribute) {
       updateElement(null, newVNode, isSvgMode);
+    }
+
+    if (BUILD.svg && isSvgMode && newVNode.$tag$ === 'foreignObject') {
+      isSvgMode = false;
     }
 
     if (
@@ -712,7 +715,11 @@ export const patch = (oldVNode: d.VNode, newVNode: d.VNode, isInitialRender = fa
     if (BUILD.svg) {
       // test if we're rendering an svg element, or still rendering nodes inside of one
       // only add this to the when the compiler sees we're using an svg somewhere
-      isSvgMode = tag === 'svg' ? true : tag === 'foreignObject' ? false : isSvgMode;
+      // a <foreignObject> keeps the current SVG mode here since its own attributes
+      // are SVG attributes. we leave SVG mode before patching its children below
+      if (tag === 'svg') {
+        isSvgMode = true;
+      }
     }
 
     if (BUILD.vdomAttribute || BUILD.reflect) {
@@ -726,6 +733,11 @@ export const patch = (oldVNode: d.VNode, newVNode: d.VNode, isInitialRender = fa
       // AND we already know it's possible it could have changed
       // this updates the element's css classes, attrs, props, listeners, etc.
       updateElement(oldVNode, newVNode, isSvgMode, isInitialRender);
+    }
+
+    if (BUILD.svg && isSvgMode && tag === 'foreignObject') {
+      // the children of a <foreignObject> are HTML content
+      isSvgMode = false;
     }
 
     if (BUILD.updatable && oldChildren !== null && newChildren !== null) {
@@ -761,8 +773,15 @@ export const patch = (oldVNode: d.VNode, newVNode: d.VNode, isInitialRender = fa
       newVNode.$children$ = oldChildren;
     }
 
-    if (BUILD.svg && isSvgMode && tag === 'svg') {
-      isSvgMode = false;
+    if (BUILD.svg) {
+      if (isSvgMode && tag === 'svg') {
+        // Only reset the SVG context when we're exiting <svg> element
+        isSvgMode = false;
+      } else if (elm.tagName === 'foreignObject') {
+        // Reenter SVG context when we're exiting <foreignObject> element so
+        // that its following siblings are still treated as SVG elements
+        isSvgMode = true;
+      }
     }
   } else if (BUILD.vdomText && BUILD.slotRelocation && (defaultHolder = elm['s-cr'] as any)) {
     // this element has slotted content
