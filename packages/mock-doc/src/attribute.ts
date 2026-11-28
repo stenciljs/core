@@ -1,11 +1,13 @@
 import { XLINK_NS } from './constants';
 
 const attrHandler = {
-  get(obj: any, prop: string) {
-    if (prop in obj) {
-      return obj[prop];
+  get(obj: any, prop: string | symbol) {
+    // a direct read is cheaper than `in` (a prototype walk) for the common, non-index case
+    const value = obj[prop];
+    if (value !== undefined || typeof prop === 'symbol') {
+      return value;
     }
-    if (typeof prop !== 'symbol' && !isNaN(prop as any)) {
+    if (!isNaN(prop as any)) {
       return (obj as MockAttributeMap).__items[prop as any];
     }
     return undefined;
@@ -38,14 +40,14 @@ export class MockAttributeMap {
       attr.value = String(attr.value);
     }
 
-    const existingAttr = this.__items.find(
-      (a) => a.localName === attr.localName && a.namespaceURI === attr.namespaceURI,
-    );
-    if (existingAttr != null) {
-      existingAttr.value = attr.value;
-    } else {
-      this.__items.push(attr);
+    const items = this.__items;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].localName === attr.localName && items[i].namespaceURI === attr.namespaceURI) {
+        items[i].value = attr.value;
+        return;
+      }
     }
+    items.push(attr);
   }
 
   getNamedItem(attrName: string) {
@@ -57,12 +59,14 @@ export class MockAttributeMap {
 
   getNamedItemNS(namespaceURI: string | null, attrName: string) {
     namespaceURI = getNamespaceURI(namespaceURI);
-    return (
-      this.__items.find(
-        (attr) =>
-          attr.localName === attrName && getNamespaceURI(attr.namespaceURI) === namespaceURI,
-      ) || null
-    );
+    const items = this.__items;
+    for (let i = 0; i < items.length; i++) {
+      const attr = items[i];
+      if (attr.localName === attrName && getNamespaceURI(attr.namespaceURI) === namespaceURI) {
+        return attr;
+      }
+    }
+    return null;
   }
 
   removeNamedItem(attr: MockAttr) {
@@ -70,12 +74,10 @@ export class MockAttributeMap {
   }
 
   removeNamedItemNS(attr: MockAttr) {
-    for (let i = 0, ii = this.__items.length; i < ii; i++) {
-      if (
-        this.__items[i].localName === attr.localName &&
-        this.__items[i].namespaceURI === attr.namespaceURI
-      ) {
-        this.__items.splice(i, 1);
+    const items = this.__items;
+    for (let i = 0, ii = items.length; i < ii; i++) {
+      if (items[i].localName === attr.localName && items[i].namespaceURI === attr.namespaceURI) {
+        items.splice(i, 1);
         break;
       }
     }

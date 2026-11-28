@@ -1,0 +1,26 @@
+{
+  "name": "@stencil-core-tests/perf-ssr-benchmark",
+  "version": "0.0.1",
+  "private": true,
+  "files": [
+    "dist/"
+  ],
+  "type": "module",
+  "types": "dist/types/components.d.ts",
+  "scripts": {
+    "build": "stencil build",
+    "test": "stencil build && node --expose-gc benchmark-ssr.mjs",
+    "benchmark:codspeed": "node benchmark-codspeed.mjs"
+  },
+  "dependencies": {
+    "@stencil/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@codspeed/tinybench-plugin": "6.1.0",
+    "tinybench": "6.2.3"
+  },
+  "volta": {
+    "extends": "../../../package.json"
+  },
+  "collection": "dist/collection/collection-manifest.json"
+}

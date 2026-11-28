@@ -485,11 +485,21 @@ export class MockElement extends MockNode {
   }
 
   get children() {
-    return this.childNodes.filter((n) => n.nodeType === NODE_TYPES.ELEMENT_NODE) as MockElement[];
+    const nodes = this.childNodes;
+    const elements: MockElement[] = [];
+    for (let i = 0; i < nodes.length; i++) {
+      if (nodes[i].nodeType === NODE_TYPES.ELEMENT_NODE) elements.push(nodes[i] as MockElement);
+    }
+    return elements;
   }
 
   get childElementCount() {
-    return this.childNodes.filter((n) => n.nodeType === NODE_TYPES.ELEMENT_NODE).length;
+    const nodes = this.childNodes;
+    let count = 0;
+    for (let i = 0; i < nodes.length; i++) {
+      if (nodes[i].nodeType === NODE_TYPES.ELEMENT_NODE) count++;
+    }
+    return count;
   }
 
   get className() {
@@ -548,7 +558,11 @@ export class MockElement extends MockNode {
   }
 
   get firstElementChild(): MockElement | null {
-    return this.children[0] || null;
+    const nodes = this.childNodes;
+    for (let i = 0; i < nodes.length; i++) {
+      if (nodes[i].nodeType === NODE_TYPES.ELEMENT_NODE) return nodes[i] as MockElement;
+    }
+    return null;
   }
 
   focus(_options?: { preventScroll?: boolean }) {

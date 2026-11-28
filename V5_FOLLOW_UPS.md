@@ -9,7 +9,7 @@ Open work left over from v5. User-facing changes are recorded in [BREAKING_CHANG
 - **`signalBacking` default.** Flip to `true` once there's adoption feedback.
 - **`hasElement` / `BUILD.element`.** `hasElement` is never set and nothing in the runtime reads `BUILD.element`. Remove both?
 - **Stricter CSS parsing.** lightningcss rejects invalid CSS that v4 passed through (e.g. `::slotted(a, b)`, `@supports not selector(a) and selector(b)` in ionicons' `node_modules` CSS). Document as breaking, or warn and pass the rule through unchanged.
-- **Islands / streaming SSR.** `streamToString` (`server/runner/render.ts`) renders the whole page then enqueues it once. Proposal pending sign-off.
+- **Real `<slot>` elements for non-shadow components (#6726, closed).** Simplifies the slot polyfill, but its fallback CSS needs `:has()` (Chrome/Edge 105, Firefox 121), above v5's Chrome/Edge 94 / Firefox 93 floor; also changes every SSR / spec snapshot. Separate piece of work if revived.
 
 ## Clean-up
 
@@ -27,8 +27,9 @@ Open work left over from v5. User-facing changes are recorded in [BREAKING_CHANG
 - `create-stencil`: publish the shim that runs `npx @stencil/cli@latest init` (npm `latest` is still 4.0.2).
 - `@stencil/storybook-plugin` (separate repo): show CEM `tags` in the docs panel; tests for `parseLiteralValues()` / `inferSBType()` / `inferControlType()`; migration guide from the community plugin.
 - Build chain: tsgo.
-- SSR render speed (measured on Ionic: -16% to -49% per render together): memoize `scopeCss` / `expandPartSelectors` across renders (`runtime/initialize-component.ts`); a single-pass mock-doc serializer in place of the generator one; `MockAttributeMap` lookups without the Proxy round trips and `find`; loops instead of `filter` for `children` / `childElementCount` / `firstElementChild`; cache nwsapi's selector parse across documents. Add an SSR benchmark to CodSpeed first.
-- SSR peak memory: ~445 MB vs ~279 MB for Stencil 4 rendering Ionic's pages. Investigate.
+- SSR primitives so islands / streaming can be built by meta-framework integrations or third parties: hydration ids per render (fragment renders share one process-wide counter, so parallel renders collide); per-element hydration deferral (the community `defer-hydration` attribute); a `streamToString` that actually streams (`server/runner/render.ts` renders the whole page, then enqueues it once) and fragment results that list the components and styles used; check whether the dev client still hydrates scoped pages blank (it adds a `<style>` to the shadow root before hydrating, so the server's nodes aren't moved in).
+- SSR render cost left after `test/perf/ssr-benchmark`'s fixes: per-document nwsapi instances re-parse every selector (`closest()` per component); the platform is re-evaluated per full-document render. Its CodSpeed job (`test-perf-ssr.yml`, "SSR Performance" label) hasn't had a CI run yet.
+- SSR peak memory vs Stencil 4 (reported for Ionic: ~445 MB vs ~279 MB) doesn't reproduce on `test/perf/ssr-benchmark` built with both (v4.45.3 390-404 MB, v5 363-370 MB peak RSS, same Node). Peak RSS there is V8 heap sizing, not retention: live heap after GC is ~10-16 MB. Confirming Ionic itself needs a v5 build of Ionic.
 - `stencil build`: `detectMigrations` parses every source file with `ts.createSourceFile` before every build (~12% of a cold Ionic build). Add a cheap per-rule text check before parsing.
 - `transpileSync` per file is ~15-25% slower than Stencil 4's. Profile.
 - Windows (unverified): `appendGlobalScripts` (`bundle/app-data-plugin.ts`) imports the global script by its forward-slash path while components resolve it to the backslash path, so the module may be bundled twice (Ionic's mode reads `undefined`).
@@ -39,6 +40,7 @@ Open work left over from v5. User-facing changes are recorded in [BREAKING_CHANG
 
 ## Docs gaps (stencil-site)
 
+- Hydrate app memory: Node's young generation grows to 128 MB under SSR load. `--max-semi-space-size=16` cut peak RSS ~47% on the SSR benchmark (median +6-12%, p95 -9-15%)
 - Hydrate app: `module.enableCompileCache()` and a warm-up render before serving (cold first render 55 ms -> 10 ms on a small page)
 - `config.modes`
 - `docs-readme` `customColumns`
