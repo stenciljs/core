@@ -70,6 +70,7 @@ export const STATIC_GETTER_NAMES = [
   'watchers',
   'serializers',
   'deserializers',
+  'typeParameters',
 ] as const;
 
 export type StencilStaticGetter = (typeof STATIC_GETTER_NAMES)[number];

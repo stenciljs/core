@@ -13,9 +13,10 @@ import { ImportAliasMap } from './import-alias-map';
 import { listenDecoratorsToStatic } from './listen-decorator';
 import { methodDecoratorsToStatic, validateMethods } from './method-decorator';
 import { propDecoratorsToStatic } from './prop-decorator';
-import { stateDecoratorsToStatic } from './state-decorator';
-import { watchDecoratorsToStatic } from './watch-decorator';
 import { serializeDecoratorsToStatic } from './serialize-decorators';
+import { stateDecoratorsToStatic } from './state-decorator';
+import { typeParametersToStatic } from './type-parameters';
+import { watchDecoratorsToStatic } from './watch-decorator';
 
 /**
  * Create a {@link ts.TransformerFactory} which will handle converting any
@@ -114,6 +115,7 @@ const visitClassDeclaration = (
       filteredMethodsAndFields,
       componentDecorator,
     );
+    typeParametersToStatic(typeChecker, program, sourceFile, classNode, filteredMethodsAndFields);
   }
 
   // stores a reference to fields that should be watched for changes

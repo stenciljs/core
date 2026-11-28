@@ -162,6 +162,7 @@ function getComponentsFileMap(config: d.ValidatedConfig, buildCtx: d.BuildCtx) {
       properties: component.properties,
       shadowDelegatesFocus: component.shadowDelegatesFocus,
       states: component.states,
+      typeParameters: component.typeParameters,
     };
   });
 }

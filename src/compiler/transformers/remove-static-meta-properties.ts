@@ -53,5 +53,6 @@ const STATIC_GETTERS_TO_REMOVE = [
   'styleUrl',
   'styleUrls',
   'styles',
+  'typeParameters',
   'watchers',
 ] as const satisfies readonly StencilStaticGetter[];

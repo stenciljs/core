@@ -22,13 +22,17 @@ export const updateReferenceTypeImports = (
 ): d.TypesImportData => {
   const updateImportReferences = updateImportReferenceFactory(typeCounts, filePath, config);
 
+  const typeParameterReferences = (cmp.typeParameters ?? []).map((typeParameter) => typeParameter.references);
+
   return [...cmp.properties, ...cmp.events, ...cmp.methods]
     .filter(
       (cmpProp: d.ComponentCompilerProperty | d.ComponentCompilerEvent | d.ComponentCompilerMethod) =>
         cmpProp.complexType && cmpProp.complexType.references,
     )
-    .reduce((typesImportData: d.TypesImportData, cmpProp) => {
-      return updateImportReferences(typesImportData, cmpProp.complexType.references);
+    .map((cmpProp) => cmpProp.complexType.references)
+    .concat(typeParameterReferences)
+    .reduce((typesImportData: d.TypesImportData, references) => {
+      return updateImportReferences(typesImportData, references);
     }, importDataObj);
 };
 
