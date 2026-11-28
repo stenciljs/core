@@ -186,6 +186,79 @@ describe('transpile() – cross-file class extension', () => {
     expect(propNames.filter((n: string) => n === 'baseProp')).toHaveLength(1);
   });
 
+  describe('inherited @Element()', () => {
+    const baseCode = `
+      import { Element, Prop } from '@stencil/core';
+      export class ElBase {
+        @Element() el: HTMLElement;
+        @Prop() baseProp: string;
+        get tag() { return this.el.tagName; }
+      }
+    `;
+    const cmpCode = `
+      import { Component, h } from '@stencil/core';
+      import { ElBase } from './el-base';
+
+      @Component({ tag: 'my-component' })
+      export class MyComponent extends ElBase {
+        render() { return <div>{this.el.tagName}</div>; }
+      }
+    `;
+    const resolveImport = (specifier: string) =>
+      specifier === './el-base' ? { code: baseCode, path: '/virtual/el-base.ts' } : null;
+
+    it('adds the element getter to the extending component (resolveImport)', async () => {
+      const results = await transpile(cmpCode, {
+        file: 'my-component.tsx',
+        target: 'es2022',
+        resolveImport,
+      });
+
+      expect(results.diagnostics).toHaveLength(0);
+      expect(results.data?.[0].elementRef).toBe('el');
+      expect(results.code).toContain('get el() { return this; }');
+    });
+
+    it('keeps no element field on the base class, so it cannot shadow the getter', async () => {
+      const results = await transpile(baseCode, {
+        file: '/virtual/el-base.ts',
+        target: 'es2022',
+        transformAsBaseClass: true,
+      });
+
+      expect(results.diagnostics).toHaveLength(0);
+      expect(results.code).not.toMatch(/^\s*el;/m);
+      expect(results.code).toContain('baseProp;');
+    });
+
+    it('resolves a same-file base class (full-compiler path)', async () => {
+      const results = await transpile(
+        `
+        import { Component, Element, h } from '@stencil/core';
+
+        class ElBase {
+          @Element() el: HTMLElement;
+        }
+
+        @Component({ tag: 'my-component' })
+        export class MyComponent extends ElBase {
+          render() { return <div>{this.el.tagName}</div>; }
+        }
+        `,
+        {
+          file: join(fixturesDir, 'my-component.tsx'),
+          target: 'es2022',
+          currentDirectory: fixturesDir,
+        },
+      );
+
+      expect(results.diagnostics).toHaveLength(0);
+      expect(results.data?.[0].elementRef).toBe('el');
+      expect(results.code).toContain('get el() { return this; }');
+      expect(results.code).not.toMatch(/^\s*el;/m);
+    });
+  });
+
   it('resolves a base class declared in the same file (full-compiler path)', async () => {
     const results = await transpile(
       `

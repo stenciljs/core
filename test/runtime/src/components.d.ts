@@ -307,6 +307,10 @@ export namespace Components {
     }
     interface EventListenerCapture {
     }
+    interface ExcludeComponentRoot {
+    }
+    interface ExcludedComponent {
+    }
     interface ExtendedCmp {
         /**
           * @default 'getter default value'
@@ -454,6 +458,12 @@ export namespace Components {
         "getIsRunning": () => Promise<boolean>;
         "getTime": () => Promise<string>;
         "toggle": () => Promise<void>;
+    }
+    interface ExtendsElement {
+        /**
+          * @default "base"
+         */
+        "label": string;
     }
     interface ExtendsEvents {
     }
@@ -1895,6 +1905,18 @@ declare global {
         prototype: HTMLEventListenerCaptureElement;
         new (): HTMLEventListenerCaptureElement;
     };
+    interface HTMLExcludeComponentRootElement extends Components.ExcludeComponentRoot, HTMLStencilElement {
+    }
+    var HTMLExcludeComponentRootElement: {
+        prototype: HTMLExcludeComponentRootElement;
+        new (): HTMLExcludeComponentRootElement;
+    };
+    interface HTMLExcludedComponentElement extends Components.ExcludedComponent, HTMLStencilElement {
+    }
+    var HTMLExcludedComponentElement: {
+        prototype: HTMLExcludedComponentElement;
+        new (): HTMLExcludedComponentElement;
+    };
     interface HTMLExtendedCmpElement extends Components.ExtendedCmp, HTMLStencilElement {
     }
     var HTMLExtendedCmpElement: {
@@ -1968,6 +1990,12 @@ declare global {
     var HTMLExtendsDirectStateElement: {
         prototype: HTMLExtendsDirectStateElement;
         new (): HTMLExtendsDirectStateElement;
+    };
+    interface HTMLExtendsElementElement extends Components.ExtendsElement, HTMLStencilElement {
+    }
+    var HTMLExtendsElementElement: {
+        prototype: HTMLExtendsElementElement;
+        new (): HTMLExtendsElementElement;
     };
     interface HTMLExtendsEventsElement extends Components.ExtendsEvents, HTMLStencilElement {
     }
@@ -3334,6 +3362,8 @@ declare global {
         "event-basic": HTMLEventBasicElement;
         "event-custom-type": HTMLEventCustomTypeElement;
         "event-listener-capture": HTMLEventListenerCaptureElement;
+        "exclude-component-root": HTMLExcludeComponentRootElement;
+        "excluded-component": HTMLExcludedComponentElement;
         "extended-cmp": HTMLExtendedCmpElement;
         "extended-cmp-cmp": HTMLExtendedCmpCmpElement;
         "extends-abstract": HTMLExtendsAbstractElement;
@@ -3341,6 +3371,7 @@ declare global {
         "extends-conflicts": HTMLExtendsConflictsElement;
         "extends-controller-updates": HTMLExtendsControllerUpdatesElement;
         "extends-direct-state": HTMLExtendsDirectStateElement;
+        "extends-element": HTMLExtendsElementElement;
         "extends-events": HTMLExtendsEventsElement;
         "extends-external": HTMLExtendsExternalElement;
         "extends-external-abstract": HTMLExtendsExternalAbstractElement;
@@ -3814,6 +3845,10 @@ declare namespace LocalJSX {
     }
     interface EventListenerCapture {
     }
+    interface ExcludeComponentRoot {
+    }
+    interface ExcludedComponent {
+    }
     interface ExtendedCmp {
         /**
           * @default 'getter default value'
@@ -3915,6 +3950,12 @@ declare namespace LocalJSX {
      * @State directly
      */
     interface ExtendsDirectState {
+    }
+    interface ExtendsElement {
+        /**
+          * @default "base"
+         */
+        "label"?: string;
     }
     interface ExtendsEvents {
     }
@@ -4856,6 +4897,9 @@ declare namespace LocalJSX {
         "baseOnlyProp": string;
         "duplicateProp": string;
     }
+    interface ExtendsElementAttributes {
+        "label": string;
+    }
     interface ExtendsExternalAttributes {
         "getterProp": string;
         "prop2": string;
@@ -5126,6 +5170,8 @@ declare namespace LocalJSX {
         "event-basic": EventBasic;
         "event-custom-type": EventCustomType;
         "event-listener-capture": EventListenerCapture;
+        "exclude-component-root": ExcludeComponentRoot;
+        "excluded-component": ExcludedComponent;
         "extended-cmp": Omit<ExtendedCmp, keyof ExtendedCmpAttributes> & { [K in keyof ExtendedCmp & keyof ExtendedCmpAttributes]?: ExtendedCmp[K] } & { [K in keyof ExtendedCmp & keyof ExtendedCmpAttributes as `attr:${K}`]?: ExtendedCmpAttributes[K] } & { [K in keyof ExtendedCmp & keyof ExtendedCmpAttributes as `prop:${K}`]?: ExtendedCmp[K] };
         "extended-cmp-cmp": Omit<ExtendedCmpCmp, keyof ExtendedCmpCmpAttributes> & { [K in keyof ExtendedCmpCmp & keyof ExtendedCmpCmpAttributes]?: ExtendedCmpCmp[K] } & { [K in keyof ExtendedCmpCmp & keyof ExtendedCmpCmpAttributes as `attr:${K}`]?: ExtendedCmpCmpAttributes[K] } & { [K in keyof ExtendedCmpCmp & keyof ExtendedCmpCmpAttributes as `prop:${K}`]?: ExtendedCmpCmp[K] };
         "extends-abstract": Omit<ExtendsAbstract, keyof ExtendsAbstractAttributes> & { [K in keyof ExtendsAbstract & keyof ExtendsAbstractAttributes]?: ExtendsAbstract[K] } & { [K in keyof ExtendsAbstract & keyof ExtendsAbstractAttributes as `attr:${K}`]?: ExtendsAbstractAttributes[K] } & { [K in keyof ExtendsAbstract & keyof ExtendsAbstractAttributes as `prop:${K}`]?: ExtendsAbstract[K] };
@@ -5133,6 +5179,7 @@ declare namespace LocalJSX {
         "extends-conflicts": Omit<ExtendsConflicts, keyof ExtendsConflictsAttributes> & { [K in keyof ExtendsConflicts & keyof ExtendsConflictsAttributes]?: ExtendsConflicts[K] } & { [K in keyof ExtendsConflicts & keyof ExtendsConflictsAttributes as `attr:${K}`]?: ExtendsConflictsAttributes[K] } & { [K in keyof ExtendsConflicts & keyof ExtendsConflictsAttributes as `prop:${K}`]?: ExtendsConflicts[K] };
         "extends-controller-updates": ExtendsControllerUpdates;
         "extends-direct-state": ExtendsDirectState;
+        "extends-element": Omit<ExtendsElement, keyof ExtendsElementAttributes> & { [K in keyof ExtendsElement & keyof ExtendsElementAttributes]?: ExtendsElement[K] } & { [K in keyof ExtendsElement & keyof ExtendsElementAttributes as `attr:${K}`]?: ExtendsElementAttributes[K] } & { [K in keyof ExtendsElement & keyof ExtendsElementAttributes as `prop:${K}`]?: ExtendsElement[K] };
         "extends-events": ExtendsEvents;
         "extends-external": Omit<ExtendsExternal, keyof ExtendsExternalAttributes> & { [K in keyof ExtendsExternal & keyof ExtendsExternalAttributes]?: ExtendsExternal[K] } & { [K in keyof ExtendsExternal & keyof ExtendsExternalAttributes as `attr:${K}`]?: ExtendsExternalAttributes[K] } & { [K in keyof ExtendsExternal & keyof ExtendsExternalAttributes as `prop:${K}`]?: ExtendsExternal[K] };
         "extends-external-abstract": Omit<ExtendsExternalAbstract, keyof ExtendsExternalAbstractAttributes> & { [K in keyof ExtendsExternalAbstract & keyof ExtendsExternalAbstractAttributes]?: ExtendsExternalAbstract[K] } & { [K in keyof ExtendsExternalAbstract & keyof ExtendsExternalAbstractAttributes as `attr:${K}`]?: ExtendsExternalAbstractAttributes[K] } & { [K in keyof ExtendsExternalAbstract & keyof ExtendsExternalAbstractAttributes as `prop:${K}`]?: ExtendsExternalAbstract[K] };
@@ -5400,6 +5447,8 @@ declare module "@stencil/core" {
             "event-basic": LocalJSX.IntrinsicElements["event-basic"] & JSXBase.HTMLAttributes<HTMLEventBasicElement>;
             "event-custom-type": LocalJSX.IntrinsicElements["event-custom-type"] & JSXBase.HTMLAttributes<HTMLEventCustomTypeElement>;
             "event-listener-capture": LocalJSX.IntrinsicElements["event-listener-capture"] & JSXBase.HTMLAttributes<HTMLEventListenerCaptureElement>;
+            "exclude-component-root": LocalJSX.IntrinsicElements["exclude-component-root"] & JSXBase.HTMLAttributes<HTMLExcludeComponentRootElement>;
+            "excluded-component": LocalJSX.IntrinsicElements["excluded-component"] & JSXBase.HTMLAttributes<HTMLExcludedComponentElement>;
             "extended-cmp": LocalJSX.IntrinsicElements["extended-cmp"] & JSXBase.HTMLAttributes<HTMLExtendedCmpElement>;
             "extended-cmp-cmp": LocalJSX.IntrinsicElements["extended-cmp-cmp"] & JSXBase.HTMLAttributes<HTMLExtendedCmpCmpElement>;
             /**
@@ -5439,6 +5488,7 @@ declare module "@stencil/core" {
              * @State directly
              */
             "extends-direct-state": LocalJSX.IntrinsicElements["extends-direct-state"] & JSXBase.HTMLAttributes<HTMLExtendsDirectStateElement>;
+            "extends-element": LocalJSX.IntrinsicElements["extends-element"] & JSXBase.HTMLAttributes<HTMLExtendsElementElement>;
             "extends-events": LocalJSX.IntrinsicElements["extends-events"] & JSXBase.HTMLAttributes<HTMLExtendsEventsElement>;
             /**
              * A component that extends from an external library's component class.

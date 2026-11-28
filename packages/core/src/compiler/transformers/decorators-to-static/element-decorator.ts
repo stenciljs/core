@@ -5,12 +5,20 @@ import { buildError } from '../../../utils';
 import { createStaticGetter, retrieveTsDecorators } from '../transform-utils';
 import { isDecoratorNamed } from './decorator-utils';
 
+/**
+ * Adds a static `elementRef` getter for an `@Element()` field.
+ * @param diagnostics for surfacing errors
+ * @param decoratedMembers the class's decorated members
+ * @param newMembers out param: the class's members, receiving the static getter
+ * @param decoratorName the local name `Element` is imported as
+ * @returns the names of the `@Element()` fields
+ */
 export const elementDecoratorsToStatic = (
   diagnostics: d.Diagnostic[],
   decoratedMembers: ts.ClassElement[],
   newMembers: ts.ClassElement[],
   decoratorName: string,
-) => {
+): string[] => {
   const elementRefs = decoratedMembers
     .filter(ts.isPropertyDeclaration)
     .map((prop) => parseElementDecorator(prop, decoratorName))
@@ -25,6 +33,7 @@ export const elementDecoratorsToStatic = (
       error.messageText = `It's not valid to add more than one Element() decorator`;
     }
   }
+  return elementRefs;
 };
 
 const parseElementDecorator = (

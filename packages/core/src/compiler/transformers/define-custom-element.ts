@@ -32,6 +32,8 @@ export const defineCustomElement = (
 };
 
 const addDefineCustomElement = (moduleFile: d.Module, compilerMeta: d.ComponentCompilerMeta) => {
+  addCoreRuntimeApi(moduleFile, RUNTIME_APIS.transformTag);
+
   if (compilerMeta.isPlain) {
     // add customElements.define(transformTag('cmp-a'), CmpClass);
     return ts.factory.createExpressionStatement(
@@ -53,7 +55,6 @@ const addDefineCustomElement = (moduleFile: d.Module, compilerMeta: d.ComponentC
     );
   }
 
-  addCoreRuntimeApi(moduleFile, RUNTIME_APIS.transformTag);
   addCoreRuntimeApi(moduleFile, RUNTIME_APIS.defineCustomElement);
   const compactMeta: d.ComponentRuntimeMetaCompact = formatComponentRuntimeMeta(compilerMeta, true);
 

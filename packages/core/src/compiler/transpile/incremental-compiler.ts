@@ -42,12 +42,11 @@ export function createCachingCompilerHost(options: ts.CompilerOptions): CachingC
   const fileExistsCache = new Map<string, boolean>();
   const fileVersionCache = new Map<string, string>();
 
-  // Compute a version string from file content (simple hash)
+  // Must change whenever the content does: the builder program skips files whose version is unchanged.
+  // Without a hasher (browser `sys`), the text itself is the version.
   function computeVersion(text: string | undefined): string {
     if (text === undefined) return '';
-    // Simple version: use content length + first/last chars as a quick hash
-    // For production, could use a proper hash, but this is fast and effective
-    return `${text.length}-${text.charCodeAt(0) || 0}-${text.charCodeAt(text.length - 1) || 0}`;
+    return ts.sys.createHash?.(text) ?? text;
   }
 
   // Override readFile with caching

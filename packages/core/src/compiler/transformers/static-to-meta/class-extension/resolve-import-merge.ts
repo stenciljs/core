@@ -4,6 +4,7 @@ import type * as d from '@stencil/core';
 import { augmentDiagnosticWithNode, buildWarn } from '../../../../utils';
 import { convertDecoratorsToStatic } from '../../decorators-to-static/convert-decorators';
 import { isStaticGetter } from '../../transform-utils';
+import { parseStaticElementRef } from '../element-ref';
 import { parseStaticEvents } from '../events';
 import { parseStaticListeners } from '../listeners';
 import { parseStaticMethods } from '../methods';
@@ -356,6 +357,7 @@ type AncestorMeta = {
   // absent from the `extractInheritedMetaFromClass` fallback, which doesn't read these decorators
   serializers?: d.ComponentCompilerChangeHandler[];
   deserializers?: d.ComponentCompilerChangeHandler[];
+  elementRef: string | null;
   methodNames: string[];
 };
 
@@ -398,6 +400,7 @@ function extractAncestorMeta(
         'serializers',
         'deserializers',
         'methods',
+        'elementRef',
       ].includes(m.name.text),
   );
 
@@ -460,6 +463,7 @@ function extractAncestorMeta(
     watchers: parseStaticWatchers(resolvedStaticMembers) ?? [],
     serializers: parseStaticSerializers(resolvedStaticMembers, 'serializers') ?? [],
     deserializers: parseStaticSerializers(resolvedStaticMembers, 'deserializers') ?? [],
+    elementRef: parseStaticElementRef(resolvedStaticMembers),
     methodNames: resolvedClassNode.members
       .filter(ts.isMethodDeclaration)
       .map((m) => (ts.isIdentifier(m.name) ? m.name.text : ''))
@@ -505,6 +509,7 @@ export function mergeExtendedClassMetaWithResolveImport(
     .filter(Boolean);
   let serializers = parseStaticSerializers(staticMembers, 'serializers');
   let deserializers = parseStaticSerializers(staticMembers, 'deserializers');
+  let elementRef = parseStaticElementRef(staticMembers);
 
   const ancestors: AncestorEntry[] = [];
   resolveAncestors(
@@ -541,6 +546,7 @@ export function mergeExtendedClassMetaWithResolveImport(
       ...deserializers,
     ];
     classMethods = [...classMethods, ...parentMeta.methodNames];
+    elementRef ??= parentMeta.elementRef;
   });
 
   return {
@@ -554,5 +560,6 @@ export function mergeExtendedClassMetaWithResolveImport(
     classMethods,
     serializers,
     deserializers,
+    elementRef,
   };
 }

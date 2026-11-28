@@ -275,7 +275,7 @@ const insertPolyfillHostInCssText = (cssText: string) => {
 
   // Now restore the original @supports selector conditions
   supportsBlocks.forEach((originalSelector, index) => {
-    cssText = cssText.replace(`__supports_${index}__`, originalSelector);
+    cssText = cssText.replace(`__supports_${index}__`, () => originalSelector);
   });
 
   return cssText;
@@ -671,7 +671,7 @@ export const scopeCss = (cssText: string, scopeId: string, commentOriginalSelect
 
   if (commentOriginalSelector) {
     orgSelectors.forEach(({ placeholder, comment }) => {
-      cssText = cssText.replace(placeholder, comment);
+      cssText = cssText.replace(placeholder, () => comment);
     });
   }
 
@@ -682,7 +682,7 @@ export const scopeCss = (cssText: string, scopeId: string, commentOriginalSelect
       escapeRegExpSpecialCharacters(slottedSelector.orgSelector) + '(?=\\s*[,{]|$)',
       'g',
     );
-    cssText = cssText.replace(regex, slottedSelector.updatedSelector);
+    cssText = cssText.replace(regex, () => slottedSelector.updatedSelector);
   });
 
   // Expand ::part(...) selectors
