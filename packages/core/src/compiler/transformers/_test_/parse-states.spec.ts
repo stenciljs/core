@@ -22,6 +22,22 @@ describe('parse states', () => {
     );
   });
 
+  it('keeps states whose names start with an underscore', async () => {
+    const t = transpileModule(`
+      @Component({tag: 'cmp-a'})
+      export class CmpA {
+        @State() _filters = [];
+      }
+    `);
+
+    expect(await formatCode(t.outputText)).toContain(
+      await formatCode(`
+        return { _filters: {} };
+    `),
+    );
+    expect(t.cmp!.states.map((s) => s.name)).toEqual(['_filters']);
+  });
+
   it('should merge extended class state meta', async () => {
     const t = transpileModule(
       `

@@ -3,6 +3,7 @@ import type * as d from '@stencil/core';
 
 import { toDashCase } from '../../../../utils';
 import { isStaticGetter } from '../../transform-utils';
+import { parseStaticElementRef } from '../element-ref';
 import { parseStaticEvents } from '../events';
 import { parseStaticListeners } from '../listeners';
 import { parseStaticMethods } from '../methods';
@@ -56,6 +57,7 @@ export interface ExtractedInheritedMeta {
   events: d.ComponentCompilerEvent[];
   listeners: d.ComponentCompilerListener[];
   watchers: d.ComponentCompilerChangeHandler[];
+  elementRef: string | null;
   methodNames: string[];
 }
 
@@ -110,7 +112,9 @@ export function extractInheritedMetaFromClass(
     (m) =>
       ts.isGetAccessorDeclaration(m) &&
       ts.isIdentifier(m.name) &&
-      ['properties', 'states', 'events', 'listeners', 'watchers', 'methods'].includes(m.name.text),
+      ['properties', 'states', 'events', 'listeners', 'watchers', 'methods', 'elementRef'].includes(
+        m.name.text,
+      ),
   );
 
   if (hasStencilStaticGetters) {
@@ -121,6 +125,7 @@ export function extractInheritedMetaFromClass(
       events: parseStaticEvents(staticMembers),
       listeners: parseStaticListeners(staticMembers),
       watchers: parseStaticWatchers(staticMembers),
+      elementRef: parseStaticElementRef(staticMembers),
       methodNames,
     };
   }
@@ -132,6 +137,7 @@ export function extractInheritedMetaFromClass(
   const events: d.ComponentCompilerEvent[] = [];
   const listeners: d.ComponentCompilerListener[] = [];
   const watchers: d.ComponentCompilerChangeHandler[] = [];
+  let elementRef: string | null = null;
 
   for (const member of classDecl.members) {
     if (!ts.isPropertyDeclaration(member) && !ts.isMethodDeclaration(member)) continue;
@@ -165,6 +171,8 @@ export function extractInheritedMetaFromClass(
           getter: false,
           setter: false,
         });
+      } else if (decName === 'Element' && ts.isPropertyDeclaration(member)) {
+        elementRef ??= memberName;
       } else if (decName === 'State' && ts.isPropertyDeclaration(member)) {
         states.push({ name: memberName });
       } else if (decName === 'Event' && ts.isPropertyDeclaration(member)) {
@@ -208,5 +216,5 @@ export function extractInheritedMetaFromClass(
     }
   }
 
-  return { properties, states, methods, events, listeners, watchers, methodNames };
+  return { properties, states, methods, events, listeners, watchers, elementRef, methodNames };
 }

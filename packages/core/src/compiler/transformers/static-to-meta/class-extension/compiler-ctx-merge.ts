@@ -10,6 +10,7 @@ import {
 import { convertDecoratorsToStatic } from '../../decorators-to-static/convert-decorators';
 import { detectModernPropDeclarations } from '../../detect-modern-prop-decls';
 import { isStaticGetter } from '../../transform-utils';
+import { parseStaticElementRef } from '../element-ref';
 import { parseStaticEvents } from '../events';
 import { parseStaticListeners } from '../listeners';
 import { parseStaticMethods } from '../methods';
@@ -604,6 +605,7 @@ export function mergeExtendedClassMeta(
     .filter(Boolean);
   let serializers = parseStaticSerializers(staticMembers, 'serializers');
   let deserializers = parseStaticSerializers(staticMembers, 'deserializers');
+  let elementRef = parseStaticElementRef(staticMembers);
 
   tree.forEach((extendedClass) => {
     const extendedStaticMembers = extendedClass.classNode.members.filter(isStaticGetter);
@@ -690,6 +692,8 @@ export function mergeExtendedClassMeta(
         .filter(Boolean),
     ];
 
+    elementRef ??= parseStaticElementRef(extendedStaticMembers);
+
     if (isMixin) hasMixin = true;
   });
 
@@ -705,5 +709,6 @@ export function mergeExtendedClassMeta(
     classMethods,
     serializers,
     deserializers,
+    elementRef,
   };
 }

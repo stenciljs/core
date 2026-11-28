@@ -39,13 +39,20 @@ const parseListenDecorators = (
     return [];
   }
 
-  return listenDecorators.map((listenDecorator) => {
+  return listenDecorators.flatMap((listenDecorator) => {
     const methodName = method.name.getText();
     const [listenText, listenOptions] = getDecoratorParameters<string, d.ListenOptions>(
       listenDecorator,
       typeChecker,
       diagnostics,
     );
+
+    if (typeof listenText !== 'string') {
+      const err = buildError(diagnostics);
+      err.messageText = `@Listen() expects an event name as a string, received ${JSON.stringify(listenText)}.`;
+      augmentDiagnosticWithNode(err, listenDecorator);
+      return [];
+    }
 
     const eventNames = listenText.split(',');
     if (eventNames.length > 1) {

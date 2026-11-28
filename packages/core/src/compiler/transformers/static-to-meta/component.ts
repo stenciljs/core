@@ -24,7 +24,6 @@ import { parseAttachInternals, parseAttachInternalsCustomStates } from './attach
 import { parseCallExpression } from './call-expression';
 import { mergeExtendedClassMeta, mergeExtendedClassMetaWithResolveImport } from './class-extension';
 import { parseClassMethods } from './class-methods';
-import { parseStaticElementRef } from './element-ref';
 import {
   parseStaticEncapsulation,
   parseStaticPatches,
@@ -98,6 +97,7 @@ export const parseStaticComponentMeta = (
     classMethods,
     serializers,
     deserializers,
+    elementRef,
   } = transformOpts?.resolveImport // 1 file / transpile-only mode, no Program, no TypeChecker
     ? mergeExtendedClassMetaWithResolveImport(
         cmpNode,
@@ -127,7 +127,7 @@ export const parseStaticComponentMeta = (
     excludeFromCollection: moduleFile.excludeFromCollection,
     isCollectionDependency,
     componentClassName: cmpNode.name ? cmpNode.name.text : '',
-    elementRef: parseStaticElementRef(staticMembers),
+    elementRef,
     encapsulation,
     shadowDelegatesFocus: !!parseStaticShadowDelegatesFocus(encapsulation, staticMembers),
     shadowClonable: !!parseStaticShadowClonable(encapsulation, staticMembers),

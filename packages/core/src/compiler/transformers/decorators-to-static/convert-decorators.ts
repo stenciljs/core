@@ -22,6 +22,7 @@ import { methodDecoratorsToStatic, validateMethods } from './method-decorator';
 import { propDecoratorsToStatic } from './prop-decorator';
 import { serializeDecoratorsToStatic } from './serialize-decorators';
 import { stateDecoratorsToStatic } from './state-decorator';
+import { validateComputedMemberNames } from './validate-computed-names';
 import { watchDecoratorsToStatic } from './watch-decorator';
 
 /**
@@ -57,7 +58,18 @@ export const convertDecoratorsToStatic = (
     let sourceFile: ts.SourceFile;
     const visit = (node: ts.Node): ts.VisitResult<ts.Node> => {
       if (ts.isClassDeclaration(node) || (includeClassExpressions && ts.isClassExpression(node))) {
-        return visitClassDeclaration(config, diagnostics, typeChecker, program, node, sourceFile);
+        try {
+          return visitClassDeclaration(config, diagnostics, typeChecker, program, node, sourceFile);
+        } catch (e: unknown) {
+          // An unreadable decorator argument fails this class only, keeping the file's other diagnostics
+          const message = e instanceof Error ? e.message : String(e);
+          if (!diagnostics.some((d) => d.messageText === message)) {
+            const err = buildError(diagnostics);
+            err.messageText = message;
+            augmentDiagnosticWithNode(err, node.name ?? node);
+          }
+          return node;
+        }
       }
       return ts.visitEachChild(node, visit, transformCtx);
     };
@@ -142,6 +154,8 @@ const visitClassDeclaration = (
   // stores a reference to fields that should be watched for changes
   // parse member decorators (Prop, State, Listen, Event, Method, Element and Watch)
   if (decoratedMembers.length > 0) {
+    validateComputedMemberNames(diagnostics, typeChecker, decoratedMembers, importAliasMap);
+
     // `@Prop({ serialize: 'json' })` is shorthand for a generated serializer / deserializer pair
     const handWritten = serializeDecoratorsToStatic(
       typeChecker,
@@ -226,13 +240,19 @@ const visitClassDeclaration = (
       filteredMethodsAndFields,
       importAliasMap.get('Method'),
     );
-    elementDecoratorsToStatic(
+    const elementRefs = elementDecoratorsToStatic(
       diagnostics,
       decoratedMembers,
       filteredMethodsAndFields,
       importAliasMap.get('Element'),
     );
+    if (!componentDecorator && elementRefs.length > 0) {
+      // A base class's `@Element()` field would be an own property of every instance, shadowing
+      // the getter the extending component defines for it. Components replace it per output.
+      removeFields(filteredMethodsAndFields, elementRefs);
+    }
     watchDecoratorsToStatic(
+      diagnostics,
       typeChecker,
       decoratedMembers,
       filteredMethodsAndFields,
@@ -290,6 +310,20 @@ const visitClassDeclaration = (
         classNode.heritageClauses,
         updatedClassFields,
       );
+};
+
+/**
+ * Removes the property declarations with the given names, in place.
+ * @param members the class members to filter
+ * @param names the property names to remove
+ */
+const removeFields = (members: ts.ClassElement[], names: string[]) => {
+  for (let i = members.length - 1; i >= 0; i--) {
+    const m = members[i];
+    if (ts.isPropertyDeclaration(m) && names.includes(m.name.getText())) {
+      members.splice(i, 1);
+    }
+  }
 };
 
 /**

@@ -455,6 +455,12 @@ export namespace Components {
         "getTime": () => Promise<string>;
         "toggle": () => Promise<void>;
     }
+    interface ExtendsElement {
+        /**
+          * @default 'base'
+         */
+        "label": string;
+    }
     interface ExtendsEvents {
     }
     /**
@@ -1969,6 +1975,12 @@ declare global {
         prototype: HTMLExtendsDirectStateElement;
         new (): HTMLExtendsDirectStateElement;
     };
+    interface HTMLExtendsElementElement extends Components.ExtendsElement, HTMLStencilElement {
+    }
+    var HTMLExtendsElementElement: {
+        prototype: HTMLExtendsElementElement;
+        new (): HTMLExtendsElementElement;
+    };
     interface HTMLExtendsEventsElement extends Components.ExtendsEvents, HTMLStencilElement {
     }
     var HTMLExtendsEventsElement: {
@@ -3341,6 +3353,7 @@ declare global {
         "extends-conflicts": HTMLExtendsConflictsElement;
         "extends-controller-updates": HTMLExtendsControllerUpdatesElement;
         "extends-direct-state": HTMLExtendsDirectStateElement;
+        "extends-element": HTMLExtendsElementElement;
         "extends-events": HTMLExtendsEventsElement;
         "extends-external": HTMLExtendsExternalElement;
         "extends-external-abstract": HTMLExtendsExternalAbstractElement;
@@ -3915,6 +3928,12 @@ declare namespace LocalJSX {
      * @State directly
      */
     interface ExtendsDirectState {
+    }
+    interface ExtendsElement {
+        /**
+          * @default 'base'
+         */
+        "label"?: string;
     }
     interface ExtendsEvents {
     }
@@ -4856,6 +4875,9 @@ declare namespace LocalJSX {
         "baseOnlyProp": string;
         "duplicateProp": string;
     }
+    interface ExtendsElementAttributes {
+        "label": string;
+    }
     interface ExtendsExternalAttributes {
         "getterProp": string;
         "prop2": string;
@@ -5133,6 +5155,7 @@ declare namespace LocalJSX {
         "extends-conflicts": Omit<ExtendsConflicts, keyof ExtendsConflictsAttributes> & { [K in keyof ExtendsConflicts & keyof ExtendsConflictsAttributes]?: ExtendsConflicts[K] } & { [K in keyof ExtendsConflicts & keyof ExtendsConflictsAttributes as `attr:${K}`]?: ExtendsConflictsAttributes[K] } & { [K in keyof ExtendsConflicts & keyof ExtendsConflictsAttributes as `prop:${K}`]?: ExtendsConflicts[K] };
         "extends-controller-updates": ExtendsControllerUpdates;
         "extends-direct-state": ExtendsDirectState;
+        "extends-element": Omit<ExtendsElement, keyof ExtendsElementAttributes> & { [K in keyof ExtendsElement & keyof ExtendsElementAttributes]?: ExtendsElement[K] } & { [K in keyof ExtendsElement & keyof ExtendsElementAttributes as `attr:${K}`]?: ExtendsElementAttributes[K] } & { [K in keyof ExtendsElement & keyof ExtendsElementAttributes as `prop:${K}`]?: ExtendsElement[K] };
         "extends-events": ExtendsEvents;
         "extends-external": Omit<ExtendsExternal, keyof ExtendsExternalAttributes> & { [K in keyof ExtendsExternal & keyof ExtendsExternalAttributes]?: ExtendsExternal[K] } & { [K in keyof ExtendsExternal & keyof ExtendsExternalAttributes as `attr:${K}`]?: ExtendsExternalAttributes[K] } & { [K in keyof ExtendsExternal & keyof ExtendsExternalAttributes as `prop:${K}`]?: ExtendsExternal[K] };
         "extends-external-abstract": Omit<ExtendsExternalAbstract, keyof ExtendsExternalAbstractAttributes> & { [K in keyof ExtendsExternalAbstract & keyof ExtendsExternalAbstractAttributes]?: ExtendsExternalAbstract[K] } & { [K in keyof ExtendsExternalAbstract & keyof ExtendsExternalAbstractAttributes as `attr:${K}`]?: ExtendsExternalAbstractAttributes[K] } & { [K in keyof ExtendsExternalAbstract & keyof ExtendsExternalAbstractAttributes as `prop:${K}`]?: ExtendsExternalAbstract[K] };
@@ -5439,6 +5462,7 @@ declare module "@stencil/core" {
              * @State directly
              */
             "extends-direct-state": LocalJSX.IntrinsicElements["extends-direct-state"] & JSXBase.HTMLAttributes<HTMLExtendsDirectStateElement>;
+            "extends-element": LocalJSX.IntrinsicElements["extends-element"] & JSXBase.HTMLAttributes<HTMLExtendsElementElement>;
             "extends-events": LocalJSX.IntrinsicElements["extends-events"] & JSXBase.HTMLAttributes<HTMLExtendsEventsElement>;
             /**
              * A component that extends from an external library's component class.

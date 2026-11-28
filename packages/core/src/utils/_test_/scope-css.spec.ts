@@ -179,6 +179,24 @@ describe('scopeCSS', function () {
     expect(s('one\\:two:not(.three\\:four) {}', 'a')).toEqual('one\\:two.a:not(.three\\:four) {}');
   });
 
+  describe('selectors containing `$` replacement patterns', () => {
+    it('keeps them in commented original selectors', () => {
+      expect(s(`[data-currency='$'] {} .b {}`, 'a', true)).toEqual(
+        `/*!@[data-currency="$"]*/[data-currency="$"].a {} /*!@.b*/.b.a {}`,
+      );
+    });
+
+    it('keeps them in @supports selector() conditions', () => {
+      expect(s(`@supports selector([data-c='$&']) { .c {} }`, 'a')).toEqual(
+        `@supports selector([data-c="$&"]) { .c.a {}}`,
+      );
+    });
+
+    it('keeps them in ::slotted() selectors', () => {
+      expect(s(`::slotted([data-c="$&"]) {}`, 'a')).toEqual(`.a-s > [data-c="$&"] {}`);
+    });
+  });
+
   describe(':host', () => {
     it('should handle no context', () => {
       expect(s(':host {}', 'a')).toEqual('.a-h {}');

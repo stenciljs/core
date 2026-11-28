@@ -7,6 +7,9 @@ Open work left over from v5. User-facing changes are recorded in [BREAKING_CHANG
 - **SSR child waiting on a parent that's never defined.** With `hydrateClientSide`, a child queues its first render on the nearest un-upgraded SSR ancestor (`runtime/connected-callback.ts`). If that ancestor is never defined, the child's render, `connectedCallback` and `componentOnReady` never run. Options: accept it (the autoloader behaves this way already), `customElements.whenDefined()` + timeout, or an opt-out.
 - **Mixed Stencil runtimes.** A host upgraded by a runtime whose `registerHost` overwrites `s-p`/`s-rc` would drop a queued child render. Decide whether older runtimes matter.
 - **`signalBacking` default.** Flip to `true` once there's adoption feedback.
+- **`hasElement` / `BUILD.element`.** `hasElement` is never set and nothing in the runtime reads `BUILD.element`. Remove both?
+- **Stricter CSS parsing.** lightningcss rejects invalid CSS that v4 passed through (e.g. `::slotted(a, b)`, `@supports not selector(a) and selector(b)` in ionicons' `node_modules` CSS). Document as breaking, or warn and pass the rule through unchanged.
+- **Islands / streaming SSR.** `streamToString` (`server/runner/render.ts`) renders the whole page then enqueues it once. Proposal pending sign-off.
 
 ## Clean-up
 
@@ -24,10 +27,19 @@ Open work left over from v5. User-facing changes are recorded in [BREAKING_CHANG
 - `create-stencil`: publish the shim that runs `npx @stencil/cli@latest init` (npm `latest` is still 4.0.2).
 - `@stencil/storybook-plugin` (separate repo): show CEM `tags` in the docs panel; tests for `parseLiteralValues()` / `inferSBType()` / `inferControlType()`; migration guide from the community plugin.
 - Build chain: tsgo.
+- SSR render speed (measured on Ionic: -16% to -49% per render together): memoize `scopeCss` / `expandPartSelectors` across renders (`runtime/initialize-component.ts`); a single-pass mock-doc serializer in place of the generator one; `MockAttributeMap` lookups without the Proxy round trips and `find`; loops instead of `filter` for `children` / `childElementCount` / `firstElementChild`; cache nwsapi's selector parse across documents. Add an SSR benchmark to CodSpeed first.
+- SSR peak memory: ~445 MB vs ~279 MB for Stencil 4 rendering Ionic's pages. Investigate.
+- `stencil build`: `detectMigrations` parses every source file with `ts.createSourceFile` before every build (~12% of a cold Ionic build). Add a cheap per-rule text check before parsing.
+- `transpileSync` per file is ~15-25% slower than Stencil 4's. Profile.
+- Windows (unverified): `appendGlobalScripts` (`bundle/app-data-plugin.ts`) imports the global script by its forward-slash path while components resolve it to the backslash path, so the module may be bundled twice (Ionic's mode reads `undefined`).
+- `stencil migrate`: drop `experimentalScopedSlotChanges` from `compat`; handle tsconfig `baseUrl` (an error in TS 6).
+- Init templates: `"stableTypeOrdering": true` (TS 7's only order; makes `docs.json` union order independent of check order).
+- Inheritance: `Mixin` and parent classes are matched by their local name, so `import { Mixin as compose }` and `import { Base as B }` inherit nothing.
 - SSR custom states: `:state(x)` can't match before hydration (no HTML serialization for custom states), so `:host(:state(open))` styles flash until the client runs `states.add()`. Serialize all active states (`initialValue` and any `states.add()` during server lifecycle hooks) to a host marker attribute (e.g. `data-state-open`) and have the compiler emit a fallback selector beside each `:state()` selector. Needs mock-doc `ElementInternals.states` to record adds (see #6960). Emit fallbacks as separate rules, not one selector list (an unsupported `:state()` drops the whole list). Remove the marker once the client applies states.
 
 ## Docs gaps (stencil-site)
 
+- Hydrate app: `module.enableCompileCache()` and a warm-up render before serving (cold first render 55 ms -> 10 ms on a small page)
 - `config.modes`
 - `docs-readme` `customColumns`
 - `jsMinifier` (oxc default vs terser)

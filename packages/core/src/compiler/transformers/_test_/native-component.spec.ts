@@ -38,8 +38,9 @@ describe('nativeComponentTransform', () => {
     const transformer = nativeComponentTransform(compilerCtx, transformOpts, buildCtx);
     const transpiledModule = transpileModule(code, null, compilerCtx, [], [transformer]);
 
+    // a plain component still needs `transformTag` imported for its `customElements.define`
     expect(await formatCode(transpiledModule.outputText)).toBe(
-      await c`import { HTMLElement } from "@stencil/core";
+      await c`import { transformTag as __stencil_transformTag, HTMLElement } from "@stencil/core";
         const CmpA = class extends HTMLElement {
           static get is() {
             return 'cmp-a';
@@ -99,6 +100,25 @@ describe('nativeComponentTransform', () => {
         }
         foo;
       };`,
+    );
+  });
+
+  it('keeps underscore-prefixed members in the runtime metadata', async () => {
+    const code = `
+    @Component({
+      tag: 'cmp-a',
+    })
+    export class CmpA {
+      @Prop() _id: string;
+      @State() _filters = [];
+    }
+    `;
+
+    const transformer = nativeComponentTransform(compilerCtx, transformOpts, buildCtx);
+    const transpiledModule = transpileModule(code, null, compilerCtx, [], [transformer]);
+
+    expect(await formatCode(transpiledModule.outputText)).toContain(
+      await c`__stencil_defineCustomElement(CmpA, [0, 'cmp-a', { _id: [1], _filters: [32] }])`,
     );
   });
 

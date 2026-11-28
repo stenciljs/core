@@ -130,7 +130,8 @@ const arrayToArrayLiteral = (list: any[], refs: WeakSet<any>): ts.ArrayLiteralEx
 /**
  * Convert a JavaScript object (i.e. an object existing at runtime) to the
  * corresponding TypeScript Intermediate Representation (IR) for an object literal.
- * Internal fields (prefixed with _) are excluded from serialization.
+ * The compiler-internal `_astNode` field is excluded from serialization. Other `_`-prefixed keys
+ * are kept: they can be user member names (e.g. `@State() _filters`).
  *
  * @param obj the JavaScript object to convert to TypeScript IR
  * @param refs a set of references to objects, used to avoid circular references
@@ -147,7 +148,7 @@ const objectToObjectLiteral = (
   refs.add(obj);
 
   const newProperties: ts.ObjectLiteralElementLike[] = Object.keys(obj)
-    .filter((key) => !key.startsWith('_')) // Skip internal fields
+    .filter((key) => key !== '_astNode')
     .map((key) => {
       const prop = ts.factory.createPropertyAssignment(
         ts.factory.createStringLiteral(key),

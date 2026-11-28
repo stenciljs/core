@@ -13,6 +13,7 @@ const mockCreateEmitAndSemanticDiagnosticsBuilderProgram = vi.fn();
 const mockReadBuilderProgram = vi.fn();
 const mockReadConfigFile = vi.fn();
 const mockParseJsonConfigFileContent = vi.fn();
+const mockSysReadFile = vi.fn();
 
 vi.mock('typescript', async (importOriginal) => {
   const actual = await importOriginal<typeof import('typescript')>();
@@ -53,7 +54,7 @@ vi.mock('typescript', async (importOriginal) => {
         };
       },
       sys: {
-        readFile: (fileName: string) => `// content of ${fileName}`,
+        readFile: (fileName: string) => mockSysReadFile(fileName) ?? `// content of ${fileName}`,
         fileExists: () => true,
       },
     },
@@ -102,6 +103,24 @@ describe('createCachingCompilerHost', () => {
     // Next read should hit ts.sys again (we can't easily test this without
     // more complex mocking, but we verify the method exists and runs)
     expect(() => host.invalidateFile('test.ts')).not.toThrow();
+  });
+
+  it('gives a file a new version when an edit keeps its length and first and last characters', () => {
+    mockCreateSourceFile.mockImplementation(() => ({}));
+    const host = createCachingCompilerHost({});
+
+    mockSysReadFile.mockReturnValue('const a = 10;');
+    const before = host.getSourceFile('test.ts', 99) as any;
+
+    host.invalidateFile('test.ts');
+    mockSysReadFile.mockReturnValue('const a = 20;');
+    const after = host.getSourceFile('test.ts', 99) as any;
+
+    expect(mockCreateSourceFile).toHaveBeenCalledTimes(2);
+    expect(after.version).not.toBe(before.version);
+
+    mockSysReadFile.mockReset();
+    mockCreateSourceFile.mockReset();
   });
 
   it('invalidateAll clears all caches', () => {

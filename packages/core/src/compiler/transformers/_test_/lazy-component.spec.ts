@@ -69,6 +69,37 @@ describe('lazy-component', () => {
     expect(t.outputText).not.toContain(`el;`);
   });
 
+  it('adds a getter for an @Element() reference inherited from a base class', () => {
+    const buildCtx = mockBuildCtx();
+    const compilerCtx = buildCtx.compilerCtx;
+    const transformOpts: d.TransformOptions = {
+      coreImportPath: '@stencil/core',
+      componentExport: 'lazy',
+      componentMetadata: null,
+      currentDirectory: '/',
+      proxy: null,
+      style: 'static',
+      styleImportData: null,
+    };
+
+    const code = `
+      class Base {
+        @Element() el: HTMLElement;
+      }
+      @Component({
+        tag: 'cmp-a'
+      })
+      export class CmpA extends Base {}
+    `;
+
+    const transformer = lazyComponentTransform(compilerCtx, transformOpts, buildCtx);
+
+    const t = transpileModule(code, null, compilerCtx, [], [transformer]);
+
+    expect(t.outputText).toContain(`get el() { return __stencil_getElement(this); } };`);
+    expect(t.outputText).not.toContain(`el;`);
+  });
+
   it('adds an `attachInternals` call with a `@AttachInternals` decoration', async () => {
     const buildCtx = mockBuildCtx();
     const compilerCtx = buildCtx.compilerCtx;

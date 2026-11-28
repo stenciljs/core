@@ -27,6 +27,7 @@ Stencil recently had its 10th birthday - this release is a consolidation, organi
   - [`openBrowser` Defaults to `false`](#openbrowser-defaults-to-false)
   - [`@Watch` Handlers No Longer Fire Before the Component Has Rendered](#watch-handlers-no-longer-fire-before-the-component-has-rendered)
   - [Reflected Attributes Update When the Prop Changes](#reflected-attributes-update-when-the-prop-changes)
+  - [Unusable Decorator Names and Arguments Are Errors](#unusable-decorator-names-and-arguments-are-errors)
   - [`componentShouldUpdate` Batching](#componentshouldupdate-batching)
   - [`slotchange` in `scoped` / `none` Components Matches Native Slots](#slotchange-in-scoped--none-components-matches-native-slots)
   - [Shadow Roots of Parser-Created Elements Attach on Connect](#shadow-roots-of-parser-created-elements-attach-on-connect)
@@ -185,6 +186,16 @@ To migrate, if you need a watcher to run before the component has finished rende
 After a component's first render, a `@Prop({ reflect: true })` now writes its attribute as soon as the prop changes, like native elements (`button.disabled = true`), rather than on the next render. `@Watch` handlers, event listeners, CSS selectors and the browser (e.g. `:disabled` on form-associated components) see the attribute and prop agree straight away.
 
 To migrate, nothing is needed unless code relied on the attribute still holding the previous value until the next render. If you wrote reflected attributes by hand in a `@Watch` to work around the delay, that code can be removed.
+
+#### Unusable Decorator Names and Arguments Are Errors
+
+These used to compile into components that silently misbehaved (a member registered under a bogus name, a watcher that never fired, invalid JavaScript). They are now compile errors:
+
+- `@Watch()` or `@Listen()` with an argument that isn't a string, e.g. `@Watch(SOME_NUMBER)`.
+- A computed member name on `@Event()`, `@Element()`, `@Method()`, `@Watch()` or `@Listen()` members, e.g. `@Event() [NAME]: EventEmitter`.
+- A computed `@Prop()`, `@State()` or `@AttachInternals()` name that doesn't resolve to a literal at compile time, e.g. `let KEY = 'value'; @Prop() [KEY]: string`.
+
+To migrate, use a plain member name, or a `const` string / enum member for `@Prop()` / `@State()` / `@AttachInternals()`.
 
 #### `slotchange` in `scoped` / `none` Components Matches Native Slots
 
