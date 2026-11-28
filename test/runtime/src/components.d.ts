@@ -457,7 +457,7 @@ export namespace Components {
     }
     interface ExtendsElement {
         /**
-          * @default 'base'
+          * @default "base"
          */
         "label": string;
     }
@@ -3931,7 +3931,7 @@ declare namespace LocalJSX {
     }
     interface ExtendsElement {
         /**
-          * @default 'base'
+          * @default "base"
          */
         "label"?: string;
     }
