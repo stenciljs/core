@@ -17,6 +17,7 @@ Open work left over from v5. User-facing changes are recorded in [BREAKING_CHANG
 - `lazyRequire` only covers `workbox-build` now; replace with a plain dynamic import.
 - `src/utils/index.ts` barrel (~280 importers). Not currently leaking into runtime/server bundles, but direct imports would stop that regressing.
 - `*.sys.` patterns in ~40 files: assess whether moving to TypeScript incremental APIs is still worth it.
+- `test-perf-ssr.yml` pins `runs-on: ubuntu-24.04` because CodSpeed's runner (action v5.0.3) rejects Ubuntu 26.04. Drop the pin when bumping the action to a release that supports 26.04 (v5.8.0+ looks likely; unconfirmed).
 
 ## Features
 

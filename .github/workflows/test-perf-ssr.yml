@@ -12,8 +12,9 @@ jobs:
   perf_ssr:
     name: SSR Render Time
     # Gated by main.yml (push, or a PR labeled "SSR Performance")
-    # In-process benchmarks, measured by CPU simulation on a standard runner
-    runs-on: ubuntu-latest
+    # In-process benchmarks, measured by CPU simulation on a standard runner. Pinned: the CodSpeed
+    # runner this action version installs rejects Ubuntu 26.04 ("Unsupported system").
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       id-token: write
