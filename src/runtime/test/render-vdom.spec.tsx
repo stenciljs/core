@@ -977,6 +977,40 @@ describe('render-vdom', () => {
         </svg>
       </cmp-a>`);
     });
+
+    it('should keep rendering svg elements after a foreignObject on re-render', async () => {
+      @Component({
+        tag: 'cmp-a',
+      })
+      class CmpA {
+        @Prop() showText = false;
+
+        render() {
+          return (
+            <svg>
+              <foreignObject width="200" height="100">
+                <div>hello</div>
+              </foreignObject>
+              {this.showText && <text>bye</text>}
+            </svg>
+          );
+        }
+      }
+
+      const { root, waitForChanges } = await newSpecPage({
+        components: [CmpA],
+        html: `<cmp-a></cmp-a>`,
+      });
+
+      root.showText = true;
+      await waitForChanges();
+
+      const foreignObject = root.querySelector('foreignObject');
+      expect(foreignObject.namespaceURI).toEqual('http://www.w3.org/2000/svg');
+      expect(foreignObject.getAttribute('width')).toEqual('200');
+      expect(foreignObject.querySelector('div').namespaceURI).toEqual('http://www.w3.org/1999/xhtml');
+      expect(root.querySelector('text').namespaceURI).toEqual('http://www.w3.org/2000/svg');
+    });
   });
 
   describe('native elements', () => {

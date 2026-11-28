@@ -65,6 +65,25 @@ describe('renderer', () => {
     });
   });
 
+  describe('patched foreignObject', () => {
+    it('should not affect elements created after it', () => {
+      const vnode1 = h('div', null, h('svg', null, h('foreignObject', null, h('p', null, 'Hello'))));
+      patch(vnode0, vnode1);
+      const vnode2 = h(
+        'div',
+        null,
+        h('svg', null, h('foreignObject', null, h('p', null, 'Hello'), h('p', null, 'World')), h('circle', null)),
+      );
+      patch(vnode1, vnode2);
+
+      const svg = hostElm.firstElementChild;
+      expect(svg.children[0].children[0].namespaceURI).not.toEqual(SVG_NS);
+      expect(svg.children[0].children[1].namespaceURI).not.toEqual(SVG_NS);
+      expect(svg.children[1].tagName).toEqual('circle');
+      expect(svg.children[1].namespaceURI).toEqual(SVG_NS);
+    });
+  });
+
   describe('created trailing svg element', () => {
     it('should not affect subsequent created element', () => {
       patch(vnode0, h('div', null, h('div', null, h('svg', null))));
