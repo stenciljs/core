@@ -1097,14 +1097,10 @@ export const insertBefore = (
       );
     } else if (typeof newNode['s-sn'] === 'string') {
       // this is a slotted node.
-      const hostElm = newNode['s-hn'] && (parent as Element).closest?.(newNode['s-hn']);
       const shouldPatchSlottedNodes =
         BUILD.lightDomPatches ||
         BUILD.slotChildNodes ||
-        (BUILD.patchAll &&
-          !!(
-            hostElm && getHostRef(hostElm as d.HostElement)?.$cmpMeta$.$flags$ & CMP_FLAGS.patchAll
-          ));
+        (BUILD.patchAll && hostPatchesAll(newNode, parent as Element));
 
       if (
         shouldPatchSlottedNodes &&
@@ -1133,6 +1129,19 @@ export const insertBefore = (
   } else {
     return parent?.insertBefore(newNode, reference) as d.RenderNode;
   }
+};
+
+/**
+ * Whether the host a slotted node belongs to opted into `patchAll`.
+ * @param newNode the slotted node
+ * @param parent the node it is being inserted into
+ * @returns true if the host component has the `patchAll` flag
+ */
+const hostPatchesAll = (newNode: d.RenderNode, parent: Element) => {
+  const hostElm = newNode['s-hn'] && parent.closest?.(newNode['s-hn']);
+  return !!(
+    hostElm && getHostRef(hostElm as d.HostElement)?.$cmpMeta$.$flags$ & CMP_FLAGS.patchAll
+  );
 };
 
 /**

@@ -83,27 +83,43 @@ export function getHostSlotNodes(
   hostName?: string,
   slotName?: string,
 ) {
-  let i = 0;
-  let slottedNodes: d.RenderNode[] = [];
-  let childNode: d.RenderNode;
+  const slotNodes: d.RenderNode[] = [];
+  collectHostSlotNodes(childNodes, hostName, slotName, slotNodes);
+  return slotNodes;
+}
 
-  for (; i < childNodes.length; i++) {
-    childNode = childNodes[i] as any;
+/**
+ * Pre-order walk for {@link getHostSlotNodes}, appending to `out`.
+ * @param childNodes the nodes to search
+ * @param hostName the host name of the slot to match on
+ * @param slotName the name of the slot to match on; stops at the first match when given
+ * @param out the matching slot nodes, in document order
+ * @returns true once a named slot has been found
+ */
+function collectHostSlotNodes(
+  childNodes: NodeListOf<ChildNode>,
+  hostName: string | undefined,
+  slotName: string | undefined,
+  out: d.RenderNode[],
+): boolean {
+  for (let i = 0; i < childNodes.length; i++) {
+    const childNode = childNodes[i] as d.RenderNode;
     if (
       childNode['s-sr'] &&
       (!hostName || childNode['s-hn'] === hostName) &&
       (slotName === undefined || getSlotName(childNode) === slotName)
     ) {
-      slottedNodes.push(childNode);
-      if (typeof slotName !== 'undefined') return slottedNodes;
+      out.push(childNode);
+      if (slotName !== undefined) return true;
     }
-    slottedNodes = [
-      ...slottedNodes,
-      ...getHostSlotNodes(internalCall(childNode, 'childNodes'), hostName, slotName),
-    ];
-    if (typeof slotName !== 'undefined' && slottedNodes.length) return slottedNodes;
+    if (
+      collectHostSlotNodes(internalCall(childNode, 'childNodes'), hostName, slotName, out) &&
+      slotName !== undefined
+    ) {
+      return true;
+    }
   }
-  return slottedNodes;
+  return false;
 }
 
 /**
@@ -281,7 +297,49 @@ export function findSlotFromSlottedNode(slottedNode: d.PatchedSlotNode, parentHo
   if (!parentHost) return { slotNode: null, slotName: '' };
 
   const slotName = (slottedNode['s-sn'] = getSlotName(slottedNode) || '');
+  let hostSlots = slotNodeCache.get(parentHost);
+  const cached = hostSlots?.get(slotName);
+  if (cached && isHostSlot(cached, parentHost, slotName)) {
+    return { slotNode: cached, slotName };
+  }
+
   const childNodes = internalCall(parentHost, 'childNodes');
   const slotNode = getHostSlotNodes(childNodes, parentHost.tagName, slotName)[0];
+  if (slotNode) {
+    if (!hostSlots) slotNodeCache.set(parentHost, (hostSlots = new Map()));
+    hostSlots.set(slotName, slotNode);
+  }
   return { slotNode, slotName };
 }
+
+/**
+ * The slot node last found per host and slot name. Each slotted child of a host looks up its
+ * slot, and a full search walks the host's whole internal tree, so a host with many slotted
+ * children would otherwise cost O(children × tree).
+ */
+const slotNodeCache = new WeakMap<HTMLElement, Map<string, d.RenderNode>>();
+
+/**
+ * Whether a cached slot node is still the host's slot of that name.
+ * @param slotNode the cached slot node
+ * @param host the host element
+ * @param slotName the slot name
+ * @returns true if `slotNode` is still a slot of `host` named `slotName`, inside its internal tree
+ */
+const isHostSlot = (slotNode: d.RenderNode, host: HTMLElement, slotName: string) => {
+  if (
+    !slotNode['s-sr'] ||
+    slotNode['s-hn'] !== host.tagName ||
+    getSlotName(slotNode) !== slotName
+  ) {
+    return false;
+  }
+  for (
+    let n = internalCall(slotNode, 'parentNode');
+    n;
+    n = internalCall(n as d.RenderNode, 'parentNode')
+  ) {
+    if (n === host) return true;
+  }
+  return false;
+};

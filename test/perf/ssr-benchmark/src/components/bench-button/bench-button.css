@@ -1,0 +1,429 @@
+/* Generated design-system-sized stylesheet for the SSR benchmark. */
+:host {
+  display: block;
+  position: relative;
+  box-sizing: border-box;
+  --button-var-0: var(--bench-token-0, 0px);
+  --button-var-1: var(--bench-token-1, 2px);
+  --button-var-2: var(--bench-token-2, 4px);
+  --button-var-3: var(--bench-token-3, 6px);
+  --button-var-4: var(--bench-token-4, 8px);
+  --button-var-5: var(--bench-token-5, 10px);
+  --button-var-6: var(--bench-token-6, 12px);
+  --button-var-7: var(--bench-token-7, 14px);
+  --button-var-8: var(--bench-token-8, 16px);
+  --button-var-9: var(--bench-token-9, 18px);
+  --button-var-10: var(--bench-token-10, 20px);
+  --button-var-11: var(--bench-token-11, 22px);
+  --button-var-12: var(--bench-token-12, 24px);
+  --button-var-13: var(--bench-token-13, 26px);
+  --button-var-14: var(--bench-token-14, 28px);
+  --button-var-15: var(--bench-token-15, 30px);
+  --button-var-16: var(--bench-token-16, 32px);
+  --button-var-17: var(--bench-token-17, 34px);
+  --button-var-18: var(--bench-token-18, 36px);
+  --button-var-19: var(--bench-token-19, 38px);
+  --button-var-20: var(--bench-token-20, 40px);
+  --button-var-21: var(--bench-token-21, 42px);
+  --button-var-22: var(--bench-token-22, 44px);
+  --button-var-23: var(--bench-token-23, 46px);
+  --button-var-24: var(--bench-token-0, 48px);
+  --button-var-25: var(--bench-token-1, 50px);
+  --button-var-26: var(--bench-token-2, 52px);
+  --button-var-27: var(--bench-token-3, 54px);
+  --button-var-28: var(--bench-token-4, 56px);
+  --button-var-29: var(--bench-token-5, 58px);
+  --button-var-30: var(--bench-token-6, 60px);
+  --button-var-31: var(--bench-token-7, 62px);
+  --button-var-32: var(--bench-token-8, 64px);
+  --button-var-33: var(--bench-token-9, 66px);
+  --button-var-34: var(--bench-token-10, 68px);
+  --button-var-35: var(--bench-token-11, 70px);
+  --button-var-36: var(--bench-token-12, 72px);
+  --button-var-37: var(--bench-token-13, 74px);
+  --button-var-38: var(--bench-token-14, 76px);
+  --button-var-39: var(--bench-token-15, 78px);
+  --button-var-40: var(--bench-token-16, 80px);
+  --button-var-41: var(--bench-token-17, 82px);
+  --button-var-42: var(--bench-token-18, 84px);
+  --button-var-43: var(--bench-token-19, 86px);
+  --button-var-44: var(--bench-token-20, 88px);
+  --button-var-45: var(--bench-token-21, 90px);
+  --button-var-46: var(--bench-token-22, 92px);
+  --button-var-47: var(--bench-token-23, 94px);
+  --button-var-48: var(--bench-token-0, 96px);
+  --button-var-49: var(--bench-token-1, 98px);
+  --button-var-50: var(--bench-token-2, 100px);
+  --button-var-51: var(--bench-token-3, 102px);
+  --button-var-52: var(--bench-token-4, 104px);
+  --button-var-53: var(--bench-token-5, 106px);
+  --button-var-54: var(--bench-token-6, 108px);
+  --button-var-55: var(--bench-token-7, 110px);
+  --button-var-56: var(--bench-token-8, 112px);
+  --button-var-57: var(--bench-token-9, 114px);
+  --button-var-58: var(--bench-token-10, 116px);
+  --button-var-59: var(--bench-token-11, 118px);
+}
+:host(.button-primary) .button-native {
+  color: var(--bench-color-primary-contrast, #fff);
+  background: var(--bench-color-primary, #3880ff);
+  border-color: var(--bench-color-primary-shade, #3171e0);
+}
+:host(.button-primary) .button-inner {
+  color: var(--bench-color-primary-contrast, #fff);
+  background: var(--bench-color-primary, #3880ff);
+  border-color: var(--bench-color-primary-shade, #3171e0);
+}
+:host(.button-primary:hover) .button-native {
+  background: var(--bench-color-primary-tint, #4c8dff);
+}
+:host-context(.theme-dark):host(.button-primary) .button-native {
+  background: var(--bench-color-primary-dark, #1e2023);
+}
+:host(.button-secondary) .button-native {
+  color: var(--bench-color-secondary-contrast, #fff);
+  background: var(--bench-color-secondary, #3880ff);
+  border-color: var(--bench-color-secondary-shade, #3171e0);
+}
+:host(.button-secondary) .button-inner {
+  color: var(--bench-color-secondary-contrast, #fff);
+  background: var(--bench-color-secondary, #3880ff);
+  border-color: var(--bench-color-secondary-shade, #3171e0);
+}
+:host(.button-secondary:hover) .button-native {
+  background: var(--bench-color-secondary-tint, #4c8dff);
+}
+:host-context(.theme-dark):host(.button-secondary) .button-native {
+  background: var(--bench-color-secondary-dark, #1e2023);
+}
+:host(.button-danger) .button-native {
+  color: var(--bench-color-danger-contrast, #fff);
+  background: var(--bench-color-danger, #3880ff);
+  border-color: var(--bench-color-danger-shade, #3171e0);
+}
+:host(.button-danger) .button-inner {
+  color: var(--bench-color-danger-contrast, #fff);
+  background: var(--bench-color-danger, #3880ff);
+  border-color: var(--bench-color-danger-shade, #3171e0);
+}
+:host(.button-danger:hover) .button-native {
+  background: var(--bench-color-danger-tint, #4c8dff);
+}
+:host-context(.theme-dark):host(.button-danger) .button-native {
+  background: var(--bench-color-danger-dark, #1e2023);
+}
+:host(.button-success) .button-native {
+  color: var(--bench-color-success-contrast, #fff);
+  background: var(--bench-color-success, #3880ff);
+  border-color: var(--bench-color-success-shade, #3171e0);
+}
+:host(.button-success) .button-inner {
+  color: var(--bench-color-success-contrast, #fff);
+  background: var(--bench-color-success, #3880ff);
+  border-color: var(--bench-color-success-shade, #3171e0);
+}
+:host(.button-success:hover) .button-native {
+  background: var(--bench-color-success-tint, #4c8dff);
+}
+:host-context(.theme-dark):host(.button-success) .button-native {
+  background: var(--bench-color-success-dark, #1e2023);
+}
+:host(.button-warning) .button-native {
+  color: var(--bench-color-warning-contrast, #fff);
+  background: var(--bench-color-warning, #3880ff);
+  border-color: var(--bench-color-warning-shade, #3171e0);
+}
+:host(.button-warning) .button-inner {
+  color: var(--bench-color-warning-contrast, #fff);
+  background: var(--bench-color-warning, #3880ff);
+  border-color: var(--bench-color-warning-shade, #3171e0);
+}
+:host(.button-warning:hover) .button-native {
+  background: var(--bench-color-warning-tint, #4c8dff);
+}
+:host-context(.theme-dark):host(.button-warning) .button-native {
+  background: var(--bench-color-warning-dark, #1e2023);
+}
+:host(.button-medium) .button-native {
+  color: var(--bench-color-medium-contrast, #fff);
+  background: var(--bench-color-medium, #3880ff);
+  border-color: var(--bench-color-medium-shade, #3171e0);
+}
+:host(.button-medium) .button-inner {
+  color: var(--bench-color-medium-contrast, #fff);
+  background: var(--bench-color-medium, #3880ff);
+  border-color: var(--bench-color-medium-shade, #3171e0);
+}
+:host(.button-medium:hover) .button-native {
+  background: var(--bench-color-medium-tint, #4c8dff);
+}
+:host-context(.theme-dark):host(.button-medium) .button-native {
+  background: var(--bench-color-medium-dark, #1e2023);
+}
+:host(.button-light) .button-native {
+  color: var(--bench-color-light-contrast, #fff);
+  background: var(--bench-color-light, #3880ff);
+  border-color: var(--bench-color-light-shade, #3171e0);
+}
+:host(.button-light) .button-inner {
+  color: var(--bench-color-light-contrast, #fff);
+  background: var(--bench-color-light, #3880ff);
+  border-color: var(--bench-color-light-shade, #3171e0);
+}
+:host(.button-light:hover) .button-native {
+  background: var(--bench-color-light-tint, #4c8dff);
+}
+:host-context(.theme-dark):host(.button-light) .button-native {
+  background: var(--bench-color-light-dark, #1e2023);
+}
+:host(.button-dark) .button-native {
+  color: var(--bench-color-dark-contrast, #fff);
+  background: var(--bench-color-dark, #3880ff);
+  border-color: var(--bench-color-dark-shade, #3171e0);
+}
+:host(.button-dark) .button-inner {
+  color: var(--bench-color-dark-contrast, #fff);
+  background: var(--bench-color-dark, #3880ff);
+  border-color: var(--bench-color-dark-shade, #3171e0);
+}
+:host(.button-dark:hover) .button-native {
+  background: var(--bench-color-dark-tint, #4c8dff);
+}
+:host-context(.theme-dark):host(.button-dark) .button-native {
+  background: var(--bench-color-dark-dark, #1e2023);
+}
+:host(.button-small) .button-native {
+  padding: var(--button-padding-small, 8px 16px);
+  min-height: var(--button-height-small, 36px);
+  font-size: var(--button-font-small, 14px);
+}
+:host(.button-default) .button-native {
+  padding: var(--button-padding-default, 8px 16px);
+  min-height: var(--button-height-default, 36px);
+  font-size: var(--button-font-default, 14px);
+}
+:host(.button-large) .button-native {
+  padding: var(--button-padding-large, 8px 16px);
+  min-height: var(--button-height-large, 36px);
+  font-size: var(--button-font-large, 14px);
+}
+:host(.button-primary) .button-native {
+  color: var(--bench-color-primary-contrast, #fff);
+  background: var(--bench-color-primary, #3880ff);
+  border-color: var(--bench-color-primary-shade, #3171e0);
+}
+:host(.button-primary) .button-inner {
+  color: var(--bench-color-primary-contrast, #fff);
+  background: var(--bench-color-primary, #3880ff);
+  border-color: var(--bench-color-primary-shade, #3171e0);
+}
+:host(.button-primary:hover) .button-native {
+  background: var(--bench-color-primary-tint, #4c8dff);
+}
+:host-context(.theme-dark):host(.button-primary) .button-native {
+  background: var(--bench-color-primary-dark, #1e2023);
+}
+:host(.button-secondary) .button-native {
+  color: var(--bench-color-secondary-contrast, #fff);
+  background: var(--bench-color-secondary, #3880ff);
+  border-color: var(--bench-color-secondary-shade, #3171e0);
+}
+:host(.button-secondary) .button-inner {
+  color: var(--bench-color-secondary-contrast, #fff);
+  background: var(--bench-color-secondary, #3880ff);
+  border-color: var(--bench-color-secondary-shade, #3171e0);
+}
+:host(.button-secondary:hover) .button-native {
+  background: var(--bench-color-secondary-tint, #4c8dff);
+}
+:host-context(.theme-dark):host(.button-secondary) .button-native {
+  background: var(--bench-color-secondary-dark, #1e2023);
+}
+:host(.button-danger) .button-native {
+  color: var(--bench-color-danger-contrast, #fff);
+  background: var(--bench-color-danger, #3880ff);
+  border-color: var(--bench-color-danger-shade, #3171e0);
+}
+:host(.button-danger) .button-inner {
+  color: var(--bench-color-danger-contrast, #fff);
+  background: var(--bench-color-danger, #3880ff);
+  border-color: var(--bench-color-danger-shade, #3171e0);
+}
+:host(.button-danger:hover) .button-native {
+  background: var(--bench-color-danger-tint, #4c8dff);
+}
+:host-context(.theme-dark):host(.button-danger) .button-native {
+  background: var(--bench-color-danger-dark, #1e2023);
+}
+:host(.button-success) .button-native {
+  color: var(--bench-color-success-contrast, #fff);
+  background: var(--bench-color-success, #3880ff);
+  border-color: var(--bench-color-success-shade, #3171e0);
+}
+:host(.button-success) .button-inner {
+  color: var(--bench-color-success-contrast, #fff);
+  background: var(--bench-color-success, #3880ff);
+  border-color: var(--bench-color-success-shade, #3171e0);
+}
+:host(.button-success:hover) .button-native {
+  background: var(--bench-color-success-tint, #4c8dff);
+}
+:host-context(.theme-dark):host(.button-success) .button-native {
+  background: var(--bench-color-success-dark, #1e2023);
+}
+:host(.button-warning) .button-native {
+  color: var(--bench-color-warning-contrast, #fff);
+  background: var(--bench-color-warning, #3880ff);
+  border-color: var(--bench-color-warning-shade, #3171e0);
+}
+:host(.button-warning) .button-inner {
+  color: var(--bench-color-warning-contrast, #fff);
+  background: var(--bench-color-warning, #3880ff);
+  border-color: var(--bench-color-warning-shade, #3171e0);
+}
+:host(.button-warning:hover) .button-native {
+  background: var(--bench-color-warning-tint, #4c8dff);
+}
+:host-context(.theme-dark):host(.button-warning) .button-native {
+  background: var(--bench-color-warning-dark, #1e2023);
+}
+:host(.button-medium) .button-native {
+  color: var(--bench-color-medium-contrast, #fff);
+  background: var(--bench-color-medium, #3880ff);
+  border-color: var(--bench-color-medium-shade, #3171e0);
+}
+:host(.button-medium) .button-inner {
+  color: var(--bench-color-medium-contrast, #fff);
+  background: var(--bench-color-medium, #3880ff);
+  border-color: var(--bench-color-medium-shade, #3171e0);
+}
+:host(.button-medium:hover) .button-native {
+  background: var(--bench-color-medium-tint, #4c8dff);
+}
+:host-context(.theme-dark):host(.button-medium) .button-native {
+  background: var(--bench-color-medium-dark, #1e2023);
+}
+:host(.button-light) .button-native {
+  color: var(--bench-color-light-contrast, #fff);
+  background: var(--bench-color-light, #3880ff);
+  border-color: var(--bench-color-light-shade, #3171e0);
+}
+:host(.button-light) .button-inner {
+  color: var(--bench-color-light-contrast, #fff);
+  background: var(--bench-color-light, #3880ff);
+  border-color: var(--bench-color-light-shade, #3171e0);
+}
+:host(.button-light:hover) .button-native {
+  background: var(--bench-color-light-tint, #4c8dff);
+}
+:host-context(.theme-dark):host(.button-light) .button-native {
+  background: var(--bench-color-light-dark, #1e2023);
+}
+:host(.button-dark) .button-native {
+  color: var(--bench-color-dark-contrast, #fff);
+  background: var(--bench-color-dark, #3880ff);
+  border-color: var(--bench-color-dark-shade, #3171e0);
+}
+:host(.button-dark) .button-inner {
+  color: var(--bench-color-dark-contrast, #fff);
+  background: var(--bench-color-dark, #3880ff);
+  border-color: var(--bench-color-dark-shade, #3171e0);
+}
+:host(.button-dark:hover) .button-native {
+  background: var(--bench-color-dark-tint, #4c8dff);
+}
+:host-context(.theme-dark):host(.button-dark) .button-native {
+  background: var(--bench-color-dark-dark, #1e2023);
+}
+:host(.button-small) .button-native {
+  padding: var(--button-padding-small, 8px 16px);
+  min-height: var(--button-height-small, 36px);
+  font-size: var(--button-font-small, 14px);
+}
+:host(.button-default) .button-native {
+  padding: var(--button-padding-default, 8px 16px);
+  min-height: var(--button-height-default, 36px);
+  font-size: var(--button-font-default, 14px);
+}
+:host(.button-large) .button-native {
+  padding: var(--button-padding-large, 8px 16px);
+  min-height: var(--button-height-large, 36px);
+  font-size: var(--button-font-large, 14px);
+}
+::slotted([slot='icon-only']) {
+  margin-inline-start: var(--slot-icon-only-start, 4px);
+  margin-inline-end: var(--slot-icon-only-end, 4px);
+  flex-shrink: 0;
+}
+:host-context([dir='rtl']) ::slotted([slot='icon-only']) {
+  transform: scaleX(-1);
+}
+::slotted([slot='start']) {
+  margin-inline-start: var(--slot-start-start, 4px);
+  margin-inline-end: var(--slot-start-end, 4px);
+  flex-shrink: 0;
+}
+:host-context([dir='rtl']) ::slotted([slot='start']) {
+  transform: scaleX(-1);
+}
+::slotted([slot='end']) {
+  margin-inline-start: var(--slot-end-start, 4px);
+  margin-inline-end: var(--slot-end-end, 4px);
+  flex-shrink: 0;
+}
+:host-context([dir='rtl']) ::slotted([slot='end']) {
+  transform: scaleX(-1);
+}
+::slotted(*) {
+  pointer-events: none;
+}
+.button-native {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--bench-gap, 8px);
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+@media (any-hover: hover) {
+  :host(:hover) .button-native {
+    opacity: 0.92;
+  }
+}
+@supports (inset-inline-start: 0) {
+  .button-native {
+    inset-inline-start: 0;
+  }
+}
+:host(.disabled) .button-native,
+:host([disabled]) .button-native {
+  cursor: default;
+  opacity: 0.5;
+  pointer-events: none;
+}
+.button-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--bench-gap, 8px);
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+@media (any-hover: hover) {
+  :host(:hover) .button-inner {
+    opacity: 0.92;
+  }
+}
+@supports (inset-inline-start: 0) {
+  .button-inner {
+    inset-inline-start: 0;
+  }
+}
+:host(.disabled) .button-inner,
+:host([disabled]) .button-inner {
+  cursor: default;
+  opacity: 0.5;
+  pointer-events: none;
+}

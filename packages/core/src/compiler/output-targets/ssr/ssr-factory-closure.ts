@@ -19,6 +19,8 @@ var $nativeSetTimeout = (typeof globalThis !== 'undefined' ? globalThis : global
 var $nativeClearTimeout = (typeof globalThis !== 'undefined' ? globalThis : global).clearTimeout;
 // Holds the \`ssrProp()\` registry, which template code writes to outside the factory.
 var $stencilNativeGlobal = typeof globalThis !== 'undefined' ? globalThis : global;
+// Server-side rewrites of component styles (scoped CSS, ::part expansion), keyed by style text.
+var $stencilSsrCssCache = new Map();
 // Used to abort in-flight fetch() calls and to call any user defined AbortControllers when ssr times out.
 var $stencilNativeAbortController = AbortController;
 

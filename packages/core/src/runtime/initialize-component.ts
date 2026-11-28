@@ -20,6 +20,34 @@ import {
   whenAncestorConnected,
 } from './update-component';
 
+/** Per hydrate app, outside the platform that is rebuilt per render (see `ssr-factory-closure.ts`). */
+declare const $stencilSsrCssCache: Map<string, Map<string, string>> | undefined;
+
+/** Distinct style texts kept; an app has one per component and mode. */
+const SSR_CSS_CACHE_MAX = 1000;
+
+/**
+ * Memoizes a server-side rewrite of a component's style text. The rewrites are pure, but the
+ * platform (and its `styles` registry) is rebuilt per render, so without this they'd rerun on
+ * every render.
+ * @param style the component's style text
+ * @param key what the rewrite depends on besides the text
+ * @param rewrite computes the result
+ * @returns the rewritten style
+ */
+const ssrCachedCss = (style: string, key: string, rewrite: () => string): string => {
+  if (typeof $stencilSsrCssCache === 'undefined' || typeof style !== 'string') return rewrite();
+  let byKey = $stencilSsrCssCache.get(style);
+  if (!byKey) {
+    // tag names are in the style text, so a tag transformer swapped per request makes new keys
+    if ($stencilSsrCssCache.size >= SSR_CSS_CACHE_MAX) $stencilSsrCssCache.clear();
+    $stencilSsrCssCache.set(style, (byKey = new Map()));
+  }
+  let result = byKey.get(key);
+  if (result === undefined) byKey.set(key, (result = rewrite()));
+  return result;
+};
+
 /**
  * Initialize a Stencil component given a reference to its host element, its
  * runtime bookkeeping data structure, runtime metadata about the component,
@@ -210,9 +238,9 @@ export const initializeComponent = async (
 
           if (BUILD.hydrateServerSide && BUILD.shadowDom) {
             if (cmpMeta.$flags$ & CMP_FLAGS.shadowNeedsScopedCss) {
-              style = scopeCss(style, scopeId, true);
+              style = ssrCachedCss(style, `s:${scopeId}`, () => scopeCss(style, scopeId, true));
             } else if (needsScopedSSR()) {
-              style = expandPartSelectors(style);
+              style = ssrCachedCss(style, 'p', () => expandPartSelectors(style));
             }
           }
           registerStyle(scopeId, style, !!(cmpMeta.$flags$ & CMP_FLAGS.shadowDomEncapsulation));
